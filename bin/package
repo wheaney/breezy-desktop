@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+BUILD_PATH=build
+if [ ! -d "$BUILD_PATH" ]; then
+  mkdir $BUILD_PATH
+fi
+
+pushd $BUILD_PATH
+cmake ..
+make
