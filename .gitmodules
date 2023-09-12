@@ -1,0 +1,3 @@
+[submodule "modules/xrealInterfaceLibrary"]
+	path = modules/xrealInterfaceLibrary
+	url = git@gitlab.com:TheJackiMonster/nrealAirLinuxDriver.git
