@@ -74,6 +74,16 @@ mark_as_advanced(GSTREAMER_LIBRARY
                  GSTREAMER_gstconfig_INCLUDE_DIR
                  GSTREAMER_PLUGIN_DIR)
 
+
+# Find additional libraries
+include(MacroFindGStreamerLibrary)
+
+macro(_find_gst_component _name _header)
+    find_gstreamer_library(${_name} ${_header} ${GSTREAMER_ABI_VERSION} ${GStreamer_FIND_QUIETLY})
+    set(_GSTREAMER_EXTRA_VARIABLES ${_GSTREAMER_EXTRA_VARIABLES}
+                                    GSTREAMER_${_name}_LIBRARY GSTREAMER_${_name}_INCLUDE_DIR)
+endmacro()
+
 foreach(_component ${GStreamer_FIND_COMPONENTS})
     if (${_component} STREQUAL "base")
         _find_gst_component(BASE gstbasesink.h)

@@ -1,4 +1,5 @@
 #include <gst/gst.h>
+#include <gst/gl/gl.h>
 #include <glib.h>
 #include <device3.h>
 #include <stdio.h>
@@ -168,6 +169,8 @@ void stream_video() {
 
     loop = g_main_loop_new (NULL, FALSE);
 
+//    gst-launch-1.0 ximagesrc ! videoconvert ! glupload ! gltransformation rotation-z=roll_degrees scale-x=zoom scale-y=zoom ! glfilterapp filter-action-name="custom_filter" ! glimagesink
+
     pipeline = gst_pipeline_new ("ximagesrc-pipeline");
     source = gst_element_factory_make ("ximagesrc", "source");
     videobox = gst_element_factory_make ("videobox", "videobox");
@@ -211,6 +214,36 @@ void stream_video() {
     std::cout << "Ending\n";
     gst_element_set_state(pipeline, GST_STATE_NULL);
     gst_object_unref(GST_OBJECT(pipeline));
+}
+
+// Callback function for the client-draw signal
+static GstGLFilterAppReturn
+draw_callback (GstElement * glfilterapp, GstGLContext * context,
+    GstGLSyncMeta * meta, gpointer user_data)
+{
+  // Get the input video resolution
+  guint in_width = GST_VIDEO_INFO_WIDTH (&meta->in_info);
+  guint in_height = GST_VIDEO_INFO_HEIGHT (&meta->in_info);
+
+  // Calculate the top left corner of the crop area
+  guint crop_x = (in_width - 1920) / 2;
+  guint crop_y = (in_height - 1080) / 2;
+
+  // Set the viewport to the crop area
+  glViewport(crop_x, crop_y, 1920, 1080);
+
+  return GST_GL_FILTER_APP_PROPAGATE;
+}
+
+void crop_video(GstElement *pipeline) {
+  GstElement *filter = gst_bin_get_by_name(GST_BIN(pipeline), "glfilterapp");
+
+  if (filter) {
+    g_signal_connect(filter, "client-draw", G_CALLBACK(draw_callback), NULL);
+    gst_object_unref(filter);
+  } else {
+    g_printerr("Failed to get glfilterapp from pipeline\n");
+  }
 }
 
 int main (int argc, char *argv[]) {
