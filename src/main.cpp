@@ -85,9 +85,9 @@ static float degrees_to_radians(float degrees) {
 
 // we still want to rotate and re-crop the image within this box, so crop it as small as possible while still leaving
 // room for the final crop after rotation
-float min_box_width_for_angle(float angle_degrees, float width, float height) {
+float min_box_length_for_angle(float angle_degrees, float length, float adj_length) {
     float radians = degrees_to_radians(angle_degrees);
-    return abs(width * cos(radians)) + abs(height * sin(radians));
+    return abs(length * cos(radians)) + abs(adj_length * sin(radians));
 }
 
 gboolean update_crop (gpointer data) {
@@ -104,18 +104,35 @@ gboolean update_crop (gpointer data) {
         // scaled down to our actual display size by the videoscale plugin
         float effective_display_w = display_width / zoom;
         float effective_display_h = display_height / zoom;
-//        float min_box_width = min_box_width_for_angle(roll_offset, effective_display_w, effective_display_h);
-//        float min_box_height = min_box_width / effective_display_w * effective_display_h;
+        float box_width = min_box_length_for_angle(roll_offset, effective_display_w, effective_display_h);
+        float box_height = min_box_length_for_angle(roll_offset, effective_display_h, effective_display_w);
 
         float top = pitch_offset * effective_sensitivity;
         float left = yaw_offset * effective_sensitivity;
+        int bottom = round(ximage_height-box_height-top);
+        int right = round(ximage_width-box_width-left);
         GstElement *pipeline = GST_ELEMENT(data);
         GstElement *videobox = gst_bin_get_by_name(GST_BIN(pipeline), "videobox");
         g_object_set (videobox, "top", (gint)round(top), NULL);
         g_object_set (videobox, "left", (gint)round(left), NULL);
-        g_object_set (videobox, "bottom", (gint)round(ximage_height-effective_display_h-top), NULL);
-        g_object_set (videobox, "right", (gint)round(ximage_width-effective_display_w-left), NULL);
+        g_object_set (videobox, "bottom", (gint)bottom, NULL);
+        g_object_set (videobox, "right", (gint)right, NULL);
         gst_object_unref(videobox);
+
+//        GstMessage *message =
+//            gst_bus_poll (GST_ELEMENT_BUS (pipeline), GST_MESSAGE_ERROR,
+//            50 * GST_MSECOND);
+//        if (message) {
+//          g_print ("got error           \n");
+//
+//          gst_message_unref (message);
+//        }
+
+        GstElement *transform = gst_bin_get_by_name(GST_BIN(pipeline), "transform");
+        g_object_set (transform, "rotation-z", (gfloat)roll_offset, NULL);
+        g_object_set (transform, "scale-x", (gfloat)zoom, NULL);
+        g_object_set (transform, "scale-y", (gfloat)zoom, NULL);
+        gst_object_unref(transform);
     }
     imu_data_mutex.unlock();
     return TRUE;
@@ -183,11 +200,7 @@ void stream_video() {
     loop = g_main_loop_new (NULL, FALSE);
 
     GError *error = NULL;
-    char *pipeline_desc = g_strdup_printf(
-        "ximagesrc use-damage=0 ! videobox name=videobox ! videoscale ! video/x-raw, framerate=%d/1, width=%d, height=%d ! ximagesink",
-        frames_per_sec, display_width, display_height
-    );
-    GstElement *pipeline = gst_parse_launch(pipeline_desc, &error);
+    GstElement *pipeline = gst_parse_launch("ximagesrc use-damage=0 ! queue ! videobox name=videobox ! videoconvert ! glupload ! gltransformation name=transform ! glimagesink", &error);
 
     if (error) {
       g_printerr("Failed to parse pipeline: %s\n", error->message);
