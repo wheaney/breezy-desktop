@@ -1,4 +1,5 @@
 #include <gst/gst.h>
+#include <gst/video/videooverlay.h>
 #include <glib.h>
 #include <device3.h>
 #include <stdio.h>
@@ -6,6 +7,21 @@
 #include <thread>
 #include <math.h>
 #include <mutex>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <GLFW/glfw3.h>
+#include <X11/Xlib.h>
+#include <sys/stat.h>
+#include <sys/file.h>
+#include <unistd.h>
+#include <string.h>
+#include <dirent.h>
+#include <fcntl.h>
+
+#define GLFW_EXPOSE_NATIVE_X11
+#include <GLFW/glfw3native.h>
+
+static const char *GamescopeOverlayProperty = "GAMESCOPE_EXTERNAL_OVERLAY";
 
 std::mutex imu_data_mutex;
 
@@ -41,6 +57,32 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data) {
         case GST_MESSAGE_EOS:
             g_main_loop_quit (loop);
             break;
+        case GST_MESSAGE_INFO: {
+            gchar  *debug;
+            GError *error;
+
+            gst_message_parse_info (msg, &error, &debug);
+            g_free (debug);
+
+            printf("Info: %s\n", error->message);
+            g_error_free (error);
+
+//            g_main_loop_quit (loop);
+            break;
+        }
+        case GST_MESSAGE_WARNING: {
+            gchar  *debug;
+            GError *error;
+
+            gst_message_parse_warning (msg, &error, &debug);
+            g_free (debug);
+
+            printf("Warning: %s\n", error->message);
+            g_error_free (error);
+
+//            g_main_loop_quit (loop);
+            break;
+        }
         case GST_MESSAGE_ERROR: {
             gchar  *debug;
             GError *error;
@@ -48,7 +90,7 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data) {
             gst_message_parse_error (msg, &error, &debug);
             g_free (debug);
 
-            g_printerr ("Error: %s\n", error->message);
+            printf("Error: %s\n", error->message);
             g_error_free (error);
 
             g_main_loop_quit (loop);
@@ -107,32 +149,27 @@ gboolean update_crop (gpointer data) {
         float box_width = min_box_length_for_angle(roll_offset, effective_display_w, effective_display_h);
         float box_height = min_box_length_for_angle(roll_offset, effective_display_h, effective_display_w);
 
-        float top = pitch_offset * effective_sensitivity;
-        float left = yaw_offset * effective_sensitivity;
+        float width_delta = box_width - display_width;
+        float height_delta = box_height - display_height;
+
+        int top = round(pitch_offset * effective_sensitivity + height_delta / 2);
+        int left = round(yaw_offset * effective_sensitivity + width_delta / 2);
         int bottom = round(ximage_height-box_height-top);
         int right = round(ximage_width-box_width-left);
+
+        // TODO - use dynamic controllable parameters: https://gstreamer.freedesktop.org/documentation/application-development/advanced/dparams.html?gi-language=c
         GstElement *pipeline = GST_ELEMENT(data);
-        GstElement *videobox = gst_bin_get_by_name(GST_BIN(pipeline), "videobox");
-        g_object_set (videobox, "top", (gint)round(top), NULL);
-        g_object_set (videobox, "left", (gint)round(left), NULL);
+        GstElement *videobox = gst_bin_get_by_name(GST_BIN(pipeline), "crop");
+//        printf("%d %d %d %d %f\n", top, left, bottom, right, roll_offset);
+        g_object_set (videobox, "top", (gint)top, NULL);
+        g_object_set (videobox, "left", (gint)left, NULL);
         g_object_set (videobox, "bottom", (gint)bottom, NULL);
         g_object_set (videobox, "right", (gint)right, NULL);
         gst_object_unref(videobox);
 
-//        GstMessage *message =
-//            gst_bus_poll (GST_ELEMENT_BUS (pipeline), GST_MESSAGE_ERROR,
-//            50 * GST_MSECOND);
-//        if (message) {
-//          g_print ("got error           \n");
-//
-//          gst_message_unref (message);
-//        }
-
-        GstElement *transform = gst_bin_get_by_name(GST_BIN(pipeline), "transform");
-        g_object_set (transform, "rotation-z", (gfloat)roll_offset, NULL);
-        g_object_set (transform, "scale-x", (gfloat)zoom, NULL);
-        g_object_set (transform, "scale-y", (gfloat)zoom, NULL);
-        gst_object_unref(transform);
+//        GstElement *transform = gst_bin_get_by_name(GST_BIN(pipeline), "transform");
+//        g_object_set (transform, "rotation-z", (gfloat)roll_offset, NULL);
+//        gst_object_unref(transform);
     }
     imu_data_mutex.unlock();
     return TRUE;
@@ -155,7 +192,7 @@ void handle_device_3(uint64_t timestamp,
 }
 
 void poll_glasses_imu() {
-    std::cout << "\tConnected, rendering virtual desktop\n";
+    printf("\tConnected, rendering virtual desktop\n");
     device3_clear(&glasses_imu);
     while (!force_reset_threads) {
         if (device3_read(&glasses_imu, 1) != DEVICE3_ERROR_NO_ERROR) {
@@ -182,7 +219,7 @@ GstPadProbeReturn pad_cb(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
         res = gst_structure_get_int (s, "width", &ximage_width);
         res |= gst_structure_get_int (s, "height", &ximage_height);
         if (!res) {
-            std::cout << "no dimenions";
+            printf("no dimenions");
         } else {
             printf("found width: %d, height: %d\n", ximage_width, ximage_height);
         }
@@ -190,7 +227,61 @@ GstPadProbeReturn pad_cb(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
    return GST_PAD_PROBE_OK;
 }
 
+static Window create_overlay_window() {
+    printf("create_overlay_window 1\n");
+    glfwInit();
+
+    printf("create_overlay_window 2\n");
+    GLFWwindow *window = glfwCreateWindow(1280, 800, "Gamescope overlay window", nullptr, nullptr);
+    Display *x11_display = glfwGetX11Display();
+    Window x11_window = glfwGetX11Window(window);
+    printf("create_overlay_window 3\n");
+    if (x11_window && x11_display) {
+        printf("create_overlay_window 4\n");
+        // Set atom for gamescope to render as an overlay.
+        Atom overlay_atom = XInternAtom (x11_display, NULL, False);
+        uint32_t value = 1;
+        XChangeProperty(x11_display, x11_window, overlay_atom, XA_CARDINAL, 32, PropertyNewValue, (unsigned char *)&value, 1);
+    }
+    printf("create_overlay_window 5\n");
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+    printf("create_overlay_window 6\n");
+
+    int windowX, windowY, windowHeight, windowWidth;
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    glfwGetMonitorWorkarea(monitor, &windowX, &windowY, &windowWidth, &windowHeight);
+    glfwSetWindowSize(window, windowWidth, windowHeight);
+//    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glClearColor(0, 0, 0, 0);
+//    glClear(GL_COLOR_BUFFER_BIT);
+    glfwSwapBuffers(window);
+    printf("create_overlay_window 7\n");
+
+    return x11_window;
+}
+
+//static GstBusSyncReply create_window (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+//    // ignore anything but 'prepare-window-handle' element messages
+//    printf("create_window 1\n");
+//    if (!gst_is_video_overlay_prepare_window_handle_message (message))
+//        return GST_BUS_PASS;
+//
+//    printf("create_window 2 %d\n", &window);
+//    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (GST_MESSAGE_SRC (message)), (guintptr)&window);
+//    gst_message_unref (message);
+//    printf("create_window 3\n");
+//
+//    return GST_BUS_DROP;
+// }
+
 void stream_video() {
+    Window win = create_overlay_window();
+
+    printf("stream_video 1\n");
     GMainLoop *loop;
     GstCaps *video_caps;
     GstBus *bus;
@@ -200,10 +291,17 @@ void stream_video() {
     loop = g_main_loop_new (NULL, FALSE);
 
     GError *error = NULL;
-    GstElement *pipeline = gst_parse_launch("ximagesrc use-damage=0 ! queue ! videobox name=videobox ! videoconvert ! glupload ! gltransformation name=transform ! glimagesink", &error);
+    // ximagesrc use-damage=0 ! videobox name=videobox ! glupload ! queue ! gltransformation name=transform ! gldownload ! videobox autocrop=true ! video/x-raw, width=1280, height=800 ! ximagesink
+    //
+    // in gamescope, set env var before wayland client commands: WAYLAND_DISPLAY=gamescope-0
+    //
+    // working gamescope pipeline from decky-recorder:
+    //     GST_VAAPI_ALL_DRIVERS=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 gst-launch-1.0 -vvv pipewiresrc do-timestamp=true ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! mp4mux name=sink ! filesink location=/home/deck/test.mp4
+    GstElement *pipeline = gst_parse_launch("pipewiresrc do-timestamp=true ! queue ! videoconvert ! glupload ! queue ! glimagesink sync=true name=sink", &error);
+    printf("stream_video 2\n");
 
     if (error) {
-      g_printerr("Failed to parse pipeline: %s\n", error->message);
+      printf("Failed to parse pipeline: %s\n", error->message);
       g_clear_error(&error);
       exit(1);
     }
@@ -211,44 +309,111 @@ void stream_video() {
 //    GstPad *pad = gst_element_get_static_pad(source, "srcpad");
 //    gst_pad_add_probe(pad, GST_PAD_PROBE_TYPE_EVENT_BOTH, pad_cb, NULL, NULL);
 //    gst_object_unref(pad);
+    printf("stream_video 3\n");
+
+    GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
+    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), win);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
     gst_bus_add_watch (bus, bus_call, loop);
+//    gst_bus_set_sync_handler (bus, (GstBusSyncHandler) create_window, pipeline, NULL);
     gst_object_unref (bus);
+    printf("stream_video 4\n");
 
     gst_element_set_state (pipeline, GST_STATE_PLAYING);
-    g_timeout_add(1000 / head_movement_fps, update_crop, pipeline);
+//    g_timeout_add(1000 / head_movement_fps, update_crop, pipeline);
     g_main_loop_run (loop);
 
-    std::cout << "Ending\n";
+    printf("Ending\n");
     gst_element_set_state(pipeline, GST_STATE_NULL);
     gst_object_unref(GST_OBJECT(pipeline));
 }
 
-int main (int argc, char *argv[]) {
-    while (1) {
-        bool first_pass=true;
-        while (device3_open(&glasses_imu, handle_device_3) != DEVICE3_ERROR_NO_ERROR) {
-            if (first_pass) std::cout << "Waiting for glasses\n";
-
-            // TODO - move to a blocking check, rather than polling for device availability
-            // retry every 5 seconds until the device becomes available
-            device3_close(&glasses_imu);
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            first_pass=false;
+// creates a file, if it doesn't already exist, in the user home directory with home directory permissions and ownership.
+// this is helpful since the driver may be run with sudo, so we don't create files owned by root:root
+static FILE* get_or_create_home_file(char *filename, char *mode, char *full_path, bool *created) {
+    char *home_directory = getenv("HOME");
+    snprintf(full_path, 1024, "%s/%s", home_directory, filename);
+    FILE *fp = fopen(full_path, mode ? mode : "r");
+    if (fp == NULL) {
+        // Retrieve the permissions of the parent directory
+        struct stat st;
+        if (stat(home_directory, &st) == -1) {
+            perror("stat");
+            return NULL;
         }
-        glasses_ready=true;
+
+        fp = fopen(full_path, "w");
+        if (fp == NULL) {
+            perror("Error creating config file");
+            return NULL;
+        }
+        if (created != NULL)
+            *created = true;
+
+        // Set the permissions and ownership of the new file to be the same as the parent directory
+        if (chmod(full_path, st.st_mode & 0777) == -1) {
+            perror("Error setting file permissions");
+            return NULL;
+        }
+        if (chown(full_path, st.st_uid, st.st_gid) == -1) {
+            perror("Error setting file ownership");
+            return NULL;
+        }
+    } else if (created != NULL) {
+        *created = false;
+    }
+
+    return fp;
+}
+
+int main (int argc, char *argv[]) {
+    // ensure the log file exists, reroute stdout and stderr there
+    char log_file_path[1024];
+    FILE *log_file = get_or_create_home_file(".xreal_driver_log", NULL, &log_file_path[0], NULL);
+    fclose(log_file);
+    freopen(log_file_path, "a", stdout);
+    freopen(log_file_path, "a", stderr);
+
+    // when redirecting stdout/stderr to a file, it becomes fully buffered, requiring lots of manual flushing of the
+    // stream, this makes them unbuffered, which is fine since we log so little
+    setbuf(stdout, NULL);
+    setbuf(stderr, NULL);
+
+    printf("testing\n");
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_RESIZABLE, 1);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+//    glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "gamescope-0");
+//    glfwWindowHintString(GLFW_X11_CLASS_NAME, "gamescope-0");
+//    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "gamescope-0");
+
+
+    while (1) {
+//        bool first_pass=true;
+//        while (device3_open(&glasses_imu, handle_device_3) != DEVICE3_ERROR_NO_ERROR) {
+//            if (first_pass) printf("Waiting for glasses\n");
+//
+//            // TODO - move to a blocking check, rather than polling for device availability
+//            // retry every 5 seconds until the device becomes available
+//            device3_close(&glasses_imu);
+//            std::this_thread::sleep_for(std::chrono::seconds(5));
+//
+//            first_pass=false;
+//        }
+//        glasses_ready=true;
 
         // kick off threads to monitor glasses and config file, wait for both to finish (glasses disconnected)
-        std::thread glasses_imu_thread(poll_glasses_imu);
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+//        std::thread glasses_imu_thread(poll_glasses_imu);
+//        std::this_thread::sleep_for(std::chrono::seconds(10));
         std::thread stream_video_thread(stream_video);
-        glasses_imu_thread.join();
+//        glasses_imu_thread.join();
         stream_video_thread.join();
 
         if (debug_threads)
-            std::cout << "\tdebug: All threads have exited, starting over\n";
+            printf("\tdebug: All threads have exited, starting over\n");
 
         device3_close(&glasses_imu);
 
