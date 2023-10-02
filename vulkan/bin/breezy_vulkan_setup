@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# This setup script should do the minimum work required to download the release package, unzip it, and kick off the
+# setup script contained within.
+
+# exit when any command fails
+set -e
+
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+# create temp directory
+tmp_dir=$(mktemp -d -t xreal-air-XXXXXXXXXX)
+pushd $tmp_dir > /dev/null
+echo "Created temp directory: ${tmp_dir}"
+
+if [ -z "$1" ]
+then
+  echo "Downloaded installation is not available yet"
+  exit 1
+
+  # download and unzip the latest driver
+  echo "Downloading latest release to: ${tmp_dir}/xrealAirLinuxDriver.tar.gz"
+  curl -L -O https://github.com/wheaney/xrealAirLinuxDriver/releases/latest/download/xrealAirLinuxDriver.tar.gz
+else
+  cp $1 $tmp_dir
+fi
+
+echo "Extracting to: ${tmp_dir}/breezy_vulkan"
+tar -xf breezyVulkan.tar.gz
+
+pushd breezy_vulkan > /dev/null
+
+# run the setup script that comes with this release
+./setup
+
+echo "Deleting temp directory: ${tmp_dir}"
+rm -rf $tmp_dir
+cd "$(dirs -l -0)" && dirs -c
