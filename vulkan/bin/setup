@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
+# to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
+
+USER=${SUDO_USER:-$USER}
+USER_HOME=$(getent passwd $USER | cut -d: -f6)
+if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
+  echo "Cleaning up the previous installation"
+
+  # ` || true` will ensure that this can't cause a failure, even with `set -e`
+  $USER_HOME/bin/breezy_vulkan_uninstall --for-install || true
+fi
+
+echo "Copying the breezy_vulkan scripts to ${USER_HOME}/bin"
+if [ ! -d "$USER_HOME/bin" ]; then
+  mkdir $USER_HOME/bin
+fi
+cp bin/breezy_vulkan_uninstall $USER_HOME/bin
+
+echo "Installing vkBasalt; copying binaries, configs, and shader files to ${USER_HOME}/.local and ${USER_HOME}/.config"
+
+# much of the setup below was informed by https://github.com/simons-public/steam-deck-vkbasalt-install
+# copy the vkBasalt binaries and configs
+mkdir -p ${USER_HOME}/.local/{lib,lib32,share/vulkan/implicit_layer.d}
+mkdir -p ${USER_HOME}/.config/{vkBasalt,reshade}
+cp vkBasalt.64/libvkbasalt.so $USER_HOME/.local/lib/
+cp vkBasalt.32/libvkbasalt.so $USER_HOME/.local/lib32/
+
+# there is only one vkBasalt.json file, use the 64-bit directory for both, copy and make replacements
+if grep -q SteamOS /etc/os-release ; then
+  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
+  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib32/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+else
+  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
+  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib32/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+fi
+
+# copy the vkBasalt.conf file and make replacements
+sed -e "s|/path/to/reshade-shaders|${USER_HOME}/.config/reshade|" -e "s|/path/to/sombrero|${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx|" config/vkBasalt.conf > $USER_HOME/.config/vkBasalt/vkBasalt.conf
+
+# set up the XREAL driver using the local binary
+echo "Installing xrealAirLinuxDriver"
+echo "BEGIN - xreal_driver_setup"
+bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+echo "END - xreal_driver_setup"
