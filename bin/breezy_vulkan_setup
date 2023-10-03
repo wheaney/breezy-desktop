@@ -13,18 +13,15 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # create temp directory
-tmp_dir=$(mktemp -d -t xreal-air-XXXXXXXXXX)
+tmp_dir=$(mktemp -d -t breezy-vulkan-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
 if [ -z "$1" ]
 then
-  echo "Downloaded installation is not available yet"
-  exit 1
-
   # download and unzip the latest driver
-  echo "Downloading latest release to: ${tmp_dir}/xrealAirLinuxDriver.tar.gz"
-  curl -L -O https://github.com/wheaney/xrealAirLinuxDriver/releases/latest/download/xrealAirLinuxDriver.tar.gz
+  echo "Downloading latest release to: ${tmp_dir}/breezyVulkan.tar.gz"
+  curl -L -O https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyVulkan.tar.gz
 else
   cp $1 $tmp_dir
 fi
@@ -35,7 +32,7 @@ tar -xf breezyVulkan.tar.gz
 pushd breezy_vulkan > /dev/null
 
 # run the setup script that comes with this release
-./setup
+bin/setup
 
 echo "Deleting temp directory: ${tmp_dir}"
 rm -rf $tmp_dir
