@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+# check out submodules, recursively for nested ones
+git submodule update --init --recursive
+
+VULKAN_DIR=vulkan
+VULKAN_MODULES=$VULKAN_DIR/modules
+PACKAGE_DIR=$VULKAN_DIR/build/breezy_vulkan
+if [ ! -d "$PACKAGE_DIR" ]; then
+  mkdir -p $PACKAGE_DIR
+else
+  rm -rf $PACKAGE_DIR/*
+fi
+
+VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
+pushd $VKBASALT_MODULE_DIR
+./docker-build
+popd
+VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
+
+# move and rename the compiled driver to the driver directory
+mkdir -p $PACKAGE_DIR/vkbasalt.64
+cp $VKBASALT_BUILD_DIR/builddir/src/libvkbasalt.so $PACKAGE_DIR/vkbasalt.64/
+cp $VKBASALT_BUILD_DIR/builddir/config/vkBasalt.json $PACKAGE_DIR/vkbasalt.64/
+
+mkdir -p $PACKAGE_DIR/vkbasalt.32
+cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkbasalt.32/
+cp $VKBASALT_BUILD_DIR/builddir.32/config/vkBasalt.json $PACKAGE_DIR/vkbasalt.32/
+
+cp $VKBASALT_MODULE_DIR/sombrero/IMUAdjust.fx $PACKAGE_DIR
+
+# copy setup and user-relevant scripts
+cp -r $VULKAN_DIR/bin $PACKAGE_DIR
+
+XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
+pushd $XREAL_DRIVER_DIR
+bin/package
+popd
+
+cp $XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz $PACKAGE_DIR
+
+# bundle up the driver directory
+tar -zcvf breezyGaming.tar.gz $PACKAGE_DIR
