@@ -25,8 +25,12 @@ rm $USER_HOME/.local/lib32/libvkbasalt.so
 rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
 rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
 
-[ "$for_install" -eq 0 ] && echo "Removing vkBasalt config at $USER_HOME/.config/vkBasalt/vkBasalt.conf"
-rm $USER_HOME/.config/vkBasalt/vkBasalt.conf
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $USER_HOME/.config/"
+rm -rf $USER_HOME/.config/vkBasalt
+rm -rf $USER_HOME/.config/reshade
 
 [ "$for_install" -eq 0 ] && echo "SKIPPING xrealAirLinuxDriver uninstall to keep mouse/joystick driver functionality."
 [ "$for_install" -eq 0 ] && echo "To manually uninstall xrealAirLinuxDriver, do: \"sudo ~/bin/xreal_driver_uninstall\""
+
+# this script is self-deleting, leave this as the last command
+rm -f $USER_HOME/bin/breezy_vulcan_uninstall
