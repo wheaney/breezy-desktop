@@ -29,6 +29,15 @@ To re-center the screen, I've implemented an experimental double-tap feature: yo
 
 Framerate is really important here, because individual frames are static, so if you're moving your head and the next frame hasn't rendered yet, you'll see the screen move with you for just tiny fraction of a second (e.g. 30Hz, the screen follows you for 33ms) which produces a kind of "dragging" effect. I've found 60Hz to be the best experience, though there is still some dragging that I'd like to try to resolve; I expect 120Hz would work even better if you have the firmware version to support it.
 
+### Display size
+
+If the screen appears very small in your view, you may be playing at the Deck screen's native resolution, and not at the glasses' native
+resolution. To fix this:
+1. Go to the game details in Steam, hit the Settings/cog icon, and open `Properties`, then for `Game Resolution` choose `Native`.
+2. After launching the game, if it's still small, go into the game options, and in the graphics or video settings, change the resolution (the glasses run at 1920x1080).
+
+If you *WANT* to keep a low resolution, then you can just use the `Zoom` setting to make the screen appear larger. For now this is done through the config script: `~/bin/xreal_driver_config -z 1.0`. Larger numbers zoom in (e.g. `2.0` doubles the screen size) and smaller numbers zoom out (e.g. `0.5` is half the screen size).
+
 ### Disabling
 
 To disable the floating screen effect, either unplug the glasses or hit the `Home` key (you'll need to bind this to your controller on Steam Deck).
