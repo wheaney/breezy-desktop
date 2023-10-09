@@ -23,7 +23,7 @@ This is still a work in progress... star this repo or check back later.
 
 ### Usage
 
-Once installed, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating screen. Note that the initial centering of the screen is based on pre-calibrated values, so it may not actually start out where you're looking, or you may even see it move around for 10+ seconds after you've plugged in your glasses.
+Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and you'll probably want to disable mouse/joystick output (`~/bin/xreal_driver_config -eo`); note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating screen. Note that the initial centering of the screen is based on pre-calibrated values, so it may not actually start out where you're looking, or you may even see it move around for 10+ seconds after you've plugged in your glasses.
 
 To re-center the screen, I've implemented an experimental double-tap feature: you'll want to give two decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
 
@@ -48,4 +48,5 @@ Rerun the `breezy_vulkan_setup` script. No need to redownload this script, as it
 
 ### Uninstalling
 
-If you wish to completely remove the installation, run the following script as root: `~/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, following the instructions at the end of the uninstallation to do this manually.
+If you wish to completely remove the installation, run the following: `sudo ~/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
+
