@@ -27,7 +27,7 @@ Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal
 
 To re-center the screen, I've implemented an experimental double-tap feature: you'll want to give two decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
 
-Framerate is really important here, because individual frames are static, so if you're moving your head and the next frame hasn't rendered yet, you'll see the screen move with you for just tiny fraction of a second (e.g. 30Hz, the screen follows you for 33ms) which produces a kind of "dragging" effect. I've found 60Hz to be the best experience, though there is still some dragging that I'd like to try to resolve; I expect 120Hz would work even better if you have the firmware version to support it.
+Framerate is really important here, because individual frames are static, so moving your head quickly may produce a noticeable flicker as it moves the screen. Higher framerates will produce an overall better experience (less flicker and smoother follow), but lower framerates should still be totally usable.
 
 ### Display size
 
