@@ -44,9 +44,8 @@ To disable the floating screen effect, either unplug the glasses or hit the `Hom
 
 ### Updating
 
-Rerun the `breezy_vulkan_setup` script. No need to redownload this script, as it will automatically download the latest installation binary for you.
+Rerun the `breezy_vulkan_setup` script. No need to re-download this script, as it will automatically download the latest installation binary for you.
 
 ### Uninstalling
 
 If you wish to completely remove the installation, run the following: `sudo ~/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
-
