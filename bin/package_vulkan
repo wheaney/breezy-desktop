@@ -25,11 +25,9 @@ fi
 # build vkBasalt
 VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
 VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
-if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" == "--clean" ]; then
-  pushd $VKBASALT_MODULE_DIR
-  ./docker-build
-  popd
-fi
+pushd $VKBASALT_MODULE_DIR
+./docker-build
+popd
 
 # copy vkBasalt binaries and configs
 mkdir -p $PACKAGE_DIR/{vkBasalt.64,vkBasalt.32}
@@ -49,11 +47,9 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 # build xreal driver
 XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
-if [ ! -e "$XREAL_BINARY" ] || [ "$1" == "--clean" ]; then
-  pushd $XREAL_DRIVER_DIR
-  bin/package
-  popd
-fi
+pushd $XREAL_DRIVER_DIR
+bin/package
+popd
 
 # copy xreal binary and setup script
 cp $XREAL_BINARY $PACKAGE_DIR

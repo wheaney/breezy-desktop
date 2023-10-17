@@ -29,6 +29,8 @@ To re-center the screen, I've implemented an experimental double-tap feature: yo
 
 Framerate is really important here, because individual frames are static, so moving your head quickly may produce a noticeable flicker as it moves the screen. Higher framerates will produce an overall better experience (less flicker and smoother follow), but lower framerates should still be totally usable.
 
+It's important that your glasses are either on your head or sitting on a flat surface when they're first plugged in and calibrated. If you notice that your screen continues to move for several seconds after a head movement, almost as if the screen has some momentum that takes time to slow down, then try unplugging and reconnecting your glasses.
+
 ### Display size
 
 If the screen appears very small in your view, you may be playing at the Deck screen's native resolution, and not at the glasses' native
