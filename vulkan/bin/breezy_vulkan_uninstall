@@ -17,7 +17,7 @@ fi
 USER=${SUDO_USER:-$USER}
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
 if [ "$for_install" -eq 0 ]; then
-    UA_EVENT_NAME="uninstall"
+    UA_EVENT_NAME="breezy-uninstall"
     UA_CLIENT_ID="BreezyVulkan"
     #INJECT_UA_CALL
 fi
