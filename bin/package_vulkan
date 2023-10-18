@@ -3,6 +3,9 @@
 # exit when any command fails
 set -e
 
+XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
+source $XREAL_DRIVER_DIR/bin/inject_ua
+
 # check out submodules, recursively for nested ones
 git submodule update --init --recursive
 
@@ -25,9 +28,11 @@ fi
 # build vkBasalt
 VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
 VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
-pushd $VKBASALT_MODULE_DIR
-./docker-build
-popd
+if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" != "--skip-module-builds" ]; then
+  pushd $VKBASALT_MODULE_DIR
+  ./docker-build
+  popd
+fi
 
 # copy vkBasalt binaries and configs
 mkdir -p $PACKAGE_DIR/{vkBasalt.64,vkBasalt.32}
@@ -41,15 +46,17 @@ wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/3
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh
 
 # copy vulkan setup scripts and configs
-cp -r $VULKAN_DIR/bin $PACKAGE_DIR
+mkdir -p $PACKAGE_DIR/bin
+copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
 cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build xreal driver
-XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
-pushd $XREAL_DRIVER_DIR
-bin/package
-popd
+if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
+  pushd $XREAL_DRIVER_DIR
+  bin/package
+  popd
+fi
 
 # copy xreal binary and setup script
 cp $XREAL_BINARY $PACKAGE_DIR

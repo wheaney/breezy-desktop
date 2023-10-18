@@ -5,12 +5,18 @@
 
 USER=${SUDO_USER:-$USER}
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
+UA_EVENT_NAME="install"
 if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
   echo "Cleaning up the previous installation"
 
   # ` || true` will ensure that this can't cause a failure, even with `set -e`
   $USER_HOME/bin/breezy_vulkan_uninstall --for-install || true
+
+  UA_EVENT_NAME="update"
 fi
+
+UA_CLIENT_ID="BreezyVulkan"
+#INJECT_UA_CALL
 
 echo "Copying the breezy_vulkan scripts to ${USER_HOME}/bin"
 if [ ! -d "$USER_HOME/bin" ]; then
