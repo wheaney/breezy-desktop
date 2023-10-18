@@ -23,10 +23,15 @@ This is still a work in progress... star this repo or check back later.
 
 ### Usage
 
-Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and you'll probably want to disable mouse/joystick output (`~/bin/xreal_driver_config -eo`); note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating screen. Note that the initial centering of the screen is based on pre-calibrated values, so it may not actually start out where you're looking, or you may even see it move around for 10+ seconds after you've plugged in your glasses.
+Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and you'll probably want to disable mouse/joystick output (`~/bin/xreal_driver_config -eo`); note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating screen.
+
+There's a wait period of 15 seconds after plugging in the glasses where the screen will stay static to allow for the glasses to calibrate. Once ready, the screen will anchor to the space where you are looking.
+
+#### Multi-tap
+I've implemented an experimental multi-tap detection feature for screen re-centering (2 taps) and re-calibrating the device (3 taps). To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
 
 #### Screen re-centering
-To re-center the screen, I've implemented an experimental double-tap feature: you'll want to give two decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
+To re-center the screen, 
 
 ### Troubleshooting
 
@@ -34,7 +39,7 @@ To re-center the screen, I've implemented an experimental double-tap feature: yo
 Framerate is really important here, because individual frames are static, so moving your head quickly may produce a noticeable flicker as it moves the screen. Higher framerates will produce an overall better experience (less flicker and smoother follow), but lower framerates should still be totally usable.
 
 #### Unexpected screen movement or drift
-It's important that your glasses are either on your head or sitting on a flat surface when they're first plugged in and calibrated. If you notice that your screen continues to move for several seconds after a head movement, almost as if the screen has some momentum that takes time to slow down, then try unplugging and reconnecting your glasses.
+It's important that your glasses are either on your head or sitting on a flat surface when they're first plugged in and calibrated. If you notice that your screen is constantly drifting in one direction or continues to move for several seconds after a head movement, almost as if the screen has some momentum that takes time to slow down, then you'll want to re-calibrate them. To do this, do a triple-tap as described in the Multi-tap section above.  
 
 #### Display size
 
