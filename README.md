@@ -27,11 +27,8 @@ Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal
 
 There's a wait period of 15 seconds after plugging in the glasses where the screen will stay static to allow for the glasses to calibrate. Once ready, the screen will anchor to the space where you are looking.
 
-#### Multi-tap
-I've implemented an experimental multi-tap detection feature for screen re-centering (2 taps) and re-calibrating the device (3 taps). To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
-
-#### Screen re-centering
-To re-center the screen, 
+#### Multi-tap to re-center or re-calibrate
+I've implemented an experimental multi-tap detection feature for screen **re-centering (2 taps)** and **re-calibrating the device (3 taps)**. To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
 
 ### Troubleshooting
 
@@ -52,7 +49,7 @@ If you *WANT* to keep a low resolution, then you can just use the `Zoom` setting
 
 ### Disabling
 
-To disable the floating screen effect, either unplug the glasses or hit the `Home` key (you'll need to bind this to your controller on Steam Deck).
+To disable the floating screen effect, either disable the driver (`~/bin/xreal_driver_config -d`), unplug the glasses, or hit the `Home` key (you'll need to bind this to your controller, if on Steam Deck).
 
 ### Updating
 
