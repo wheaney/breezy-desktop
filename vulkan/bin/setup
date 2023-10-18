@@ -5,14 +5,14 @@
 
 USER=${SUDO_USER:-$USER}
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
-UA_EVENT_NAME="install"
+UA_EVENT_NAME="breezy_install"
 if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
   echo "Cleaning up the previous installation"
 
   # ` || true` will ensure that this can't cause a failure, even with `set -e`
   $USER_HOME/bin/breezy_vulkan_uninstall --for-install || true
 
-  UA_EVENT_NAME="update"
+  UA_EVENT_NAME="breezy_update"
 fi
 
 UA_CLIENT_ID="BreezyVulkan"
