@@ -49,8 +49,9 @@ chown $USER:$USER $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.*
 sed -e "s|/path/to/reshade-shaders|${USER_HOME}/.config/reshade|" -e "s|/path/to/sombrero|${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx|" config/vkBasalt.conf > $USER_HOME/.config/vkBasalt/vkBasalt.conf
 chown -R $USER:$USER $USER_HOME/.config/vkBasalt
 
-echo "Installing the Sombrero shader to ${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx"
+echo "Installing the Sombrero shader and texture files to ${USER_HOME}/.config/reshade/{Shaders,Textures}"
 cp *.fx* $USER_HOME/.config/reshade/Shaders
+cp calibrating.png $USER_HOME/.config/reshade/Textures
 chown -R $USER:$USER $USER_HOME/.config/reshade
 
 # set up the XREAL driver using the local binary
