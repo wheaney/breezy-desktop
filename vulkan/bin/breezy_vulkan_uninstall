@@ -38,4 +38,4 @@ rm -rf $USER_HOME/.config/reshade
 [ "$for_install" -eq 0 ] && echo "To manually uninstall xrealAirLinuxDriver, do: \"sudo ~/bin/xreal_driver_uninstall\""
 
 # this script is self-deleting, leave this as the last command
-rm -f $USER_HOME/bin/breezy_vulcan_uninstall
+rm -f $USER_HOME/bin/breezy_vulkan_uninstall
