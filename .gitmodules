@@ -1,0 +1,11 @@
+[submodule "vulkan/modules/vkBasalt"]
+	path = vulkan/modules/vkBasalt
+	url = git@github.com:wheaney/vkBasalt.git
+	branch = runtime_uniforms
+[submodule "vulkan/modules/sombrero"]
+	path = vulkan/modules/sombrero
+	url = git@github.com:wheaney/sombrero.git
+[submodule "modules/xrealAirLinuxDriver"]
+	path = modules/xrealAirLinuxDriver
+	url = git@github.com:wheaney/xrealAirLinuxDriver.git
+	branch = sombrero

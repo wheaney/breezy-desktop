@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+for_install=0
+if [[ -n "$1" ]] && [[ "$1" == "--for-install" ]]; then
+    for_install=1
+fi
+
+# we don't want the uninstall script to be able to cause a failure if being triggered by the setup script
+[ "$for_install" -eq 0 ] && set -e
+
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+USER=${SUDO_USER:-$USER}
+USER_HOME=$(getent passwd $USER | cut -d: -f6)
+if [ "$for_install" -eq 0 ]; then
+    UA_EVENT_NAME="breezy_uninstall"
+    UA_CLIENT_ID="BreezyVulkan"
+    #INJECT_UA_CALL
+fi
+
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt binaries from $USER_HOME/.local/lib[32]/"
+rm $USER_HOME/.local/lib/libvkbasalt.so
+rm $USER_HOME/.local/lib32/libvkbasalt.so
+
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt vulkan layer configs from $USER_HOME/.local/share/vulkan/implicit_layer.d/"
+rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
+rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $USER_HOME/.config/"
+rm -rf $USER_HOME/.config/vkBasalt
+rm -rf $USER_HOME/.config/reshade
+
+[ "$for_install" -eq 0 ] && echo "SKIPPING xrealAirLinuxDriver uninstall to keep mouse/joystick driver functionality."
+[ "$for_install" -eq 0 ] && echo "To manually uninstall xrealAirLinuxDriver, do: \"sudo ~/bin/xreal_driver_uninstall\""
+
+# this script is self-deleting, leave this as the last command
+rm -f $USER_HOME/bin/breezy_vulcan_uninstall

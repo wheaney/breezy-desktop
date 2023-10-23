@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
+source $XREAL_DRIVER_DIR/bin/inject_ua
+
+# check out submodules, recursively for nested ones
+git submodule update --init --recursive
+
+VULKAN_DIR=vulkan
+VULKAN_BUILD=$VULKAN_DIR/build
+if [ ! -d "$VULKAN_BUILD" ]; then
+  mkdir -p $VULKAN_BUILD
+else
+  rm -rf $VULKAN_BUILD/*
+fi
+
+VULKAN_MODULES=$VULKAN_DIR/modules
+PACKAGE_DIR=$VULKAN_BUILD/breezy_vulkan
+if [ ! -d "$PACKAGE_DIR" ]; then
+  mkdir -p $PACKAGE_DIR
+else
+  rm -rf $PACKAGE_DIR/*
+fi
+
+# build vkBasalt
+VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
+VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
+if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" != "--skip-module-builds" ]; then
+  pushd $VKBASALT_MODULE_DIR
+  ./docker-build
+  popd
+fi
+
+# copy vkBasalt binaries and configs
+mkdir -p $PACKAGE_DIR/{vkBasalt.64,vkBasalt.32}
+cp $VKBASALT_BUILD_DIR/builddir/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.64/
+cp $VKBASALT_BUILD_DIR/builddir/config/vkBasalt.json $PACKAGE_DIR/vkBasalt.64/
+cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.32/
+
+# copy Sombrero FX, get ReShade headers
+cp $VULKAN_MODULES/sombrero/IMUAdjust.fx $PACKAGE_DIR
+cp $VULKAN_MODULES/sombrero/calibrating.png $PACKAGE_DIR
+wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShade.fxh
+wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh
+
+# copy vulkan setup scripts and configs
+mkdir -p $PACKAGE_DIR/bin
+copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
+cp -r $VULKAN_DIR/config $PACKAGE_DIR
+
+# build xreal driver
+XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
+if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
+  pushd $XREAL_DRIVER_DIR
+  bin/package
+  popd
+fi
+
+# copy xreal binary and setup script
+cp $XREAL_BINARY $PACKAGE_DIR
+cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
+
+# bundle everything up
+tar -zcvf $VULKAN_BUILD/breezyVulkan.tar.gz --directory $VULKAN_BUILD breezy_vulkan
