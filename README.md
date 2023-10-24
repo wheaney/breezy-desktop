@@ -14,7 +14,9 @@ As of now, only a Vulkan implementation is available, primarily for gaming but c
 
 #### Steam Deck via Decky Loader
 
-This is still a work in progress... star this repo or check back later.
+For Steam Deck users, the driver is now available via the [Decky plugin loader](https://github.com/SteamDeckHomebrew/decky-loader). Just search "xreal" in the Decky store to install and use without leaving Gaming Mode. You can now enable or disable the driver and manage other driver settings via the Decky sidebar menu.
+
+You may still opt to do a manual installation using the instructions below if you enter Desktop Mode.
 
 #### Manual installation
 
