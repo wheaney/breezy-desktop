@@ -22,6 +22,7 @@ You may still opt to do a manual installation using the instructions below if yo
 
 1. [Download the setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_vulkan_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_vulkan_setup`)
 2. Run the setup script as root (e.g. `sudo ~/Downloads/breezy_vulkan_setup`)
+3. If you're not on Steam Deck, you'll need to set the `ENABLE_VKBASALT` environment variable to `1`. You'll either need to set this globally to enable it for all games, or set it as a launch option for individual games (e.g. in Steam's Launch Options field `ENABLE_VKBASALT=1 %command%`).
 
 ### Usage
 
