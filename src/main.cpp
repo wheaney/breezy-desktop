@@ -102,79 +102,6 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data) {
     return TRUE;
 }
 
-// Starting from degree 0, 180 and -180 are the same. If the previous value was 179 and the new value is -179,
-// the diff is 2 (-179 is equivalent to 181). This function takes the diff and then adjusts it if it detects
-// that we've crossed the +/-180 threshold.
-float degree_delta(float prev, float next) {
-    float delta = fmod(prev - next, 360);
-    if (isnan(delta)) {
-        printf("nan value\n");
-        exit(1);
-    }
-
-    if (delta > 180) {
-        return delta - 360;
-    } else if (delta < -180) {
-        return delta + 360;
-    }
-
-    return delta;
-}
-
-static float degrees_to_radians(float degrees) {
-    return degrees * M_PI / 180;
-}
-
-// we still want to rotate and re-crop the image within this box, so crop it as small as possible while still leaving
-// room for the final crop after rotation
-float min_box_length_for_angle(float angle_degrees, float length, float adj_length) {
-    float radians = degrees_to_radians(angle_degrees);
-    return abs(length * cos(radians)) + abs(adj_length * sin(radians));
-}
-
-gboolean update_crop (gpointer data) {
-    imu_data_mutex.lock();
-    if (captured_starting_euler) {
-        float yaw_offset = degree_delta(starting_euler.z, last_euler.z); // left/right
-        float pitch_offset = degree_delta(starting_euler.y, last_euler.y); // up/down
-        float roll_offset = degree_delta(starting_euler.x, last_euler.x); // rotate
-
-        // e.g. if the virtual monitor is further away (zoomed-out) then moving is more sensitive
-        float effective_sensitivity = sensitivity / zoom;
-
-        // e.g. if we're zoomed out, our field of view is larger, we should crop a larger visible area that will get
-        // scaled down to our actual display size by the videoscale plugin
-        float effective_display_w = display_width / zoom;
-        float effective_display_h = display_height / zoom;
-        float box_width = min_box_length_for_angle(roll_offset, effective_display_w, effective_display_h);
-        float box_height = min_box_length_for_angle(roll_offset, effective_display_h, effective_display_w);
-
-        float width_delta = box_width - display_width;
-        float height_delta = box_height - display_height;
-
-        int top = round(pitch_offset * effective_sensitivity + height_delta / 2);
-        int left = round(yaw_offset * effective_sensitivity + width_delta / 2);
-        int bottom = round(ximage_height-box_height-top);
-        int right = round(ximage_width-box_width-left);
-
-        // TODO - use dynamic controllable parameters: https://gstreamer.freedesktop.org/documentation/application-development/advanced/dparams.html?gi-language=c
-        GstElement *pipeline = GST_ELEMENT(data);
-        GstElement *videobox = gst_bin_get_by_name(GST_BIN(pipeline), "crop");
-//        printf("%d %d %d %d %f\n", top, left, bottom, right, roll_offset);
-        g_object_set (videobox, "top", (gint)top, NULL);
-        g_object_set (videobox, "left", (gint)left, NULL);
-        g_object_set (videobox, "bottom", (gint)bottom, NULL);
-        g_object_set (videobox, "right", (gint)right, NULL);
-        gst_object_unref(videobox);
-
-//        GstElement *transform = gst_bin_get_by_name(GST_BIN(pipeline), "transform");
-//        g_object_set (transform, "rotation-z", (gfloat)roll_offset, NULL);
-//        gst_object_unref(transform);
-    }
-    imu_data_mutex.unlock();
-    return TRUE;
-}
-
 void handle_device_3(uint64_t timestamp,
                      device3_event_type event,
                      const device3_ahrs_type* ahrs) {
@@ -239,7 +166,7 @@ static Window create_overlay_window() {
     if (x11_window && x11_display) {
         printf("create_overlay_window 4\n");
         // Set atom for gamescope to render as an overlay.
-        Atom overlay_atom = XInternAtom (x11_display, NULL, False);
+        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
         uint32_t value = 1;
         XChangeProperty(x11_display, x11_window, overlay_atom, XA_CARDINAL, 32, PropertyNewValue, (unsigned char *)&value, 1);
     }
@@ -253,11 +180,11 @@ static Window create_overlay_window() {
     GLFWmonitor *monitor = glfwGetPrimaryMonitor();
     glfwGetMonitorWorkarea(monitor, &windowX, &windowY, &windowWidth, &windowHeight);
     glfwSetWindowSize(window, windowWidth, windowHeight);
-//    glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glClearColor(0, 0, 0, 0);
-//    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapBuffers(window);
     printf("create_overlay_window 7\n");
 
@@ -293,11 +220,11 @@ void stream_video() {
     GError *error = NULL;
     // ximagesrc use-damage=0 ! videobox name=videobox ! glupload ! queue ! gltransformation name=transform ! gldownload ! videobox autocrop=true ! video/x-raw, width=1280, height=800 ! ximagesink
     //
-    // in gamescope, set env var before wayland client commands: WAYLAND_DISPLAY=gamescope-0
+    // worked in gamescope: DISPLAY=:0 SteamDeck=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 ~/Downloads/breezyDesktop
     //
     // working gamescope pipeline from decky-recorder:
     //     GST_VAAPI_ALL_DRIVERS=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 gst-launch-1.0 -vvv pipewiresrc do-timestamp=true ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! mp4mux name=sink ! filesink location=/home/deck/test.mp4
-    GstElement *pipeline = gst_parse_launch("pipewiresrc do-timestamp=true ! queue ! videoconvert ! glupload ! queue ! glimagesink sync=true name=sink", &error);
+    GstElement *pipeline = gst_parse_launch("pipewiresrc do-timestamp=true ! queue ! videoconvert ! vulkanupload ! vulkansink name=sink", &error);
     printf("stream_video 2\n");
 
     if (error) {
@@ -384,8 +311,8 @@ int main (int argc, char *argv[]) {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_RESIZABLE, 1);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+//    glfwWindowHint(GLFW_RESIZABLE, 1);
+//    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 //    glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "gamescope-0");
 //    glfwWindowHintString(GLFW_X11_CLASS_NAME, "gamescope-0");
 //    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "gamescope-0");
