@@ -12,6 +12,8 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+start_dir=$(pwd)
+
 # create temp directory
 tmp_dir=$(mktemp -d -t breezy-vulkan-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
@@ -23,7 +25,13 @@ then
   echo "Downloading latest release to: ${tmp_dir}/breezyVulkan.tar.gz"
   curl -L -O https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyVulkan.tar.gz
 else
-  cp $1 $tmp_dir
+  if [[ "$1" = /* ]]; then
+    abs_path="$1"
+  else
+    # Convert relative path to absolute path
+    abs_path=$(realpath "$start_dir/$1")
+  fi
+  cp $abs_path $tmp_dir
 fi
 
 echo "Extracting to: ${tmp_dir}/breezy_vulkan"
