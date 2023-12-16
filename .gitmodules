@@ -8,3 +8,4 @@
 [submodule "modules/xrealAirLinuxDriver"]
 	path = modules/xrealAirLinuxDriver
 	url = git@github.com:wheaney/xrealAirLinuxDriver.git
+	branch = failure_handling
