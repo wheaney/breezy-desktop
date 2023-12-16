@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
 
