@@ -42,6 +42,7 @@ cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.32/
 
 # copy Sombrero FX, get ReShade headers
 cp $VULKAN_MODULES/sombrero/IMUAdjust.fx $PACKAGE_DIR
+cp $VULKAN_MODULES/sombrero/Sideview.fx $PACKAGE_DIR
 cp $VULKAN_MODULES/sombrero/calibrating.png $PACKAGE_DIR
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShade.fxh
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh

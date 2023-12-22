@@ -48,10 +48,13 @@ fi
 chown $USER:$USER $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.*
 
 # copy the vkBasalt.conf file and make replacements
-sed -e "s|/path/to/reshade-shaders|${USER_HOME}/.config/reshade|" -e "s|/path/to/sombrero|${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx|" config/vkBasalt.conf > $USER_HOME/.config/vkBasalt/vkBasalt.conf
+sed -e "s|/path/to/reshade-shaders|${USER_HOME}/.config/reshade|" \
+    -e "s|/path/to/virtual_display|${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx|" \
+    -e "s|/path/to/sideview|${USER_HOME}/.config/reshade/Shaders/Sideview.fx|" \
+    config/vkBasalt.conf > $USER_HOME/.config/vkBasalt/vkBasalt.conf
 chown -R $USER:$USER $USER_HOME/.config/vkBasalt
 
-echo "Installing the Sombrero shader and texture files to ${USER_HOME}/.config/reshade/{Shaders,Textures}"
+echo "Installing the Sombrero shaders and texture files to ${USER_HOME}/.config/reshade/{Shaders,Textures}"
 cp *.fx* $USER_HOME/.config/reshade/Shaders
 cp calibrating.png $USER_HOME/.config/reshade/Textures
 chown -R $USER:$USER $USER_HOME/.config/reshade

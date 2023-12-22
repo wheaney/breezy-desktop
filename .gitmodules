@@ -5,6 +5,8 @@
 [submodule "vulkan/modules/sombrero"]
 	path = vulkan/modules/sombrero
 	url = git@github.com:wheaney/sombrero.git
+	branch = plugins
 [submodule "modules/xrealAirLinuxDriver"]
 	path = modules/xrealAirLinuxDriver
 	url = git@github.com:wheaney/xrealAirLinuxDriver.git
+	branch = plugins
