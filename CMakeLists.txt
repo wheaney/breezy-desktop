@@ -11,6 +11,7 @@ find_package(GStreamerPluginsBase COMPONENTS video)
 find_package(GLib REQUIRED)
 find_package(GObject REQUIRED)
 find_package(glfw3 3.3 CONFIG REQUIRED)
+find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(X11 REQUIRED)
 
@@ -31,6 +32,7 @@ target_include_directories(breezyDesktop
 		${GObject_INCLUDE_DIRS}
 		${X11_INCLUDE_DIR}
 		${OPENGL_INCLUDE_DIR}
+		${GLEW_INCLUDE_DIRS}
 )
 
 target_link_libraries(breezyDesktop
@@ -45,4 +47,5 @@ target_link_libraries(breezyDesktop
 		glfw
 		${OPENGL_LIBRARIES}
 		${X11_LIBRARIES}
+		${GLEW_LIBRARIES}
 )

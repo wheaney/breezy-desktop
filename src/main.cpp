@@ -1,5 +1,6 @@
 #include <gst/gst.h>
 #include <gst/video/videooverlay.h>
+#include <GL/glew.h>
 #include <glib.h>
 #include <device3.h>
 #include <stdio.h>
@@ -18,10 +19,16 @@
 #include <dirent.h>
 #include <fcntl.h>
 
+
 #define GLFW_EXPOSE_NATIVE_X11
 #include <GLFW/glfw3native.h>
 
 static const char *GamescopeOverlayProperty = "GAMESCOPE_EXTERNAL_OVERLAY";
+
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
 
 std::mutex imu_data_mutex;
 
@@ -154,41 +161,25 @@ GstPadProbeReturn pad_cb(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
    return GST_PAD_PROBE_OK;
 }
 
-static Window create_overlay_window() {
+static GLFWwindow* create_overlay_window(const char *glsl_version) {
     printf("create_overlay_window 1\n");
-    glfwInit();
-
-    printf("create_overlay_window 2\n");
-    GLFWwindow *window = glfwCreateWindow(1280, 800, "Gamescope overlay window", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(1280, 800, "breezy overlay window", NULL, NULL);
     Display *x11_display = glfwGetX11Display();
     Window x11_window = glfwGetX11Window(window);
-    printf("create_overlay_window 3\n");
-    if (x11_window && x11_display) {
-        printf("create_overlay_window 4\n");
+    if (x11_window && x11_display)
+    {
         // Set atom for gamescope to render as an overlay.
         Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
         uint32_t value = 1;
         XChangeProperty(x11_display, x11_window, overlay_atom, XA_CARDINAL, 32, PropertyNewValue, (unsigned char *)&value, 1);
     }
-    printf("create_overlay_window 5\n");
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
-    printf("create_overlay_window 6\n");
 
-    int windowX, windowY, windowHeight, windowWidth;
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    glfwGetMonitorWorkarea(monitor, &windowX, &windowY, &windowWidth, &windowHeight);
-    glfwSetWindowSize(window, windowWidth, windowHeight);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwSwapBuffers(window);
     printf("create_overlay_window 7\n");
 
-    return x11_window;
+    return window;
 }
 
 //static GstBusSyncReply create_window (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
@@ -206,7 +197,33 @@ static Window create_overlay_window() {
 // }
 
 void stream_video() {
-    Window win = create_overlay_window();
+        // Setup window
+        glfwSetErrorCallback(glfw_error_callback);
+        if (!glfwInit())
+            exit(1);
+
+        const char* glsl_version = "#version 130";
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
+        glfwWindowHint(GLFW_RESIZABLE, 1);
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+
+        // Create window with graphics context
+        GLFWwindow* window = create_overlay_window(glsl_version);
+
+        Display *x11_display = glfwGetX11Display();
+        Window x11_window = glfwGetX11Window(window);
+        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
+        // Initialize OpenGL loader
+
+        bool err = glewInit() != GLEW_OK;
+
+        if (err)
+        {
+            fprintf(stderr, "Failed to initialize OpenGL loader!\n");
+            exit(1);
+        }
 
     printf("stream_video 1\n");
     GMainLoop *loop;
@@ -221,10 +238,11 @@ void stream_video() {
     // ximagesrc use-damage=0 ! videobox name=videobox ! glupload ! queue ! gltransformation name=transform ! gldownload ! videobox autocrop=true ! video/x-raw, width=1280, height=800 ! ximagesink
     //
     // worked in gamescope: DISPLAY=:0 SteamDeck=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 ~/Downloads/breezyDesktop
+    // another interesting one: WAYLAND_DISPLAY=gamescope-1 DISPLAY=:0 SteamDeck=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 ~/Downloads/breezyDesktop
     //
     // working gamescope pipeline from decky-recorder:
     //     GST_VAAPI_ALL_DRIVERS=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 gst-launch-1.0 -vvv pipewiresrc do-timestamp=true ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! mp4mux name=sink ! filesink location=/home/deck/test.mp4
-    GstElement *pipeline = gst_parse_launch("pipewiresrc do-timestamp=true ! queue ! videoconvert ! vulkanupload ! vulkansink name=sink", &error);
+    GstElement *pipeline = gst_parse_launch("pipewiresrc ! queue ! videoconvert ! glupload ! glimagesink name=sink", &error);
     printf("stream_video 2\n");
 
     if (error) {
@@ -239,7 +257,7 @@ void stream_video() {
     printf("stream_video 3\n");
 
     GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
-    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), win);
+    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), x11_window);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
     gst_bus_add_watch (bus, bus_call, loop);
@@ -308,14 +326,6 @@ int main (int argc, char *argv[]) {
     setbuf(stderr, NULL);
 
     printf("testing\n");
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//    glfwWindowHint(GLFW_RESIZABLE, 1);
-//    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-//    glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "gamescope-0");
-//    glfwWindowHintString(GLFW_X11_CLASS_NAME, "gamescope-0");
-//    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "gamescope-0");
 
 
     while (1) {
