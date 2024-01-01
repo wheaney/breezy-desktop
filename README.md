@@ -6,7 +6,7 @@
 
 ## What is this?
 
-This repo will eventually contain a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using XREAL Air glasses.
+This repo will eventually contain a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using supported XR glasses. This currently includes XREAL Air 1, 2, 2 Pro and VITURE One models.
 
 As of now, only a Vulkan implementation is available, primarily for gaming but could theoretically be used for anything that uses Vulkan rendering.
 
