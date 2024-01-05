@@ -161,25 +161,40 @@ GstPadProbeReturn pad_cb(GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
    return GST_PAD_PROBE_OK;
 }
 
-static GLFWwindow* create_overlay_window(const char *glsl_version) {
+static void create_overlay_window(const char *glsl_version, GLFWwindow **captureWindow, GLFWwindow **renderWindow) {
     printf("create_overlay_window 1\n");
-    GLFWwindow *window = glfwCreateWindow(1280, 800, "breezy overlay window", NULL, NULL);
-    Display *x11_display = glfwGetX11Display();
-    Window x11_window = glfwGetX11Window(window);
-    if (x11_window && x11_display)
-    {
-        // Set atom for gamescope to render as an overlay.
-        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
-        uint32_t value = 1;
-        XChangeProperty(x11_display, x11_window, overlay_atom, XA_CARDINAL, 32, PropertyNewValue, (unsigned char *)&value, 1);
+
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+    *captureWindow = glfwCreateWindow(mode->width, mode->height, "breezy capture Layer", monitor, NULL);
+    if (!captureWindow) {
+        glfwTerminate();
+        exit(-1);
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(*captureWindow);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glfwSwapInterval(1); // Enable vsync
+
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+    *renderWindow = glfwCreateWindow(mode->width, mode->height, "breezy rendering Layer", monitor, NULL);
+    if (!renderWindow) {
+        glfwTerminate();
+        exit(-1);
+    }
+
+    glfwMakeContextCurrent(*renderWindow);
+    glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapInterval(1); // Enable vsync
 
     printf("create_overlay_window 7\n");
-
-    return window;
 }
 
 //static GstBusSyncReply create_window (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
@@ -206,15 +221,17 @@ void stream_video() {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-        glfwWindowHint(GLFW_RESIZABLE, 1);
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-
         // Create window with graphics context
-        GLFWwindow* window = create_overlay_window(glsl_version);
+        GLFWwindow *captureWindow;
+        GLFWwindow *renderWindow;
+        create_overlay_window(glsl_version, &captureWindow, &renderWindow);
+        printf("here1\n");
 
-        Display *x11_display = glfwGetX11Display();
-        Window x11_window = glfwGetX11Window(window);
-        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
+//        Display *x11_display = glfwGetX11Display();
+        Window x11_capture_window = glfwGetX11Window(captureWindow);
+        Window x11_render_window = glfwGetX11Window(renderWindow);
+        printf("here2\n");
+//        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
         // Initialize OpenGL loader
 
         bool err = glewInit() != GLEW_OK;
@@ -242,7 +259,9 @@ void stream_video() {
     //
     // working gamescope pipeline from decky-recorder:
     //     GST_VAAPI_ALL_DRIVERS=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 gst-launch-1.0 -vvv pipewiresrc do-timestamp=true ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! mp4mux name=sink ! filesink location=/home/deck/test.mp4
-    GstElement *pipeline = gst_parse_launch("pipewiresrc ! queue ! videoconvert ! glupload ! glimagesink name=sink", &error);
+    char gst_pipeline_def[1024];
+    snprintf(gst_pipeline_def, 1024, "videotestsrc ! queue ! videoflip method=1 ! videoconvert ! videorate max-rate=1 ! ximagesink name=sink", x11_capture_window);
+    GstElement *pipeline = gst_parse_launch(gst_pipeline_def, &error);
     printf("stream_video 2\n");
 
     if (error) {
@@ -257,7 +276,7 @@ void stream_video() {
     printf("stream_video 3\n");
 
     GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
-    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), x11_window);
+    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), x11_render_window);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
     gst_bus_add_watch (bus, bus_call, loop);
