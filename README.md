@@ -28,9 +28,13 @@ You may still opt to do a manual installation using the instructions below if yo
 
 ### Usage
 
-Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and you'll probably want to disable mouse/joystick output (`~/bin/xreal_driver_config -eo`); note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating screen.
+Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and then you can go into whichever output mode you'd like using (`~/bin/xreal_driver_config -m`) where `-m` is for mouse mode, `-j` for joystick, `-vd` for virtual display, and `-sv` for sideview; note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating virtual display or a sideview screen (depending on which mode you've chosen).
 
-There's a wait period of 15 seconds after plugging in the glasses where the screen will stay static to allow for the glasses to calibrate. Once ready, the screen will anchor to the space where you are looking.
+There's a wait period of 15 seconds after plugging in XREAL glasses where the screen will stay static to allow for the glasses to calibrate. Once ready, the screen will anchor to the space where you are looking.
+
+### Configurations
+
+To see all the configuration options available to you, type `~/bin/xreal_driver_config` with no parameters to get the usage statement. There are some things you can't trigger from the script, like re-centering the virtual display or entering SBS mode; you can achieve these things through multi-tap or through the physical buttons on the glasses, respectively.
 
 #### Multi-tap to re-center or re-calibrate
 I've implemented an experimental multi-tap detection feature for screen **re-centering (2 taps)** and **re-calibrating the device (3 taps)**. To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
