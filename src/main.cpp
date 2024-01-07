@@ -173,14 +173,29 @@ static void create_overlay_window(const char *glsl_version, GLFWwindow **capture
 //    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Make the window initially invisible
-    *captureWindow = glfwCreateWindow(1280, 800, "breezy capture Layer", monitor, NULL);
+    *captureWindow = glfwCreateWindow(320, 200, "breezy capture Layer", monitor, NULL);
     if (!*captureWindow) {
         glfwTerminate();
         exit(-1);
     }
-    glfwSetWindowPos(*captureWindow, 100, 100); // Set the window position
+    glfwSetWindowPos(*captureWindow, 10, 10); // Set the window position
     glfwShowWindow(*captureWindow);
+
+//    Display *x11_display = glfwGetX11Display();
+//    Window x11_window = glfwGetX11Window(*captureWindow);
+//    printf("create_overlay_window 3\n");
+//    if (x11_window && x11_display) {
+//        printf("create_overlay_window 4\n");
+//        // Set atom for gamescope to render as an overlay.
+//        Atom overlay_atom = XInternAtom (x11_display, GamescopeOverlayProperty, False);
+//        uint32_t value = 1;
+//        XChangeProperty(x11_display, x11_window, overlay_atom, XA_CARDINAL, 32, PropertyNewValue, (unsigned char *)&value, 1);
+//    }
 
     glfwMakeContextCurrent(*captureWindow);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -194,8 +209,8 @@ static void create_overlay_window(const char *glsl_version, GLFWwindow **capture
 //    }
 //
 //    glfwMakeContextCurrent(*renderWindow);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwSwapInterval(1); // Enable vsync
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    glfwSwapInterval(1); // Enable vsync
 
     printf("create_overlay_window 7\n");
 }
@@ -263,8 +278,8 @@ void stream_video() {
     // working gamescope pipeline from decky-recorder:
     //     GST_VAAPI_ALL_DRIVERS=1 GST_PLUGIN_PATH=/home/deck/homebrew/plugins/decky-recorder/bin/gstreamer-1.0/ LD_LIBRARY_PATH=/home/deck/homebrew/plugins/decky-recorder/bin GST_DEBUG=4 gst-launch-1.0 -vvv pipewiresrc do-timestamp=true ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! mp4mux name=sink ! filesink location=/home/deck/test.mp4
     char gst_pipeline_def[1024];
-    snprintf(gst_pipeline_def, 1024, "ximagesrc use-damage=0 xid=%lu ! vaapipostproc ! queue ! vaapih264enc ! h264parse ! matroskamux name=sink ! filesink location=\"/home/deck/Videos/test_0105.mp4\" pulsesrc device=\"Recording_alsa_output.pci-0000_04_00.5-platform-acp5x_mach.0.HiFi__hw_acp5x_1__sink.monitor\" ! audio/x-raw, channels=2 ! audioconvert ! lamemp3enc target=bitrate bitrate=192000 cbr=true ! sink.audio_0", x11_capture_window);
-    GstElement *pipeline = gst_parse_launch(gst_pipeline_def, &error);
+    snprintf(gst_pipeline_def, 1024, "pipewiresrc do-timestamp=true ! queue ! ximagesink name=sink", x11_capture_window);
+    GstElement *pipeline = gst_parse_launch("pipewiresrc do-timestamp=true ! queue ! videocrop top=500 ! videoconvert ! waylandsink", &error);
     printf("stream_video 2\n");
 
     if (error) {
@@ -278,8 +293,8 @@ void stream_video() {
 //    gst_object_unref(pad);
     printf("stream_video 3\n");
 
-//    GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
-//    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), x11_render_window);
+    GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline), "sink");
+    gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (sink), x11_capture_window);
 
     bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
     gst_bus_add_watch (bus, bus_call, loop);
