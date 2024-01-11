@@ -18,6 +18,7 @@ if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
 fi
 
 UA_CLIENT_ID="BreezyVulkan"
+UA_EVENT_VERSION="$1"
 #INJECT_UA_CALL
 
 echo "Copying the breezy_vulkan scripts to ${USER_HOME}/bin"
@@ -62,5 +63,10 @@ chown -R $USER:$USER $USER_HOME/.config/reshade
 # set up the XREAL driver using the local binary
 echo "Installing xrealAirLinuxDriver"
 echo "BEGIN - xreal_driver_setup"
-bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+if [ -z "$1" ]
+then
+  bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+else
+  bin/xreal_driver_setup -v $1 $(pwd)/xrealAirLinuxDriver.tar.gz
+fi
 echo "END - xreal_driver_setup"

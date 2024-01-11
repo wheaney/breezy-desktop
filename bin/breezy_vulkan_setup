@@ -19,17 +19,27 @@ tmp_dir=$(mktemp -d -t breezy-vulkan-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
-if [ -z "$1" ]
+# if the first argument is "-v" then the second argument is metrics version, and the third argument is binary path
+# otherwise, if the first argument is present, it's the binary path
+if [ "$1" = "-v" ]
+then
+  metrics_version="$2"
+  binary_path_arg="$3"
+else
+  binary_path_arg="$1"
+fi
+
+if [ -z "$binary_path_arg" ]
 then
   # download and unzip the latest driver
   echo "Downloading latest release to: ${tmp_dir}/breezyVulkan.tar.gz"
   curl -L -O https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyVulkan.tar.gz
 else
-  if [[ "$1" = /* ]]; then
-    abs_path="$1"
+  if [[ "$binary_path_arg" = /* ]]; then
+    abs_path="$binary_path_arg"
   else
     # Convert relative path to absolute path
-    abs_path=$(realpath "$start_dir/$1")
+    abs_path=$(realpath "$start_dir/$binary_path_arg")
   fi
   cp $abs_path $tmp_dir
 fi
@@ -40,7 +50,7 @@ tar -xf breezyVulkan.tar.gz
 pushd breezy_vulkan > /dev/null
 
 # run the setup script that comes with this release
-bin/setup
+bin/setup $metrics_version
 
 echo "Deleting temp directory: ${tmp_dir}"
 rm -rf $tmp_dir
