@@ -57,7 +57,7 @@ chown -R $USER:$USER $USER_HOME/.config/vkBasalt
 
 echo "Installing the Sombrero shaders and texture files to ${USER_HOME}/.config/reshade/{Shaders,Textures}"
 cp *.fx* $USER_HOME/.config/reshade/Shaders
-cp calibrating.png $USER_HOME/.config/reshade/Textures
+cp *.png $USER_HOME/.config/reshade/Textures
 chown -R $USER:$USER $USER_HOME/.config/reshade
 
 # set up the XREAL driver using the local binary
