@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -e
+
+# create a string to string mapping, file name to expected file location
+declare -A file_paths
+file_paths=(
+  ["bin/breezy_vulkan_uninstall"]="{user_home}/bin/breezy_vulkan_uninstall"
+  ["vkBasalt.64/libvkbasalt.so"]="{user_home}/.local/lib/libvkbasalt.so"
+  ["vkBasalt.32/libvkbasalt.so"]="{user_home}/.local/lib32/libvkbasalt.so"
+  ["IMUAdjust.fx"]="{user_home}/.config/reshade/Shaders/IMUAdjust.fx"
+  ["ReShade.fxh"]="{user_home}/.config/reshade/Shaders/ReShade.fxh"
+  ["ReShadeUI.fxh"]="{user_home}/.config/reshade/Shaders/ReShadeUI.fxh"
+  ["Sideview.fx"]="{user_home}/.config/reshade/Shaders/Sideview.fx"
+  ["calibrating.png"]="{user_home}/.config/reshade/Textures/calibrating.png"
+  ["custom_banner.png"]="{user_home}/.config/reshade/Textures/custom_banner.png"
+  ["build/driver_air_glasses/manifest"]="{user_home}/.local/bin/xr_driver/manifest"
+)
+
+# verify the file hashes in ./manifest
+while IFS= read -r line
+do
+  # split the line into hash and filename
+  manifest_hash=$(echo $line | awk '{print $1}')
+  file=$(echo $line | awk '{print $2}')
+
+  actual_file_path=${file_paths[$file]}
+
+  # compute the SHA256 hash of the actual file
+  actual_hash=$(sha256sum $actual_file_path | awk '{print $1}')
+
+  # compare the hashes
+  if ! [ "$manifest_hash" = "$actual_hash" ]; then
+    echo "Verification failed" >&2
+    exit 1
+  fi
+done < "{user_home}/.local/bin/breezy_vulkan/manifest"
+
+# if our checks succeeded, run the xr_driver verify script
+{user_home}/.local/bin/xr_driver/verify_installation > /dev/null
+
+echo "Verification succeeded"

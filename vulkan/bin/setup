@@ -60,6 +60,17 @@ cp *.fx* $USER_HOME/.config/reshade/Shaders
 cp *.png $USER_HOME/.config/reshade/Textures
 chown -R $USER:$USER $USER_HOME/.config/reshade
 
+# escaping sed replace: https://stackoverflow.com/questions/407523/escape-a-string-for-a-sed-replace-pattern
+ESCAPED_USER_HOME=$(printf '%s\n' "$USER_HOME" | sed -e 's/[\/&]/\\&/g')
+
+echo "Copying the verification script and manifest to ${USER_HOME}/.local/bin/breezy_vulkan"
+sed -i -e "s/{user_home}/$ESCAPED_USER_HOME/g" bin/verify_installation
+if [ ! -d "$USER_HOME/.local/bin/breezy_vulkan" ]; then
+  mkdir -p $USER_HOME/.local/bin/breezy_vulkan
+fi
+cp -p bin/verify_installation $USER_HOME/.local/bin/breezy_vulkan
+cp manifest $USER_HOME/.local/bin/breezy_vulkan
+
 # set up the XREAL driver using the local binary
 echo "Installing xrealAirLinuxDriver"
 echo "BEGIN - xreal_driver_setup"
@@ -69,4 +80,5 @@ then
 else
   bin/xreal_driver_setup -v $1 $(pwd)/xrealAirLinuxDriver.tar.gz
 fi
+
 echo "END - xreal_driver_setup"
