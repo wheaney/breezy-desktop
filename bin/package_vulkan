@@ -46,22 +46,42 @@ cp $VULKAN_MODULES/sombrero/*.png $PACKAGE_DIR
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShade.fxh
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh
 
+# if a custom_banner image exists, copy it over the sombrero one
+if [ -e "$VULKAN_DIR/custom_banner.png" ]; then
+  cp $VULKAN_DIR/custom_banner.png $PACKAGE_DIR
+fi
+
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
+copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/verify_installation" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
 cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build xreal driver
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
+pushd $XREAL_DRIVER_DIR
+
 if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
-  pushd $XREAL_DRIVER_DIR
+  # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
+  if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
+    cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
+  fi
+
   bin/package
-  popd
 fi
+
+XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)
+popd
 
 # copy xreal binary and setup script
 cp $XREAL_BINARY $PACKAGE_DIR
 cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
+
+# create manifest file for verifying installed file checksums against the originally packaged versions
+# include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
+pushd $PACKAGE_DIR
+echo $XREAL_MANIFEST_LINE > manifest
+sha256sum bin/breezy_vulkan_uninstall vkBasalt.64/libvkbasalt.so vkBasalt.32/libvkbasalt.so *.fx* *.png >> manifest
+popd
 
 # bundle everything up
 tar -zcvf $VULKAN_BUILD/breezyVulkan.tar.gz --directory $VULKAN_BUILD breezy_vulkan
