@@ -9,6 +9,7 @@ dbus-python = "*"
 pygobject = "*"
 vulkan = "*"
 evdev = "*"
+glfw = "*"
 
 [dev-packages]
 

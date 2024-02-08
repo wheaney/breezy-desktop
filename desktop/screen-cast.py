@@ -2,80 +2,14 @@
 
 from pydbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
+from remote_desktop import RemoteDesktopHandler
+from vulkan_render import render_image
 
-from evdev import InputDevice, list_devices, ecodes
 import gi
-
 gi.require_version('Gst', '1.0')
 from gi.repository import GLib, GObject, Gst
 
-# TODO - the run-as user needs to be in the input group
-# Create an input device for your mouse (replace 'event3' with your actual mouse device)
-devices = [InputDevice(path) for path in list_devices()]
 
-mice = [dev for dev in devices if ecodes.BTN_MOUSE in dev.capabilities().get(ecodes.EV_KEY, [])]
-mice += [dev for dev in devices if ecodes.BTN_TOUCH in dev.capabilities().get(ecodes.EV_KEY, [])]
-
-keyboards = [dev for dev in devices if ecodes.KEY_F1 in dev.capabilities().get(ecodes.EV_KEY, [])]
-
-for mouse in mice:
-    print(f"Mouse: {mouse}")
-
-for keyboard in keyboards:
-    print(f"Keyboard: {keyboard}")
-
-# mapping of mouse ecodes to remotedesktop keycodes
-mouse_event_code_to_gnome_keycode_map = {
-    ecodes.BTN_MOUSE: 272,
-    ecodes.BTN_LEFT: 272,
-    ecodes.BTN_RIGHT: 273,
-    ecodes.BTN_MIDDLE: 274,
-    ecodes.BTN_TOUCH: 272,
-    ecodes.BTN_TL: 272,
-    ecodes.BTN_TR: 273,
-}
-
-# Function to handle mouse events
-last_touchpad_x = None
-last_touchpad_y = None
-def handle_mouse_event(fd, condition, device):
-    for event in device.read():
-        if event.type == ecodes.EV_KEY:
-            if event.code in mouse_event_code_to_gnome_keycode_map:
-                remote_desktop_session.NotifyPointerButton(mouse_event_code_to_gnome_keycode_map[event.code], event.value)
-            else:
-                print(f"Unknown mouse button: {event.code}")
-        elif event.type == ecodes.EV_REL:
-            if event.code == ecodes.REL_X:
-                remote_desktop_session.NotifyPointerMotionRelative(event.value, 0)
-            elif event.code == ecodes.REL_Y:
-                remote_desktop_session.NotifyPointerMotionRelative(0, event.value)
-        elif event.type == ecodes.EV_ABS and stream_path is not None:
-            global last_touchpad_x, last_touchpad_y
-            if event.code in {ecodes.ABS_X, ecodes.ABS_MT_POSITION_X}:
-                last_touchpad_x = event.value
-            elif event.code in {ecodes.ABS_Y, ecodes.ABS_MT_POSITION_Y}:
-                last_touchpad_y = event.value
-
-            # TODO - translate to relative movements so lifting your finger doesn't change the abs position of the cursor
-            if last_touchpad_x is not None and last_touchpad_y is not None:
-                remote_desktop_session.NotifyPointerMotionAbsolute(stream_path, last_touchpad_x, last_touchpad_y)
-    return True
-
-
-# Function to handle keyboard events
-def handle_keyboard_event(fd,condition, device):
-    for event in device.read():
-        if event.type == ecodes.EV_KEY:
-            remote_desktop_session.NotifyKeyboardKeycode(event.code, event.value)
-    return True
-
-# Add the devices to the GLib main loop
-for mouse in mice:
-    GLib.io_add_watch(mouse.fd, GLib.IO_IN, handle_mouse_event, mouse)
-
-for keyboard in keyboards:
-    GLib.io_add_watch(keyboard.fd, GLib.IO_IN, handle_keyboard_event, keyboard)
 
 DBusGMainLoop(set_as_default=True)
 Gst.init(None)
@@ -108,9 +42,9 @@ print("format_element: %s" % format_element)
 print("stream path: %s" % stream_path)
 stream = bus.get(screen_cast_iface, stream_path)
 
+RemoteDesktopHandler(remote_desktop_session, stream_path)
+
 pipeline = None
-
-
 def terminate():
     global pipeline
     print("pipeline: " + str(pipeline))
@@ -134,13 +68,32 @@ def on_pipewire_stream_added(node_id):
     pipeline_str = (
             'pipewiresrc path=%u ! videoconvert ! videoscale ! %s videoconvert ! videobox border-alpha=0 left=-1 ! mix. '
             'videotestsrc pattern="black" ! video/x-raw,width=1,height=1,framerate=1/1 ! videobox border-alpha=0 right=-1 ! mix. '
-            'compositor name=mix ! videoconvert ! vulkanupload ! vulkansink ' % (node_id, format_element)
+            'compositor name=mix ! videoconvert ! appsink name=sink' % (node_id, format_element)
     )
     print(pipeline_str)
     pipeline = Gst.parse_launch(pipeline_str)
 
+    # get the sink
+    sink = pipeline.get_by_name('sink')
+
+    sink.set_property('render-rectangle', (0, 0, 1920, 1080))
+    sink.set_property('sync', False)
+    sink.set_property('max-buffers', 1)
+    sink.set_property('drop', True)
+    sink.set_property('async', False)
+    sink.set_property('enable-last-sample', False)
+    sink.connect('new-sample', on_new_sample, None)
+
     pipeline.set_state(Gst.State.PLAYING)
     pipeline.get_bus().connect('message', on_message)
+
+def on_new_sample(sink, data):
+    sample = sink.emit('pull-sample')
+    buffer = sample.get_buffer()
+    image_data = buffer.extract_dup(0, buffer.get_size())
+    render_image(image_data)
+
+    return Gst.FlowReturn.OK
 
 
 stream.onPipeWireStreamAdded = on_pipewire_stream_added
