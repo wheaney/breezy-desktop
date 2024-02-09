@@ -3,7 +3,7 @@
 from pydbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
 from remote_desktop import RemoteDesktopHandler
-from vulkan_render import render_image
+# from vulkan_render import render_image
 
 import gi
 gi.require_version('Gst', '1.0')
@@ -76,12 +76,12 @@ def on_pipewire_stream_added(node_id):
     # get the sink
     sink = pipeline.get_by_name('sink')
 
-    sink.set_property('render-rectangle', (0, 0, 1920, 1080))
     sink.set_property('sync', False)
     sink.set_property('max-buffers', 1)
     sink.set_property('drop', True)
     sink.set_property('async', False)
     sink.set_property('enable-last-sample', False)
+    sink.set_property('emit-signals', True)
     sink.connect('new-sample', on_new_sample, None)
 
     pipeline.set_state(Gst.State.PLAYING)
@@ -91,7 +91,7 @@ def on_new_sample(sink, data):
     sample = sink.emit('pull-sample')
     buffer = sample.get_buffer()
     image_data = buffer.extract_dup(0, buffer.get_size())
-    render_image(image_data)
+    # render_image(image_data)
 
     return Gst.FlowReturn.OK
 
