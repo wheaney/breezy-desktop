@@ -1,2 +1,4 @@
 /vulkan/build/
 /build/
+/desktop/__pycache__/
+/desktop/shaders/*.spv

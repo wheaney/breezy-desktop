@@ -2,7 +2,7 @@ import ctypes
 import os
 
 from vulkan import *
-import vulkan_tools
+import numpy as np
 
 import glfw
 
@@ -14,7 +14,7 @@ HEIGHT = 1080
 validationLayers = ["VK_LAYER_KHRONOS_validation"]
 deviceExtensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME]
 
-enableValidationLayers = False
+enableValidationLayers = True
 
 
 def debugCallback(*args):
@@ -87,7 +87,6 @@ class BreezyDesktopVulkanApp(object):
         self.__descriptorSetLayout = None
         self.__descriptorPool = None
         self.__descriptorSets = None
-        self.__uniformBuffers = None
 
         self.__commandPool = None
         self.__commandBuffers = None
@@ -104,8 +103,18 @@ class BreezyDesktopVulkanApp(object):
         self.__maxFramesInFlight = 2
         self.__currentFrame = 0
 
+        self.__textureStagingBuffer = None
+        self.__textureStagingMemory = None
+        self.__textureMemoryAllocSize = 0
+
     def __del__(self):
         vkDeviceWaitIdle(self.__device)
+
+        if self.__textureStagingBuffer:
+            vkDestroyBuffer(self.__device, self.__textureStagingBuffer, None)
+
+        if self.__textureStagingMemory:
+            vkFreeMemory(self.__device, self.__textureStagingMemory, None)
 
         if self.__inFlightFences:
             for i in self.__inFlightFences:
@@ -130,10 +139,11 @@ class BreezyDesktopVulkanApp(object):
                 vkDestroyFramebuffer(self.__device, i, None)
             self.__swapChainFramebuffers = None
 
-        if self.__uniformBuffers:
-            for i in self.__uniformBuffers:
-                vkDestroyBuffer(self.__device, i, None)
-            self.__uniformBuffers = None
+        if self.__textureImage:
+            vkDestroyImage(self.__device, self.__textureImage, None)
+
+        if self.__textureImageMemory:
+            vkFreeMemory(self.__device, self.__textureImageMemory, None)
 
         if self.__descriptorSets:
             for i in self.__descriptorSets:
@@ -203,19 +213,17 @@ class BreezyDesktopVulkanApp(object):
         self.__createSwapChain()
         self.__createImageViews()
         self.__createRenderPass()
+        self.__createDescriptorSetLayout()
         self.__createGraphicsPipeline()
-        self.__createUniformBuffers()
-        # self.__createDescriptorSetLayout()
-        # self.__createDescriptorPool()
+        self.__createDescriptorPool()
         self.__createFramebuffers()
         self.__createCommandPool()
-        # self.__createDescriptorSets()
+        self.__createTextureImage()
+        self.__createTextureImageView()
+        self.__createTextureSampler()
+        self.__createDescriptorSets()
         self.__createCommandBuffers()
         self.__createSemaphores()
-        # self.__createTextureImage()
-        # self.__createTextureImageView()
-        # self.__createTextureSampler()
-        # self.__createVertexBuffer()
 
     def __mainLoop(self):
         while not glfw.window_should_close(self.__window):
@@ -515,8 +523,8 @@ class BreezyDesktopVulkanApp(object):
 
         pipelineLayoutInfo = VkPipelineLayoutCreateInfo(
             sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-            setLayoutCount=0,
-            pushConstantRangeCount=0
+            setLayoutCount=1,
+            pSetLayouts=[self.__descriptorSetLayout],
         )
 
         self.__pipelineLayout = vkCreatePipelineLayout(self.__device, pipelineLayoutInfo, None)
@@ -542,29 +550,6 @@ class BreezyDesktopVulkanApp(object):
 
         vkDestroyShaderModule(self.__device, vertShaderModule, None)
         vkDestroyShaderModule(self.__device, fragShaderModule, None)
-
-    def __createUniformBuffers(self):
-        bufferSize = ctypes.sizeof(ctypes.c_uint64) * 3
-        self.__uniformBuffers = []
-
-        for i in range(len(self.__swapChainImages)):
-            buffer = VkBufferCreateInfo(
-                sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-                size=bufferSize,
-                usage=VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                sharingMode=VK_SHARING_MODE_EXCLUSIVE
-            )
-            self.__uniformBuffers.append(vkCreateBuffer(self.__device, buffer, None))
-
-            memReqs = vkGetBufferMemoryRequirements(self.__device, self.__uniformBuffers[i])
-
-            allocInfo = VkMemoryAllocateInfo(
-                sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-                allocationSize=memReqs.size,
-                memoryTypeIndex=self.__findMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-            )
-            memory = vkAllocateMemory(self.__device, allocInfo, None)
-            vkBindBufferMemory(self.__device, self.__uniformBuffers[i], memory, 0)
 
     def __createFramebuffers(self):
         self.__swapChainFramebuffers = []
@@ -626,7 +611,7 @@ class BreezyDesktopVulkanApp(object):
 
         vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE)
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, self.__graphicsPipeline)
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0)
+        vkCmdDraw(commandBuffer, 6, 1, 0, 0)
         vkCmdEndRenderPass(commandBuffer)
         vkEndCommandBuffer(commandBuffer)
 
@@ -651,10 +636,10 @@ class BreezyDesktopVulkanApp(object):
                 return i
         raise Exception("failed to find suitable memory type!")
 
-    def __createTextureImage(self, videoFrame):
+    def __createTextureImage(self):
         bufferInfo = VkBufferCreateInfo(
             sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-            size=1920*1080*4,
+            size=WIDTH*HEIGHT*4,
             usage=VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             sharingMode=VK_SHARING_MODE_EXCLUSIVE,
         )
@@ -665,34 +650,36 @@ class BreezyDesktopVulkanApp(object):
             bufferInfo.queueFamilyIndexCount = 2
             bufferInfo.pQueueFamilyIndices = [indices.graphicsFamily, indices.presentFamily]
 
-        stagingBuffer = vkCreateBuffer(self.__device, bufferInfo, None)
-        memReqs = vkGetBufferMemoryRequirements(self.__device, stagingBuffer)
+        self.__textureStagingBuffer = vkCreateBuffer(self.__device, bufferInfo, None)
+        memReqs = vkGetBufferMemoryRequirements(self.__device, self.__textureStagingBuffer)
         memAlloc = VkMemoryAllocateInfo(
             sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
             allocationSize = memReqs.size,
-            memoryTypeIndex = self.__device.getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+            memoryTypeIndex= self.__findMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
         )
-        stagingMemory = vkAllocateMemory(self.__device, memAlloc, None)
-        vkBindBufferMemory(self.__device, stagingBuffer, stagingMemory, 0)
-        data = vkMapMemory(self.__device, stagingMemory, 0, memAlloc.allocationSize, 0)
+        self.__textureMemoryAllocSize = memAlloc.allocationSize
+        self.__textureStagingMemory = vkAllocateMemory(self.__device, memAlloc, None)
+        vkBindBufferMemory(self.__device, self.__textureStagingBuffer, self.__textureStagingMemory, 0)
 
-        # Create a ctypes array that points to the mapped memory
-        mappedArray = (ctypes.c_ubyte * memAlloc.allocationSize).from_address(data)
+        self.__createImage(WIDTH, HEIGHT, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 
-        # Copy the image data to the mapped memory
-        ctypes.memmove(mappedArray, videoFrame, len(videoFrame))
+    def __uploadVideoFrameToTexture(self, videoFrame):
+        data_ptr = vkMapMemory(self.__device, self.__textureStagingMemory, 0, self.__textureMemoryAllocSize, 0)
 
-        # Unmap the memory when done
-        vkUnmapMemory(self.__device, stagingMemory)
+        try:
+            ffi.memmove(data_ptr, ffi.new('float *', videoFrame), self.__textureMemoryAllocSize)
+        finally:
+            print("self.__textureMemoryAllocSize: %d" % self.__textureMemoryAllocSize)
+            vkUnmapMemory(self.__device, self.__textureStagingMemory)
 
-        self.__createImage(1920, 1080, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
-                           VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-
-        self.__transitionImageLayout(self.__textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-        self.__copyBufferToImage(stagingBuffer, self.__textureImage, 1920, 1080)
-
-        vkDestroyBuffer(self.__device, stagingBuffer, None)
-        vkFreeMemory(self.__device, stagingMemory, None)
+        self.__transitionImageLayout(self.__textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+        self.__copyBufferToImage(self.__textureStagingBuffer, self.__textureImage,  WIDTH, HEIGHT)
+        self.__transitionImageLayout(self.__textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 
     def __createImage(self, width, height, format, tiling, usage, properties):
         image = VkImageCreateInfo(
@@ -711,7 +698,7 @@ class BreezyDesktopVulkanApp(object):
 
         self.__textureImage = vkCreateImage(self.__device, image, None)
 
-        memReqs = vkGetImageMemoryRequirements(self.__device, image)
+        memReqs = vkGetImageMemoryRequirements(self.__device, self.__textureImage)
 
         allocInfo = VkMemoryAllocateInfo(
             sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
@@ -766,26 +753,20 @@ class BreezyDesktopVulkanApp(object):
     def __transitionImageLayout(self, image, format, oldLayout, newLayout):
         commandBuffer = self.__beginSingleTimeCommands()
 
-        subresourceRange = VkImageSubresourceRange(
-            aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
-            baseMipLevel=0,
-            levelCount=1,
-            baseArrayLayer=0,
-            layerCount=1
-        )
-
-        if newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-            subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT
-            if self.__hasStencilComponent(format):
-                subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT
-
         barrier = VkImageMemoryBarrier(
+            sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
             oldLayout=oldLayout,
             newLayout=newLayout,
             srcQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED,
             dstQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED,
             image=image,
-            subresourceRange=subresourceRange
+            subresourceRange=VkImageSubresourceRange(
+                aspectMask=VK_IMAGE_ASPECT_COLOR_BIT,
+                baseMipLevel=0,
+                levelCount=1,
+                baseArrayLayer=0,
+                layerCount=1
+            )
         )
 
         srcStage = 0
@@ -885,12 +866,9 @@ class BreezyDesktopVulkanApp(object):
 
         self.__textureSampler = vkCreateSampler(self.__device, samplerInfo, None)
 
-    def __createVertexBuffer(self):
-        pass
-
     def __createDescriptorPool(self):
         poolSize = VkDescriptorPoolSize(
-            type=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            type=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             descriptorCount=self.__maxFramesInFlight
         )
 
@@ -905,9 +883,10 @@ class BreezyDesktopVulkanApp(object):
 
     def __createDescriptorSetLayout(self):
         samplerLayoutBinding = VkDescriptorSetLayoutBinding(
-            binding=1,
+            binding=0,
             descriptorType=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             descriptorCount=1,
+            pImmutableSamplers=None,
             stageFlags=VK_SHADER_STAGE_FRAGMENT_BIT
         )
 
@@ -932,12 +911,6 @@ class BreezyDesktopVulkanApp(object):
         self.__descriptorSets = vkAllocateDescriptorSets(self.__device, allocInfo)
 
         for i in range(self.__maxFramesInFlight):
-            bufferInfo = VkDescriptorBufferInfo(
-                buffer=self.__uniformBuffers[i],
-                offset=0,
-                range=ffi.sizeof(self.__uniformBuffers[i])
-            )
-
             imageInfo = VkDescriptorImageInfo(
                 imageLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                 imageView=self.__textureImageView,
@@ -948,18 +921,9 @@ class BreezyDesktopVulkanApp(object):
                 sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
                 dstSet=self.__descriptorSets[i],
                 dstBinding=0,
-                dstArrayElement=0,
-                descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                descriptorCount=1,
-                pBufferInfo=bufferInfo
-            ), VkWriteDescriptorSet(
-                sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                dstSet=self.__descriptorSets[i],
-                dstBinding=1,
-                dstArrayElement=0,
                 descriptorType=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                 descriptorCount=1,
-                pImageInfo=imageInfo
+                pImageInfo=[imageInfo]
             )]
 
             vkUpdateDescriptorSets(self.__device, len(descriptorWrites), descriptorWrites, 0, None)
@@ -1120,48 +1084,10 @@ class BreezyDesktopVulkanApp(object):
 
         return True
 
-    def run(self):
+    def setup(self):
         self.__initWindow()
         self.__initVulkan()
-        self.__mainLoop()
 
-    def __updateTexture(self, videoFrame):
-        # Create VkImage and VkImageView for the texture
-        # Create VkDeviceMemory to store the texture data
-        # Copy videoFrame data to VkDeviceMemory
-        pass
-
-    def __beginFrame(self):
-        # Acquire an image from the swap chain
-        # Submit a command buffer to signal that the image is ready for rendering
-        pass
-
-    def __recordCommands(self):
-        # Record the commands for this frame
-        # Set up the render pass
-        # Bind the graphics pipeline
-        # Bind the texture
-        # Draw the vertices
-        pass
-
-    def __endFrame(self):
-        # Submit the command buffer for execution
-        # Present the image in the swap chain
-        pass
-
-    def renderFrame(self, videoFrame):
-        self.__updateTexture(videoFrame)
-        self.__beginFrame()
-        self.__recordCommands()
-        self.__endFrame()
-
-
-
-if __name__ == '__main__':
-
-    app = BreezyDesktopVulkanApp()
-
-    app.run()
-
-    del app
-    glfw.terminate()
+    def renderVideoFrame(self, videoFrame):
+        self.__uploadVideoFrameToTexture(videoFrame)
+        self.__drawFrame()

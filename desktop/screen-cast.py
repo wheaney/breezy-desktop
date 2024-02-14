@@ -2,13 +2,17 @@
 
 from pydbus import SessionBus
 from dbus.mainloop.glib import DBusGMainLoop
+
+# from vulkan_render import BreezyDesktopVulkanApp
 from remote_desktop import RemoteDesktopHandler
-# from vulkan_render import render_image
+
+import faulthandler
 
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GLib, GObject, Gst
 
+import numpy as np
 
 
 DBusGMainLoop(set_as_default=True)
@@ -44,10 +48,12 @@ stream = bus.get(screen_cast_iface, stream_path)
 
 RemoteDesktopHandler(remote_desktop_session, stream_path)
 
+# renderer = BreezyDesktopVulkanApp()
+# renderer.setup()
+
 pipeline = None
 def terminate():
     global pipeline
-    print("pipeline: " + str(pipeline))
     if pipeline is not None:
         print("draining pipeline")
         pipeline.send_event(Gst.Event.new_eos())
@@ -66,38 +72,34 @@ def on_pipewire_stream_added(node_id):
     global pipeline
 
     pipeline_str = (
-            'pipewiresrc path=%u ! videoconvert ! videoscale ! %s videoconvert ! videobox border-alpha=0 left=-1 ! mix. '
-            'videotestsrc pattern="black" ! video/x-raw,width=1,height=1,framerate=1/1 ! videobox border-alpha=0 right=-1 ! mix. '
-            'compositor name=mix ! videoconvert ! appsink name=sink' % (node_id, format_element)
+            'pipewiresrc path=%u ! videoconvert ! videoscale ! %s videoconvert ! filesink location=/dev/shm/gfifo' % (node_id, format_element)
     )
     print(pipeline_str)
     pipeline = Gst.parse_launch(pipeline_str)
 
-    # get the sink
-    sink = pipeline.get_by_name('sink')
+    # # get the sink
+    # sink = pipeline.get_by_name('sink')
 
-    sink.set_property('sync', False)
-    sink.set_property('max-buffers', 1)
-    sink.set_property('drop', True)
-    sink.set_property('async', False)
-    sink.set_property('enable-last-sample', False)
-    sink.set_property('emit-signals', True)
-    sink.connect('new-sample', on_new_sample, None)
+    # sink.set_property('emit-signals', True)
+    # sink.connect('new-sample', on_new_sample, None)
 
     pipeline.set_state(Gst.State.PLAYING)
-    pipeline.get_bus().connect('message', on_message)
+    # pipeline.get_bus().connect('message', on_message)
 
-def on_new_sample(sink, data):
-    sample = sink.emit('pull-sample')
-    buffer = sample.get_buffer()
-    image_data = buffer.extract_dup(0, buffer.get_size())
-    # render_image(image_data)
+# def on_new_sample(sink, data):
+#     sample = sink.emit('pull-sample')
+#     buffer = sample.get_buffer()
+#     image_data = buffer.extract_dup(0, buffer.get_size())
+#     print("buffer size: %d" % len(image_data))
+    
+#     renderer.renderVideoFrame(image_data)
 
-    return Gst.FlowReturn.OK
+#     return Gst.FlowReturn.OK
 
 
 stream.onPipeWireStreamAdded = on_pipewire_stream_added
 
+faulthandler.enable()
 remote_desktop_session.Start()
 
 try:
