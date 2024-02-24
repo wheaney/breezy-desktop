@@ -56,6 +56,28 @@ resolution. To fix this:
 
 If you *WANT* to keep a low resolution, then you can just use the `Zoom` setting to make the screen appear larger. For now this is done through the config script: `~/bin/xreal_driver_config -z 1.0`. Larger numbers zoom in (e.g. `2.0` doubles the screen size) and smaller numbers zoom out (e.g. `0.5` is half the screen size).
 
+### Supporter Tier
+
+Supporter Tier features are enhancments to core functionality, offered as a way to reward those who have [supported the project](https://ko-fi.com/wheaney). Core features -- like Virtual Display mode, VR-Lite mouse/joystick modes, and Follow mode's display positioning/resizing settings -- will always remain available to everyone regardless of supporter status. Donating $10 gets you a year, and $25 gets you lifetime of Supporter Tier access. The plugin will begin to warn you when you're within 30 days of expiration, and -- if you have enough funds -- your access will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Supporter Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
+
+Features currently offered:
+* Smooth Follow (in Follow mode)
+* Automatic Recentering (in Virtual Display mode)
+* Side-by-side support (in Virtual Display mode)
+
+#### Unlocking Supporter Tier
+
+If you donate at least $10, you should immediately receive an email (to your Ko-fi email address) with a verification token. If you don't, request it using the config script: 
+```bash
+~/bin/xreal_driver_config --request-token [emailAddress]
+```
+
+Once you have a token, verify it using:
+```bash
+~/bin/xreal_driver_config --verify-token [token]
+~/bin/xreal_driver_config --refresh-license
+```
+
 ### Disabling
 
 To disable the floating screen effect, either disable the driver (`~/bin/xreal_driver_config -d`), unplug the glasses, or hit the `Home` key (you'll need to bind this to your controller, if on Steam Deck).
