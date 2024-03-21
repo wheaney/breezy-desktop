@@ -3,7 +3,7 @@
     "name": "Breezy GNOME",
     "description": "XR virtual desktop for Linux.",
     "shell-version": [
-        "43"
+        "43", "44"
     ],
     "url": "https://github.com/wheaney/breezy-desktop"
 }

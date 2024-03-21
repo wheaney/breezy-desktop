@@ -18,10 +18,11 @@ const BOOL_SIZE = UINT8_SIZE;
 const UINT_SIZE = 4;
 const FLOAT_SIZE = 4;
 
-// end offset, exclusive
 const DATA_VIEW_INFO_OFFSET_INDEX = 0;
 const DATA_VIEW_INFO_SIZE_INDEX = 1;
-const DATA_VIEW_INFO_COUNT_INDEX = 1;
+const DATA_VIEW_INFO_COUNT_INDEX = 2;
+
+// computes the end offset, exclusive
 function dataViewEnd(dataViewInfo) {
     return dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX] + dataViewInfo[DATA_VIEW_INFO_SIZE_INDEX] * dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX];
 }
@@ -32,8 +33,8 @@ const DATA_LAYOUT_VERSION = 1;
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
 const ENABLED = [dataViewEnd(VERSION), BOOL_SIZE, 1];
-const EPOCH_SEC_OFFSET = [dataViewEnd(VERSION), UINT_SIZE, 1];
-const LOOK_AHEAD_CFG = [dataViewEnd(EPOCH_SEC_OFFSET), FLOAT_SIZE, 4];
+const EPOCH_SEC = [dataViewEnd(ENABLED), UINT_SIZE, 1];
+const LOOK_AHEAD_CFG = [dataViewEnd(EPOCH_SEC), FLOAT_SIZE, 4];
 const DISPLAY_RES = [dataViewEnd(LOOK_AHEAD_CFG), UINT_SIZE, 2];
 const DISPLAY_FOV = [dataViewEnd(DISPLAY_RES), FLOAT_SIZE, 1];
 const DISPLAY_ZOOM = [dataViewEnd(DISPLAY_FOV), FLOAT_SIZE, 1];
@@ -48,6 +49,7 @@ const IMU_QUAT_DATA = [dataViewEnd(CUSTOM_BANNER_ENABLED), FLOAT_SIZE, 16];
 // cached after first retrieval
 const shaderUniformLocations = {
     'enabled': null,
+    'show_banner': null,
     'imu_quat_data': null,
     'look_ahead_cfg': null,
     'stage_aspect_ratio': null,
@@ -61,7 +63,8 @@ const shaderUniformLocations = {
     'custom_banner_enabled': null,
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
-    'screen_distance': null
+    'screen_distance': null,
+    'frametime': null
 };
 
 function dataViewUint8(dataView, dataViewInfo) {
@@ -74,7 +77,7 @@ function dataViewUint(dataView, dataViewInfo) {
 
 function dataViewUintArray(dataView, dataViewInfo) {
     const uintArray = []
-    const offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
+    let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
     for (let i = 0; i < dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX]; i++) {
         uintArray.push(dataView.getUint32(offset, true));
         offset += UINT_SIZE;
@@ -88,7 +91,7 @@ function dataViewFloat(dataView, dataViewInfo) {
 
 function dataViewFloatArray(dataView, dataViewInfo) {
     const floatArray = []
-    const offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
+    let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
     for (let i = 0; i < dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX]; i++) {
         floatArray.push(dataView.getFloat32(offset, true));
         offset += FLOAT_SIZE;
@@ -116,15 +119,20 @@ function setUniformFloat(effect, locationName, dataViewInfo, value) {
 
 function transferUniformFloat(effect, locationName, dataView, dataViewInfo) {
     setUniformFloat(effect, locationName, dataViewInfo, dataViewFloatArray(dataView, dataViewInfo));
+}
+
+function setSingleFloat(effect, locationName, value) {
+    effect.set_uniform_float(shaderUniformLocations[locationName], 1, [value]);
+}
 
 function setUniformMatrix(effect, locationName, components, dataView, dataViewInfo) {
     const numValues = dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX];
-    if (numValues / componenents !== components) {
+    if (numValues / components !== components) {
         throw new Error('Invalid matrix size');
     }
 
     const floatArray = [].fill(0, 0, numValues);
-    const offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
+    let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
     for (let i = 0; i < numValues; i++) {
         // GLSL uses column-major order, so we need to transpose the matrix
         const row = i % components;
@@ -144,14 +152,18 @@ function degreeToRadian(degree) {
     return degree * Math.PI / 180;
 }
 
-// config doesn't change frequently, so we'll set these all at once, periodically
-function setConfigUniformVarables(effect, dataView) {
+
+
+// most uniforms don't change frequently, this function should be called periodically
+function setIntermittentUniformVariables() {
+    const dataView = this._dataView;
     const version = dataViewUint8(dataView, VERSION);
-    const date = dataViewUint(dataView, EPOCH_SEC_OFFSET);
+    const date = dataViewUint(dataView, EPOCH_SEC);
     const validKeepalive = Math.abs(getEpochSec() - date) < 5;
     const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
     const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
+
     if (enabled) {
         const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
         const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
@@ -165,76 +177,77 @@ function setConfigUniformVarables(effect, dataView) {
         const halfFovYRads = halfFovZRads * stageAspectRatio;
         const screenDistance = 1.0 - lensDistanceRatio;
         
-        // all these values are passed directly to the shader, unmodified
-        transferUniformFloat(effect, 'imu_quat_data', dataView, IMU_QUAT_DATA);
-        transferUniformFloat(effect, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
-        transferUniformFloat(effect, 'display_zoom', dataView, DISPLAY_ZOOM);
-        transferUniformFloat(effect, 'display_north_offset', dataView, DISPLAY_NORTH_OFFSET);
-        transferUniformFloat(effect, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
-        transferUniformBoolean(effect, 'sbs_enabled', dataView, SBS_ENABLED);
-        transferUniformBoolean(effect, 'sbs_content', dataView, SBS_CONTENT);
-        transferUniformBoolean(effect, 'sbs_mode_stretched', dataView, SBS_MODE_STRETCHED);
-        transferUniformBoolean(effect, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
+        // all these values are transferred directly, unmodified from the driver
+        transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
+        transferUniformFloat(this, 'display_zoom', dataView, DISPLAY_ZOOM);
+        transferUniformFloat(this, 'display_north_offset', dataView, DISPLAY_NORTH_OFFSET);
+        transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
+        transferUniformBoolean(this, 'sbs_enabled', dataView, SBS_ENABLED);
+        transferUniformBoolean(this, 'sbs_content', dataView, SBS_CONTENT);
+        transferUniformBoolean(this, 'sbs_mode_stretched', dataView, SBS_MODE_STRETCHED);
+        transferUniformBoolean(this, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
 
-        // no dataViewInfo, so we set these manually
-        effect.set_uniform_float(shaderUniformLocations['stage_aspect_ratio'], 1, [stageAspectRatio]);
-        effect.set_uniform_float(shaderUniformLocations['display_aspect_ratio'], 1, [displayAspectRatio]);
-        effect.set_uniform_float(shaderUniformLocations['half_fov_z_rads'], 1, [halfFovZRads]);
-        effect.set_uniform_float(shaderUniformLocations['half_fov_y_rads'], 1, [halfFovYRads]);
-        effect.set_uniform_float(shaderUniformLocations['screen_distance'], 1, [screenDistance]);
+        // computed values with no dataViewInfo, so we set these manually
+        setSingleFloat(this, 'show_banner', imuResetState);
+        setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
+        setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
+        setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
+        setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
+        setSingleFloat(this, 'screen_distance', screenDistance);
+        setSingleFloat(this, 'frametime', this._frametime);
     }
-    setUniformBoolean(effect, shaderUniformLocations['enabled'], ENABLED, enabled);
+    setSingleFloat(this, 'enabled', enabled);
 }
+
 
 class Extension {
     enable() {
         var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
             vfunc_build_pipeline() {
-                // Shell.GLSLEffect requires the declarations and the main source code as separate
-                // strings. As it's more convenient to store the in one GLSL file, we use a regex
-                // here to split the source code in two parts.
-                const code = getShaderSource('/home/wayne/IdeaProjects/nreal/breezy-desktop/gnome/breezydesktop@org.xronlinux/IMUAdjust.frag');
-
+                const shaderPath = GLib.getenv('BREEZY_GNOME_SHADER_PATH');
+                const code = getShaderSource(shaderPath);
                 const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
                 this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
+
+                this._frametime = 10; // 100 FPS
             }
 
             // TODO - read IMU data and update uniform variables
             vfunc_paint_target(node, paintContext) {
+              if (!this._initialized) {
+                this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
+              }
 
               const data = this._shared_mem_file.load_contents(null);
               if (data[0]) {
                 const buffer = new Uint8Array(data[1]).buffer;
-                var dataView = new DataView(buffer);
+                this._dataView = new DataView(buffer);
                 var repaintNeeded = false;
-                if (!this._initialized) { 
+                if (!this._initialized) {
                     this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
-                    this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
 
                     // iterate over shaderUniformLocations keys and set the uniform locations
                     for (let key in shaderUniformLocations) {
                         shaderUniformLocations[key] = this.get_uniform_location(key);
                     }
+                    this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
+                    this.setIntermittentUniformVariables();
 
-                    setConfigUniformVarables(this, dataView);
-
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000/50, () => {
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
                         repaintNeeded = true;
                         this.queue_repaint();
                         return GLib.SOURCE_CONTINUE;
                     });
 
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-                        setConfigUniformVarables(this, dataView);
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
+                        this.setIntermittentUniformVariables();
                         return GLib.SOURCE_CONTINUE;
-                    });
+                    }).bind(this));
                     Meta.CursorTracker.get_for_display(global.display).set_pointer_visible(true);
-                    console.log(`is_rendering_hardware_accelerated: ${Meta.CursorTracker.get_for_display(global.display).backend.is_rendering_hardware_accelerated()}`);
-
                     this._initialized = true;
                 }
 
-                transferUniformFloat(this, 'imu_quat_data', dataView, IMU_QUAT_DATA);
+                setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
                 
                 // if (repaintNeeded) {
                   super.vfunc_paint_target(node, paintContext);
