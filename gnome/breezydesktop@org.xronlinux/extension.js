@@ -1,17 +1,12 @@
-const Lang = imports.lang;
-const St = imports.gi.St;
-const Clutter = imports.gi.Clutter;
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Cogl = imports.gi.Cogl;
-const Shell = imports.gi.Shell;
-const Meta = imports.gi.Meta;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
+import Meta from 'gi://Meta';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
+import ExtensionUtils from 'gi://ExtensionUtils';
+import Main from 'gi://Main';
+import PanelMenu from 'gi://PanelMenu';
 
 const UINT8_SIZE = 1;
 const BOOL_SIZE = UINT8_SIZE;
@@ -200,7 +195,7 @@ function setIntermittentUniformVariables() {
 }
 
 
-class Extension {
+export default class ExampleExtension extends Extension {
     enable() {
         var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
             vfunc_build_pipeline() {
@@ -212,7 +207,6 @@ class Extension {
                 this._frametime = 10; // 100 FPS
             }
 
-            // TODO - read IMU data and update uniform variables
             vfunc_paint_target(node, paintContext) {
               if (!this._initialized) {
                 this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
