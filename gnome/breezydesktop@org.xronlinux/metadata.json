@@ -1,7 +1,7 @@
 {
     "uuid": "breezydesktop@org.xronlinux",
-    "name": "Breezy GNOME",
-    "description": "XR virtual desktop for Linux.",
+    "name": "Breezy GNOME XR Desktop",
+    "description": "XR virtual desktop for GNOME.",
     "shell-version": [
         "45", "46"
     ],
