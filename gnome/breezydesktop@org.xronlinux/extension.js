@@ -4,9 +4,12 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
-import ExtensionUtils from 'gi://ExtensionUtils';
-import Main from 'gi://Main';
-import PanelMenu from 'gi://PanelMenu';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Logger from './logger.js';
+import { CursorManager } from './cursormanager.js';
+
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 const UINT8_SIZE = 1;
 const BOOL_SIZE = UINT8_SIZE;
@@ -195,12 +198,32 @@ function setIntermittentUniformVariables() {
 }
 
 
-export default class ExampleExtension extends Extension {
+export default class BreezyDesktopExtension extends Extension {
+    constructor(metadata, uuid) {
+        super(metadata, uuid);
+        this._extensionPath = metadata.path;
+        
+        // Set/destroyed by enable/disable
+        this._settings = null;
+        this._logger = null;
+        this._cursorManager = null;
+        this._removeSettingsCallbacks = [];
+    }
+
     enable() {
+        // this._settings = this.getSettings();
+        this._logger = new Logger.Logger('soft-brightness-plus', this.metadata, Config.PACKAGE_VERSION);
+        // this._logger.set_debug(this._settings.get_boolean('debug'));
+        this._logger.log_debug('enable(), session mode = ' + Main.sessionMode.currentMode);
+        this._logger.logVersion();
+
+        this._cursorManager = new CursorManager(this._logger, this._settings, global.stage);
+        this._cursorManager.enable();
+
+        const extensionPath = this._extensionPath;
         var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
             vfunc_build_pipeline() {
-                const shaderPath = GLib.getenv('BREEZY_GNOME_SHADER_PATH');
-                const code = getShaderSource(shaderPath);
+                const code = getShaderSource(`${extensionPath}/IMUAdjust.frag`);
                 const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
                 this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
 
@@ -216,7 +239,6 @@ export default class ExampleExtension extends Extension {
               if (data[0]) {
                 const buffer = new Uint8Array(data[1]).buffer;
                 this._dataView = new DataView(buffer);
-                var repaintNeeded = false;
                 if (!this._initialized) {
                     this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
 
@@ -227,8 +249,9 @@ export default class ExampleExtension extends Extension {
                     this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                     this.setIntermittentUniformVariables();
 
+                    this._repaint_needed = false;
                     GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                        repaintNeeded = true;
+                        this._repaint_needed = true;
                         this.queue_repaint();
                         return GLib.SOURCE_CONTINUE;
                     });
@@ -243,9 +266,10 @@ export default class ExampleExtension extends Extension {
 
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
                 
-                // if (repaintNeeded) {
+                if (this._repaint_needed) {
                   super.vfunc_paint_target(node, paintContext);
-                // }
+                  this._repaint_needed = false;
+                }
               }
             }
         });
@@ -254,6 +278,9 @@ export default class ExampleExtension extends Extension {
     }
 
     disable() {
+        this._logger.log_debug('disable(), session mode = ' + Main.sessionMode.currentMode);
+        this._cursorManager.disable();
+        this._cursorManager = null;
     }
 }
 
