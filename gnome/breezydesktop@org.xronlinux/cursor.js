@@ -38,7 +38,7 @@ export const MouseSpriteContent = GObject.registerClass({
         if (!this._texture)
             return;
 
-        let color = Clutter.Color.from_string('#ffffff'); // white
+        let color = Clutter.Color.get_static(Clutter.StaticColor.WHITE);
         let [minFilter, magFilter] = actor.get_content_scaling_filters();
         let textureNode = new Clutter.TextureNode(this._texture,
             color, minFilter, magFilter);

@@ -56,17 +56,6 @@ vec3 rateOfChange(
 	return (v1 - v2) / delta_time;
 }
 
-bool isKeepaliveRecent(
-	in vec4 currentDate,
-	in vec4 keepAliveDate) {
-	float _174 = currentDate.w + float(day_in_seconds);
-	float _176 = _174 - keepAliveDate.w;
-	float _178 = mod(_176, float(day_in_seconds));
-	float _179 = abs(_178);
-	bool _181 = _179 <= 5.00000000e+00;
-	return _181;
-}
-
 void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
 	float texcoord_x_min = 0.0;
 	float texcoord_x_max = 1.0;
