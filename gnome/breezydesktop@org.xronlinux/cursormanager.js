@@ -60,6 +60,7 @@ export class CursorManager {
     _enable() {
         this._cloneMouseSetting = true; // this._settings.get_boolean('clone-mouse');
         this._enableCloningMouse();
+        this.startCloning();
         // this._cloneMouseSettingChangedConnection = this._settings.connect('changed::clone-mouse', this._on_clone_mouse_change.bind(this));
     }
 
@@ -116,29 +117,30 @@ export class CursorManager {
     _on_clone_mouse_change() {
         const cloneMouse = true; // this._settings.get_boolean('clone-mouse');
         if (cloneMouse == this._cloneMouseSetting) {
-            this._logger.log_debug('_on_clone_mouse_change(): no setting change, no change');
+            console.log('_on_clone_mouse_change(): no setting change, no change');
             return;
         }
         if (cloneMouse) {
             // Starting to clone mouse
-            this._logger.log_debug('_on_clone_mouse_change(): starting mouse cloning');
+            console.log('_on_clone_mouse_change(): starting mouse cloning');
             this._cloneMouseSetting = true;
             this._enableCloningMouse();
             if (this._changeHookFn !== null) {
                 this._changeHookFn();
             }
         } else {
-            this._logger.log_debug('_on_clone_mouse_change(): stopping mouse cloning');
+            console.log('_on_clone_mouse_change(): stopping mouse cloning');
             this._disableCloningMouse();
             this._cloneMouseSetting = false;
         }
     }
 
     _enableCloningMouse() {
+        console.log(`_enableCloningMouse()`);
         if (!this._isMouseClonable()) {
             return;
         }
-        this._logger.log_debug('_enableCloningMouse()');
+        console.log(`_enableCloningMouse() 1`);
 
         this._cursorWantedVisible = true;
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
@@ -153,6 +155,7 @@ export class CursorManager {
         this._cursorActor.add_actor(this._cursorSprite);
         this._cursorWatcher = PointerWatcher.getPointerWatcher();
         this._cursorSeat = Clutter.get_default_backend().get_default_seat();
+        console.log(`_enableCloningMouse() 2`);
     }
 
     _disableCloningMouse() {
@@ -160,7 +163,7 @@ export class CursorManager {
             return;
         }
         this._stopCloningShowMouse();
-        this._logger.log_debug('_disableCloningMouse()');
+        console.log('_disableCloningMouse()');
 
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
 
@@ -182,6 +185,7 @@ export class CursorManager {
     }
 
     _cursorTrackerSetPointerVisibleReplacement(visible) {
+        console.log(`_cursorTrackerSetPointerVisibleReplacement(${visible})`);
         if (visible) {
             this._startCloningMouse();
             // For some reason, exiting the magnifier causes the
@@ -202,13 +206,13 @@ export class CursorManager {
         if (!this._isMouseClonable()) {
             return;
         }
-        this._logger.log_debug('_startCloningMouse()');
+        console.log('_startCloningMouse()');
         if (this._cursorWatch == null) {
             this._mainActor.add_actor(this._cursorActor);
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
             const interval = 1000 / 60;
-            this._logger.log_debug('_startCloningMouse(): watch interval = ' + interval + ' ms');
+            console.log('_startCloningMouse(): watch interval = ' + interval + ' ms');
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
             this._updateMouseSprite();
@@ -229,7 +233,7 @@ export class CursorManager {
         if (!this._isMouseClonable()) {
             return;
         }
-        this._logger.log_debug('_stopCloningShowMouse(), restoring cursor visibility to ' + this._cursorWantedVisible);
+        console.log('_stopCloningShowMouse(), restoring cursor visibility to ' + this._cursorWantedVisible);
         this._stopCloningMouse();
         this._setPointerVisible(this._cursorWantedVisible);
 
@@ -247,7 +251,7 @@ export class CursorManager {
             return;
         }
         if (this._cursorWatch != null) {
-            this._logger.log_debug('_stopCloningMouse()');
+            console.log('_stopCloningMouse()');
 
             this._cursorWatch.remove();
             this._cursorWatch = null;
@@ -267,7 +271,7 @@ export class CursorManager {
     _updateMousePosition(actor, event) {
         const [x, y, mask] = global.get_pointer();
         this._cursorActor.set_position(x, y);
-        this._delayedSetPointerInvisible();
+        // this._delayedSetPointerInvisible();
     }
 
     _updateMouseSprite() {
@@ -284,7 +288,7 @@ export class CursorManager {
             translation_x: -xHot,
             translation_y: -yHot,
         });
-        this._delayedSetPointerInvisible();
+        // this._delayedSetPointerInvisible();
     }
 
     _delayedSetPointerInvisible() {

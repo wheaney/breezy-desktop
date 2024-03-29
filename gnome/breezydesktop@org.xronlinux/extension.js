@@ -43,6 +43,7 @@ const SBS_CONTENT = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
 const SBS_MODE_STRETCHED = [dataViewEnd(SBS_CONTENT), BOOL_SIZE, 1];
 const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_MODE_STRETCHED), BOOL_SIZE, 1];
 const IMU_QUAT_DATA = [dataViewEnd(CUSTOM_BANNER_ENABLED), FLOAT_SIZE, 16];
+const DATA_VIEW_LENGTH = dataViewEnd(IMU_QUAT_DATA);
 
 // cached after first retrieval
 const shaderUniformLocations = {
@@ -155,46 +156,51 @@ function degreeToRadian(degree) {
 // most uniforms don't change frequently, this function should be called periodically
 function setIntermittentUniformVariables() {
     const dataView = this._dataView;
-    const version = dataViewUint8(dataView, VERSION);
-    const date = dataViewUint(dataView, EPOCH_SEC);
-    const validKeepalive = Math.abs(getEpochSec() - date) < 5;
-    const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-    const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-    const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
 
-    if (enabled) {
-        const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
-        const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
-        const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+    if (dataView.byteLength === DATA_VIEW_LENGTH) {
+        const version = dataViewUint8(dataView, VERSION);
+        const date = dataViewUint(dataView, EPOCH_SEC);
+        const validKeepalive = Math.abs(getEpochSec() - date) < 5;
+        const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+        const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
 
-        // compute these values once, they only change when the XR device changes
-        const displayAspectRatio = displayRes[0] / displayRes[1];
-        const stageAspectRatio = global.stage.get_width() / global.stage.get_height();
-        const diagToVertRatio = Math.sqrt(Math.pow(stageAspectRatio, 2) + 1);
-        const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
-        const halfFovYRads = halfFovZRads * stageAspectRatio;
-        const screenDistance = 1.0 - lensDistanceRatio;
-        
-        // all these values are transferred directly, unmodified from the driver
-        transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
-        transferUniformFloat(this, 'display_zoom', dataView, DISPLAY_ZOOM);
-        transferUniformFloat(this, 'display_north_offset', dataView, DISPLAY_NORTH_OFFSET);
-        transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
-        transferUniformBoolean(this, 'sbs_enabled', dataView, SBS_ENABLED);
-        transferUniformBoolean(this, 'sbs_content', dataView, SBS_CONTENT);
-        transferUniformBoolean(this, 'sbs_mode_stretched', dataView, SBS_MODE_STRETCHED);
-        transferUniformBoolean(this, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
+        if (enabled) {
+            const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
+            const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
+            const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
 
-        // computed values with no dataViewInfo, so we set these manually
-        setSingleFloat(this, 'show_banner', imuResetState);
-        setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
-        setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
-        setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
-        setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
-        setSingleFloat(this, 'screen_distance', screenDistance);
-        setSingleFloat(this, 'frametime', this._frametime);
+            // compute these values once, they only change when the XR device changes
+            const displayAspectRatio = displayRes[0] / displayRes[1];
+            const stageAspectRatio = global.stage.get_width() / global.stage.get_height();
+            const diagToVertRatio = Math.sqrt(Math.pow(stageAspectRatio, 2) + 1);
+            const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
+            const halfFovYRads = halfFovZRads * stageAspectRatio;
+            const screenDistance = 1.0 - lensDistanceRatio;
+            
+            // all these values are transferred directly, unmodified from the driver
+            transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
+            transferUniformFloat(this, 'display_zoom', dataView, DISPLAY_ZOOM);
+            transferUniformFloat(this, 'display_north_offset', dataView, DISPLAY_NORTH_OFFSET);
+            transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
+            transferUniformBoolean(this, 'sbs_enabled', dataView, SBS_ENABLED);
+            transferUniformBoolean(this, 'sbs_content', dataView, SBS_CONTENT);
+            transferUniformBoolean(this, 'sbs_mode_stretched', dataView, SBS_MODE_STRETCHED);
+            transferUniformBoolean(this, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
+
+            // computed values with no dataViewInfo, so we set these manually
+            setSingleFloat(this, 'show_banner', imuResetState);
+            setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
+            setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
+            setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
+            setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
+            setSingleFloat(this, 'screen_distance', screenDistance);
+            setSingleFloat(this, 'frametime', this._frametime);
+        }
+        setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
+    } else if (dataView.byteLength !== 0) {
+        console.error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
     }
-    setSingleFloat(this, 'enabled', enabled);
 }
 
 
@@ -260,11 +266,14 @@ export default class BreezyDesktopExtension extends Extension {
                         this.setIntermittentUniformVariables();
                         return GLib.SOURCE_CONTINUE;
                     }).bind(this));
-                    Meta.CursorTracker.get_for_display(global.display).set_pointer_visible(true);
                     this._initialized = true;
                 }
 
-                setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                    setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                } else if (this._dataView.byteLength !== 0) {
+                    console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                }
                 
                 if (this._repaint_needed) {
                   super.vfunc_paint_target(node, paintContext);
@@ -274,10 +283,12 @@ export default class BreezyDesktopExtension extends Extension {
             }
         });
 
-        global.stage.add_effect(new XREffect());
+        this._xr_effect = new XREffect();
+        global.stage.add_effect(this._xr_effect);
     }
 
     disable() {
+        global.stage.remove_effect(this._xr_effect)
         this._logger.log_debug('disable(), session mode = ' + Main.sessionMode.currentMode);
         this._cursorManager.disable();
         this._cursorManager = null;
