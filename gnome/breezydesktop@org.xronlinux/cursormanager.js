@@ -147,6 +147,7 @@ export class CursorManager {
         this._cursorTrackerSetPointerVisible = Meta.CursorTracker.prototype.set_pointer_visible;
         this._cursorTrackerSetPointerVisibleBound = this._cursorTrackerSetPointerVisible.bind(this._cursorTracker);
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisibleReplacement.bind(this);
+        this._cursorTrackerSetPointerVisibleBound(false);
 
         this._cursorSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
         this._cursorSprite.content = new MouseSpriteContent();
@@ -165,6 +166,7 @@ export class CursorManager {
         this._stopCloningShowMouse();
         console.log('_disableCloningMouse()');
 
+        this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
 
         this._cursorWantedVisible = null;
@@ -181,7 +183,6 @@ export class CursorManager {
         if (!this._isMouseClonable()) {
             return;
         }
-        this._cursorTrackerSetPointerVisibleBound(visible);
     }
 
     _cursorTrackerSetPointerVisibleReplacement(visible) {
@@ -211,12 +212,11 @@ export class CursorManager {
             this._mainActor.add_actor(this._cursorActor);
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
-            const interval = 1000 / 60;
+            const interval = 1000 / 100;
             console.log('_startCloningMouse(): watch interval = ' + interval + ' ms');
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
             this._updateMouseSprite();
-            this._updateMousePosition();
         }
         this._setPointerVisible(false);
 
@@ -268,8 +268,7 @@ export class CursorManager {
         this._clearDelayedSetPointerInvibleCallbacks();
     }
 
-    _updateMousePosition(actor, event) {
-        const [x, y, mask] = global.get_pointer();
+    _updateMousePosition(x, y) {
         this._cursorActor.set_position(x, y);
         // this._delayedSetPointerInvisible();
     }
@@ -288,6 +287,7 @@ export class CursorManager {
             translation_x: -xHot,
             translation_y: -yHot,
         });
+        this._cursorTrackerSetPointerVisibleBound(false);
         // this._delayedSetPointerInvisible();
     }
 

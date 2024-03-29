@@ -42,7 +42,7 @@ export const MouseSpriteContent = GObject.registerClass({
         let [minFilter, magFilter] = actor.get_content_scaling_filters();
         let textureNode = new Clutter.TextureNode(this._texture,
             color, minFilter, magFilter);
-        textureNode.set_name('SoftBrightnessPlusMouseSpriteContent');
+        textureNode.set_name('BreezyDesktopSpriteContent');
         node.add_child(textureNode);
 
         textureNode.add_rectangle(actor.get_content_box());
