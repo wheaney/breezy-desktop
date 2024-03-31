@@ -284,7 +284,37 @@ export default class BreezyDesktopExtension extends Extension {
         });
 
         this._xr_effect = new XREffect();
-        global.stage.add_effect(this._xr_effect);
+        global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
+        this._attached_to_actor = global.stage;
+        let handleFullscreenUpdate = (() => {
+            console.log('\tBreezy fullscreen update\n');
+            let currentWindow = global.display.sort_windows_by_stacking(global.display.list_all_windows()).find(window => window === global.display.focus_window || window.is_fullscreen());
+            // let currentWindow = global.display.focus_window;
+            if (currentWindow.is_fullscreen()) {
+               const windowActor = currentWindow.find_root_ancestor().get_compositor_private();
+               console.log('\tBreezy fullscreen update 1\n');
+               if (this._attached_to_actor !== windowActor) {
+                   console.log('\tBreezy fullscreen update 2\n');
+                   this._attached_to_actor.remove_effect_by_name('xr-desktop');
+                   windowActor.add_effect_with_name('xr-desktop', this._xr_effect);
+                   this._attached_to_actor = windowActor;
+                   console.log('\tBreezy fullscreen update 5\n');
+               } 
+            } else {
+               console.log('\tBreezy fullscreen update 3\n');
+               if (this._attached_to_actor !== global.stage) {
+                   console.log('\tBreezy fullscreen update 4\n');
+                   this._attached_to_actor.remove_effect_by_name('xr-desktop');
+                   global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
+                   this._attached_to_actor = global.stage;
+                   console.log('\tBreezy fullscreen update 6\n');
+               }
+            }
+        }).bind(this);
+
+        // global.display.connect('in-fullscreen-changed', handleFullscreenUpdate);
+        // global.display.connect('notify::focus-window', handleFullscreenUpdate);
+
     }
 
     disable() {
