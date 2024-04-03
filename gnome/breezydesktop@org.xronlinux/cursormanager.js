@@ -8,16 +8,11 @@ import { MouseSpriteContent } from './cursor.js';
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
-    constructor(logger, settings, mainActor) {
-        this._logger = logger;
-        this._settings = settings;
+    constructor(mainActor) {
         this._mainActor = mainActor;
 
         this._enableTimeoutId = null;
         this._changeHookFn = null;
-
-        this._cloneMouseSetting = null;
-        this._cloneMouseSettingChangedConnection = null;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
         this._cursorWantedVisible = null;
@@ -32,12 +27,6 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        // Set/destroyed by _delayedSetPointerInvisible/_clearDelayedSetPointerInvibleCallbacks
-        this._delayedSetPointerInvisibleIdleSource = null;
-    }
-
-    setChangeHook(fn) {
-        this._changeHookFn = fn;
     }
 
     enable() {
@@ -49,19 +38,13 @@ export class CursorManager {
             // Wait 500ms before starting to check for the _brightness object.
             this._enableTimeoutId = null;
             this._enable();
-            // Ensure proper stacking order for cursor and overlay.
-            if (this._changeHookFn !== null) {
-                this._changeHookFn();
-            }
             return GLib.SOURCE_REMOVE;
         });
     }
 
     _enable() {
-        this._cloneMouseSetting = true; // this._settings.get_boolean('clone-mouse');
         this._enableCloningMouse();
         this.startCloning();
-        // this._cloneMouseSettingChangedConnection = this._settings.connect('changed::clone-mouse', this._on_clone_mouse_change.bind(this));
     }
 
     disable() {
@@ -72,12 +55,7 @@ export class CursorManager {
             return;
         }
         this._enableTimeoutId = null;
-        this._changeHookFn = null;
-
-        // this._settings.disconnect(this._cloneMouseSettingChangedConnection);
-        // this._cloneMouseSettingChangedConnection = null;
         this._disableCloningMouse();
-        this._cloneMouseSetting = null;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
         this._cursorWantedVisible = null;
@@ -92,8 +70,6 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        // Set/destroyed by _delayedSetPointerInvisible/_clearDelayedSetPointerInvibleCallbacks
-        this._delayedSetPointerInvisibleIdleSource = null;
     }
 
     startCloning() {
@@ -106,42 +82,7 @@ export class CursorManager {
         this._stopCloningShowMouse();
     }
 
-    hidePointer() {
-        this._setPointerVisible(false);
-    }
-
-    _isMouseClonable() {
-        return this._cloneMouseSetting;
-    }
-
-    _on_clone_mouse_change() {
-        const cloneMouse = true; // this._settings.get_boolean('clone-mouse');
-        if (cloneMouse == this._cloneMouseSetting) {
-            console.log('_on_clone_mouse_change(): no setting change, no change');
-            return;
-        }
-        if (cloneMouse) {
-            // Starting to clone mouse
-            console.log('_on_clone_mouse_change(): starting mouse cloning');
-            this._cloneMouseSetting = true;
-            this._enableCloningMouse();
-            if (this._changeHookFn !== null) {
-                this._changeHookFn();
-            }
-        } else {
-            console.log('_on_clone_mouse_change(): stopping mouse cloning');
-            this._disableCloningMouse();
-            this._cloneMouseSetting = false;
-        }
-    }
-
     _enableCloningMouse() {
-        console.log(`_enableCloningMouse()`);
-        if (!this._isMouseClonable()) {
-            return;
-        }
-        console.log(`_enableCloningMouse() 1`);
-
         this._cursorWantedVisible = true;
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
         this._cursorTrackerSetPointerVisible = Meta.CursorTracker.prototype.set_pointer_visible;
@@ -156,16 +97,9 @@ export class CursorManager {
         this._cursorActor.add_actor(this._cursorSprite);
         this._cursorWatcher = PointerWatcher.getPointerWatcher();
         this._cursorSeat = Clutter.get_default_backend().get_default_seat();
-        console.log(`_enableCloningMouse() 2`);
     }
 
     _disableCloningMouse() {
-        if (!this._isMouseClonable()) {
-            return;
-        }
-        this._stopCloningShowMouse();
-        console.log('_disableCloningMouse()');
-
         this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
 
@@ -179,46 +113,25 @@ export class CursorManager {
         this._cursorSeat = null;
     }
 
-    _setPointerVisible(visible) {
-        if (!this._isMouseClonable()) {
-            return;
-        }
-    }
-
     _cursorTrackerSetPointerVisibleReplacement(visible) {
-        console.log(`_cursorTrackerSetPointerVisibleReplacement(${visible})`);
         if (visible) {
             this._startCloningMouse();
-            // For some reason, exiting the magnifier causes the
-            // stacking order for the cursor and overlay actors to be
-            // swapped around.  Reassert stacking order whenever the
-            // pointer should become visible again.
-            if (this._changeHookFn !== null) {
-                this._changeHookFn();
-            }
         } else {
             this._stopCloningMouse();
-            this._setPointerVisible(false);
         }
         this._cursorWantedVisible = visible;
     }
 
     _startCloningMouse() {
-        if (!this._isMouseClonable()) {
-            return;
-        }
-        console.log('_startCloningMouse()');
         if (this._cursorWatch == null) {
             this._mainActor.add_actor(this._cursorActor);
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
             const interval = 1000 / 100;
-            console.log('_startCloningMouse(): watch interval = ' + interval + ' ms');
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
             this._updateMouseSprite();
         }
-        this._setPointerVisible(false);
 
         if (this._cursorTracker.set_keep_focus_while_hidden) {
             this._cursorTracker.set_keep_focus_while_hidden(true);
@@ -233,9 +146,8 @@ export class CursorManager {
         if (!this._isMouseClonable()) {
             return;
         }
-        console.log('_stopCloningShowMouse(), restoring cursor visibility to ' + this._cursorWantedVisible);
         this._stopCloningMouse();
-        this._setPointerVisible(this._cursorWantedVisible);
+        this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
 
         if (this._cursorTracker.set_keep_focus_while_hidden) {
             this._cursorTracker.set_keep_focus_while_hidden(false);
@@ -251,8 +163,6 @@ export class CursorManager {
             return;
         }
         if (this._cursorWatch != null) {
-            console.log('_stopCloningMouse()');
-
             this._cursorWatch.remove();
             this._cursorWatch = null;
 
@@ -264,13 +174,10 @@ export class CursorManager {
 
             this._mainActor.remove_actor(this._cursorActor);
         }
-
-        this._clearDelayedSetPointerInvibleCallbacks();
     }
 
     _updateMousePosition(x, y) {
         this._cursorActor.set_position(x, y);
-        // this._delayedSetPointerInvisible();
     }
 
     _updateMouseSprite() {
@@ -288,29 +195,5 @@ export class CursorManager {
             translation_y: -yHot,
         });
         this._cursorTrackerSetPointerVisibleBound(false);
-        // this._delayedSetPointerInvisible();
-    }
-
-    _delayedSetPointerInvisible() {
-        this._setPointerVisible(false);
-
-        // Clear the pointer upon entering idle loop
-        if (this._delayedSetPointerInvisibleIdleSource == null) {
-            this._delayedSetPointerInvisibleIdleSource = GLib.idle_add(
-                GLib.PRIORITY_DEFAULT,
-                () => {
-                    this._setPointerVisible(false);
-                    this._delayedSetPointerInvisibleIdleSource = null;
-                    return false;
-                }
-            );
-        }
-    }
-
-    _clearDelayedSetPointerInvibleCallbacks() {
-        if (this._delayedSetPointerInvisibleIdleSource != null) {
-            GLib.source_remove(this._delayedSetPointerInvisibleIdleSource);
-            this._delayedSetPointerInvisibleIdleSource = null;
-        }
     }
 }

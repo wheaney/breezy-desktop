@@ -4,9 +4,6 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
 
-import * as Config from 'resource:///org/gnome/shell/misc/config.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as Logger from './logger.js';
 import { CursorManager } from './cursormanager.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -210,20 +207,11 @@ export default class BreezyDesktopExtension extends Extension {
         this._extensionPath = metadata.path;
         
         // Set/destroyed by enable/disable
-        this._settings = null;
-        this._logger = null;
         this._cursorManager = null;
-        this._removeSettingsCallbacks = [];
     }
 
     enable() {
-        // this._settings = this.getSettings();
-        this._logger = new Logger.Logger('soft-brightness-plus', this.metadata, Config.PACKAGE_VERSION);
-        // this._logger.set_debug(this._settings.get_boolean('debug'));
-        this._logger.log_debug('enable(), session mode = ' + Main.sessionMode.currentMode);
-        this._logger.logVersion();
-
-        this._cursorManager = new CursorManager(this._logger, this._settings, global.stage);
+        this._cursorManager = new CursorManager(global.stage);
         this._cursorManager.enable();
 
         const extensionPath = this._extensionPath;
@@ -237,89 +225,60 @@ export default class BreezyDesktopExtension extends Extension {
             }
 
             vfunc_paint_target(node, paintContext) {
-              if (!this._initialized) {
-                this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
-              }
-
-              const data = this._shared_mem_file.load_contents(null);
-              if (data[0]) {
-                const buffer = new Uint8Array(data[1]).buffer;
-                this._dataView = new DataView(buffer);
                 if (!this._initialized) {
-                    this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
+                    this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
+                }
 
-                    // iterate over shaderUniformLocations keys and set the uniform locations
-                    for (let key in shaderUniformLocations) {
-                        shaderUniformLocations[key] = this.get_uniform_location(key);
+                if (this._shared_mem_file.query_exists(null)) {
+                    const data = this._shared_mem_file.load_contents(null);
+                    if (data[0]) {
+                        const buffer = new Uint8Array(data[1]).buffer;
+                        this._dataView = new DataView(buffer);
+                        if (!this._initialized) {
+                            this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [8]);
+
+                            // iterate over shaderUniformLocations keys and set the uniform locations
+                            for (let key in shaderUniformLocations) {
+                                shaderUniformLocations[key] = this.get_uniform_location(key);
+                            }
+                            this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
+                            this.setIntermittentUniformVariables();
+
+                            this._repaint_needed = false;
+                            GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
+                                this._repaint_needed = true;
+                                this.queue_repaint();
+                                return GLib.SOURCE_CONTINUE;
+                            });
+
+                            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
+                                this.setIntermittentUniformVariables();
+                                return GLib.SOURCE_CONTINUE;
+                            }).bind(this));
+                            this._initialized = true;
+                        }
+
+                        if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                            setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                        } else if (this._dataView.byteLength !== 0) {
+                            console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                        }
+                        
+                        if (this._repaint_needed) {
+                        super.vfunc_paint_target(node, paintContext);
+                        this._repaint_needed = false;
+                        }
                     }
-                    this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
-                    this.setIntermittentUniformVariables();
-
-                    this._repaint_needed = false;
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                        this._repaint_needed = true;
-                        this.queue_repaint();
-                        return GLib.SOURCE_CONTINUE;
-                    });
-
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
-                        this.setIntermittentUniformVariables();
-                        return GLib.SOURCE_CONTINUE;
-                    }).bind(this));
-                    this._initialized = true;
                 }
-
-                if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
-                    setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
-                } else if (this._dataView.byteLength !== 0) {
-                    console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
-                }
-                
-                if (this._repaint_needed) {
-                  super.vfunc_paint_target(node, paintContext);
-                  this._repaint_needed = false;
-                }
-              }
             }
         });
 
-        this._xr_effect = new XREffect();
-        global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
-        this._attached_to_actor = global.stage;
-        let handleFullscreenUpdate = (() => {
-            console.log('\tBreezy fullscreen update\n');
-            let currentWindow = global.display.sort_windows_by_stacking(global.display.list_all_windows()).find(window => window === global.display.focus_window || window.is_fullscreen());
-            // let currentWindow = global.display.focus_window;
-            if (currentWindow.is_fullscreen()) {
-               const windowActor = currentWindow.find_root_ancestor().get_compositor_private();
-               console.log('\tBreezy fullscreen update 1\n');
-               if (this._attached_to_actor !== windowActor) {
-                   console.log('\tBreezy fullscreen update 2\n');
-                   this._attached_to_actor.remove_effect_by_name('xr-desktop');
-                   windowActor.add_effect_with_name('xr-desktop', this._xr_effect);
-                   this._attached_to_actor = windowActor;
-                   console.log('\tBreezy fullscreen update 5\n');
-               } 
-            } else {
-               console.log('\tBreezy fullscreen update 3\n');
-               if (this._attached_to_actor !== global.stage) {
-                   console.log('\tBreezy fullscreen update 4\n');
-                   this._attached_to_actor.remove_effect_by_name('xr-desktop');
-                   global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
-                   this._attached_to_actor = global.stage;
-                   console.log('\tBreezy fullscreen update 6\n');
-               }
-            }
-        }).bind(this);
-
-        // global.display.connect('in-fullscreen-changed', handleFullscreenUpdate);
-        // global.display.connect('notify::focus-window', handleFullscreenUpdate);
-
+        Meta.disable_unredirect_for_display(global.display);
+        global.stage.add_effect_with_name('xr-desktop', new XREffect());
     }
 
     disable() {
-        global.stage.remove_effect(this._xr_effect)
-        this._logger.log_debug('disable(), session mode = ' + Main.sessionMode.currentMode);
+        global.stage.remove_effect_by_name('xr-desktop');
         this._cursorManager.disable();
         this._cursorManager = null;
     }
