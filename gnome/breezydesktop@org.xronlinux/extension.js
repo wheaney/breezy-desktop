@@ -208,36 +208,53 @@ export default class BreezyDesktopExtension extends Extension {
         
         // Set/destroyed by enable/disable
         this._cursorManager = null;
+        this._shared_mem_file = null;
+        this._xr_effect = null;
     }
 
     enable() {
-        this._cursorManager = new CursorManager(global.stage);
+        if (!this._check_driver_running()) {
+            this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
+                if (this._check_driver_running()) {
+                    this._effect_enable();
+                    return GLib.SOURCE_REMOVE;
+                } else {
+                    return GLib.SOURCE_CONTINUE;
+                }
+            }).bind(this));
+        }
+        this._effect_enable();
+    }
+
+    _check_driver_running() {
+        if (!this._shared_mem_file) this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
+        return this._shared_mem_file.query_exists(null);
+    }
+
+    _effect_enable() {
+        this._running_poller_id = undefined;
+        if (!this._cursorManager) this._cursorManager = new CursorManager(global.stage);
         this._cursorManager.enable();
 
-        const extensionPath = this._extensionPath;
-        var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
-            vfunc_build_pipeline() {
-                const code = getShaderSource(`${extensionPath}/IMUAdjust.frag`);
-                const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
-                this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
+        if (!this._xr_effect) {
+            const extensionPath = this._extensionPath;
+            const shared_mem_file = this._shared_mem_file;
+            var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
+                vfunc_build_pipeline() {
+                    const code = getShaderSource(`${extensionPath}/IMUAdjust.frag`);
+                    const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
+                    this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
 
-                this._frametime = 10; // 100 FPS
-            }
-
-            vfunc_paint_target(node, paintContext) {
-                if (!this._initialized) {
-                    this._shared_mem_file = Gio.file_new_for_path("/dev/shm/imu_data");
+                    this._frametime = 10; // 100 FPS
                 }
 
-                if (this._shared_mem_file.query_exists(null)) {
-                    const data = this._shared_mem_file.load_contents(null);
+                vfunc_paint_target(node, paintContext) {
+                    const data = shared_mem_file.load_contents(null);
                     if (data[0]) {
                         const buffer = new Uint8Array(data[1]).buffer;
                         this._dataView = new DataView(buffer);
                         if (!this._initialized) {
-                            this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [8]);
-
-                            // iterate over shaderUniformLocations keys and set the uniform locations
+                            this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
                             for (let key in shaderUniformLocations) {
                                 shaderUniformLocations[key] = this.get_uniform_location(key);
                             }
@@ -265,22 +282,29 @@ export default class BreezyDesktopExtension extends Extension {
                         }
                         
                         if (this._repaint_needed) {
-                        super.vfunc_paint_target(node, paintContext);
-                        this._repaint_needed = false;
+                            super.vfunc_paint_target(node, paintContext);
+                            this._repaint_needed = false;
                         }
                     }
                 }
-            }
-        });
+            });
 
+            this._xr_effect = new XREffect();
+        }
+
+        global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
         Meta.disable_unredirect_for_display(global.display);
-        global.stage.add_effect_with_name('xr-desktop', new XREffect());
     }
 
     disable() {
-        global.stage.remove_effect_by_name('xr-desktop');
-        this._cursorManager.disable();
-        this._cursorManager = null;
+        if (this._running_poller_id) {
+            GLib.source_remove(this._running_poller_id);
+        } else {
+            Meta.enable_unredirect_for_display(global.display);
+            global.stage.remove_effect_by_name('xr-desktop');
+            this._cursorManager.disable();
+            this._cursorManager = null;
+        }
     }
 }
 

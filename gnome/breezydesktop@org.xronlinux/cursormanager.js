@@ -114,12 +114,12 @@ export class CursorManager {
     }
 
     _cursorTrackerSetPointerVisibleReplacement(visible) {
+        this._cursorWantedVisible = visible;
         if (visible) {
             this._startCloningMouse();
         } else {
             this._stopCloningMouse();
         }
-        this._cursorWantedVisible = visible;
     }
 
     _startCloningMouse() {
@@ -143,9 +143,6 @@ export class CursorManager {
     }
 
     _stopCloningShowMouse() {
-        if (!this._isMouseClonable()) {
-            return;
-        }
         this._stopCloningMouse();
         this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
 
@@ -159,9 +156,6 @@ export class CursorManager {
     }
 
     _stopCloningMouse() {
-        if (!this._isMouseClonable()) {
-            return;
-        }
         if (this._cursorWatch != null) {
             this._cursorWatch.remove();
             this._cursorWatch = null;
