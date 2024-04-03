@@ -149,7 +149,6 @@ function degreeToRadian(degree) {
 }
 
 
-
 // most uniforms don't change frequently, this function should be called periodically
 function setIntermittentUniformVariables() {
     const dataView = this._dataView;
@@ -217,13 +216,15 @@ export default class BreezyDesktopExtension extends Extension {
             this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
                 if (this._check_driver_running()) {
                     this._effect_enable();
+                    this._running_poller_id = undefined;
                     return GLib.SOURCE_REMOVE;
                 } else {
                     return GLib.SOURCE_CONTINUE;
                 }
             }).bind(this));
+        } else {
+            this._effect_enable();
         }
-        this._effect_enable();
     }
 
     _check_driver_running() {
@@ -232,7 +233,6 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_enable() {
-        this._running_poller_id = undefined;
         if (!this._cursorManager) this._cursorManager = new CursorManager(global.stage);
         this._cursorManager.enable();
 
