@@ -56,20 +56,6 @@ export class CursorManager {
         }
         this._enableTimeoutId = null;
         this._disableCloningMouse();
-
-        // Set/destroyed by _enableCloningMouse/_disableCloningMouse
-        this._cursorWantedVisible = null;
-        this._cursorTracker = null;
-        this._cursorTrackerSetPointerVisible = null;
-        this._cursorTrackerSetPointerVisibleBound = null;
-        this._cursorSprite = null;
-        this._cursorActor = null;
-        this._cursorWatcher = null;
-        this._cursorSeat = null;
-        // Set/destroyed by _startCloningMouse / _stopCloningMouse
-        this._cursorWatch = null;
-        this._cursorChangedConnection = null;
-        this._cursorVisibilityChangedConnection = null;
     }
 
     startCloning() {
@@ -83,11 +69,12 @@ export class CursorManager {
     }
 
     _enableCloningMouse() {
-        this._cursorWantedVisible = true;
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
+        this._cursorWantedVisible = this._cursorTracker.get_pointer_visible();
         this._cursorTrackerSetPointerVisible = Meta.CursorTracker.prototype.set_pointer_visible;
         this._cursorTrackerSetPointerVisibleBound = this._cursorTrackerSetPointerVisible.bind(this._cursorTracker);
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisibleReplacement.bind(this);
+
         this._cursorTrackerSetPointerVisibleBound(false);
 
         this._cursorSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
@@ -101,6 +88,7 @@ export class CursorManager {
 
     _disableCloningMouse() {
         this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
+        this._stopCloningShowMouse();
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
 
         this._cursorWantedVisible = null;
