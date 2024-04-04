@@ -26,57 +26,60 @@ vec4 quatMul(vec4 q1, vec4 q2) {
     float s = q1.w;
     vec3 v = vec3(q2.x, q2.y, q2.z);
     float t = q2.w;
-    return vec4(s*v + t*u + cross(u, v), s*t - dot(u, v));
+    return vec4(s * v + t * u + cross(u, v), s * t - dot(u, v));
 }
 
 vec4 quatConj(vec4 q) {
-	return vec4(-q.x, -q.y, -q.z, q.w);
+    return vec4(-q.x, -q.y, -q.z, q.w);
 }
 
 vec3 applyQuaternionToVector(vec4 q, vec3 v) {
-	vec4 p = quatMul(quatMul(q, vec4(v, 0)), quatConj(q));
-	return p.xyz;
+    vec4 p = quatMul(quatMul(q, vec4(v, 0)), quatConj(q));
+    return p.xyz;
 }
 
 const int day_in_seconds = 24 * 60 * 60;
 
 vec3 applyLookAhead(
-	in vec3 position,
-	in vec3 velocity,
-	in vec3 accel,
-	in float t,
-	in float t_squared) {
-	return position + velocity * t + 0.5 * accel * t_squared;
+    in vec3 position,
+    in vec3 velocity,
+    in vec3 accel,
+    in float t,
+    in float t_squared
+) {
+    return position + velocity * t + 0.5 * accel * t_squared;
 }
 
 vec3 rateOfChange(
-	in vec3 v1,
-	in vec3 v2,
-	in float delta_time) {
-	return (v1 - v2) / delta_time;
+    in vec3 v1,
+    in vec3 v2,
+    in float delta_time
+) {
+    return (v1 - v2) / delta_time;
 }
 
 void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
-	float texcoord_x_min = 0.0;
-	float texcoord_x_max = 1.0;
-	float lens_y_offset = 0.0;
-	float lens_z_offset = 0.0;
-	float aspect_ratio = stage_aspect_ratio;
+    float texcoord_x_min = 0.0;
+    float texcoord_x_max = 1.0;
+    float lens_y_offset = 0.0;
+    float lens_z_offset = 0.0;
+    float aspect_ratio = stage_aspect_ratio;
 
-	if (enabled && sbs_enabled) {
+    if(enabled && sbs_enabled) {
         bool right_display = texcoord.x > 0.5;
         aspect_ratio /= 2;
 
         lens_y_offset = lens_distance_ratio / 3;
-        if (right_display) lens_y_offset = -lens_y_offset;
-        if (sbs_content) {
+        if(right_display)
+            lens_y_offset = -lens_y_offset;
+        if(sbs_content) {
             // source video is SBS, left-half of the screen goes to the left lens, right-half to the right lens
-            if (right_display)
+            if(right_display)
                 texcoord_x_min = 0.5;
             else
                 texcoord_x_max = 0.5;
         }
-        if (!sbs_mode_stretched) {
+        if(!sbs_mode_stretched) {
             // if the content isn't stretched, assume it's centered in the middle 50% of the screen
             texcoord_x_min = max(0.25, texcoord_x_min);
             texcoord_x_max = min(0.75, texcoord_x_max);
@@ -86,7 +89,7 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
         texcoord.x = (texcoord.x - (right_display ? 0.5 : 0.0)) * 2;
     }
 
-	if (!enabled || show_banner) {
+    if(!enabled || show_banner) {
 		// vec2 banner_size = vec2(800.0 / ReShade::ScreenSize.x, 200.0 / ReShade::ScreenSize.y); // Assuming ScreenWidth and ScreenHeight are defined
 
         // if (show_banner &&
@@ -103,26 +106,20 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
         //     }
         // } else {
             // adjust texcoord back to the range that describes where the content is displayed
-            float texcoord_width = texcoord_x_max - texcoord_x_min;
-            texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
+        float texcoord_width = texcoord_x_max - texcoord_x_min;
+        texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
 
-			color = texture2D(uDesktopTexture, texcoord);
+        color = texture2D(uDesktopTexture, texcoord);
         // }
-	} else {
-		float lens_fov_z_offset_rads = atan(lens_z_offset/screen_distance);
-		float fov_z_pos = tan(half_fov_z_rads - lens_fov_z_offset_rads) * screen_distance;
-		float fov_z_neg = -tan(half_fov_z_rads + lens_fov_z_offset_rads) * screen_distance;
-		float fov_z_width = fov_z_pos - fov_z_neg;
-
-		float lens_fov_y_offset_rads = atan(lens_y_offset/screen_distance);
-		float fov_y_pos = tan(half_fov_y_rads - lens_fov_y_offset_rads) * screen_distance;
-		float fov_y_neg = -tan(half_fov_y_rads + lens_fov_y_offset_rads) * screen_distance;
-		float fov_y_width = fov_y_pos - fov_y_neg;
-		float vec_x = screen_distance;
-		float vec_y = -texcoord.x * fov_y_width + fov_y_pos;
-		float vec_z = -texcoord.y * fov_z_width + fov_z_pos;
-		vec3 texcoord_vector = vec3(vec_x, vec_y, vec_z);
-		vec3 lens_vector = vec3(lens_distance_ratio, lens_y_offset, lens_z_offset);
+    } else {
+        float fov_y_half_width = tan(half_fov_y_rads);
+        float fov_y_width = fov_y_half_width * 2;
+        float fov_z_half_width = tan(half_fov_z_rads);
+        float fov_z_width = fov_z_half_width * 2;
+        float vec_y = -texcoord.x * fov_y_width + fov_y_half_width;
+        float vec_z = -texcoord.y * fov_z_width + fov_z_half_width;
+        vec3 lens_vector = vec3(lens_distance_ratio, lens_y_offset, lens_z_offset);
+        vec3 texcoord_vector = vec3(1.0, vec_y, vec_z);
 
         // then rotate the vector using each of the snapshots provided
         vec3 rotated_vector_t0 = applyQuaternionToVector(imu_quat_data[0], texcoord_vector);
@@ -146,31 +143,30 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
         float look_ahead_ms_squared = pow(look_ahead_ms, 2);
 
         // apply most recent velocity and acceleration to most recent position to get a predicted position
-        vec3 res = applyLookAhead(rotated_vector_t0, velocity_t0, accel_t0, look_ahead_ms, look_ahead_ms_squared);
+        vec3 res = applyLookAhead(rotated_vector_t0, velocity_t0, accel_t0, look_ahead_ms, look_ahead_ms_squared) -
+            rotated_lens_vector;
 
-		bool looking_behind = res.x < 0.0;
+        bool looking_behind = res.x < 0.0;
 
         // divide all values by x to scale the magnitude so x is exactly 1, and multiply by the final display distance
         // so the vector is pointing at a coordinate on the screen
         float display_distance = (sbs_enabled ? display_north_offset : 1.0) - rotated_lens_vector.x;
-        res *= display_distance/res.x;
-
-        // adjust x and y by how much our lens moved from its original offset
-        res += rotated_lens_vector - lens_vector;
+        res *= display_distance / res.x;
+        res += rotated_lens_vector;
 
 		// deconstruct the rotated and scaled vector back to a texcoord (just inverse operations of the first conversion
 		// above)
-		texcoord.x = (fov_y_pos - res.y) / fov_y_width;
-		texcoord.y = (fov_z_pos - res.z) / fov_z_width;
+        texcoord.x = (fov_y_half_width - res.y) / fov_y_width;
+        texcoord.y = (fov_z_half_width - res.z) / fov_z_width;
 
 		// apply the screen offsets now
-		float texcoord_width = texcoord_x_max - texcoord_x_min;
-		texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
+        float texcoord_width = texcoord_x_max - texcoord_x_min;
+        texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
 
-		if (looking_behind || texcoord.x < texcoord_x_min || texcoord.y < 0.0 || texcoord.x > texcoord_x_max || texcoord.y > 1.0 || texcoord.x <= 0.005 && texcoord.y <= 0.005) {
-			color = vec4(0, 0, 0, 1);
-		} else {
-			color = texture2D(uDesktopTexture, texcoord);
-		}
-	}
+        if(looking_behind || texcoord.x < texcoord_x_min || texcoord.y < 0.0 || texcoord.x > texcoord_x_max || texcoord.y > 1.0 || texcoord.x <= 0.005 && texcoord.y <= 0.005) {
+            color = vec4(0, 0, 0, 1);
+        } else {
+            color = texture2D(uDesktopTexture, texcoord);
+        }
+    }
 }
