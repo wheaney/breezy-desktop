@@ -35,7 +35,6 @@ export class CursorManager {
         // listener doesn't receive any events.  Adding a small delay before
         // starting the whole mouse cloning business helps.
         this._enableTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-            // Wait 500ms before starting to check for the _brightness object.
             this._enableTimeoutId = null;
             this._enable();
             return GLib.SOURCE_REMOVE;
