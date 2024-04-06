@@ -1,8 +1,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
-import Shell from 'gi://Shell';
 import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
 
 import { CursorManager } from './cursormanager.js';
 
@@ -245,10 +245,13 @@ export default class BreezyDesktopExtension extends Extension {
                     const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
                     this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
 
-                    this._frametime = 10; // 100 FPS
+                    this._frametime = Math.floor(1000 / 90); // 90 FPS
                 }
 
                 vfunc_paint_target(node, paintContext) {
+                    var now = Date.now();
+                    var lastPaint = this._last_paint || 0;
+                    var frametime = this._frametime;
                     const data = shared_mem_file.load_contents(null);
                     if (data[0]) {
                         const buffer = new Uint8Array(data[1]).buffer;
@@ -261,10 +264,8 @@ export default class BreezyDesktopExtension extends Extension {
                             this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                             this.setIntermittentUniformVariables();
 
-                            this._repaint_needed = false;
                             GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                                this._repaint_needed = true;
-                                this.queue_repaint();
+                                if ((now - lastPaint) > frametime) global.stage.queue_redraw();
                                 return GLib.SOURCE_CONTINUE;
                             });
 
@@ -281,11 +282,11 @@ export default class BreezyDesktopExtension extends Extension {
                             console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
                         }
                         
-                        if (this._repaint_needed) {
-                            super.vfunc_paint_target(node, paintContext);
-                            this._repaint_needed = false;
-                        }
+                        super.vfunc_paint_target(node, paintContext);
+                    } else {
+                        super.vfunc_paint_target(node, paintContext);
                     }
+                    this._last_paint = now;
                 }
             });
 
