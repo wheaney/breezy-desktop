@@ -116,6 +116,7 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
         float fov_y_width = fov_y_half_width * 2;
         float fov_z_half_width = tan(half_fov_z_rads);
         float fov_z_width = fov_z_half_width * 2;
+        
         float vec_y = -texcoord.x * fov_y_width + fov_y_half_width;
         float vec_z = -texcoord.y * fov_z_width + fov_z_half_width;
         vec3 lens_vector = vec3(lens_distance_ratio, lens_y_offset, lens_z_offset);
