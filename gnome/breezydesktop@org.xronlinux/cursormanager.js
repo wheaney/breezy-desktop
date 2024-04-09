@@ -1,5 +1,3 @@
-
-
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
@@ -23,6 +21,7 @@ export class CursorManager {
         this._cursorActor = null;
         this._cursorWatcher = null;
         this._cursorSeat = null;
+
         // Set/destroyed by _startCloningMouse / _stopCloningMouse
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
@@ -64,9 +63,18 @@ export class CursorManager {
     }
 
     stopCloning() {
-        this._stopCloningShowMouse();
+        if (!this._cursorWantedVisible) {
+            this._stopCloningMouse();
+        }
     }
 
+    // After this:
+    // * real cursor is disabled
+    // * cloning is "on" 
+    // * cloned cursor not visible, but ready for _startCloningMouse to make it visible
+    //
+    // okay if _startCloningMouse is not immediately called since set_pointer_visible is bound to our replacement function
+    // and will trigger _startCloningMouse when the cursor should be shown
     _enableCloningMouse() {
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
         this._cursorWantedVisible = this._cursorTracker.get_pointer_visible();
@@ -85,10 +93,16 @@ export class CursorManager {
         this._cursorSeat = Clutter.get_default_backend().get_default_seat();
     }
 
+    // After this:
+    // * real cursor enabled, manages its own visibility
+    // * cloning is "off"
+    // * no cloned cursor
+    // 
+    // completely reverts _enableCloningMouse
     _disableCloningMouse() {
-        this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
-        this._stopCloningShowMouse();
+        this._stopCloningMouse();
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
+        this._cursorTracker.set_pointer_visible(this._cursorWantedVisible);
 
         this._cursorWantedVisible = null;
         this._cursorTracker = null;
@@ -100,6 +114,8 @@ export class CursorManager {
         this._cursorSeat = null;
     }
 
+    // bound to Meta.CursorTracker.prototype.set_pointer_visible when cloning is "on"
+    // original function available in this._cursorTrackerSetPointerVisibleBound
     _cursorTrackerSetPointerVisibleReplacement(visible) {
         this._cursorWantedVisible = visible;
         if (visible) {
@@ -109,6 +125,13 @@ export class CursorManager {
         }
     }
 
+    // After this:
+    // * real cursor is hidden
+    // * cloning is "on"
+    // * clone cursor is visible
+    // 
+    // add the clone cursor actor, watch for pointer movement and cursor changes, reflect them in the cloned cursor
+    // prereqs: setup in _enableCloningMouse, _cursorWantedVisible is true
     _startCloningMouse() {
         if (this._cursorWatch == null) {
             this._mainActor.add_actor(this._cursorActor);
@@ -129,19 +152,12 @@ export class CursorManager {
         }
     }
 
-    _stopCloningShowMouse() {
-        this._stopCloningMouse();
-        this._cursorTrackerSetPointerVisibleBound(this._cursorWantedVisible);
-
-        if (this._cursorTracker.set_keep_focus_while_hidden) {
-            this._cursorTracker.set_keep_focus_while_hidden(false);
-        }
-
-        if (this._cursorSeat.is_unfocus_inhibited()) {
-            this._cursorSeat.uninhibit_unfocus();
-        }
-    }
-
+    // After this:
+    // * real cursor is hidden
+    // * cloning is "on"
+    // * cloned cursor not visible, but ready for _startCloningMouse to make it visible
+    // 
+    // completely reverts _startCloningMouse
     _stopCloningMouse() {
         if (this._cursorWatch != null) {
             this._cursorWatch.remove();
@@ -154,6 +170,14 @@ export class CursorManager {
             this._cursorVisibilityChangedConnection = null;
 
             this._mainActor.remove_actor(this._cursorActor);
+        }
+
+        if (this._cursorTracker.set_keep_focus_while_hidden) {
+            this._cursorTracker.set_keep_focus_while_hidden(false);
+        }
+
+        if (this._cursorSeat.is_unfocus_inhibited()) {
+            this._cursorSeat.uninhibit_unfocus();
         }
     }
 
@@ -175,6 +199,7 @@ export class CursorManager {
             translation_x: -xHot,
             translation_y: -yHot,
         });
+        this._mainActor.set_child_above_sibling(this._cursorActor, null);
         this._cursorTrackerSetPointerVisibleBound(false);
     }
 }
