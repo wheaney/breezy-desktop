@@ -1,12 +1,15 @@
+import Clutter from 'gi://Clutter'
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
+import St from 'gi://St';
 
 import { CursorManager } from './cursormanager.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 const UINT8_SIZE = 1;
 const BOOL_SIZE = UINT8_SIZE;
@@ -101,6 +104,11 @@ function getShaderSource(path) {
     const data = file.load_contents(null);
 
     // version string helps with linting, but GNOME extension doesn't like it, so remove it if it's there
+    //
+    // TODO -   Gjs on GNOME 45.5 WARNING: Some code called array.toString() on a Uint8Array instance. Previously this 
+    //          would have interpreted the bytes of the array as a string, but that is nonstandard. In the future this 
+    //          will return the bytes as comma-separated digits. For the time being, the old behavior has been preserved, 
+    //          but please fix your code anyway to use TextDecoder.
     return data[1].toString().replace(/^#version .*$/gm, '') + '\n';
 }
 
@@ -168,7 +176,7 @@ function setIntermittentUniformVariables() {
 
             // compute these values once, they only change when the XR device changes
             const displayAspectRatio = displayRes[0] / displayRes[1];
-            const stageAspectRatio = global.stage.get_width() / global.stage.get_height();
+            const stageAspectRatio = this._targetMonitor.width / this._targetMonitor.height;
             const diagToVertRatio = Math.sqrt(Math.pow(stageAspectRatio, 2) + 1);
             const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
             const halfFovYRads = halfFovZRads * stageAspectRatio;
@@ -209,6 +217,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._cursorManager = null;
         this._shared_mem_file = null;
         this._xr_effect = null;
+        this._overlay = null;
     }
 
     enable() {
@@ -233,12 +242,37 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_enable() {
-        if (!this._cursorManager) this._cursorManager = new CursorManager(global.stage);
+        if (!this._cursorManager) this._cursorManager = new CursorManager(Main.uiGroup);
         this._cursorManager.enable();
+
+        if (!this._overlay) {
+            const monitors = Main.layoutManager.monitors;
+            this._targetMonitor = monitors[monitors.length-1];
+
+            this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
+            this._overlay.opacity = 255;
+            this._overlay.set_position(this._targetMonitor.x, this._targetMonitor.y);
+            this._overlay.set_size(this._targetMonitor.width, this._targetMonitor.height);
+
+            const overlayContent = new Clutter.Actor({clip_to_allocation: true});
+            const uiClone = new Clutter.Clone({ source: Main.uiGroup, clip_to_allocation: true });
+            overlayContent.add_actor(uiClone);
+
+            this._overlay.set_child(overlayContent);
+
+            global.stage.insert_child_above(this._overlay, null);
+            Shell.util_set_hidden_from_pick(this._overlay, true);
+
+            uiClone.x = -this._targetMonitor.x;
+            uiClone.y = -this._targetMonitor.y;
+
+        }
 
         if (!this._xr_effect) {
             const extensionPath = this._extensionPath;
             const shared_mem_file = this._shared_mem_file;
+            const overlay = this._overlay;
+            const targetMonitor = this._targetMonitor;
             var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
                 vfunc_build_pipeline() {
                     const code = getShaderSource(`${extensionPath}/IMUAdjust.frag`);
@@ -246,6 +280,7 @@ export default class BreezyDesktopExtension extends Extension {
                     this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
 
                     this._frametime = Math.floor(1000 / 90); // 90 FPS
+                    this._targetMonitor = targetMonitor;
                 }
 
                 vfunc_paint_target(node, paintContext) {
@@ -293,7 +328,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._xr_effect = new XREffect();
         }
 
-        global.stage.add_effect_with_name('xr-desktop', this._xr_effect);
+        this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
         Meta.disable_unredirect_for_display(global.display);
     }
 
