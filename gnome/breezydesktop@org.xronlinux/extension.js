@@ -242,7 +242,7 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_enable() {
-        if (!this._cursorManager) this._cursorManager = new CursorManager(Main.uiGroup);
+        if (!this._cursorManager) this._cursorManager = new CursorManager(Main.layoutManager.uiGroup);
         this._cursorManager.enable();
 
         if (!this._overlay) {
@@ -255,7 +255,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._overlay.set_size(this._targetMonitor.width, this._targetMonitor.height);
 
             const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-            const uiClone = new Clutter.Clone({ source: Main.uiGroup, clip_to_allocation: true });
+            const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
             overlayContent.add_actor(uiClone);
 
             this._overlay.set_child(overlayContent);
@@ -337,7 +337,7 @@ export default class BreezyDesktopExtension extends Extension {
             GLib.source_remove(this._running_poller_id);
         } else {
             Meta.enable_unredirect_for_display(global.display);
-            global.stage.remove_effect_by_name('xr-desktop');
+            this._overlay.remove_effect_by_name('xr-desktop');
             this._cursorManager.disable();
             this._cursorManager = null;
         }
