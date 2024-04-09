@@ -53,6 +53,8 @@ const shaderUniformLocations = {
     'look_ahead_cfg': null,
     'stage_aspect_ratio': null,
     'display_aspect_ratio': null,
+    'trim_width_percent': null,
+    'trim_height_percent': null,
     'display_zoom': null,
     'display_north_offset': null,
     'lens_distance_ratio': null,
@@ -181,6 +183,11 @@ function setIntermittentUniformVariables() {
             const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
             const halfFovYRads = halfFovZRads * stageAspectRatio;
             const screenDistance = 1.0 - lensDistanceRatio;
+
+            // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
+            // underneath, so we trim two pixels around the entire edge of the texture
+            const trimWidthPercent = 2.0 / this._targetMonitor.width;
+            const trimHeightPercent = 2.0 / this._targetMonitor.height;
             
             // all these values are transferred directly, unmodified from the driver
             transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
@@ -196,6 +203,8 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'show_banner', imuResetState);
             setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
             setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
+            setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
+            setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
             setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
             setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
             setSingleFloat(this, 'screen_distance', screenDistance);
@@ -265,13 +274,11 @@ export default class BreezyDesktopExtension extends Extension {
 
             uiClone.x = -this._targetMonitor.x;
             uiClone.y = -this._targetMonitor.y;
-
         }
 
         if (!this._xr_effect) {
             const extensionPath = this._extensionPath;
             const shared_mem_file = this._shared_mem_file;
-            const overlay = this._overlay;
             const targetMonitor = this._targetMonitor;
             var XREffect = GObject.registerClass({}, class XREffect extends Shell.GLSLEffect {
                 vfunc_build_pipeline() {
