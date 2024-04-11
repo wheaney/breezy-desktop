@@ -205,7 +205,7 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables();
 
                 GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                    if ((now - lastPaint) > frametime) this.get_actor().queue_redraw();
+                    if ((now - lastPaint) > frametime) global.stage.queue_redraw();
                     return GLib.SOURCE_CONTINUE;
                 });
 
