@@ -1,3 +1,4 @@
+import Cogl from 'gi://Cogl';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
@@ -178,12 +179,10 @@ export const XREffect = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        console.log(`\n\n\nXREffect constructor called ${JSON.stringify(params)}\n\n\n`);
         this._frametime = Math.floor(1000 / this.target_framerate);
     }
 
     vfunc_build_pipeline() {
-        console.log(`\n\n\nXREffect vfunc_build_pipeline called ${Globals.extension_dir}\n\n\n`);
         const code = getShaderSource(`${Globals.extension_dir}/IMUAdjust.frag`);
         const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
         this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
@@ -206,7 +205,7 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables();
 
                 GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                    if ((now - lastPaint) > frametime) global.stage.queue_redraw();
+                    if ((now - lastPaint) > frametime) this.get_actor().queue_redraw();
                     return GLib.SOURCE_CONTINUE;
                 });
 
@@ -222,6 +221,13 @@ export const XREffect = GObject.registerClass({
             } else if (this._dataView.byteLength !== 0) {
                 console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
             }
+
+            // improves sampling quality for smooth text and edges
+            this.get_pipeline().set_layer_filters (
+                0,
+                Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
+                Cogl.PipelineFilter.LINEAR
+            );
             
             super.vfunc_paint_target(node, paintContext);
         } else {
