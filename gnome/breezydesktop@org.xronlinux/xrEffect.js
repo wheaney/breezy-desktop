@@ -204,12 +204,12 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                 this.setIntermittentUniformVariables();
 
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
+                this._redraw_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
                     if ((now - lastPaint) > frametime) global.stage.queue_redraw();
                     return GLib.SOURCE_CONTINUE;
                 });
 
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
+                this._uniforms_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
                     this.setIntermittentUniformVariables();
                     return GLib.SOURCE_CONTINUE;
                 }).bind(this));
@@ -234,5 +234,10 @@ export const XREffect = GObject.registerClass({
             super.vfunc_paint_target(node, paintContext);
         }
         this._last_paint = now;
+    }
+
+    vfunc_dispose() {
+        if (this._redraw_timeout_id) GLib.source_remove(this._redraw_timeout_id);
+        if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }
 });
