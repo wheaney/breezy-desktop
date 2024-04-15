@@ -35,22 +35,25 @@ export default class BreezyDesktopExtension extends Extension {
     enable() {
         Globals.extension_dir = this.path;
         this._monitor_manager = new MonitorManager(this.path);
-        this._monitor_manager.setChangeHook(this._monitors_changed.bind(this));
+        this._monitor_manager.setChangeHook(this._setup.bind(this));
         this._monitor_manager.enable();
 
-        this._poll_for_ready();
+        this._setup();
     }
 
     _poll_for_ready() {
+        var target_monitor = this._target_monitor;
+        var is_effect_running = this._is_effect_running;
         this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
+            if (is_effect_running) return GLib.SOURCE_REMOVE;
+
             const is_driver_running = this._check_driver_running();
-            if (is_driver_running && this._target_monitor) {
+            if (is_driver_running && target_monitor) {
                 console.log('Driver is running, supported monitor connected. Enabling XR effect.');
                 this._effect_enable();
-                this._running_poller_id = undefined;
                 return GLib.SOURCE_REMOVE;
             } else {
-                console.log(`Not ready: driver_running ${is_driver_running}, target_monitor ${JSON.stringify(this._target_monitor)}`);
+                console.log(`Not ready: driver_running ${is_driver_running}, target_monitor ${JSON.stringify(target_monitor)}`);
                 return GLib.SOURCE_CONTINUE;
             }
         }).bind(this));
@@ -66,13 +69,21 @@ export default class BreezyDesktopExtension extends Extension {
         return null;
     }
 
-    _monitors_changed() {
+    _setup() {
         if (this._is_effect_running) {
-            console.log('Monitors changed, disabling effect');
+            console.log('Monitors changed, disabling XR effect');
             this._effect_disable();
         }
         this._target_monitor = this._find_supported_monitor();
-        this._poll_for_ready();
+
+        // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
+        if (this._target_monitor && this._running_poller_id === undefined) {
+            if (this._check_driver_running()) {
+                this._effect_enable();
+            } else {
+                this._poll_for_ready();
+            }
+        }
     }
 
     _check_driver_running() {
@@ -81,39 +92,47 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_enable() {
+        this._running_poller_id = undefined;
         if (!this._is_effect_running) {
-            this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup);
-            this._cursor_manager.enable();
-
-            this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
-            this._overlay.opacity = 255;
-            this._overlay.set_position(this._target_monitor.x, this._target_monitor.y);
-            this._overlay.set_size(this._target_monitor.width, this._target_monitor.height);
-
-            const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-            const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
-            uiClone.x = -this._target_monitor.x;
-            uiClone.y = -this._target_monitor.y;
-            overlayContent.add_actor(uiClone);
-
-            this._overlay.set_child(overlayContent);
-
-            global.stage.insert_child_above(this._overlay, null);
-            Shell.util_set_hidden_from_pick(this._overlay, true);
-            
-            this._xr_effect = new XREffect({
-                target_monitor: this._target_monitor,
-                target_framerate: 60
-            });
-
-            this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
-            Meta.disable_unredirect_for_display(global.display);
-
             this._is_effect_running = true;
+
+            try {
+                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup);
+                this._cursor_manager.enable();
+
+                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
+                this._overlay.opacity = 255;
+                this._overlay.set_position(this._target_monitor.x, this._target_monitor.y);
+                this._overlay.set_size(this._target_monitor.width, this._target_monitor.height);
+
+                const overlayContent = new Clutter.Actor({clip_to_allocation: true});
+                const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
+                uiClone.x = -this._target_monitor.x;
+                uiClone.y = -this._target_monitor.y;
+                overlayContent.add_actor(uiClone);
+
+                this._overlay.set_child(overlayContent);
+
+                global.stage.insert_child_above(this._overlay, null);
+                Shell.util_set_hidden_from_pick(this._overlay, true);
+                
+                this._xr_effect = new XREffect({
+                    target_monitor: this._target_monitor,
+                    target_framerate: 60
+                });
+
+                this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
+                Meta.disable_unredirect_for_display(global.display);
+            } catch (e) {
+                console.error('Error enabling XR effect', e);
+                this._effect_disable();
+            }
         }
     }
 
     _effect_disable() {
+        this._is_effect_running = false;
+
         if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
 
         Meta.enable_unredirect_for_display(global.display);
@@ -134,7 +153,6 @@ export default class BreezyDesktopExtension extends Extension {
             this._cursor_manager = null;
         }
 
-        this._is_effect_running = false;
     }
 
     disable() {
