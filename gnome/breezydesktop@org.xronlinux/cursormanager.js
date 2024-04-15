@@ -34,7 +34,7 @@ export class CursorManager {
         // stage fails when gnome-shell is restarting on x11 and the mouse
         // listener doesn't receive any events.  Adding a small delay before
         // starting the whole mouse cloning business helps.
-        this._enableTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        this._enableTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
             this._enableTimeoutId = null;
             this._enable();
             return GLib.SOURCE_REMOVE;

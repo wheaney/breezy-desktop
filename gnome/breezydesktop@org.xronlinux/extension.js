@@ -60,8 +60,8 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _find_supported_monitor() {
-        const target_monitor_id = this._monitor_manager.getMonitorPropertiesList()
-                                          .find(monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product))?.index;
+        const target_monitor_id = this._monitor_manager.getMonitorPropertiesList()?.find(
+            monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product))?.index;
         if (target_monitor_id !== undefined) {
             return this._monitor_manager.getMonitors()[target_monitor_id];
         }
