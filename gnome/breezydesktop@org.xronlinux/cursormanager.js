@@ -26,9 +26,22 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
+        this._cursorPositionInvalidatedConnection = null;
     }
 
     enable() {
+        // First 500ms: For some reason, starting the mouse cloning at this
+        // stage fails when gnome-shell is restarting on x11 and the mouse
+        // listener doesn't receive any events.  Adding a small delay before
+        // starting the whole mouse cloning business helps.
+        this._enableTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+            this._enableTimeoutId = null;
+            this._enable();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _enable() {
         this._enableCloningMouse();
         this.startCloning();
     }
@@ -126,7 +139,8 @@ export class CursorManager {
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
             this._cursorPositionInvalidatedConnection = this._cursorTracker.connect('position-invalidated', this._updateMouseSprite.bind(this));
-            const interval = 1000 / 100;
+
+            const interval = 1000 / 250;
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
             const [x, y] = global.get_pointer();
