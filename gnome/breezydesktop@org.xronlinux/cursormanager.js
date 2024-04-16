@@ -30,18 +30,6 @@ export class CursorManager {
     }
 
     enable() {
-        // First 500ms: For some reason, starting the mouse cloning at this
-        // stage fails when gnome-shell is restarting on x11 and the mouse
-        // listener doesn't receive any events.  Adding a small delay before
-        // starting the whole mouse cloning business helps.
-        this._enableTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
-            this._enableTimeoutId = null;
-            this._enable();
-            return GLib.SOURCE_REMOVE;
-        });
-    }
-
-    _enable() {
         this._enableCloningMouse();
         this.startCloning();
     }
@@ -58,15 +46,11 @@ export class CursorManager {
     }
 
     startCloning() {
-        if (this._cursorWantedVisible) {
-            this._startCloningMouse();
-        }
+        this._startCloningMouse();
     }
 
     stopCloning() {
-        if (!this._cursorWantedVisible) {
-            this._stopCloningMouse();
-        }
+        this._stopCloningMouse();
     }
 
     // After this:
