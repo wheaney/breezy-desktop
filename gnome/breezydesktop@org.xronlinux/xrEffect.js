@@ -22,7 +22,7 @@ import { degreeToRadian } from "./math.js";
 import { getShaderSource } from "./shader.js";
 import { getEpochSec } from "./time.js";
 
-export const IPC_FILE_PATH = "/dev/shm/imu_data";
+export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
 // the driver should be using the same data layout version
 const DATA_LAYOUT_VERSION = 1;
