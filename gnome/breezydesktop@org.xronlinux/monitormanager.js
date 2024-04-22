@@ -71,7 +71,11 @@ export function getMonitorConfig(displayConfigProxy, callback) {
                 const vendor = props['vendor'].get_string()[0];
                 const product = props['product'].get_string()[0];
                 const serial = props['serial'].get_string()[0];
-                monitors.push([displayName, connectorName, vendor, product, serial]);
+
+                // grab refresh rate from the modes array
+                const refreshRate = result[3][i][4];
+
+                monitors.push([displayName, connectorName, vendor, product, serial, refreshRate]);
             }
             callback(monitors, null);
         }
@@ -139,7 +143,7 @@ export default class MonitorManager {
             }
             const monitorProperties = [];
             for (let i = 0; i < result.length; i++) {
-                const [monitorName, connectorName, vendor, product, serial] = result[i];
+                const [monitorName, connectorName, vendor, product, serial, refreshRate] = result[i];
                 const monitorIndex = this._backendManager.get_monitor_for_connector(connectorName);
                 console.log(`\n\nFound monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}\n\n`);
                 if (monitorIndex >= 0) {
@@ -149,7 +153,8 @@ export default class MonitorManager {
                         vendor: vendor,
                         product: product,
                         serial: serial,
-                        connector: connectorName
+                        connector: connectorName,
+                        refreshRate: refreshRate
                     };
                 }
             }
