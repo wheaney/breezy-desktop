@@ -5,12 +5,12 @@ uniform bool show_banner;
 uniform sampler2D uDesktopTexture;
 uniform mat4 imu_quat_data;
 uniform vec4 look_ahead_cfg;
+uniform float look_ahead_ms;
 uniform float display_zoom;
 uniform float display_north_offset;
 uniform float lens_distance_ratio;
 uniform bool sbs_enabled;
 uniform bool sbs_content;
-uniform bool sbs_mode_stretched;
 uniform bool custom_banner_enabled;
 uniform float stage_aspect_ratio;
 uniform float display_aspect_ratio;
@@ -19,7 +19,6 @@ uniform float trim_height_percent;
 uniform float half_fov_z_rads;
 uniform float half_fov_y_rads;
 uniform float screen_distance;
-uniform float frametime;
 
 float look_ahead_ms_cap = 45.0;
 
@@ -67,29 +66,29 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
     float lens_z_offset = 0.0;
     float aspect_ratio = stage_aspect_ratio;
 
-    if(enabled && sbs_enabled) {
-        bool right_display = texcoord.x > 0.5;
-        aspect_ratio /= 2;
+    // if(enabled && sbs_enabled) {
+    //     bool right_display = texcoord.x > 0.5;
+    //     aspect_ratio /= 2;
 
-        lens_y_offset = lens_distance_ratio / 3;
-        if(right_display)
-            lens_y_offset = -lens_y_offset;
-        if(sbs_content) {
-            // source video is SBS, left-half of the screen goes to the left lens, right-half to the right lens
-            if(right_display)
-                texcoord_x_min = 0.5;
-            else
-                texcoord_x_max = 0.5;
-        }
-        if(!sbs_mode_stretched) {
-            // if the content isn't stretched, assume it's centered in the middle 50% of the screen
-            texcoord_x_min = max(0.25, texcoord_x_min);
-            texcoord_x_max = min(0.75, texcoord_x_max);
-        }
+    //     lens_y_offset = lens_distance_ratio / 3;
+    //     if(right_display)
+    //         lens_y_offset = -lens_y_offset;
+    //     if(sbs_content) {
+    //         // source video is SBS, left-half of the screen goes to the left lens, right-half to the right lens
+    //         if(right_display)
+    //             texcoord_x_min = 0.5;
+    //         else
+    //             texcoord_x_max = 0.5;
+    //     }
+    //     if(!sbs_mode_stretched) {
+    //         // if the content isn't stretched, assume it's centered in the middle 50% of the screen
+    //         texcoord_x_min = max(0.25, texcoord_x_min);
+    //         texcoord_x_max = min(0.75, texcoord_x_max);
+    //     }
 
-        // translate the texcoord respresenting the current lens's half of the screen to a full-screen texcoord
-        texcoord.x = (texcoord.x - (right_display ? 0.5 : 0.0)) * 2;
-    }
+    //     // translate the texcoord respresenting the current lens's half of the screen to a full-screen texcoord
+    //     texcoord.x = (texcoord.x - (right_display ? 0.5 : 0.0)) * 2;
+    // }
 
     if(!enabled || show_banner) {
 		// vec2 banner_size = vec2(800.0 / ReShade::ScreenSize.x, 200.0 / ReShade::ScreenSize.y); // Assuming ScreenWidth and ScreenHeight are defined
@@ -142,8 +141,8 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
         float look_ahead_scanline_adjust = texcoord.y * look_ahead_cfg.z;
 
         // use the 4th value of the look-ahead config to cap the look-ahead value
-        float look_ahead_ms = min(min(look_ahead_cfg.x + frametime * look_ahead_cfg.y, look_ahead_cfg.w), look_ahead_ms_cap) + look_ahead_scanline_adjust;
-        float look_ahead_ms_squared = pow(look_ahead_ms, 2);
+        float look_ahead_ms_capped = min(min(look_ahead_ms, look_ahead_cfg.w), look_ahead_ms_cap) + look_ahead_scanline_adjust;
+        float look_ahead_ms_squared = pow(look_ahead_ms_capped, 2);
 
         // apply most recent velocity and acceleration to most recent position to get a predicted position
         vec3 res = applyLookAhead(rotated_vector_t0, velocity_t0, accel_t0, look_ahead_ms, look_ahead_ms_squared) -

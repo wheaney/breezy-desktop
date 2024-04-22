@@ -60,10 +60,13 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _find_supported_monitor() {
-        const target_monitor_id = this._monitor_manager.getMonitorPropertiesList()?.find(
-            monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product))?.index;
-        if (target_monitor_id !== undefined) {
-            return this._monitor_manager.getMonitors()[target_monitor_id];
+        const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+            monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
+        if (target_monitor !== undefined) {
+            return {
+                monitor: this._monitor_manager.getMonitors()[target_monitor.index],
+                refreshRate: target_monitor.refreshRate,
+            };
         }
 
         return null;
@@ -74,10 +77,13 @@ export default class BreezyDesktopExtension extends Extension {
             console.log('Monitors changed, disabling XR effect');
             this._effect_disable();
         }
-        this._target_monitor = this._find_supported_monitor();
+        const target_monitor = this._find_supported_monitor();
 
         // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
-        if (this._target_monitor && this._running_poller_id === undefined) {
+        if (target_monitor && this._running_poller_id === undefined) {
+            this._target_monitor = target_monitor.monitor;
+            this._refresh_rate = target_monitor.refreshRate;
+
             if (this._check_driver_running()) {
                 this._effect_enable();
             } else {
@@ -118,7 +124,7 @@ export default class BreezyDesktopExtension extends Extension {
                 
                 this._xr_effect = new XREffect({
                     target_monitor: this._target_monitor,
-                    target_framerate: 60
+                    target_framerate: this._refresh_rate ?? 60
                 });
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);

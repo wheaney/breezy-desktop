@@ -20,6 +20,10 @@ export function dataViewUint(dataView, dataViewInfo) {
     return dataView.getUint32(dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX], true);
 }
 
+export function dataViewBigUint(dataView, dataViewInfo) {
+    return Number(dataView.getBigUint64(dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX], true));
+}
+
 export function dataViewUintArray(dataView, dataViewInfo) {
     const uintArray = []
     let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];

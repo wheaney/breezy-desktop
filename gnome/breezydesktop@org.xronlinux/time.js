@@ -1,3 +1,7 @@
 export function getEpochSec() {
-    return Math.floor(Date.now() / 1000);
+    return toSec(Date.now());
+}
+
+export function toSec(milliseconds) {
+    return Math.floor(milliseconds / 1000);
 }

@@ -7,7 +7,7 @@ import Globals from './globals.js';
 import { 
     dataViewEnd,
     dataViewUint8,
-    dataViewUint,
+    dataViewBigUint,
     dataViewUintArray,
     dataViewFloat,
     dataViewFloatArray,
@@ -20,28 +20,24 @@ import {
 } from "./ipc.js";
 import { degreeToRadian } from "./math.js";
 import { getShaderSource } from "./shader.js";
-import { getEpochSec } from "./time.js";
+import { toSec } from "./time.js";
 
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
 // the driver should be using the same data layout version
-const DATA_LAYOUT_VERSION = 1;
+const DATA_LAYOUT_VERSION = 2;
 
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
 const ENABLED = [dataViewEnd(VERSION), BOOL_SIZE, 1];
-const EPOCH_SEC = [dataViewEnd(ENABLED), UINT_SIZE, 1];
-const LOOK_AHEAD_CFG = [dataViewEnd(EPOCH_SEC), FLOAT_SIZE, 4];
+const LOOK_AHEAD_CFG = [dataViewEnd(ENABLED), FLOAT_SIZE, 4];
 const DISPLAY_RES = [dataViewEnd(LOOK_AHEAD_CFG), UINT_SIZE, 2];
 const DISPLAY_FOV = [dataViewEnd(DISPLAY_RES), FLOAT_SIZE, 1];
-const DISPLAY_ZOOM = [dataViewEnd(DISPLAY_FOV), FLOAT_SIZE, 1];
-const DISPLAY_NORTH_OFFSET = [dataViewEnd(DISPLAY_ZOOM), FLOAT_SIZE, 1];
-const LENS_DISTANCE_RATIO = [dataViewEnd(DISPLAY_NORTH_OFFSET), FLOAT_SIZE, 1];
+const LENS_DISTANCE_RATIO = [dataViewEnd(DISPLAY_FOV), FLOAT_SIZE, 1];
 const SBS_ENABLED = [dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1];
-const SBS_CONTENT = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
-const SBS_MODE_STRETCHED = [dataViewEnd(SBS_CONTENT), BOOL_SIZE, 1];
-const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_MODE_STRETCHED), BOOL_SIZE, 1];
-const IMU_QUAT_DATA = [dataViewEnd(CUSTOM_BANNER_ENABLED), FLOAT_SIZE, 16];
+const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
+const EPOCH_MS = [dataViewEnd(CUSTOM_BANNER_ENABLED), UINT_SIZE, 2];
+const IMU_QUAT_DATA = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
 const DATA_VIEW_LENGTH = dataViewEnd(IMU_QUAT_DATA);
 
 // cached after first retrieval
@@ -50,6 +46,7 @@ const shaderUniformLocations = {
     'show_banner': null,
     'imu_quat_data': null,
     'look_ahead_cfg': null,
+    'look_ahead_ms': null,
     'stage_aspect_ratio': null,
     'display_aspect_ratio': null,
     'trim_width_percent': null,
@@ -59,12 +56,10 @@ const shaderUniformLocations = {
     'lens_distance_ratio': null,
     'sbs_enabled': null,
     'sbs_content': null,
-    'sbs_mode_stretched': null,
     'custom_banner_enabled': null,
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
-    'screen_distance': null,
-    'frametime': null
+    'screen_distance': null
 };
 
 function transferUniformBoolean(effect, location, dataView, dataViewInfo) {
@@ -103,14 +98,25 @@ function setUniformMatrix(effect, locationName, components, dataView, dataViewIn
     effect.set_uniform_matrix(shaderUniformLocations[locationName], true, components, floatArray);
 }
 
+function lookAheadMS(dataView) {
+    const lookAheadCfg = dataViewFloatArray(dataView, LOOK_AHEAD_CFG);
+    const imuDateMS = dataViewBigUint(dataView, EPOCH_MS);
+
+    // how stale the imu data is
+    const dataAge = Date.now() - imuDateMS;
+
+    return lookAheadCfg[0] + dataAge;
+}
+
 // most uniforms don't change frequently, this function should be called periodically
 function setIntermittentUniformVariables() {
     const dataView = this._dataView;
 
     if (dataView.byteLength === DATA_VIEW_LENGTH) {
         const version = dataViewUint8(dataView, VERSION);
-        const date = dataViewUint(dataView, EPOCH_SEC);
-        const validKeepalive = Math.abs(getEpochSec() - date) < 5;
+        const imuDateMS = dataViewBigUint(dataView, EPOCH_MS);
+        const currentDateMS = Date.now();
+        const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
         const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
         const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
@@ -135,12 +141,8 @@ function setIntermittentUniformVariables() {
             
             // all these values are transferred directly, unmodified from the driver
             transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
-            transferUniformFloat(this, 'display_zoom', dataView, DISPLAY_ZOOM);
-            transferUniformFloat(this, 'display_north_offset', dataView, DISPLAY_NORTH_OFFSET);
             transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
             transferUniformBoolean(this, 'sbs_enabled', dataView, SBS_ENABLED);
-            transferUniformBoolean(this, 'sbs_content', dataView, SBS_CONTENT);
-            transferUniformBoolean(this, 'sbs_mode_stretched', dataView, SBS_MODE_STRETCHED);
             transferUniformBoolean(this, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
 
             // computed values with no dataViewInfo, so we set these manually
@@ -152,7 +154,11 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
             setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
             setSingleFloat(this, 'screen_distance', screenDistance);
-            setSingleFloat(this, 'frametime', this._frametime);
+
+            // TOOD - drive from settings
+            setSingleFloat(this, 'display_zoom', 1.0);
+            setSingleFloat(this, 'display_north_offset', 1.0);
+            setSingleFloat(this, 'sbs_content', 0.0);
         }
         setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
     } else if (dataView.byteLength !== 0) {
@@ -217,6 +223,7 @@ export const XREffect = GObject.registerClass({
             }
 
             if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
             } else if (this._dataView.byteLength !== 0) {
                 console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
