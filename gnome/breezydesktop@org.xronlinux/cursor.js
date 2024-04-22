@@ -38,10 +38,9 @@ export const MouseSpriteContent = GObject.registerClass({
         if (!this._texture)
             return;
 
-        let color = Clutter.Color.get_static(Clutter.StaticColor.WHITE);
         let [minFilter, magFilter] = actor.get_content_scaling_filters();
         let textureNode = new Clutter.TextureNode(this._texture,
-            color, minFilter, magFilter);
+            null, minFilter, magFilter);
         textureNode.set_name('BreezyDesktopSpriteContent');
         node.add_child(textureNode);
 
