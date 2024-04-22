@@ -15,6 +15,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
+    'nreal air',
     'Air',
     'MetaMonitor' // nested mode dummy monitor
 ];
