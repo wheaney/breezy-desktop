@@ -142,16 +142,17 @@ export default class BreezyDesktopExtension extends Extension {
         if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
 
         Meta.enable_unredirect_for_display(global.display);
-        this._overlay.remove_effect_by_name('xr-desktop');
-        if (this._xr_effect) {
-            this._xr_effect.unref();
-            this._xr_effect = null;
-        }
 
         if (this._overlay) {
+            this._overlay.remove_effect_by_name('xr-desktop');
             global.stage.remove_child(this._overlay);
             this._overlay.destroy();
             this._overlay = null;
+        }
+
+        if (this._xr_effect) {
+            this._xr_effect.unref();
+            this._xr_effect = null;
         }
 
         if (this._cursor_manager) {
