@@ -116,7 +116,11 @@ export default class BreezyDesktopExtension extends Extension {
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
                 uiClone.x = -this._target_monitor.x;
                 uiClone.y = -this._target_monitor.y;
-                overlayContent.add_actor(uiClone);
+                if (Clutter.Container === undefined) {
+                    overlayContent.add_child(uiClone);
+                } else {
+                    overlayContent.add_actor(uiClone);
+                }
 
                 this._overlay.set_child(overlayContent);
 
