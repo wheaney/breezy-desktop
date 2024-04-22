@@ -73,7 +73,11 @@ export class CursorManager {
         this._cursorSprite.content = new MouseSpriteContent();
 
         this._cursorActor = new Clutter.Actor();
-        this._cursorActor.add_actor(this._cursorSprite);
+        if (Clutter.Container === undefined) {
+            this._cursorActor.add_child(this._cursorSprite);
+        } else {
+            this._cursorActor.add_actor(this._cursorSprite);
+        }
         this._cursorWatcher = PointerWatcher.getPointerWatcher();
         this._cursorSeat = Clutter.get_default_backend().get_default_seat();
     }
@@ -119,7 +123,11 @@ export class CursorManager {
     // prereqs: setup in _enableCloningMouse, _cursorWantedVisible is true
     _startCloningMouse() {
         if (this._cursorWatch == null) {
-            this._mainActor.add_actor(this._cursorActor);
+            if (Clutter.Container === undefined) {
+                this._mainActor.add_child(this._cursorActor);
+            } else {
+                this._mainActor.add_actor(this._cursorActor);
+            }
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
             this._cursorPositionInvalidatedConnection = this._cursorTracker.connect('position-invalidated', this._updateMouseSprite.bind(this));
@@ -161,7 +169,11 @@ export class CursorManager {
             this._cursorTracker.disconnect(this._cursorPositionInvalidatedConnection);
             this._cursorPositionInvalidatedConnection = null;
 
-            this._mainActor.remove_actor(this._cursorActor);
+            if (Clutter.Container === undefined) {
+                this._mainActor.remove_child(this._cursorActor);
+            } else {
+                this._mainActor.remove_actor(this._cursorActor);
+            }
         }
 
         if (this._cursorTracker.set_keep_focus_while_hidden) {
