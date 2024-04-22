@@ -1,6 +1,6 @@
 # require a first parameter, the user home directory
 if [ -z "$1" ]; then
-    echo "Usage: $0 <username> [group]"
+    echo "Usage: $0 username [group]"
     exit 1
 fi
 user=$1
@@ -62,4 +62,4 @@ fi
 
 echo "Breezy Desktop extension is installed. Please log out, log back in, \
     and then run the following command to enable it:\
-    gnome-extension enable breezydesktop@org.xronlinux"
+    gnome-extensions enable breezydesktop@org.xronlinux"
