@@ -1,0 +1,13 @@
+<schemalist gettext-domain="breezydesktop@org.xronlinux">
+  <schema id="org.gnome.shell.extensions.breezy-desktop" path="/org/gnome/shell/extensions/breezy-desktop/">
+      <key name="shortcut-recenter" type="as">
+      <default>
+        <![CDATA[['<Control><Super>space']]]>
+      </default>
+      <summary>Re-center display</summary>
+      <description>
+        Shortcut to re-center the virtual display.
+      </description>
+    </key>
+  </schema>
+</schemalist>

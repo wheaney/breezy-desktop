@@ -1,4 +1,3 @@
-# require a first parameter, the user home directory
 if [ -z "$1" ]; then
     echo "Usage: $0 username [group]"
     exit 1
@@ -30,7 +29,6 @@ $user_home/bin/xreal_driver_config -vd
 
 sed -i 's/virtual_display/breezy_desktop/g' $user_home/.xreal_driver_config
 
-# if breezy-desktop directory doesn't exit
 if [ ! -d breezy-desktop ]; then
     git clone https://github.com/wheaney/breezy-desktop.git
 

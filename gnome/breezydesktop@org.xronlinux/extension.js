@@ -54,7 +54,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._effect_enable();
                 return GLib.SOURCE_REMOVE;
             } else {
-                console.log(`Not ready: driver_running ${is_driver_running}, target_monitor ${JSON.stringify(target_monitor)}`);
                 return GLib.SOURCE_CONTINUE;
             }
         }).bind(this));
@@ -135,11 +134,25 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
+                const action = Main.wm.addKeybinding(
+                    'shortcut-recenter', 
+                    this.getSettings(), 
+                    Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                    Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                    this._recenter_display.bind(this)
+                )
             } catch (e) {
                 console.error('Error enabling XR effect', e);
                 this._effect_disable();
             }
         }
+    }
+
+    _recenter_display() {
+        const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
+        const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        stream.write('recenter_screen=true', null);
+        stream.close(null);
     }
 
     _effect_disable() {
@@ -150,8 +163,8 @@ export default class BreezyDesktopExtension extends Extension {
         Meta.enable_unredirect_for_display(global.display);
 
         if (this._overlay) {
-            this._overlay.remove_effect_by_name('xr-desktop');
             global.stage.remove_child(this._overlay);
+            this._overlay.remove_effect_by_name('xr-desktop');
             this._overlay.destroy();
             this._overlay = null;
         }
@@ -164,7 +177,6 @@ export default class BreezyDesktopExtension extends Extension {
             this._cursor_manager.disable();
             this._cursor_manager = null;
         }
-
     }
 
     disable() {
