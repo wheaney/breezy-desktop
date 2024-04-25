@@ -9,7 +9,6 @@ export class CursorManager {
     constructor(mainActor) {
         this._mainActor = mainActor;
 
-        this._enableTimeoutId = null;
         this._changeHookFn = null;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
@@ -21,6 +20,7 @@ export class CursorManager {
         this._cursorActor = null;
         this._cursorWatcher = null;
         this._cursorSeat = null;
+        this._cursorUnfocusInhibited = false;
 
         // Set/destroyed by _startCloningMouse / _stopCloningMouse
         this._cursorWatch = null;
@@ -35,13 +35,6 @@ export class CursorManager {
     }
 
     disable() {
-        // If _enableTimeoutId is non-null, _enable() has not run yet, and will
-        // not run.  Do not run _disable() in this case.
-        GLib.source_remove(this._enableTimeoutId);
-        if (this._enableTimeoutId !== null) {
-            return;
-        }
-        this._enableTimeoutId = null;
         this._disableCloningMouse();
     }
 
@@ -144,8 +137,10 @@ export class CursorManager {
             this._cursorTracker.set_keep_focus_while_hidden(true);
         }
 
-        if (!this._cursorSeat.is_unfocus_inhibited()) {
+        if (!this._cursorUnfocusInhibited) {
+            console.log('Breezy debug - inhibit_unfocus\n');
             this._cursorSeat.inhibit_unfocus();
+            this._cursorUnfocusInhibited = true;
         }
     }
 
@@ -180,8 +175,10 @@ export class CursorManager {
             this._cursorTracker.set_keep_focus_while_hidden(false);
         }
 
-        if (this._cursorSeat.is_unfocus_inhibited()) {
+        if (this._cursorUnfocusInhibited) {
+            console.log('Breezy debug - uninhibit_unfocus\n');
             this._cursorSeat.uninhibit_unfocus();
+            this._cursorUnfocusInhibited = false;
         }
     }
 
@@ -205,5 +202,11 @@ export class CursorManager {
         });
         this._mainActor.set_child_above_sibling(this._cursorActor, null);
         this._cursorTrackerSetPointerVisibleBound(false);
+
+        // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
+        if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
+            console.log('Breezy debug - reinhibiting\n');
+            this._cursorSeat.inhibit_unfocus();
+        }
     }
 }

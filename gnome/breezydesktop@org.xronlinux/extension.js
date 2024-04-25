@@ -86,6 +86,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._refresh_rate = target_monitor.refreshRate;
 
             if (this._check_driver_running()) {
+                console.log('Ready, enabling XR effect');
                 this._effect_enable();
             } else {
                 this._poll_for_ready();
@@ -156,7 +157,6 @@ export default class BreezyDesktopExtension extends Extension {
         }
 
         if (this._xr_effect) {
-            this._xr_effect.unref();
             this._xr_effect = null;
         }
 
