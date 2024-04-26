@@ -134,13 +134,21 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
-                const action = Main.wm.addKeybinding(
+                Main.wm.addKeybinding(
                     'shortcut-recenter', 
                     this.getSettings(), 
                     Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
                     Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
                     this._recenter_display.bind(this)
-                )
+                );
+
+                Main.wm.addKeybinding(
+                    'shortcut-change-distance', 
+                    this.getSettings(), 
+                    Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                    Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                    this._xr_effect._change_distance.bind(this._xr_effect)
+                );
             } catch (e) {
                 console.error('Error enabling XR effect', e);
                 this._effect_disable();
@@ -160,6 +168,8 @@ export default class BreezyDesktopExtension extends Extension {
 
         if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
 
+        Main.wm.removeKeybinding('shortcut-recenter');
+        Main.wm.removeKeybinding('shortcut-change-distance');
         Meta.enable_unredirect_for_display(global.display);
 
         if (this._overlay) {

@@ -152,7 +152,7 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
 
         // divide all values by x to scale the magnitude so x is exactly 1, and multiply by the final display distance
         // so the vector is pointing at a coordinate on the screen
-        float display_distance = (sbs_enabled ? display_north_offset : 1.0) - rotated_lens_vector.x;
+        float display_distance = display_north_offset - rotated_lens_vector.x;
         res *= display_distance / res.x;
         res += rotated_lens_vector;
 
