@@ -1,9 +1,11 @@
+import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
+
 import { 
     dataViewEnd,
     dataViewUint8,
@@ -23,6 +25,8 @@ import { getShaderSource } from "./shader.js";
 import { toSec } from "./time.js";
 
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
+const display_distance_nearest = 0.85;
+const display_distance_furthest = 1.05;
 
 // the driver should be using the same data layout version
 const DATA_LAYOUT_VERSION = 2;
@@ -157,7 +161,6 @@ function setIntermittentUniformVariables() {
 
             // TOOD - drive from settings
             setSingleFloat(this, 'display_zoom', 1.0);
-            setSingleFloat(this, 'display_north_offset', 1.0);
             setSingleFloat(this, 'sbs_content', 0.0);
         }
         setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
@@ -186,6 +189,31 @@ export const XREffect = GObject.registerClass({
         super(params);
 
         this._frametime = Math.floor(1000 / this.target_framerate);
+
+        // slightly zoomed out by default
+        this._display_distance = display_distance_furthest;
+        this._display_distance_near = false;
+        this._distance_ease_timeline = null;
+    }
+
+    _change_distance() {
+        if (this._distance_ease_timeline?.is_playing())  this._distance_ease_timeline.stop();
+        this._distance_ease_start = this._display_distance;
+        this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 250);
+
+        if (this._display_distance_near) {
+            this._distance_ease_timeline.connect('new-frame', () => {
+                this._display_distance = this._distance_ease_start + this._distance_ease_timeline.get_progress() * (display_distance_furthest - this._distance_ease_start);
+            });
+            this._display_distance_near = false;
+        } else {
+            this._distance_ease_timeline.connect('new-frame', () => {
+                this._display_distance = this._distance_ease_start - this._distance_ease_timeline.get_progress() * (this._distance_ease_start - display_distance_nearest);
+            });
+            this._display_distance_near = true;
+        }
+
+        this._distance_ease_timeline.start();
     }
 
     vfunc_build_pipeline() {
@@ -219,10 +247,12 @@ export const XREffect = GObject.registerClass({
                     this.setIntermittentUniformVariables();
                     return GLib.SOURCE_CONTINUE;
                 }).bind(this));
+
                 this._initialized = true;
             }
 
             if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                setSingleFloat(this, 'display_north_offset', this._display_distance);
                 setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
             } else if (this._dataView.byteLength !== 0) {
