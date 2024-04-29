@@ -141,14 +141,36 @@ export default class BreezyDesktopExtension extends Extension {
                     Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
                     this._recenter_display.bind(this)
                 );
+                const initialKeybinding = settings.get_strv('shortcut-change-distance')[0];
 
-                Main.wm.addKeybinding(
-                    'shortcut-change-distance', 
-                    this.getSettings(), 
-                    Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-                    Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
-                    this._xr_effect._change_distance.bind(this._xr_effect)
-                );
+                // Add the initial keybinding (if it's not empty)
+                if (initialKeybinding) {
+                    Main.wm.addKeybinding(
+                        initialKeybinding,
+                        this.getSettings(),
+                        Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                        Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                        this._xr_effect._change_distance.bind(this._xr_effect)
+                    );
+                }
+                
+                // Connect to the 'changed' signal for the keybinding property
+                settings.connect('changed::shortcut-change-distance', () => {
+                    // Remove the old keybinding
+                    Main.wm.removeKeybinding('shortcut-change-distance');
+                
+                    // Get the updated keybinding value from settings
+                    const newKeybinding = settings.get_strv('shortcut-change-distance')[0];
+                
+                    // Add the updated keybinding
+                    Main.wm.addKeybinding(
+                        newKeybinding,
+                        this.getSettings(),
+                        Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                        Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                        this._xr_effect._change_distance.bind(this._xr_effect)
+                    );
+                });
             } catch (e) {
                 console.error('Error enabling XR effect', e);
                 this._effect_disable();
