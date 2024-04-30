@@ -13,7 +13,8 @@ DRIVER_STATE_FILE_PATH = '/dev/shm/xr_driver_state'
 
 CONTROL_FLAGS = ['recenter_screen', 'recalibrate', 'sbs_mode', 'refresh_device_license']
 SBS_MODE_VALUES = ['unset', 'enable', 'disable']
-KNOWN_EXTERNAL_MODES = ['virtual_display', 'sideview', 'none']
+MANAGED_EXTERNAL_MODES = ['virtual_display', 'sideview', 'none']
+VR_LITE_OUTPUT_MODES = ['mouse', 'joystick']
 
 def parse_boolean(value, default):
     if not value:
@@ -63,17 +64,6 @@ class XRDriverIPC:
         self.config_file_path = os.path.join(self.user_home, ".xreal_driver_config")
         self.config_script_path = os.path.join(self.user_home, "bin/xreal_driver_config")
         self.logger = logger
-
-    def config_to_headset_mode(self, config):
-        if config['disabled'] or (config['output_mode'] == "external_only" and config['external_mode'] == 'none'):
-            return "disabled"
-        if config['output_mode'] == "external_only" and config['external_mode'] != 'none':
-            if config['external_mode'] in KNOWN_EXTERNAL_MODES:
-                return config['external_mode']
-            
-            return "other"
-        
-        return "vr_lite"
         
     def retrieve_config(self):
         config = {}
@@ -103,29 +93,14 @@ class XRDriverIPC:
         }
 
         return config
-    
-    def headset_mode_to_config(self, headset_mode, joystick_mode):
-        if headset_mode == "virtual_display":
-            return { 'disabled': False, 'output_mode': 'external_only', 'external_mode': 'virtual_display' }
-        if headset_mode == "vr_lite":
-            return { 'disabled': False, 'output_mode': 'joystick' if joystick_mode else 'mouse', 'external_mode': 'none' }
-        if headset_mode == "sideview":
-            return { 'disabled': False, 'output_mode': 'external_only', 'external_mode': 'sideview' }
-        if headset_mode == "other":
-            # leave external_mode unset so it doesn't override the current value
-            return { 'disabled': False, 'output_mode': 'external_only' }
-        if headset_mode == "disabled":
-            return { 'disabled': True, 'external_mode': 'none' }
 
-        return { }
-
-    def write_config(self, config):
+    async def write_config(self, config):
         try:
             output = ""
 
             # remove the UI's "view" data, translate back to config values, and merge them in
             view = config.pop('ui_view', None)
-            config.update(self.headset_mode_to_config(view['headset_mode'], view['is_joystick_mode']))
+            config.update(self.headset_mode_to_config(view['headset_mode'], view['is_joystick_mode'], config['external_mode']))
 
             for key, value in config.items():
                 if key != "updated":
@@ -145,10 +120,51 @@ class XRDriverIPC:
                 f.write(output)
 
             # Atomically replace the old config file with the new one
-            os.replace(temp_file, self.config_file_path)
-            os.chmod(self.config_file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
+            os.replace(temp_file, CONFIG_FILE_PATH)
+            os.chmod(CONFIG_FILE_PATH, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
         except Exception as e:
-            self.logger.error(f"Error writing config {e}")
+            decky_plugin.logger.error(f"Error writing config {e}")
+
+    def filter_to_other_external_modes(self, external_modes):
+        return [mode for mode in external_modes if mode not in MANAGED_EXTERNAL_MODES]
+    
+    def headset_mode_to_config(self, headset_mode, joystick_mode, external_modes):
+        new_external_modes = self.filter_to_other_external_modes(external_modes)
+
+        config = {}
+        if headset_mode == "virtual_display":
+            new_external_modes.append("virtual_display")
+            config['output_mode'] = "external_only"
+            config['disabled'] = False
+        elif headset_mode == "vr_lite":
+            config['output_mode'] = "joystick" if joystick_mode else "mouse"
+            config['disabled'] = False
+        elif headset_mode == "sideview":
+            new_external_modes.append("sideview")
+            config['output_mode'] = "external_only"
+            config['disabled'] = False
+        else:
+            config['output_mode'] = "external_only"
+
+        has_external_mode = len(new_external_modes) > 0
+        if not has_external_mode:
+            new_external_modes.append("none")
+        config['external_mode'] = new_external_modes
+
+        return config
+    
+    def config_to_headset_mode(self, config):
+        if not config or config['disabled']:
+            return "disabled"
+        
+        if config['output_mode'] in VR_LITE_OUTPUT_MODES:
+            return "vr_lite"
+
+        managed_mode = next((mode for mode in MANAGED_EXTERNAL_MODES if mode in config['external_mode']), None)
+        if managed_mode and managed_mode != "none":
+            return managed_mode
+        
+        return "disabled"
 
     def write_control_flags(self, control_flags):
         try:
