@@ -35,13 +35,16 @@ def parse_float(value, default):
 def parse_string(value, default):
     return value if value else default
 
+def parse_array(value, default):
+    return value.split(",") if value else default
+
 
 CONFIG_PARSER_INDEX = 0
 CONFIG_DEFAULT_VALUE_INDEX = 1
 CONFIG_ENTRIES = {
     'disabled': [parse_boolean, True],
     'output_mode': [parse_string, 'mouse'],
-    'external_mode': [parse_string, 'none'],
+    'external_mode': [parse_array, 'none'],
     'mouse_sensitivity': [parse_int, 30],
     'display_zoom': [parse_float, 1.0],
     'look_ahead': [parse_int, 0],
@@ -79,28 +82,31 @@ class XRDriverIPC:
 
                         key, value = line.strip().split('=')
                         if key in CONFIG_ENTRIES:
-                            config[key] = CONFIG_ENTRIES[key][CONFIG_PARSER_INDEX](value)
+                            parser = CONFIG_ENTRIES[key][CONFIG_PARSER_INDEX]
+                            default_val = CONFIG_ENTRIES[key][CONFIG_DEFAULT_VALUE_INDEX]
+                            config[key] = parser(value, default_val)
                     except Exception as e:
                         self.logger.error(f"Error parsing line {line}: {e}")
         except FileNotFoundError as e:
             self.logger.error(f"Config file not found {e}")
             return config
         
-        # like a SQL "view," these are computed values that are commonly used in the UI
-        config['ui_view'] = {
-            'headset_mode': self.config_to_headset_mode(config),
-            'is_joystick_mode': config['output_mode'] == 'joystick'
-        }
+        config['ui_view'] = self.build_ui_view(config)
 
         return config
 
-    async def write_config(self, config):
+    def write_config(self, config):
         try:
             output = ""
 
+            # Since the UI doesn't refresh the config before it updates, the external_mode can get out of sync with 
+            # what's on disk. To avoid losing external_mode values, we retrieve the previous configs to preserve
+            # any non-managed external modes.
+            old_config = self._retrieve_config(self)
+
             # remove the UI's "view" data, translate back to config values, and merge them in
             view = config.pop('ui_view', None)
-            config.update(self.headset_mode_to_config(view['headset_mode'], view['is_joystick_mode'], config['external_mode']))
+            config.update(self.headset_mode_to_config(view['headset_mode'], view['is_joystick_mode'], old_config['external_mode']))
 
             for key, value in config.items():
                 if key != "updated":
@@ -120,27 +126,43 @@ class XRDriverIPC:
                 f.write(output)
 
             # Atomically replace the old config file with the new one
-            os.replace(temp_file, CONFIG_FILE_PATH)
-            os.chmod(CONFIG_FILE_PATH, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
+            os.replace(temp_file, self.config_file_path)
+            os.chmod(self.config_file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
+
+            config['ui_view'] = self.build_ui_view(self, config)
+
+            return config
         except Exception as e:
-            decky_plugin.logger.error(f"Error writing config {e}")
+            self.logger.error(f"Error writing config {e}")
+            raise e
+
+    # like a SQL "view," these are computed values that are commonly used in the UI
+    def build_ui_view(self, config):
+        view = {}
+        view['headset_mode'] = self.config_to_headset_mode(config)
+        view['is_joystick_mode'] = config['output_mode'] == 'joystick'
+        return view
 
     def filter_to_other_external_modes(self, external_modes):
         return [mode for mode in external_modes if mode not in MANAGED_EXTERNAL_MODES]
     
-    def headset_mode_to_config(self, headset_mode, joystick_mode, external_modes):
-        new_external_modes = self.filter_to_other_external_modes(external_modes)
+    def headset_mode_to_config(self, headset_mode, joystick_mode, old_external_modes):
+        new_external_modes = self.filter_to_other_external_modes(old_external_modes)
 
         config = {}
         if headset_mode == "virtual_display":
-            new_external_modes.append("virtual_display")
+            # TODO - uncomment this when the driver can support multiple external_mode values
+            # new_external_modes.append("virtual_display")
+            new_external_modes = ["virtual_display"]
             config['output_mode'] = "external_only"
             config['disabled'] = False
         elif headset_mode == "vr_lite":
             config['output_mode'] = "joystick" if joystick_mode else "mouse"
             config['disabled'] = False
         elif headset_mode == "sideview":
-            new_external_modes.append("sideview")
+            # TODO - uncomment this when the driver can support multiple external_mode values
+            # new_external_modes.append("sideview")
+            new_external_modes = ["sideview"]
             config['output_mode'] = "external_only"
             config['disabled'] = False
         else:

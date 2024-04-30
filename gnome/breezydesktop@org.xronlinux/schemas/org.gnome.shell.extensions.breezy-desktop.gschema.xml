@@ -18,5 +18,32 @@
         Shortcut to change the display distance.
       </description>
     </key>
+    <key name="display-distance" type="d">
+      <default>
+        1.05
+      </default>
+      <summary>Display distance</summary>
+      <description>
+        How far away the display appears. Further will look smaller, closer will look larger.
+      </description>
+    </key>
+    <key name="display-distance-nearest" type="d">
+      <default>
+        0.85
+      </default>
+      <summary>Display distance nearest</summary>
+      <description>
+        How close to bring in the display when using the "change distance" shortcut.
+      </description>
+    </key>
+    <key name="display-distance-farthest" type="d">
+      <default>
+        1.05
+      </default>
+      <summary>Display distance farthest</summary>
+      <description>
+        How far to push out the display when using the "change distance" shortcut.
+      </description>
+    </key>
   </schema>
 </schemalist>
