@@ -4,10 +4,10 @@ import sys
 gi.require_version("Gtk", "4.0")
 gi.require_version('Adw', '1')
 
-from gi.repository import Gio
-from gi.repository import Gtk, Adw
+from gi.repository import Adw, Gio, Gtk
 
 from XRDriverIPC import XRDriverIPC
+from ShortcutDialog import bind_shortcut_settings
 
 class Logger:
     def info(self, message):
@@ -19,27 +19,21 @@ class Logger:
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.settings = Gio.Settings.new_with_path("org.gnome.shell.extensions.breezy-desktop", "/org/gnome/shell/extensions/breezy-desktop/")
-
-        self.set_default_size(600, 250)
         self.set_title("Breezy GNOME")
 
-        self.box1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.set_child(self.box1)
+        # grab ui from breezy-desktop.ui file and render it
+        builder = Gtk.Builder()
+        builder.add_from_file("./breezy-desktop.ui")
+        self.set_child(builder.get_object("main"))
 
-        self.button = Gtk.Button(label="Hello")
-        self.box1.append(self.button)
-        self.button.connect('clicked', self.on_button_clicked)
-
-        self.slider = Gtk.Scale()
-        self.slider.set_digits(2)  # Number of decimal places to use
-        self.slider.set_range(0.2, 2.5)
-        self.slider.set_draw_value(True)  # Show a label with current value
-        self.slider.set_value(1.0)  # Sets the current value/position
-        self.box1.append(self.slider)
-
+        self.settings = Gio.Settings.new_with_path("org.gnome.shell.extensions.breezy-desktop", "/org/gnome/shell/extensions/breezy-desktop/")
         self.ipc = XRDriverIPC(logger = Logger())
-        
+
+        bind_shortcut_settings(self, self.settings, [
+            builder.get_object('reassign-recenter-display-shortcut-button'),
+            builder.get_object('reassign-toggle-display-distance-shortcut-button'),
+        ])
+    
     def on_button_clicked(self, widget):
         print("Hello World")
 
@@ -56,7 +50,7 @@ class MyApp(Adw.Application):
 
     def on_activate(self, app):
         self.win = MainWindow(application=app)
-        self.win.present()
+        self.win.present()        
 
 app = MyApp(application_id="com.example.GtkApplication")
 app.run(sys.argv)

@@ -1,6 +1,6 @@
 <schemalist gettext-domain="breezydesktop@org.xronlinux">
   <schema id="org.gnome.shell.extensions.breezy-desktop" path="/org/gnome/shell/extensions/breezy-desktop/">
-    <key name="shortcut-recenter" type="as">
+    <key name="recenter-display-shortcut" type="as">
       <default>
         <![CDATA[['<Control><Super>space']]]>
       </default>
@@ -9,7 +9,7 @@
         Shortcut to re-center the virtual display.
       </description>
     </key>
-    <key name="shortcut-change-distance" type="as">
+    <key name="toggle-display-distance-shortcut" type="as">
       <default>
         <![CDATA[['<Control><Super>Return']]]>
       </default>
@@ -24,10 +24,10 @@
       </default>
       <summary>Display distance</summary>
       <description>
-        How far away the display appears. Further will look smaller, closer will look larger.
+        How far away the display appears. Farther will look smaller, closer will look larger.
       </description>
     </key>
-    <key name="display-distance-nearest" type="d">
+    <key name="toggle-display-distance-nearest" type="d">
       <default>
         0.85
       </default>
@@ -36,7 +36,7 @@
         How close to bring in the display when using the "change distance" shortcut.
       </description>
     </key>
-    <key name="display-distance-farthest" type="d">
+    <key name="toggle-display-distance-farthest" type="d">
       <default>
         1.05
       </default>
