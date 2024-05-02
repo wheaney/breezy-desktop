@@ -32,7 +32,10 @@ class ShortcutDialog:
                 state
             )
             label = Gtk.accelerator_get_label(keyval, state)
+
+            # hacky way to store the label, causes warnings from the WM
             self.settings.set_strv(self.settings_key, [binding, label])
+
             self.widget.close()
         else:
             done = False

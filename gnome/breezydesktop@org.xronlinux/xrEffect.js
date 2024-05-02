@@ -25,8 +25,6 @@ import { getShaderSource } from "./shader.js";
 import { toSec } from "./time.js";
 
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
-const display_distance_nearest = 0.85;
-const display_distance_furthest = 1.05;
 
 // the driver should be using the same data layout version
 const DATA_LAYOUT_VERSION = 2;
@@ -192,6 +190,24 @@ export const XREffect = GObject.registerClass({
             2.5, 
             1.05
         ),
+        'toggle-display-distance-start': GObject.ParamSpec.double(
+            'toggle-display-distance-start',
+            'Display distance start',
+            'Start distance when using the "change distance" shortcut.',
+            GObject.ParamFlags.READWRITE, 
+            0.2, 
+            2.5, 
+            1.05
+        ),
+        'toggle-display-distance-end': GObject.ParamSpec.double(
+            'toggle-display-distance-end',
+            'Display distance end',
+            'End distance when using the "change distance" shortcut.',
+            GObject.ParamFlags.READWRITE, 
+            0.2, 
+            2.5, 
+            1.05
+        )
     }
 }, class XREffect extends Shell.GLSLEffect {
     constructor(params = {}) {
@@ -199,26 +215,24 @@ export const XREffect = GObject.registerClass({
 
         this._frametime = Math.floor(1000 / this.target_framerate);
 
-        this._display_distance_near = false;
+        this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
     }
 
     _change_distance() {
-        if (this._distance_ease_timeline?.is_playing())  this._distance_ease_timeline.stop();
+        if (this._distance_ease_timeline?.is_playing()) this._distance_ease_timeline.stop();
+
         this._distance_ease_start = this.display_distance;
         this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 250);
 
-        if (this._display_distance_near) {
-            this._distance_ease_timeline.connect('new-frame', () => {
-                this.display_distance = this._distance_ease_start + this._distance_ease_timeline.get_progress() * (display_distance_furthest - this._distance_ease_start);
-            });
-            this._display_distance_near = false;
-        } else {
-            this._distance_ease_timeline.connect('new-frame', () => {
-                this.display_distance = this._distance_ease_start - this._distance_ease_timeline.get_progress() * (this._distance_ease_start - display_distance_nearest);
-            });
-            this._display_distance_near = true;
-        }
+        const toggle_display_distance_target = this._is_display_distance_at_end ? 
+            this.toggle_display_distance_start : this.toggle_display_distance_end;
+        this._distance_ease_timeline.connect('new-frame', () => {
+            this.display_distance = this._distance_ease_start + 
+                this._distance_ease_timeline.get_progress() * 
+                (toggle_display_distance_target - this._distance_ease_start);
+        });
+        this._is_display_distance_at_end = !this._is_display_distance_at_end;
 
         this._distance_ease_timeline.start();
     }

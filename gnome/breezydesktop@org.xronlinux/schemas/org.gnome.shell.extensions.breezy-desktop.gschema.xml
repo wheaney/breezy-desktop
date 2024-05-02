@@ -1,5 +1,14 @@
 <schemalist gettext-domain="breezydesktop@org.xronlinux">
   <schema id="org.gnome.shell.extensions.breezy-desktop" path="/org/gnome/shell/extensions/breezy-desktop/">
+    <key name="effect-enable" type="b">
+      <default>
+        true
+      </default>
+      <summary>Enable XR effect</summary>
+      <description>
+        Enable XR effect
+      </description>
+    </key>
     <key name="recenter-display-shortcut" type="as">
       <default>
         <![CDATA[['<Control><Super>space', 'Ctrl+Super+Space']]]>
@@ -27,22 +36,22 @@
         How far away the display appears. Farther will look smaller, closer will look larger.
       </description>
     </key>
-    <key name="toggle-display-distance-nearest" type="d">
+    <key name="toggle-display-distance-start" type="d">
       <default>
         0.85
       </default>
-      <summary>Display distance nearest</summary>
+      <summary>Display distance start</summary>
       <description>
-        How close to bring in the display when using the "change distance" shortcut.
+        Start distance when using the "change distance" shortcut.
       </description>
     </key>
-    <key name="toggle-display-distance-farthest" type="d">
+    <key name="toggle-display-distance-end" type="d">
       <default>
         1.05
       </default>
-      <summary>Display distance farthest</summary>
+      <summary>Display distance end</summary>
       <description>
-        How far to push out the display when using the "change distance" shortcut.
+        End distance when using the "toggle display distance" shortcut.
       </description>
     </key>
   </schema>

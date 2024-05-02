@@ -58,6 +58,11 @@ if [ ! -L $extensions_dir/breezydesktop@org.xronlinux ]; then
     chown -R $user:$group $extensions_dir/breezydesktop@org.xronlinux
 fi
 
+glib-compile-schemas --targetdir=$extensions_dir/breezydesktop@org.xronlinux/schemas/ $extensions_dir/breezydesktop@org.xronlinux/schemas/
+
+sudo cp $extensions_dir/breezydesktop@org.xronlinux/schemas/org.gnome.shell.extensions.breezy-desktop.gschema.xml /usr/share/glib-2.0/schemas/
+sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
+
 echo "Breezy Desktop extension is installed. Please log out, log back in, \
     and then run the following command to enable it:\
     gnome-extensions enable breezydesktop@org.xronlinux"
