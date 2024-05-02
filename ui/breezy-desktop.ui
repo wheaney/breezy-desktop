@@ -36,7 +36,7 @@
                     <property name="width-request">350</property>
                     <property name="has-origin">false</property>
                     <property name="adjustment">
-                      <object class="GtkAdjustment">
+                      <object class="GtkAdjustment" id="display-distance-slider">
                         <property name="lower">0.2</property>
                         <property name="upper">2.5</property>
                         <property name="step-increment">0.01</property>
@@ -67,6 +67,7 @@
                     <style>
                       <class name="row-button"/>
                     </style>
+                    <property name="name">recenter-display-shortcut</property>
                     <property name="valign">center</property>
                     <property name="label">Test</property>
                   </object>
@@ -82,6 +83,7 @@
                     <style>
                       <class name="row-button"/>
                     </style>
+                    <property name="name">toggle-display-distance-shortcut</property>
                     <property name="valign">center</property>
                     <property name="label">Test</property>
                   </object>

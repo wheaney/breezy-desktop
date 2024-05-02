@@ -182,7 +182,16 @@ export const XREffect = GObject.registerClass({
             'Target Framerate', 
             'Target framerate for this effect',
             GObject.ParamFlags.READWRITE, 60, 240, 60
-        )
+        ),
+        'display-distance': GObject.ParamSpec.double(
+            'display-distance',
+            'Display Distance',
+            'How far away the display appears',
+            GObject.ParamFlags.READWRITE, 
+            0.2, 
+            2.5, 
+            1.05
+        ),
     }
 }, class XREffect extends Shell.GLSLEffect {
     constructor(params = {}) {
@@ -190,25 +199,23 @@ export const XREffect = GObject.registerClass({
 
         this._frametime = Math.floor(1000 / this.target_framerate);
 
-        // slightly zoomed out by default
-        this._display_distance = display_distance_furthest;
         this._display_distance_near = false;
         this._distance_ease_timeline = null;
     }
 
     _change_distance() {
         if (this._distance_ease_timeline?.is_playing())  this._distance_ease_timeline.stop();
-        this._distance_ease_start = this._display_distance;
+        this._distance_ease_start = this.display_distance;
         this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 250);
 
         if (this._display_distance_near) {
             this._distance_ease_timeline.connect('new-frame', () => {
-                this._display_distance = this._distance_ease_start + this._distance_ease_timeline.get_progress() * (display_distance_furthest - this._distance_ease_start);
+                this.display_distance = this._distance_ease_start + this._distance_ease_timeline.get_progress() * (display_distance_furthest - this._distance_ease_start);
             });
             this._display_distance_near = false;
         } else {
             this._distance_ease_timeline.connect('new-frame', () => {
-                this._display_distance = this._distance_ease_start - this._distance_ease_timeline.get_progress() * (this._distance_ease_start - display_distance_nearest);
+                this.display_distance = this._distance_ease_start - this._distance_ease_timeline.get_progress() * (this._distance_ease_start - display_distance_nearest);
             });
             this._display_distance_near = true;
         }
@@ -252,7 +259,7 @@ export const XREffect = GObject.registerClass({
             }
 
             if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
-                setSingleFloat(this, 'display_north_offset', this._display_distance);
+                setSingleFloat(this, 'display_north_offset', this.display_distance);
                 setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
             } else if (this._dataView.byteLength !== 0) {

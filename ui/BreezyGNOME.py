@@ -21,7 +21,6 @@ class MainWindow(Gtk.ApplicationWindow):
         super().__init__(*args, **kwargs)
         self.set_title("Breezy GNOME")
 
-        # grab ui from breezy-desktop.ui file and render it
         builder = Gtk.Builder()
         builder.add_from_file("./breezy-desktop.ui")
         self.set_child(builder.get_object("main"))
@@ -33,15 +32,9 @@ class MainWindow(Gtk.ApplicationWindow):
             builder.get_object('reassign-recenter-display-shortcut-button'),
             builder.get_object('reassign-toggle-display-distance-shortcut-button'),
         ])
-    
-    def on_button_clicked(self, widget):
-        print("Hello World")
 
-        self.settings.set_strv('shortcut-change-distance', ['<Control><Super>Return'])
-        print(self.settings.get_strv('shortcut-change-distance'))
-
-        config = self.ipc.retrieve_config()
-        print(config)
+        display_distance_slider = builder.get_object('display-distance-slider')
+        self.settings.bind('display-distance', display_distance_slider, 'value', Gio.SettingsBindFlags.DEFAULT)
 
 class MyApp(Adw.Application):
     def __init__(self, **kwargs):

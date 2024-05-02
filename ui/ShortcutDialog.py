@@ -13,8 +13,6 @@ class ShortcutDialog:
         eventController = self._builder.get_object('event-controller')
         eventController.connect('key-pressed', self._on_key_pressed)
 
-        return self.widget
-
     def _on_key_pressed(self, widget, keyval, keycode, state):
         mask = state & Gtk.accelerator_get_default_mod_mask()
         mask &= ~Gdk.ModifierType.LOCK_MASK
@@ -26,12 +24,12 @@ class ShortcutDialog:
         if keyval == Gdk.KEY_BackSpace:
             self.settings.set_strv(self.shortcut, [])
             self.widget.close()
-        elif is_binding_valid(mask, keycode, keyval) and is_accel_valid(mask, keyval):
+        elif is_binding_valid(mask, keycode, keyval) and is_accel_valid(state, keyval):
             binding = Gtk.accelerator_name_with_keycode(
                 None,
                 keyval,
                 keycode,
-                mask
+                state
             )
             self.settings.set_strv(self.shortcut, [binding])
             self.widget.close()
@@ -39,7 +37,7 @@ class ShortcutDialog:
         return Gdk.EVENT_STOP
 
 def is_binding_valid(mask, keycode, keyval):
-    if mask == 0 or mask == Gdk.SHIFT_MASK and keycode != 0:
+    if mask == 0 or mask == Gdk.ModifierType.SHIFT_MASK and keycode != 0:
         if keyval >= Gdk.KEY_a and keyval <= Gdk.KEY_z or \
             keyval >= Gdk.KEY_A and keyval <= Gdk.KEY_Z or \
             keyval >= Gdk.KEY_0 and keyval <= Gdk.KEY_9 or \
@@ -77,18 +75,19 @@ def is_accel_valid(mask, keyval):
 
 def bind_shortcut_settings(window, settings, widgets):
     for widget in widgets:
-        settings.connect('changed::' + widget.get_name(), lambda: reload_shortcut_widget(settings, widget))
-        widget.connect('clicked', lambda: on_assign_shortcut(window, settings, widget))
+        settings.connect('changed::' + widget.get_name(), lambda *args: reload_shortcut_widget(settings, widget))
+        widget.connect('clicked', lambda *args: on_assign_shortcut(window, settings, widget))
+
     reload_shortcut_widgets(settings, widgets)
 
 def on_assign_shortcut(window, settings, widget):
     dialog = ShortcutDialog(settings, widget.get_name())
-    dialog.set_transient_for(window)
-    dialog.present()
+    dialog.widget.set_transient_for(window)
+    dialog.widget.present()
 
 def reload_shortcut_widget(settings, widget):
     shortcut = settings.get_strv(widget.get_name())
-    widget.label = shortcut[0] if len(shortcut) > 0 else 'Disabled'
+    widget.set_label(shortcut[0] if len(shortcut) > 0 else 'Disabled')
 
 def reload_shortcut_widgets(settings, widgets):
     for widget in widgets:
