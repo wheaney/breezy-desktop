@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="breezy-desktop">
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkBox" id="main">
+    <property name="orientation">1</property>
+    <property name="margin-top">20</property>
+    <property name="margin-bottom">20</property>
+    <property name="margin-start">20</property>
+    <property name="margin-end">20</property>
+    <property name="spacing">20</property>
+    <child>
+      <object class="AdwStatusPage" id="no-connected-device">
+        <property name="title" translatable="true">No device connected</property>
+        <property name="description" translatable="true">Breezy Desktop was unable to detect any supported XR devices.</property>
+        <property name="width-request">650</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkGrid" id="connected-device-info">
+        <property name="column-spacing">4</property>
+        <child>
+          <object class="GtkLabel" id="connected-device-label">
+            <property name="label">VITURE One</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">connected</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="connected-device-settings">
+        <property name="title" translatable="true">Settings</property>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Effect enabled</property>
+            <property name="subtitle" translatable="true">Turn on or off the XR desktop effect</property>
+            <child>
+              <object class="GtkSwitch" id="effect-enable">
+                <property name="valign">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Display distance</property>
+            <child>
+              <object class="GtkScale" id="display-distance">
+                <property name="valign">3</property>
+                <property name="draw-value">true</property>
+                <property name="value-pos">0</property>
+                <property name="digits">2</property>
+                <property name="width-request">350</property>
+                <property name="has-origin">false</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="display-distance-slider">
+                    <property name="lower">0.2</property>
+                    <property name="upper">2.5</property>
+                    <property name="step-increment">0.01</property>
+                    <property name="value">1.05</property>
+                  </object>
+                </property>
+                <marks>
+                  <mark value="0.2" position="bottom"></mark>
+                  <mark value="1.0" position="bottom"></mark>
+                  <mark value="2.5" position="bottom"></mark>
+                </marks>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="connected-device-shortcuts">
+        <property name="title" translatable="true">Keyboard Shortcuts</property>
+        <property name="description" translatable="true">Modify keyboard shortcuts and how they work</property>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Re-center display shortcut</property>
+            <property name="subtitle" translatable="true">Pin the virtual display to the current position</property>
+            <child>
+              <object class="GtkButton" id="reassign-recenter-display-shortcut-button">
+                <style>
+                  <class name="row-button"/>
+                </style>
+                <property name="name">recenter-display-shortcut</property>
+                <property name="valign">3</property>
+                <property name="label">Test</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Display distance shortcut</property>
+            <property name="subtitle" translatable="true">Quickly toggle between two predefined distances</property>
+            <child>
+              <object class="GtkButton" id="reassign-toggle-display-distance-shortcut-button">
+                <style>
+                  <class name="row-button"/>
+                </style>
+                <property name="name">toggle-display-distance-shortcut</property>
+                <property name="valign">3</property>
+                <property name="label">Test</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Toggle distance start</property>
+            <property name="subtitle" translatable="true">Use the buttons to capture the current display distance as start and end points.</property>
+            <property name="valign">2</property>
+            <child>
+              <object class="GtkBox">
+                <property name="spacing">30</property>
+                <property name="width-request">150</property>
+                <property name="margin-start">30</property>
+                <child>
+                  <object class="GtkButton" id="set-toggle-display-distance-start-button">
+                    <property name="name">toggle-display-distance-start</property>
+                    <property name="valign">3</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="set-toggle-display-distance-end-button">
+                    <property name="name">toggle-display-distance-end</property>
+                    <property name="valign">3</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
