@@ -23,6 +23,8 @@ const SUPPORTED_MONITOR_PRODUCTS = [
 export default class BreezyDesktopExtension extends Extension {
     constructor(metadata, uuid) {
         super(metadata, uuid);
+
+        this.settings = this.getSettings();
         
         // Set/destroyed by enable/disable
         this._cursor_manager = null;
@@ -129,31 +131,52 @@ export default class BreezyDesktopExtension extends Extension {
                 
                 this._xr_effect = new XREffect({
                     target_monitor: this._target_monitor,
-                    target_framerate: this._refresh_rate ?? 60
+                    target_framerate: this._refresh_rate ?? 60,
+                    display_distance: this.settings.get_double('display-distance'),
+                    toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
+                    toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
+
+                this.settings.bind('effect-enable', this._xr_effect, 'effect-enable', Gio.SettingsBindFlags.DEFAULT)
+                this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
+                this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
+                this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
-                Main.wm.addKeybinding(
-                    'shortcut-recenter', 
-                    this.getSettings(), 
-                    Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-                    Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
-                    this._recenter_display.bind(this)
-                );
 
-                Main.wm.addKeybinding(
-                    'shortcut-change-distance', 
-                    this.getSettings(), 
-                    Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-                    Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
-                    this._xr_effect._change_distance.bind(this._xr_effect)
-                );
+                this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
+                this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
             } catch (e) {
                 console.error('Error enabling XR effect', e);
                 this._effect_disable();
             }
         }
+    }
+
+    _add_settings_keybinding(settings_key, bind_to_function) {
+        Main.wm.addKeybinding(
+            settings_key,
+            this.settings,
+            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+            bind_to_function
+        );
+                
+        // Connect to the 'changed' signal for the keybinding property
+        this.settings.connect(`changed::${settings_key}`, () => {
+            // Remove the old keybinding
+            Main.wm.removeKeybinding(settings_key);
+        
+            // Add the updated keybinding
+            Main.wm.addKeybinding(
+                settings_key,
+                this.settings,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                bind_to_function
+            );
+        });
     }
 
     _recenter_display() {
@@ -168,8 +191,8 @@ export default class BreezyDesktopExtension extends Extension {
 
         if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
 
-        Main.wm.removeKeybinding('shortcut-recenter');
-        Main.wm.removeKeybinding('shortcut-change-distance');
+        Main.wm.removeKeybinding('recenter-display-shortcut');
+        Main.wm.removeKeybinding('toggle-display-distance-shortcut');
         Meta.enable_unredirect_for_display(global.display);
 
         if (this._overlay) {
