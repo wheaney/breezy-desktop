@@ -135,7 +135,7 @@ export default class BreezyDesktopExtension extends Extension {
                     display_distance: this.settings.get_double('display-distance')
                 });
 
-                this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.GET)
+                this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);

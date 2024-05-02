@@ -2,7 +2,7 @@
   <schema id="org.gnome.shell.extensions.breezy-desktop" path="/org/gnome/shell/extensions/breezy-desktop/">
     <key name="recenter-display-shortcut" type="as">
       <default>
-        <![CDATA[['<Control><Super>space']]]>
+        <![CDATA[['<Control><Super>space', 'Ctrl+Super+Space']]]>
       </default>
       <summary>Re-center display</summary>
       <description>
@@ -11,7 +11,7 @@
     </key>
     <key name="toggle-display-distance-shortcut" type="as">
       <default>
-        <![CDATA[['<Control><Super>Return']]]>
+        <![CDATA[['<Control><Super>Return', 'Ctrl+Super+Return']]]>
       </default>
       <summary>Trigger change to display distance</summary>
       <description>

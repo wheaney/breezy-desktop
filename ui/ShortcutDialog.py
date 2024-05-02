@@ -1,28 +1,28 @@
 from gi.repository import Gtk, Gdk
 
+# ported from https://github.com/velitasali/gnome-shell-extension-awesome-tiles
 class ShortcutDialog:
-    def __init__(self, settings, shortcut):
+    def __init__(self, settings, settings_key):
         self.settings = settings
-        self.shortcut = shortcut
+        self.settings_key = settings_key
 
         self._builder = Gtk.Builder()
         self._builder.add_from_file('./shortcut-dialog.ui')
 
         self.widget = self._builder.get_object('dialog')
 
-        eventController = self._builder.get_object('event-controller')
-        eventController.connect('key-pressed', self._on_key_pressed)
+        self.event_controller = self._builder.get_object('event-controller')
+        self.key_pressed_connect_id = self.event_controller.connect('key-pressed', self._on_key_pressed)
 
     def _on_key_pressed(self, widget, keyval, keycode, state):
         mask = state & Gtk.accelerator_get_default_mod_mask()
         mask &= ~Gdk.ModifierType.LOCK_MASK
 
+        done = True
         if mask == 0 and keyval == Gdk.KEY_Escape:
             self.widget.visible = False
-            return Gdk.EVENT_STOP
-
-        if keyval == Gdk.KEY_BackSpace:
-            self.settings.set_strv(self.shortcut, [])
+        elif keyval == Gdk.KEY_BackSpace:
+            self.settings.set_strv(self.settings_key, [])
             self.widget.close()
         elif is_binding_valid(mask, keycode, keyval) and is_accel_valid(state, keyval):
             binding = Gtk.accelerator_name_with_keycode(
@@ -31,8 +31,15 @@ class ShortcutDialog:
                 keycode,
                 state
             )
-            self.settings.set_strv(self.shortcut, [binding])
+            label = Gtk.accelerator_get_label(keyval, state)
+            self.settings.set_strv(self.settings_key, [binding, label])
             self.widget.close()
+        else:
+            done = False
+        
+        if done and self.key_pressed_connect_id:
+            self.event_controller.disconnect(self.key_pressed_connect_id)
+            self.key_pressed_connect_id = None
 
         return Gdk.EVENT_STOP
 
@@ -75,8 +82,8 @@ def is_accel_valid(mask, keyval):
 
 def bind_shortcut_settings(window, settings, widgets):
     for widget in widgets:
-        settings.connect('changed::' + widget.get_name(), lambda *args: reload_shortcut_widget(settings, widget))
-        widget.connect('clicked', lambda *args: on_assign_shortcut(window, settings, widget))
+        settings.connect('changed::' + widget.get_name(), lambda *args, widget=widget: reload_shortcut_widget(settings, widget))
+        widget.connect('clicked', lambda *args, widget=widget: on_assign_shortcut(window, settings, widget))
 
     reload_shortcut_widgets(settings, widgets)
 
@@ -87,7 +94,7 @@ def on_assign_shortcut(window, settings, widget):
 
 def reload_shortcut_widget(settings, widget):
     shortcut = settings.get_strv(widget.get_name())
-    widget.set_label(shortcut[0] if len(shortcut) > 0 else 'Disabled')
+    widget.set_label(shortcut[1] if len(shortcut) > 1 else 'Disabled')
 
 def reload_shortcut_widgets(settings, widgets):
     for widget in widgets:
