@@ -12,17 +12,12 @@
       <object class="AdwStatusPage" id="no-connected-device">
         <property name="title" translatable="true">No device connected</property>
         <property name="description" translatable="true">Breezy Desktop was unable to detect any supported XR devices.</property>
-        <property name="icon-name">network-disconnected-symbolic</property>
+        <property name="width-request">650</property>
       </object>
     </child>
     <child>
       <object class="GtkGrid" id="connected-device-info">
         <property name="column-spacing">4</property>
-        <child>
-          <object class="GtkImage">
-            <property name="icon-name">horizontal-arrows-symbolic</property>
-          </object>
-        </child>
         <child>
           <object class="GtkLabel" id="connected-device-label">
             <property name="label">VITURE One</property>

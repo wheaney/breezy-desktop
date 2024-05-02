@@ -25,14 +25,6 @@ export default class BreezyDesktopExtension extends Extension {
         super(metadata, uuid);
 
         this.settings = this.getSettings();
-
-        this.settings.connect('changed::effect-enable', () => {
-            if (this.settings.get_boolean('effect-enable')) {
-                this.enable();
-            } else {
-                this.disable();
-            }
-        });
         
         // Set/destroyed by enable/disable
         this._cursor_manager = null;
@@ -145,6 +137,7 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
 
+                this.settings.bind('effect-enable', this._xr_effect, 'effect-enable', Gio.SettingsBindFlags.DEFAULT)
                 this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
                 this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
                 this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)

@@ -121,7 +121,7 @@ function setIntermittentUniformVariables() {
         const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
         const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
+        const enabled = this.effect_enable && dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
 
         if (enabled) {
             const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
@@ -169,6 +169,13 @@ function setIntermittentUniformVariables() {
 
 export const XREffect = GObject.registerClass({
     Properties: {
+        'effect-enable': GObject.ParamSpec.boolean(
+            'effect-enable', 
+            'Effect enable', 
+            'Whether this effect is enabled', 
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
         'target-monitor': GObject.ParamSpec.jsobject(
             'target-monitor', 
             'Target Monitor', 
