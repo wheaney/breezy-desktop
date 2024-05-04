@@ -31,7 +31,7 @@ def parse_float(value, default):
         return float(value)
     except ValueError:
         return default
-    
+
 def parse_string(value, default):
     return value if value else default
 
@@ -67,7 +67,7 @@ class XRDriverIPC:
         self.config_file_path = os.path.join(self.user_home, ".xreal_driver_config")
         self.config_script_path = os.path.join(self.user_home, "bin/xreal_driver_config")
         self.logger = logger
-        
+
     def retrieve_config(self):
         config = {}
         for key, value in CONFIG_ENTRIES.items():
@@ -90,7 +90,7 @@ class XRDriverIPC:
         except FileNotFoundError as e:
             self.logger.error(f"Config file not found {e}")
             return config
-        
+
         config['ui_view'] = self.build_ui_view(config)
 
         return config
@@ -99,7 +99,7 @@ class XRDriverIPC:
         try:
             output = ""
 
-            # Since the UI doesn't refresh the config before it updates, the external_mode can get out of sync with 
+            # Since the UI doesn't refresh the config before it updates, the external_mode can get out of sync with
             # what's on disk. To avoid losing external_mode values, we retrieve the previous configs to preserve
             # any non-managed external modes.
             old_config = self._retrieve_config(self)
@@ -145,7 +145,7 @@ class XRDriverIPC:
 
     def filter_to_other_external_modes(self, external_modes):
         return [mode for mode in external_modes if mode not in MANAGED_EXTERNAL_MODES]
-    
+
     def headset_mode_to_config(self, headset_mode, joystick_mode, old_external_modes):
         new_external_modes = self.filter_to_other_external_modes(old_external_modes)
 
@@ -174,18 +174,18 @@ class XRDriverIPC:
         config['external_mode'] = new_external_modes
 
         return config
-    
+
     def config_to_headset_mode(self, config):
         if not config or config['disabled']:
             return "disabled"
-        
+
         if config['output_mode'] in VR_LITE_OUTPUT_MODES:
             return "vr_lite"
 
         managed_mode = next((mode for mode in MANAGED_EXTERNAL_MODES if mode in config['external_mode']), None)
         if managed_mode and managed_mode != "none":
             return managed_mode
-        
+
         return "disabled"
 
     def write_control_flags(self, control_flags):
@@ -277,3 +277,4 @@ class XRDriverIPC:
         except subprocess.CalledProcessError as exc:
             self.logger.error(f"Error running config script {exc.output}")
             return False
+

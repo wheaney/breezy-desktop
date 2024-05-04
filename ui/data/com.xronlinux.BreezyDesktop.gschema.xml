@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="breezydesktop">
+	<schema id="com.xronlinux.BreezyDesktop" path="/com/xronlinux/BreezyDesktop/">
+    <key name="effect-enable" type="b">
+      <default>
+        true
+      </default>
+      <summary>Enable XR effect</summary>
+      <description>
+        Enable XR effect
+      </description>
+    </key>
+    <key name="recenter-display-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>space', 'Ctrl+Super+Space']]]>
+      </default>
+      <summary>Re-center display</summary>
+      <description>
+        Shortcut to re-center the virtual display.
+      </description>
+    </key>
+    <key name="toggle-display-distance-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>Return', 'Ctrl+Super+Return']]]>
+      </default>
+      <summary>Trigger change to display distance</summary>
+      <description>
+        Shortcut to change the display distance.
+      </description>
+    </key>
+    <key name="display-distance" type="d">
+      <default>
+        1.05
+      </default>
+      <summary>Display distance</summary>
+      <description>
+        How far away the display appears. Farther will look smaller, closer will look larger.
+      </description>
+    </key>
+    <key name="toggle-display-distance-start" type="d">
+      <default>
+        0.85
+      </default>
+      <summary>Display distance start</summary>
+      <description>
+        Start distance when using the "change distance" shortcut.
+      </description>
+    </key>
+    <key name="toggle-display-distance-end" type="d">
+      <default>
+        1.05
+      </default>
+      <summary>Display distance end</summary>
+      <description>
+        End distance when using the "toggle display distance" shortcut.
+      </description>
+    </key>
+	</schema>
+</schemalist>

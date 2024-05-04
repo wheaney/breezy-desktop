@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/xronlinux/BreezyDesktop">
+    <file preprocess="xml-stripblanks">connecteddevice.ui</file>
+    <file preprocess="xml-stripblanks">nodevice.ui</file>
+    <file preprocess="xml-stripblanks">window.ui</file>
+    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
+  </gresource>
+</gresources>
