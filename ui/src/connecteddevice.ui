@@ -105,7 +105,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Toggle distance start</property>
+            <property name="title" translatable="true">Distance start and end</property>
             <property name="subtitle" translatable="true">Use the buttons to capture the current display distance as start and end points.</property>
             <property name="valign">2</property>
             <child>
