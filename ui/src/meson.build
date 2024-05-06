@@ -31,6 +31,8 @@ breezydesktop_sources = [
   'connecteddevice.py',
   'main.py',
   'nodevice.py',
+  'SettingsManager.py',
+  'StateManager.py',
   'window.py',
   'XRDriverIPC.py'
 ]
