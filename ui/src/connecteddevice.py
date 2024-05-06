@@ -1,5 +1,5 @@
-from gi.repository import Adw, Gtk
-
+from gi.repository import Adw, Gio, Gtk
+from .SettingsManager import SettingsManager
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/connecteddevice.ui')
 class ConnectedDevice(Gtk.Box):
@@ -16,9 +16,10 @@ class ConnectedDevice(Gtk.Box):
     def __init__(self):
         super(Gtk.Box, self).__init__()
         self.init_template()
+        self.settings = SettingsManager.get_instance().settings
 
-        self.get_settings().bind('display-distance', display_distance_scale, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.get_settings().bind('effect-enable', effect_enable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('display-distance', self.display_distance_scale, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('effect-enable', self.effect_enable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
     def set_device_name(self, name):
         self.device_label.set_markup(f"<b>{name}</b>")

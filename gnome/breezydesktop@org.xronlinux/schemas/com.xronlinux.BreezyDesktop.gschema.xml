@@ -1,5 +1,6 @@
-<schemalist gettext-domain="breezydesktop@org.xronlinux">
-  <schema id="org.gnome.shell.extensions.breezy-desktop" path="/org/gnome/shell/extensions/breezy-desktop/">
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="breezydesktop">
+	<schema id="com.xronlinux.BreezyDesktop" path="/com/xronlinux/BreezyDesktop/">
     <key name="effect-enable" type="b">
       <default>
         true
@@ -54,5 +55,5 @@
         End distance when using the "toggle display distance" shortcut.
       </description>
     </key>
-  </schema>
+	</schema>
 </schemalist>

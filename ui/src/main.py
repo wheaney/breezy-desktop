@@ -19,7 +19,6 @@
 
 import sys
 import gi
-import threading
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
@@ -27,16 +26,6 @@ gi.require_version('Gio', '2.0')
 
 from gi.repository import Adw, Gtk, Gio
 from .window import BreezydesktopWindow
-from .nodevice import NoDevice
-from .connecteddevice import ConnectedDevice
-from .XRDriverIPC import XRDriverIPC
-
-class Logger:
-    def info(self, message):
-        print(message)
-
-    def error(self, message):
-        print(message)
 
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
@@ -46,8 +35,6 @@ class BreezydesktopApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.ipc = XRDriverIPC(logger = Logger(), user="wayne", user_home="/home/wayne")
-        self.settings = Gio.Settings.new_with_path("com.xronlinux.BreezyDesktop", "/com/xronlinux/BreezyDesktop/")
 
     def do_activate(self):
         """Called when the application is activated.
@@ -58,14 +45,7 @@ class BreezydesktopApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = BreezydesktopWindow(application=self)
-        win.set_settings(self.settings)
         win.present()
-
-        self._refresh_driver_state()
-
-    def _refresh_driver_state(self):
-        self.props.active_window.set_state(self.ipc.retrieve_driver_state())
-        threading.Timer(1.0, self._refresh_driver_state).start()
 
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""

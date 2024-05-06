@@ -18,6 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
+from .StateManager import StateManager
+from .connecteddevice import ConnectedDevice
+from .nodevice import NoDevice
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/window.ui')
 class BreezydesktopWindow(Gtk.ApplicationWindow):
@@ -30,14 +33,16 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
         self.init_template()
 
-    def set_settings(self, settings):
-        self.settings = settings
+        state_manager = StateManager.get_instance()
+        state_manager.connect('device_update', self._handle_device_update)
 
-    def set_state(self, state):
-        if state.get('connected_device_brand') and state.get('connected_device_model'):
+        self._handle_device_update(state_manager, StateManager.device_name(state_manager.state))
+
+    def _handle_device_update(self, state_manager, connected_device_name):
+        if connected_device_name:
             self.connected_device.set_visible(True)
             self.no_device.set_visible(False)
-            self.connected_device.set_device_name(f"{state['connected_device_brand']} {state['connected_device_model']}")
+            self.connected_device.set_device_name(connected_device_name)
         else:
             self.connected_device.set_visible(False)
             self.no_device.set_visible(True)
