@@ -11,11 +11,10 @@
         "--device=dri",
         "--socket=wayland",
         "--device=shm",
-        "--talk-name=com.xronlinux.BreezyDesktop",
-        "--filesystem=xdg-run/dconf",
-        "--filesystem=~/.config/dconf:create",
         "--talk-name=ca.desrt.dconf",
-        "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
+        "--filesystem=xdg-run/dconf",
+        "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
+        "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/"
     ],
     "cleanup" : [
         "/include",
@@ -30,13 +29,39 @@
     ],
     "modules" : [
         {
+            "name": "dconf",
+            "buildsystem": "meson",
+            "config-opts": [
+                "-Dbash_completion=false",
+                "-Dman=false",
+                "-Dsystemduserunitdir=' '"
+            ],
+            "cleanup": [
+                "/include",
+                "/lib/pkgconfig",
+                "/libexec",
+                "/share/dbus-1"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://download.gnome.org/sources/dconf/0.40/dconf-0.40.0.tar.xz",
+                    "sha256": "cf7f22a4c9200421d8d3325c5c1b8b93a36843650c9f95d6451e20f0bcb24533"
+                },
+                {
+                    "type": "patch",
+                    "path": "build-aux/dconf-override.patch"
+                }
+            ]
+        },
+        {
             "name" : "breezydesktop",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/wayne/Projects"
+                    "type" : "dir",
+                    "url" : "../"
                 }
             ]
         }
