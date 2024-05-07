@@ -5,6 +5,5 @@
     <file preprocess="xml-stripblanks">gtk/no-device.ui</file>
     <file preprocess="xml-stripblanks">gtk/shortcut-dialog.ui</file>
     <file preprocess="xml-stripblanks">gtk/window.ui</file>
-    <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
 </gresources>

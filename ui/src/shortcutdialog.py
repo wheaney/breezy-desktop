@@ -36,7 +36,7 @@ class ShortcutDialog(Gtk.Dialog):
             label = Gtk.accelerator_get_label(keyval, state)
 
             # hacky way to store the label, causes warnings from the WM
-            SettingsManager.get_instance().settings.set_strv(self.settings_key, [binding, label])
+            SettingsManager.get_instance().settings.set_strv(self.settings_key, [binding])
 
             self.close()
         else:
@@ -85,23 +85,25 @@ def is_keyval_forbidden(keyval):
 def is_accel_valid(mask, keyval):
     return Gtk.accelerator_valid(keyval, mask) or (keyval == Gdk.KEY_Tab and mask != 0)
 
-def bind_shortcut_settings(window, widgets):
-    for widget in widgets:
+def bind_shortcut_settings(window, widget_tuples):
+    for widget_tuple in widget_tuples:
+        widget, label = widget_tuple
         SettingsManager.get_instance().settings.connect('changed::' + widget.get_name(), 
-                                                        lambda *args, widget=widget: reload_shortcut_widget(widget))
+                                                        lambda *args, widget=widget, label=label: reload_shortcut_widget(widget, label))
         widget.connect('clicked', lambda *args, widget=widget: on_assign_shortcut(window, widget))
 
-    reload_shortcut_widgets(widgets)
+    reload_shortcut_widgets(widget_tuples)
 
 def on_assign_shortcut(window, widget):
     dialog = ShortcutDialog(widget.get_name())
     dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
     dialog.present()
 
-def reload_shortcut_widget(widget):
+def reload_shortcut_widget(widget, label):
     shortcut = SettingsManager.get_instance().settings.get_strv(widget.get_name())
-    widget.set_label(shortcut[1] if len(shortcut) > 1 else 'Disabled')
+    label.set_accelerator(shortcut[0] if len(shortcut) > 0 else 'Disabled')
 
-def reload_shortcut_widgets(widgets):
-    for widget in widgets:
-        reload_shortcut_widget(widget)
+def reload_shortcut_widgets(widget_tuples):
+    for widget_tuple in widget_tuples:
+        widget, label = widget_tuple
+        reload_shortcut_widget(widget, label)
