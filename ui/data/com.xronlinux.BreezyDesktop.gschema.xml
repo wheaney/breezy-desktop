@@ -12,7 +12,7 @@
     </key>
     <key name="recenter-display-shortcut" type="as">
       <default>
-        <![CDATA[['<Control><Super>space', 'Ctrl+Super+Space']]]>
+        <![CDATA[['<Control><Super>space']]]>
       </default>
       <summary>Re-center display</summary>
       <description>
@@ -21,7 +21,7 @@
     </key>
     <key name="toggle-display-distance-shortcut" type="as">
       <default>
-        <![CDATA[['<Control><Super>Return', 'Ctrl+Super+Return']]]>
+        <![CDATA[['<Control><Super>Return']]]>
       </default>
       <summary>Trigger change to display distance</summary>
       <description>

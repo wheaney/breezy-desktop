@@ -69,20 +69,33 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Keyboard Shortcuts</property>
+        <property name="title" translatable="true">Shortcuts</property>
         <property name="description" translatable="true">Modify keyboard shortcuts and how they work</property>
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="true">Re-center display shortcut</property>
             <property name="subtitle" translatable="true">Pin the virtual display to the current position</property>
+            <property name="valign">2</property>
             <child>
-              <object class="GtkButton" id="reassign_recenter_display_shortcut_button">
-                <style>
-                  <class name="row-button"/>
-                </style>
-                <property name="name">recenter-display-shortcut</property>
-                <property name="valign">3</property>
-                <property name="label"></property>
+              <object class="GtkBox">
+                <property name="spacing">30</property>
+                <property name="margin-start">30</property>
+                <child>
+                  <object class="GtkShortcutLabel" id="recenter_display_shortcut_label">
+                    <property name="valign">3</property>
+                    <property name="accelerator"></property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="reassign_recenter_display_shortcut_button">
+                    <style>
+                      <class name="row-button"/>
+                    </style>
+                    <property name="name">recenter-display-shortcut</property>
+                    <property name="valign">3</property>
+                    <property name="label" translatable="true">Change</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -91,14 +104,27 @@
           <object class="AdwActionRow">
             <property name="title" translatable="true">Display distance shortcut</property>
             <property name="subtitle" translatable="true">Quickly toggle between two predefined distances</property>
+            <property name="valign">2</property>
             <child>
-              <object class="GtkButton" id="reassign_toggle_display_distance_shortcut_button">
-                <style>
-                  <class name="row-button"/>
-                </style>
-                <property name="name">toggle-display-distance-shortcut</property>
-                <property name="valign">3</property>
-                <property name="label"></property>
+              <object class="GtkBox">
+                <property name="spacing">30</property>
+                <property name="margin-start">30</property>
+                <child>
+                  <object class="GtkShortcutLabel" id="toggle_display_distance_shortcut_label">
+                    <property name="valign">3</property>
+                    <property name="accelerator"></property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="reassign_toggle_display_distance_shortcut_button">
+                    <style>
+                      <class name="row-button"/>
+                    </style>
+                    <property name="name">toggle-display-distance-shortcut</property>
+                    <property name="valign">3</property>
+                    <property name="label" translatable="true">Change</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

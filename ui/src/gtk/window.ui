@@ -2,8 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="BreezydesktopWindow" parent="GtkApplicationWindow">
-    <property name="default-width">600</property>
-    <property name="default-height">300</property>
+    <property name="default-width">800</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
         <property name="title-widget">
@@ -27,23 +26,9 @@
         </child>
       </object>
     </property>
-    <property name="child">
-      <object class="GtkGrid">
-        <child>
-          <object class="ConnectedDevice" id="connected_device" />
-        </child>
-        <child>
-          <object class="NoDevice" id="no_device" />
-        </child>
-      </object>
-    </property>
   </template>
   <menu id="primary_menu">
     <section>
-      <item>
-        <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
-        <attribute name="action">win.show-help-overlay</attribute>
-      </item>
       <item>
         <attribute name="label" translatable="yes">_About BreezyDesktop</attribute>
         <attribute name="action">app.about</attribute>

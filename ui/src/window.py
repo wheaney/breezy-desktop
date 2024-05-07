@@ -26,23 +26,20 @@ from .nodevice import NoDevice
 class BreezydesktopWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'BreezydesktopWindow'
 
-    connected_device = Gtk.Template.Child()
-    no_device = Gtk.Template.Child()
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.init_template()
 
         state_manager = StateManager.get_instance()
         state_manager.connect('device_update', self._handle_device_update)
+
+        self.connected_device = ConnectedDevice()
+        self.no_device = NoDevice()
 
         self._handle_device_update(state_manager, StateManager.device_name(state_manager.state))
 
     def _handle_device_update(self, state_manager, connected_device_name):
         if connected_device_name:
-            self.connected_device.set_visible(True)
-            self.no_device.set_visible(False)
+            self.set_child(self.connected_device)
             self.connected_device.set_device_name(connected_device_name)
         else:
-            self.connected_device.set_visible(False)
-            self.no_device.set_visible(True)
+            self.set_child(self.no_device)

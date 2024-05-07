@@ -12,7 +12,9 @@ class ConnectedDevice(Gtk.Box):
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
     reassign_recenter_display_shortcut_button = Gtk.Template.Child()
+    recenter_display_shortcut_label = Gtk.Template.Child()
     reassign_toggle_display_distance_shortcut_button = Gtk.Template.Child()
+    toggle_display_distance_shortcut_label = Gtk.Template.Child()
 
     def __init__(self):
         super(Gtk.Box, self).__init__()
@@ -23,8 +25,8 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('effect-enable', self.effect_enable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
-            self.reassign_recenter_display_shortcut_button,
-            self.reassign_toggle_display_distance_shortcut_button
+            [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
+            [self.reassign_toggle_display_distance_shortcut_button, self.toggle_display_distance_shortcut_label]
         ])
 
         self.bind_set_distance_toggle([
