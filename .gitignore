@@ -1,3 +1,4 @@
 /vulkan/build/
 /build/
 __pycache__
+*.zip
