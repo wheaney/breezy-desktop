@@ -1,6 +1,6 @@
 import threading
 from gi.repository import GObject
-from .XRDriverIPC import XRDriverIPC
+from .xrdriveripc import XRDriverIPC
 
 class Logger:
     def info(self, message):

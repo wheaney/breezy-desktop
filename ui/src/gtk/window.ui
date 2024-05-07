@@ -6,6 +6,17 @@
     <property name="default-height">300</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
+        <property name="title-widget">
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Breezy Desktop</property>
+            <property name="single-line-mode">1</property>
+            <property name="ellipsize">end</property>
+            <property name="width-chars">5</property>
+            <style>
+              <class name="title"/>
+            </style>
+          </object>
+        </property>
         <child type="end">
           <object class="GtkMenuButton">
             <property name="primary">True</property>
