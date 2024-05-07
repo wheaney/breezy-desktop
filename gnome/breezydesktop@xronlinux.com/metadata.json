@@ -1,5 +1,5 @@
 {
-    "uuid": "breezydesktop@org.xronlinux",
+    "uuid": "breezydesktop@xronlinux.com",
     "name": "Breezy GNOME XR Desktop",
     "description": "XR virtual desktop for GNOME.",
     "settings-schema": "com.xronlinux.BreezyDesktop",

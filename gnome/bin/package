@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+UUID="breezydesktop@xronlinux.com"
+
+# fail on error
+set -e
+# log executed commands
+set -x
+
+if [[ $EUID -eq 0 ]]; then
+    echo "This script must NOT be run as root" 1>&2
+    exit 1
+fi
+
+# https://stackoverflow.com/a/246128
+SCRIPTDIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+SRCDIR="$SCRIPTDIR/../breezydesktop@xronlinux.com"
+TMPDIR=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
+DESTDIR="$TMPDIR/$UUID"
+
+cd "$SCRIPTDIR" || exit 1
+
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH"
+        exit 1
+    fi
+}
+
+compile_schemas() {
+    check_command "glib-compile-schemas"
+    mkdir -p "$DESTDIR/schemas/"
+
+    # the pack command also compiles the schemas but only into the zip file
+    glib-compile-schemas --targetdir="$DESTDIR/schemas" "$SRCDIR/schemas/"
+}
+
+copy_static_files() {
+    # Copy non generated files to destdir
+    cp $SRCDIR/*.js $DESTDIR/
+    cp $SRCDIR/*.frag $DESTDIR/
+    mkdir -p "$DESTDIR/schemas/"
+    cp $SRCDIR/schemas/*.xml $DESTDIR/schemas/
+    mkdir -p $DESTDIR/dbus-interfaces/
+    cp $SRCDIR/dbus-interfaces/*.xml $DESTDIR/dbus-interfaces/
+    cp $SRCDIR/metadata.json $DESTDIR/
+}
+
+pack() {
+    check_command "gnome-extensions"
+
+    # pack everything into a sharable zip file
+    extra_source=()
+    for file in "$DESTDIR"/*; do
+        extra_source+=("--extra-source=$file")
+    done
+
+    gnome-extensions pack --force "${extra_source[@]}" "$DESTDIR"
+}
+
+if [ $# -eq 0 ]; then
+    # No arguments, do everything
+    compile_schemas
+    copy_static_files
+    pack
+elif [ "$1" == "build_local" ]; then
+    compile_schemas
+    copy_static_files
+elif [ "$1" == "pack" ]; then
+    pack
+elif [ "$1" == "copy_static" ]; then
+    copy_static_files
+fi
