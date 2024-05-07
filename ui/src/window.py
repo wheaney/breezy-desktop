@@ -18,11 +18,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-from .StateManager import StateManager
+from .statemanager import StateManager
 from .connecteddevice import ConnectedDevice
 from .nodevice import NoDevice
 
-@Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/window.ui')
+@Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
 class BreezydesktopWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'BreezydesktopWindow'
 
@@ -46,4 +46,3 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         else:
             self.connected_device.set_visible(False)
             self.no_device.set_visible(True)
-            

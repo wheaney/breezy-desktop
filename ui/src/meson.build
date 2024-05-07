@@ -31,10 +31,11 @@ breezydesktop_sources = [
   'connecteddevice.py',
   'main.py',
   'nodevice.py',
-  'SettingsManager.py',
-  'StateManager.py',
+  'settingsmanager.py',
+  'shortcutdialog.py',
+  'statemanager.py',
   'window.py',
-  'XRDriverIPC.py'
+  'xrdriveripc.py'
 ]
 
 install_data(breezydesktop_sources, install_dir: moduledir)
