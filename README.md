@@ -108,4 +108,4 @@ Hashing functions are a one-way process that serve to anonymize your personal da
 
 For inquires about data privacy or any related concerns, please contact:
 
-Wayne Heaney - **xr.on.linux@gmail.com**
+Wayne Heaney - **wayne@xronlinux.com**
