@@ -55,5 +55,14 @@
         End distance when using the "toggle display distance" shortcut.
       </description>
     </key>
+    <key name="developer-mode" type="b">
+      <default>
+        false
+      </default>
+      <summary>Developer mode</summary>
+      <description>
+        Enable developer mode
+      </description>
+    </key>
 	</schema>
 </schemalist>
