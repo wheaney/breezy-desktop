@@ -14,7 +14,8 @@
         "--talk-name=ca.desrt.dconf",
         "--filesystem=xdg-run/dconf",
         "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
-        "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/"
+        "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/",
+        "--env=GSETTINGS_BACKEND=dconf"
     ],
     "cleanup" : [
         "/include",

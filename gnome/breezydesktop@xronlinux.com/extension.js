@@ -71,6 +71,14 @@ export default class BreezyDesktopExtension extends Extension {
             };
         }
 
+        if (this.settings.get_boolean('developer-mode')) {
+            // allow testing XR devices with just USB, no video needed
+            return {
+                monitor: this._monitor_manager.getMonitors()[0],
+                refreshRate: 60,
+            };
+        }
+
         return null;
     }
 
