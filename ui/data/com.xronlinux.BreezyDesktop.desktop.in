@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=breezydesktop
-Exec=breezydesktop
+Exec=start-breezy-desktop
 Icon=com.xronlinux.BreezyDesktop
 Terminal=false
 Type=Application

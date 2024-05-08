@@ -13,9 +13,10 @@
         "--device=shm",
         "--talk-name=ca.desrt.dconf",
         "--filesystem=xdg-run/dconf",
+        "--filesystem=host:ro",
         "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
         "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/",
-        "--env=GSETTINGS_BACKEND=dconf"
+        "--talk-name=org.freedesktop.Flatpak"
     ],
     "cleanup" : [
         "/include",
@@ -56,13 +57,27 @@
             ]
         },
         {
+            "name": "scripts",
+            "buildsystem": "simple",
+            "build-commands": [
+                "install -Dm 755 start-breezy-desktop.sh /app/bin/start-breezy-desktop"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "build-aux/start-breezy-desktop.sh"
+                }
+            ]
+        },
+
+        {
             "name" : "breezydesktop",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
                     "type" : "dir",
-                    "source" : "./"
+                    "path" : "."
                 }
             ]
         }
