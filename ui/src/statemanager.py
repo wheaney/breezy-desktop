@@ -11,7 +11,11 @@ class Logger:
 
 class StateManager(GObject.GObject):
     __gsignals__ = {
-        'device_update': (GObject.SIGNAL_RUN_FIRST, None, (str,))
+        'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,))
+    }
+
+    __gproperties__ = {
+        'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE)
     }
 
     _instance = None
@@ -32,7 +36,7 @@ class StateManager(GObject.GObject):
 
     def __init__(self):
         GObject.GObject.__init__(self)
-        self.ipc = XRDriverIPC(logger = Logger(), user="wayne", user_home="/home/wayne")
+        self.ipc = XRDriverIPC.get_instance()
         self.connected_device_name = None
 
         self.start()
@@ -49,6 +53,16 @@ class StateManager(GObject.GObject):
         new_device_name = StateManager.device_name(self.state)
         if self.connected_device_name != new_device_name:
             self.connected_device_name = new_device_name
-            self.emit('device_update', self.connected_device_name)
+            self.emit('device-update', self.connected_device_name)
+
+        self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
+
+    def do_set_property(self, prop, value):
+        if prop.name == 'follow-mode':
+            self.follow_mode = value
+
+    def do_get_property(self, prop):
+        if prop.name == 'follow-mode':
+            return self.follow_mode

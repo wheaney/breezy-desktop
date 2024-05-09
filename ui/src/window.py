@@ -30,7 +30,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
 
         state_manager = StateManager.get_instance()
-        state_manager.connect('device_update', self._handle_device_update)
+        state_manager.connect('device-update', self._handle_device_update)
 
         self.connected_device = ConnectedDevice()
         self.no_device = NoDevice()

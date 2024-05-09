@@ -28,6 +28,15 @@
         Shortcut to change the display distance.
       </description>
     </key>
+    <key name="toggle-follow-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>0']]]>
+      </default>
+      <summary>Toggle follow mode</summary>
+      <description>
+        Shortcut to toggle follow mode.
+      </description>
+    </key>
     <key name="display-distance" type="d">
       <default>
         1.05
