@@ -11,7 +11,7 @@ CONTROL_FLAGS_FILE_PATH = '/dev/shm/xr_driver_control'
 # read-only file that the driver writes (but never reads) to with its current state
 DRIVER_STATE_FILE_PATH = '/dev/shm/xr_driver_state'
 
-CONTROL_FLAGS = ['recenter_screen', 'recalibrate', 'sbs_mode', 'refresh_device_license']
+CONTROL_FLAGS = ['recenter_screen', 'recalibrate', 'sbs_mode', 'refresh_device_license', 'enable_breezy_desktop_smooth_follow']
 SBS_MODE_VALUES = ['unset', 'enable', 'disable']
 MANAGED_EXTERNAL_MODES = ['virtual_display', 'sideview', 'none']
 VR_LITE_OUTPUT_MODES = ['mouse', 'joystick']
@@ -58,8 +58,24 @@ CONFIG_ENTRIES = {
     'sideview_smooth_follow_enabled': [parse_boolean, False]
 }
 
+class Logger:
+    def info(self, message):
+        print(message)
+
+    def error(self, message):
+        print(message)
+
 class XRDriverIPC:
-    def __init__(self, logger, user=None, user_home=None):
+    _instance = None
+
+    @staticmethod
+    def get_instance():
+        if not XRDriverIPC._instance:
+            XRDriverIPC._instance = XRDriverIPC()
+
+        return XRDriverIPC._instance
+
+    def __init__(self, logger=Logger(), user=None, user_home=None):
         self.breezy_installed = False
         self.breezy_installing = False
         self.user = user if user else pwd.getpwuid( os.getuid() )[0]
@@ -218,6 +234,7 @@ class XRDriverIPC:
         state['sbs_mode_supported'] = False
         state['firmware_update_recommended'] = False
         state['device_license'] = {}
+        state['breezy_desktop_smooth_follow_enabled'] = False
 
         try:
             with open(DRIVER_STATE_FILE_PATH, 'r') as f:
@@ -232,7 +249,7 @@ class XRDriverIPC:
                             state[key] = parse_int(value, 0)
                         elif key in ['calibration_setup', 'calibration_state', 'connected_device_brand', 'connected_device_model']:
                             state[key] = value
-                        elif key in ['sbs_mode_enabled', 'sbs_mode_supported', 'firmware_update_recommended']:
+                        elif key in ['sbs_mode_enabled', 'sbs_mode_supported', 'firmware_update_recommended', 'breezy_desktop_smooth_follow_enabled']:
                             state[key] = parse_boolean(value, False)
                         elif key == 'device_license':
                             state[key] = json.loads(value)

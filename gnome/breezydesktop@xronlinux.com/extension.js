@@ -155,6 +155,7 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
+                this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
                 console.error('Error enabling XR effect', e);
                 this._effect_disable();
@@ -187,11 +188,19 @@ export default class BreezyDesktopExtension extends Extension {
         });
     }
 
-    _recenter_display() {
+    _write_control(key, value) {
         const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
         const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        stream.write('recenter_screen=true', null);
+        stream.write(`${key}=${value}`, null);
         stream.close(null);
+    }
+
+    _recenter_display() {
+        this._write_control('recenter_screen', 'true');
+    }
+
+    _toggle_follow_mode() {
+        this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
     _effect_disable() {

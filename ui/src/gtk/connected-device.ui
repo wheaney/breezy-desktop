@@ -65,6 +65,17 @@
             </child>
           </object>
         </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Follow enabled</property>
+            <property name="subtitle" translatable="true">Keep the virtual display near the center of your view</property>
+            <child>
+              <object class="GtkSwitch" id="follow_mode_switch">
+                <property name="valign">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
     <child>
@@ -149,6 +160,35 @@
                   <object class="GtkButton" id="set_toggle_display_distance_end_button">
                     <property name="name">toggle-display-distance-end</property>
                     <property name="valign">3</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Toggle follow mode shortcut</property>
+            <property name="subtitle" translatable="true">Quickly toggle follow mode</property>
+            <property name="valign">2</property>
+            <child>
+              <object class="GtkBox">
+                <property name="spacing">30</property>
+                <property name="margin-start">30</property>
+                <child>
+                  <object class="GtkShortcutLabel" id="toggle_follow_shortcut_label">
+                    <property name="valign">3</property>
+                    <property name="accelerator"></property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="reassign_toggle_follow_shortcut_button">
+                    <style>
+                      <class name="row-button"/>
+                    </style>
+                    <property name="name">toggle-follow-shortcut</property>
+                    <property name="valign">3</property>
+                    <property name="label" translatable="true">Change</property>
                   </object>
                 </child>
               </object>
