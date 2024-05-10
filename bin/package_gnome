@@ -36,7 +36,7 @@ fi
 
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$VULKAN_DIR/bin/breezy_gnome_uninstall"
+copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
 
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
 pushd $XREAL_DRIVER_DIR
@@ -66,7 +66,6 @@ popd
 
 ui/bin/package
 cp ui/out/* $PACKAGE_DIR
-
 
 # create manifest file for verifying installed file checksums against the originally packaged versions
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)

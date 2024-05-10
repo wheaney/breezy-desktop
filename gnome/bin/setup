@@ -1,4 +1,69 @@
 #!/usr/bin/env bash
 
-# fail on error
 set -e
+
+# This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
+# to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
+
+USER=${SUDO_USER:-$USER}
+USER_HOME=$(getent passwd $USER | cut -d: -f6)
+
+if [ -z "$XDG_BIN_HOME" ]; then
+  XDG_BIN_HOME="$USER_HOME/.local/bin"
+fi
+
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
+
+UA_EVENT_NAME="breezy_gnome_install"
+if [ -e "$XDG_BIN_HOME/breezy_gnome_uninstall" ]; then
+  echo "Cleaning up the previous installation"
+
+  # ` || true` will ensure that this can't cause a failure, even with `set -e`
+  $XDG_BIN_HOME/breezy_gnome_uninstall --for-install || true
+
+  UA_EVENT_NAME="breezy_gnome_update"
+fi
+
+UA_CLIENT_ID="BreezyGNOME"
+UA_EVENT_VERSION="$1"
+#INJECT_UA_CALL
+
+echo "Copying the breezy_gnome scripts to ${XDG_BIN_HOME}"
+mkdir -p $XDG_BIN_HOME
+cp bin/breezy_gnome_uninstall $XDG_BIN_HOME
+cp bin/breezy_gnome_verify $XDG_BIN_HOME
+chown -R $USER:$USER $XDG_BIN_HOME
+chmod -R 755 $XDG_BIN_HOME
+
+echo "Copying the manifest file to ${DATA_DIR}"
+mkdir -p $DATA_DIR
+cp manifest $DATA_DIR
+chown -R $USER:$USER $DATA_DIR
+chmod -R 755 $DATA_DIR
+
+echo "Installing the breezydesktop@xronlinux.com GNOME extension"
+gnome-extensions install --force --quiet breezydesktop@xronlinux.com.shell-extension.zip > /dev/null 2>&1
+
+echo "Installing the Breezy Desktop UI Flatpak"
+flatpak install --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak > /dev/null 2>&1
+
+# set up the XREAL driver using the local binary
+echo "Installing xrealAirLinuxDriver"
+echo "BEGIN - xreal_driver_setup"
+if [ -z "$1" ]
+then
+  bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+else
+  bin/xreal_driver_setup -v $1 $(pwd)/xrealAirLinuxDriver.tar.gz
+fi
+
+echo "END - xreal_driver_setup"
+
+echo "Enabling the driver and setting it to Breezy Desktop mode"
+$USER_HOME/bin/xreal_driver_config -e
+$USER_HOME/bin/xreal_driver_config -vd
+
+sed -i 's/virtual_display/breezy_desktop/g' $USER_HOME/.xreal_driver_config
