@@ -45,10 +45,10 @@ chown -R $USER:$USER $DATA_DIR
 chmod -R 755 $DATA_DIR
 
 echo "Installing the breezydesktop@xronlinux.com GNOME extension"
-gnome-extensions install --force --quiet breezydesktop@xronlinux.com.shell-extension.zip > /dev/null 2>&1
+gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 
 echo "Installing the Breezy Desktop UI Flatpak"
-flatpak install --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak > /dev/null 2>&1
+flatpak install --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak
 
 # set up the XREAL driver using the local binary
 echo "Installing xrealAirLinuxDriver"
