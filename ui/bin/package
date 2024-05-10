@@ -24,3 +24,5 @@ mkdir -p $OUT_DIR
 flatpak-builder --force-clean $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
 flatpak build-export $TMP_DIR/export $TMP_DIR/build
 flatpak build-bundle $TMP_DIR/export $OUT_DIR/com.xronlinux.BreezyDesktop.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+
+rm -rf "$TMP_DIR"

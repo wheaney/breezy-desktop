@@ -12,6 +12,9 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+USER=${SUDO_USER:-$USER}
+GROUP=$(id -gn $USER)
+
 start_dir=$(pwd)
 
 # create temp directory
@@ -47,6 +50,7 @@ fi
 echo "Extracting to: ${tmp_dir}/breezy_gnome"
 tar -xf breezyGNOME.tar.gz
 
+chown -R $USER:$GROUP $tmp_dir
 pushd breezy_gnome > /dev/null
 
 # run the setup script that comes with this release

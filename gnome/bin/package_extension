@@ -4,8 +4,6 @@ UUID="breezydesktop@xronlinux.com"
 
 # fail on error
 set -e
-# log executed commands
-set -x
 
 if [[ $EUID -eq 0 ]]; then
     echo "This script must NOT be run as root" 1>&2
@@ -75,3 +73,5 @@ elif [ "$1" == "pack" ]; then
 elif [ "$1" == "copy_static" ]; then
     copy_static_files
 fi
+
+rm -rf "$TMP_DIR"
