@@ -18,9 +18,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
+from .extensionsmanager import ExtensionsManager
 from .statemanager import StateManager
 from .connecteddevice import ConnectedDevice
 from .nodevice import NoDevice
+from .noextension import NoExtension
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
 class BreezydesktopWindow(Gtk.ApplicationWindow):
@@ -34,11 +36,14 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
         self.connected_device = ConnectedDevice()
         self.no_device = NoDevice()
+        self.no_extension = NoExtension()
 
         self._handle_device_update(state_manager, StateManager.device_name(state_manager.state))
 
     def _handle_device_update(self, state_manager, connected_device_name):
-        if connected_device_name:
+        if not ExtensionsManager.get_instance().is_installed():
+            self.set_child(self.no_extension)
+        elif connected_device_name:
             self.set_child(self.connected_device)
             self.connected_device.set_device_name(connected_device_name)
         else:

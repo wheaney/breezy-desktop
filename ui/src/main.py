@@ -33,7 +33,7 @@ class BreezydesktopApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
-        self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+        self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
 
     def do_activate(self):
@@ -72,6 +72,9 @@ class BreezydesktopApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
+
+    def on_quit_action(self, _action, _pspec):
+        self.quit()
 
 
 def main(version):

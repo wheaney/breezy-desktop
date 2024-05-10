@@ -16,7 +16,8 @@
         "--filesystem=host:ro",
         "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
         "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/",
-        "--talk-name=org.freedesktop.Flatpak"
+        "--talk-name=org.freedesktop.Flatpak",
+        "--talk-name=org.gnome.Shell.Extensions"
     ],
     "cleanup" : [
         "/include",
@@ -30,6 +31,7 @@
         "*.a"
     ],
     "modules" : [
+        "python3-pydbus.json",
         {
             "name": "dconf",
             "buildsystem": "meson",
@@ -69,7 +71,6 @@
                 }
             ]
         },
-
         {
             "name" : "breezydesktop",
             "builddir" : true,

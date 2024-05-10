@@ -48,7 +48,7 @@ chmod -R 755 $DATA_DIR
 echo "Installing the breezydesktop@xronlinux.com GNOME extension"
 sudo -u $USER gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 
-echo "Installing the Breezy Desktop UI Flatpak"
+echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
 flatpak install --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak
 
 # set up the XREAL driver using the local binary

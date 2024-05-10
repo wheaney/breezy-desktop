@@ -29,8 +29,10 @@ configure_file(
 breezydesktop_sources = [
   '__init__.py',
   'connecteddevice.py',
+  'extensionsmanager.py',
   'main.py',
   'nodevice.py',
+  'noextension.py',
   'settingsmanager.py',
   'shortcutdialog.py',
   'statemanager.py',

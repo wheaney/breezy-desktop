@@ -1,4 +1,5 @@
 from gi.repository import Gio, Gtk, GObject
+from .extensionsmanager import ExtensionsManager
 from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
@@ -27,8 +28,8 @@ class ConnectedDevice(Gtk.Box):
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()
 
+        self.effect_enable_switch.connect('notify::active', self._change_extension_enabled)
         self.settings.bind('display-distance', self.display_distance_scale, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('effect-enable', self.effect_enable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
@@ -46,6 +47,12 @@ class ConnectedDevice(Gtk.Box):
 
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._request_follow_mode)
+    
+    def _change_extension_enabled(self, switch, param):
+        if (switch.get_active()):
+            ExtensionsManager.get_instance().enable()
+        else:
+            ExtensionsManager.get_instance().disable()
 
     def _request_follow_mode(self, switch, param):
         if (self.state_manager.follow_mode == switch.get_active()):
