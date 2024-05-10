@@ -13,13 +13,15 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 # https://stackoverflow.com/a/246128
-SCRIPTDIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
-SRCDIR="$SCRIPTDIR/../breezydesktop@xronlinux.com"
-TMPDIR=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
-DESTDIR="$TMPDIR/$UUID"
+SRC_DIR="$SCRIPT_DIR/../src"
+TMP_DIR=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
+DEST_DIR="$TMP_DIR/$UUID"
+OUT_DIR="$SCRIPT_DIR/../out"
+rm -rf "$OUT_DIR"
 
-cd "$SCRIPTDIR" || exit 1
+cd "$SCRIPT_DIR" || exit 1
 
 check_command() {
     if ! command -v "$1" &>/dev/null; then
@@ -30,21 +32,21 @@ check_command() {
 
 compile_schemas() {
     check_command "glib-compile-schemas"
-    mkdir -p "$DESTDIR/schemas/"
+    mkdir -p "$DEST_DIR/schemas/"
 
     # the pack command also compiles the schemas but only into the zip file
-    glib-compile-schemas --targetdir="$DESTDIR/schemas" "$SRCDIR/schemas/"
+    glib-compile-schemas --targetdir="$DEST_DIR/schemas" "$SRC_DIR/schemas/"
 }
 
 copy_static_files() {
     # Copy non generated files to destdir
-    cp $SRCDIR/*.js $DESTDIR/
-    cp $SRCDIR/*.frag $DESTDIR/
-    mkdir -p "$DESTDIR/schemas/"
-    cp $SRCDIR/schemas/*.xml $DESTDIR/schemas/
-    mkdir -p $DESTDIR/dbus-interfaces/
-    cp $SRCDIR/dbus-interfaces/*.xml $DESTDIR/dbus-interfaces/
-    cp $SRCDIR/metadata.json $DESTDIR/
+    cp $SRC_DIR/*.js $DEST_DIR/
+    cp $SRC_DIR/*.frag $DEST_DIR/
+    mkdir -p "$DEST_DIR/schemas/"
+    cp $SRC_DIR/schemas/*.xml $DEST_DIR/schemas/
+    mkdir -p $DEST_DIR/dbus-interfaces/
+    cp $SRC_DIR/dbus-interfaces/*.xml $DEST_DIR/dbus-interfaces/
+    cp $SRC_DIR/metadata.json $DEST_DIR/
 }
 
 pack() {
@@ -52,11 +54,12 @@ pack() {
 
     # pack everything into a sharable zip file
     extra_source=()
-    for file in "$DESTDIR"/*; do
+    for file in "$DEST_DIR"/*; do
         extra_source+=("--extra-source=$file")
     done
 
-    gnome-extensions pack --force "${extra_source[@]}" "$DESTDIR"
+    mkdir -p "$OUT_DIR"
+    gnome-extensions pack --force "${extra_source[@]}" "$DEST_DIR" -o "$OUT_DIR"
 }
 
 if [ $# -eq 0 ]; then

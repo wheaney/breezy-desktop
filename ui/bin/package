@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH"
+        exit 1
+    fi
+}
+
+check_command "flatpak"
+check_command "flatpak-builder"
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+TMP_DIR=$(mktemp -d -t breezy-ui-flatpak-XXXXXXXXXX)
+OUT_DIR=$SCRIPT_DIR/../out
+rm -rf $OUT_DIR
+mkdir -p $OUT_DIR
+
+flatpak-builder --force-clean $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
+flatpak build-export $TMP_DIR/export $TMP_DIR/build
+flatpak build-bundle $TMP_DIR/export $OUT_DIR/com.xronlinux.BreezyDesktop.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo

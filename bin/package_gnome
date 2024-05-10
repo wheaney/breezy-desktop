@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+# needs:flatpak-builder, elfutils
+# flatpak-builder --force-clean /tmp/flatpak-builddir ui/com.xronlinux.BreezyDesktop.json
+# flatpak build-export /tmp/flatpak-export /tmp/flatpak-builddir
+# flatpak build-bundle /tmp/flatpak-export com.xronlinux.BreezyDesktop.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+
+# exit when any command fails
+set -e
+
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+ROOT_DIR=$(realpath $SCRIPT_DIR/..)
+VULKAN_DIR=$ROOT_DIR/vulkan
+GNOME_DIR=$ROOT_DIR/gnome
+GNOME_BUILD_DIR=$GNOME_DIR/build
+
+rm -rf $GNOME_BUILD_DIR
+mkdir -p $GNOME_BUILD_DIR
+
+PACKAGE_DIR=$GNOME_BUILD_DIR/breezy_gnome
+rm -rf $PACKAGE_DIR
+mkdir -p $PACKAGE_DIR
+
+XREAL_DRIVER_DIR=$ROOT_DIR/modules/xrealAirLinuxDriver
+source $XREAL_DRIVER_DIR/bin/inject_ua
+
+# check out submodules, recursively for nested ones
+git submodule update --init --recursive
+
+# if a custom_banner image exists, copy it over the sombrero one
+if [ -e "$VULKAN_DIR/custom_banner.png" ]; then
+  cp $VULKAN_DIR/custom_banner.png $PACKAGE_DIR
+fi
+
+# copy vulkan setup scripts and configs
+mkdir -p $PACKAGE_DIR/bin
+copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$VULKAN_DIR/bin/breezy_gnome_uninstall"
+
+XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
+pushd $XREAL_DRIVER_DIR
+
+if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
+  # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
+  if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
+    cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
+  fi
+
+  bin/package
+fi
+
+XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)
+popd
+
+cp $XREAL_BINARY $PACKAGE_DIR
+cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
+
+gnome/bin/package_extension
+cp gnome/out/* $PACKAGE_DIR
+
+# create a checksum that combines the checksums of all files in the directory
+pushd gnome/src
+GNOME_MANIFEST_LINE=$(find -L . -type f -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
+popd
+
+ui/bin/package
+cp ui/out/* $PACKAGE_DIR
+
+
+# create manifest file for verifying installed file checksums against the originally packaged versions
+# include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
+pushd $PACKAGE_DIR
+echo $XREAL_MANIFEST_LINE > manifest
+echo -e "$GNOME_MANIFEST_LINE breezydesktop@xronlinux.com" >> manifest
+popd
+
+# bundle everything up
+pushd $GNOME_BUILD_DIR
+tar -zcvf breezyGNOME.tar.gz breezy_gnome
+popd
