@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 
-# needs:flatpak-builder, elfutils
-# flatpak-builder --force-clean /tmp/flatpak-builddir ui/com.xronlinux.BreezyDesktop.json
-# flatpak build-export /tmp/flatpak-export /tmp/flatpak-builddir
-# flatpak build-bundle /tmp/flatpak-export com.xronlinux.BreezyDesktop.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
-
 # exit when any command fails
 set -e
-
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
