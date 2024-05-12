@@ -28,7 +28,6 @@ class ConnectedDevice(Gtk.Box):
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()
 
-        self.effect_enable_switch.connect('notify::active', self._change_extension_enabled)
         self.settings.bind('display-distance', self.display_distance_scale, 'value', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
@@ -47,12 +46,9 @@ class ConnectedDevice(Gtk.Box):
 
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._request_follow_mode)
-    
-    def _change_extension_enabled(self, switch, param):
-        if (switch.get_active()):
-            ExtensionsManager.get_instance().enable()
-        else:
-            ExtensionsManager.get_instance().disable()
+
+        self.effect_enable_switch.set_active(ExtensionsManager.get_instance().is_enabled())
+        ExtensionsManager.get_instance().bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
     def _request_follow_mode(self, switch, param):
         if (self.state_manager.follow_mode == switch.get_active()):
