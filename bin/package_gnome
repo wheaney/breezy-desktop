@@ -55,7 +55,7 @@ cp gnome/out/* $PACKAGE_DIR
 
 # create a checksum that combines the checksums of all files in the directory
 pushd gnome/src
-GNOME_MANIFEST_LINE=$(find -L . -type f -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
+GNOME_MANIFEST_LINE=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
 popd
 
 ui/bin/package
