@@ -179,7 +179,7 @@ export const XREffect = GObject.registerClass({
             'target-framerate', 
             'Target Framerate', 
             'Target framerate for this effect',
-            GObject.ParamFlags.READWRITE, 60, 240, 60
+            GObject.ParamFlags.READWRITE, 30, 240, 60
         ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
