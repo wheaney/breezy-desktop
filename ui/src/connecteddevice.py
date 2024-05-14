@@ -39,6 +39,7 @@ class ConnectedDevice(Gtk.Box):
 
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()
+        self.extensions_manager = ExtensionsManager.get_instance()
 
         self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
 
@@ -65,8 +66,22 @@ class ConnectedDevice(Gtk.Box):
         ExtensionsManager.get_instance().bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
     def _refresh_inputs_for_enabled_state(self, switch, param):
+        requesting_enabled = switch.get_active()
+        self.extensions_manager.set_property('breezy-enabled', requesting_enabled)
+        if requesting_enabled:
+            config = self.ipc.retrieve_config()
+            config_enabled = config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
+            if not config_enabled:
+                # do this so that it doesn't use headset_mode to override our external_mode
+                config.pop('ui_view')
+
+                config['disabled'] = False
+                config['output_mode'] = 'external_only'
+                config['external_mode'] = ['breezy_desktop']
+                self.ipc.write_config(config)
+
         for widget in self.all_enabled_state_inputs:
-            widget.set_sensitive(switch.get_active())
+            widget.set_sensitive(requesting_enabled)
 
     def _request_follow_mode(self, switch, param):
         if (self.state_manager.follow_mode == switch.get_active()):

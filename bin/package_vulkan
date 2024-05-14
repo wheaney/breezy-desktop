@@ -58,7 +58,6 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build xreal driver
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
-pushd $XREAL_DRIVER_DIR
 
 if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -66,7 +65,10 @@ if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
   fi
 
+  pushd $XREAL_DRIVER_DIR
   bin/package
+else
+  pushd $XREAL_DRIVER_DIR
 fi
 
 XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)

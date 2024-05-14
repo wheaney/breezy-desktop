@@ -44,7 +44,7 @@ CONFIG_DEFAULT_VALUE_INDEX = 1
 CONFIG_ENTRIES = {
     'disabled': [parse_boolean, True],
     'output_mode': [parse_string, 'mouse'],
-    'external_mode': [parse_array, 'none'],
+    'external_mode': [parse_array, ['none']],
     'mouse_sensitivity': [parse_int, 30],
     'display_zoom': [parse_float, 1.0],
     'look_ahead': [parse_int, 0],
@@ -118,11 +118,12 @@ class XRDriverIPC:
             # Since the UI doesn't refresh the config before it updates, the external_mode can get out of sync with
             # what's on disk. To avoid losing external_mode values, we retrieve the previous configs to preserve
             # any non-managed external modes.
-            old_config = self._retrieve_config(self)
+            old_config = self.retrieve_config()
 
             # remove the UI's "view" data, translate back to config values, and merge them in
             view = config.pop('ui_view', None)
-            config.update(self.headset_mode_to_config(view['headset_mode'], view['is_joystick_mode'], old_config['external_mode']))
+            if view:
+                config.update(self.headset_mode_to_config(view.get('headset_mode'), view.get('is_joystick_mode'), old_config.get('external_mode')))
 
             for key, value in config.items():
                 if key != "updated":
@@ -145,7 +146,7 @@ class XRDriverIPC:
             os.replace(temp_file, self.config_file_path)
             os.chmod(self.config_file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
 
-            config['ui_view'] = self.build_ui_view(self, config)
+            config['ui_view'] = self.build_ui_view(config)
 
             return config
         except Exception as e:

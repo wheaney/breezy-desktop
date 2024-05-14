@@ -13,7 +13,7 @@
         "--device=shm",
         "--talk-name=ca.desrt.dconf",
         "--filesystem=xdg-run/dconf",
-        "--filesystem=host:ro",
+        "--filesystem=host",
         "--env=DCONF_USER_CONFIG_DIR=.config/dconf",
         "--env=GIO_EXTRA_MODULES=/app/lib/gio/modules/",
         "--talk-name=org.freedesktop.Flatpak",
