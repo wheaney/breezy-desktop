@@ -60,21 +60,21 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._request_follow_mode)
 
+        self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
         self.effect_enable_switch.connect('notify::active', self._refresh_inputs_for_enabled_state)
-        self.effect_enable_switch.set_active(ExtensionsManager.get_instance().is_enabled())
-        self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
-        ExtensionsManager.get_instance().bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
+        self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
+        self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
+
+    def _is_config_enabled(self, config):
+        return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
+    
     def _refresh_inputs_for_enabled_state(self, switch, param):
         requesting_enabled = switch.get_active()
         self.extensions_manager.set_property('breezy-enabled', requesting_enabled)
         if requesting_enabled:
-            config = self.ipc.retrieve_config()
-            config_enabled = config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
-            if not config_enabled:
-                # do this so that it doesn't use headset_mode to override our external_mode
-                config.pop('ui_view')
-
+            config = self.ipc.retrieve_config(False)
+            if not self._is_config_enabled(config):
                 config['disabled'] = False
                 config['output_mode'] = 'external_only'
                 config['external_mode'] = ['breezy_desktop']

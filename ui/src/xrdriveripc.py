@@ -84,7 +84,7 @@ class XRDriverIPC:
         self.config_script_path = os.path.join(self.user_home, "bin/xreal_driver_config")
         self.logger = logger
 
-    def retrieve_config(self):
+    def retrieve_config(self, include_ui_view = True):
         config = {}
         for key, value in CONFIG_ENTRIES.items():
             config[key] = value[CONFIG_DEFAULT_VALUE_INDEX]
@@ -107,7 +107,7 @@ class XRDriverIPC:
             self.logger.error(f"Config file not found {e}")
             return config
 
-        config['ui_view'] = self.build_ui_view(config)
+        if include_ui_view: config['ui_view'] = self.build_ui_view(config)
 
         return config
 
