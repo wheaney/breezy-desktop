@@ -8,3 +8,6 @@
 [submodule "modules/sombrero"]
 	path = modules/sombrero
 	url = https://github.com/wheaney/sombrero.git
+[submodule "ui/modules/PyXRLinuxDriverIPC"]
+	path = ui/modules/PyXRLinuxDriverIPC
+	url = https://github.com/wheaney/PyXRLinuxDriverIPC.git

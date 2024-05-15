@@ -27,6 +27,7 @@ configure_file(
 )
 
 breezydesktop_sources = [
+  '../modules/PyXRLinuxDriverIPC/xrdriveripc.py',
   '__init__.py',
   'connecteddevice.py',
   'extensionsmanager.py',
@@ -36,8 +37,7 @@ breezydesktop_sources = [
   'settingsmanager.py',
   'shortcutdialog.py',
   'statemanager.py',
-  'window.py',
-  'xrdriveripc.py'
+  'window.py'
 ]
 
 install_data(breezydesktop_sources, install_dir: moduledir)
