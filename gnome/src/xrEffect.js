@@ -1,5 +1,6 @@
 import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
@@ -61,7 +62,8 @@ const shaderUniformLocations = {
     'custom_banner_enabled': null,
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
-    'screen_distance': null
+    'screen_distance': null,
+    'display_res': null
 };
 
 function transferUniformBoolean(effect, location, dataView, dataViewInfo) {
@@ -121,7 +123,7 @@ function setIntermittentUniformVariables() {
         const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
         const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive && !imuResetState;
+        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
 
         if (enabled) {
             const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
@@ -156,6 +158,8 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
             setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
             setSingleFloat(this, 'screen_distance', screenDistance);
+
+            this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
 
             // TOOD - drive from settings
             setSingleFloat(this, 'display_zoom', 1.0);
@@ -217,6 +221,18 @@ export const XREffect = GObject.registerClass({
 
         this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
+
+        const calibrating = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
+        this.calibratingImage = new Clutter.Image();
+        this.calibratingImage.set_data(calibrating.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                       calibrating.width, calibrating.height, calibrating.rowstride);
+
+        const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
+        this.customBannerImage = new Clutter.Image();
+        this.customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                        customBanner.width, customBanner.height, customBanner.rowstride);
+
+        console.log(`target monitor: ${this.target_monitor.width}x${this.target_monitor.height}`);
     }
 
     _change_distance() {
@@ -247,12 +263,20 @@ export const XREffect = GObject.registerClass({
         var now = Date.now();
         var lastPaint = this._last_paint || 0;
         var frametime = this._frametime;
+        var calibratingImage = this.calibratingImage;
+        var customBannerImage = this.customBannerImage;
         const data = Globals.ipc_file.load_contents(null);
         if (data[0]) {
             const buffer = new Uint8Array(data[1]).buffer;
             this._dataView = new DataView(buffer);
             if (!this._initialized) {
                 this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
+
+                this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
+                this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
+                this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCalibratingTexture'), 1);
+                this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCustomBannerTexture'), 2);
+
                 for (let key in shaderUniformLocations) {
                     shaderUniformLocations[key] = this.get_uniform_location(key);
                 }

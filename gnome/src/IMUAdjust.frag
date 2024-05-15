@@ -1,8 +1,11 @@
 #version 330 core
 
+uniform sampler2D uDesktopTexture;
+uniform sampler2D uCalibratingTexture;
+uniform sampler2D uCustomBannerTexture;
+
 uniform bool enabled;
 uniform bool show_banner;
-uniform sampler2D uDesktopTexture;
 uniform mat4 imu_quat_data;
 uniform vec4 look_ahead_cfg;
 uniform float look_ahead_ms;
@@ -14,12 +17,14 @@ uniform bool sbs_content;
 uniform bool custom_banner_enabled;
 uniform float stage_aspect_ratio;
 uniform float display_aspect_ratio;
+uniform vec2 display_res;
 uniform float trim_width_percent;
 uniform float trim_height_percent;
 uniform float half_fov_z_rads;
 uniform float half_fov_y_rads;
 uniform float screen_distance;
 
+vec2 banner_position = vec2(0.5, 0.9);
 float look_ahead_ms_cap = 45.0;
 
 vec4 quatMul(vec4 q1, vec4 q2) {
@@ -91,27 +96,29 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
     // }
 
     if(!enabled || show_banner) {
-		// vec2 banner_size = vec2(800.0 / ReShade::ScreenSize.x, 200.0 / ReShade::ScreenSize.y); // Assuming ScreenWidth and ScreenHeight are defined
+		vec2 banner_size = vec2(800.0 / display_res.x, 200.0 / display_res.y); // Assuming ScreenWidth and ScreenHeight are defined
 
-        // if (show_banner &&
-        //     texcoord.x >= banner_position.x - banner_size.x / 2 &&
-        //     texcoord.x <= banner_position.x + banner_size.x / 2 &&
-        //     texcoord.y >= banner_position.y - banner_size.y / 2 &&
-        //     texcoord.y <= banner_position.y + banner_size.y / 2)
-        // {
-        //     vec2 banner_texcoord = (texcoord - (banner_position - banner_size / 2)) / banner_size;
-        //     if (custom_banner_enabled) {
-        //         color = tex2D(customBannerSampler, banner_texcoord);
-        //     } else {
-        //         color = tex2D(calibratingSampler, banner_texcoord);
-        //     }
-        // } else {
+        float banner_shown = 0.0;
+        if (show_banner) {
+            vec2 banner_start = banner_position - banner_size / 2;
+            vec2 banner_texcoord = (texcoord - banner_start) / banner_size;
+            if (banner_texcoord.x >= 0.0 && banner_texcoord.x <= 1.0 && banner_texcoord.y >= 0.0 && banner_texcoord.y <= 1.0) {
+                banner_shown = 1.0;
+                if (custom_banner_enabled) {
+                    color = texture2D(uCustomBannerTexture, banner_texcoord);
+                } else {
+                    color = texture2D(uCalibratingTexture, banner_texcoord);
+                }
+            }
+        }
+        
+        if (banner_shown == 0.0) {
             // adjust texcoord back to the range that describes where the content is displayed
-        float texcoord_width = texcoord_x_max - texcoord_x_min;
-        texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
+            float texcoord_width = texcoord_x_max - texcoord_x_min;
+            texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;
 
-        color = texture2D(uDesktopTexture, texcoord);
-        // }
+            color = texture2D(uDesktopTexture, texcoord);
+        }
     } else {
         float fov_y_half_width = tan(half_fov_y_rads);
         float fov_y_width = fov_y_half_width * 2;
