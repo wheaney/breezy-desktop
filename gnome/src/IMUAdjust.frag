@@ -98,12 +98,19 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
     if(!enabled || show_banner) {
 		vec2 banner_size = vec2(800.0 / display_res.x, 200.0 / display_res.y); // Assuming ScreenWidth and ScreenHeight are defined
 
-        float banner_shown = 0.0;
+        bool banner_shown = false;
         if (show_banner) {
+            // if the banner width is greater than the sreen width, scale it down
+            banner_size /= max(banner_size.x, 1.1);
+
             vec2 banner_start = banner_position - banner_size / 2;
+
+            // if the banner would extend too close or past the bottom edge of the screen, apply some padding
+            banner_start.y = min(banner_start.y, 0.95 - banner_size.y);
+
             vec2 banner_texcoord = (texcoord - banner_start) / banner_size;
             if (banner_texcoord.x >= 0.0 && banner_texcoord.x <= 1.0 && banner_texcoord.y >= 0.0 && banner_texcoord.y <= 1.0) {
-                banner_shown = 1.0;
+                banner_shown = true;
                 if (custom_banner_enabled) {
                     color = texture2D(uCustomBannerTexture, banner_texcoord);
                 } else {
@@ -112,7 +119,7 @@ void PS_IMU_Transform(vec4 pos, vec2 texcoord, out vec4 color) {
             }
         }
         
-        if (banner_shown == 0.0) {
+        if (!banner_shown) {
             // adjust texcoord back to the range that describes where the content is displayed
             float texcoord_width = texcoord_x_max - texcoord_x_min;
             texcoord.x = texcoord.x * texcoord_width + texcoord_x_min;

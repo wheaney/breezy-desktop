@@ -156,7 +156,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                console.error('Error enabling XR effect', e);
+                console.error(`Error enabling XR effect ${e.message}`, e.stack);
                 this._effect_disable();
             }
         }

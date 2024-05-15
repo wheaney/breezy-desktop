@@ -66,11 +66,6 @@ const shaderUniformLocations = {
     'display_res': null
 };
 
-function transferUniformBoolean(effect, location, dataView, dataViewInfo) {
-    // GLSL bool is a float under the hood, evaluates false if 0 or 0.0, true otherwise
-    effect.set_uniform_float(location, 1, [dataViewUint8(dataView, dataViewInfo)]);
-}
-
 function setUniformFloat(effect, locationName, dataViewInfo, value) {
     effect.set_uniform_float(shaderUniformLocations[locationName], dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX], value);
 }
@@ -122,7 +117,7 @@ function setIntermittentUniformVariables() {
         const currentDateMS = Date.now();
         const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-        const imuResetState = imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+        const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
         const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
 
         if (enabled) {
@@ -146,11 +141,8 @@ function setIntermittentUniformVariables() {
             // all these values are transferred directly, unmodified from the driver
             transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
             transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
-            transferUniformBoolean(this, 'sbs_enabled', dataView, SBS_ENABLED);
-            transferUniformBoolean(this, 'custom_banner_enabled', dataView, CUSTOM_BANNER_ENABLED);
 
             // computed values with no dataViewInfo, so we set these manually
-            setSingleFloat(this, 'show_banner', imuResetState);
             setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
             setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
             setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
@@ -159,13 +151,18 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
             setSingleFloat(this, 'screen_distance', screenDistance);
 
-            this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
-
             // TOOD - drive from settings
             setSingleFloat(this, 'display_zoom', 1.0);
-            setSingleFloat(this, 'sbs_content', 0.0);
         }
+
+        // these variables are always in play, even if enabled is false
         setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
+        setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
+        setSingleFloat(this, 'sbs_content', 0.0); // TOOD - drive from settings
+        setSingleFloat(this, 'sbs_enabled', dataViewUint8(dataView, SBS_ENABLED) !== 0 ? 1.0 : 0.0);
+        setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
+
+        this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
     } else if (dataView.byteLength !== 0) {
         console.error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
     }
@@ -231,8 +228,6 @@ export const XREffect = GObject.registerClass({
         this.customBannerImage = new Clutter.Image();
         this.customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
                                         customBanner.width, customBanner.height, customBanner.rowstride);
-
-        console.log(`target monitor: ${this.target_monitor.width}x${this.target_monitor.height}`);
     }
 
     _change_distance() {

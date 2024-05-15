@@ -44,6 +44,8 @@ copy_static_files() {
     cp $SRC_DIR/schemas/*.xml $DEST_DIR/schemas/
     mkdir -p $DEST_DIR/dbus-interfaces/
     cp $SRC_DIR/dbus-interfaces/*.xml $DEST_DIR/dbus-interfaces/
+    mkdir -p $DEST_DIR/textures/
+    cp -rL $SRC_DIR/textures/* $DEST_DIR/textures/
     cp $SRC_DIR/metadata.json $DEST_DIR/
 }
 
