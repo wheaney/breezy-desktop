@@ -135,8 +135,8 @@ function setIntermittentUniformVariables() {
 
             // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
             // underneath, so we trim two pixels around the entire edge of the texture
-            const trimWidthPercent = 2.0 / this.target_monitor.width;
-            const trimHeightPercent = 2.0 / this.target_monitor.height;
+            const trimWidthPercent = 3.0 / this.target_monitor.width;
+            const trimHeightPercent = 3.0 / this.target_monitor.height;
             
             // all these values are transferred directly, unmodified from the driver
             transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
@@ -313,7 +313,7 @@ export const XREffect = GObject.registerClass({
         this._last_paint = now;
     }
 
-    vfunc_dispose() {
+    cleanup() {
         if (this._redraw_timeout_id) GLib.source_remove(this._redraw_timeout_id);
         if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }

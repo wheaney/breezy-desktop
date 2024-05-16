@@ -33,6 +33,9 @@ export default class BreezyDesktopExtension extends Extension {
         this._overlay = null;
         this._target_monitor = null;
         this._is_effect_running = false;
+        this._distance_binding = null;
+        this._start_binding = null;
+        this._end_binding = null;
     }
 
     enable() {
@@ -145,9 +148,9 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
 
-                this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
-                this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
-                this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
+                this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
+                this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
+                this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -209,6 +212,7 @@ export default class BreezyDesktopExtension extends Extension {
 
         Main.wm.removeKeybinding('recenter-display-shortcut');
         Main.wm.removeKeybinding('toggle-display-distance-shortcut');
+        Main.wm.removeKeybinding('toggle-follow-shortcut');
         Meta.enable_unredirect_for_display(global.display);
 
         if (this._overlay) {
@@ -218,7 +222,20 @@ export default class BreezyDesktopExtension extends Extension {
             this._overlay = null;
         }
 
+        if (this._distance_binding) {
+            this.settings.unbind(this._distance_binding);
+            this._distance_binding = null;
+        }
+        if (this._start_binding) {
+            this.settings.unbind(this._start_binding);
+            this._start_binding = null;
+        }
+        if (this._end_binding) {
+            this.settings.unbind(this._end_binding);
+            this._end_binding = null;
+        }
         if (this._xr_effect) {
+            this._xr_effect.cleanup();
             this._xr_effect = null;
         }
 
