@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+for_install=0
+if [[ -n "$1" ]] && [[ "$1" == "--for-install" ]]; then
+    for_install=1
+fi
+
+# we don't want the uninstall script to be able to cause a failure if being triggered by the setup script
+[ "$for_install" -eq 0 ] && set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+USER_HOME=$(realpath ~)
+if [ "$for_install" -eq 0 ]; then
+    UA_EVENT_NAME="breezy_gnome_uninstall"
+    UA_CLIENT_ID="BreezyGNOME"
+    #INJECT_UA_CALL
+fi
+
+if [ -z "$XDG_BIN_HOME" ]; then
+  XDG_BIN_HOME="$USER_HOME/.local/bin"
+fi
+
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
+
+
+[ "$for_install" -eq 0 ] && echo "Removing ${DATA_DIR} and its contents"
+rm -rf $DATA_DIR
+
+[ "$for_install" -eq 0 ] && echo "Uninstalling the breezydesktop@xronlinux.com GNOME extension"
+gnome-extensions uninstall breezydesktop@xronlinux.com
+
+[ "$for_install" -eq 0 ] && echo "Uninstalling the Breezy Desktop UI Flatpak"
+flatpak uninstall --user --noninteractive --force-remove  com.xronlinux.BreezyDesktop
+
+[ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
+# if for-install
+if [ "$for_install" -eq 1 ]; then
+    sudo ~/bin/xreal_driver_uninstall --for-install
+else
+    sudo ~/bin/xreal_driver_uninstall
+fi
+
+
+[ "$for_install" -eq 0 ] && echo "Removing the breezy_gnome scripts from ${XDG_BIN_HOME}"
+rm -f $XDG_BIN_HOME/breezy_gnome_verify
+
+# this script is self-deleting, leave this as the last command
+rm -f $XDG_BIN_HOME/breezy_gnome_uninstall

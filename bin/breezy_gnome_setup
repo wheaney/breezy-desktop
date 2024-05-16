@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# This setup script should do the minimum work required to download the release package, unzip it, and kick off the
+# setup script contained within.
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+start_dir=$(pwd)
+
+# create temp directory
+tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
+pushd $tmp_dir > /dev/null
+echo "Created temp directory: ${tmp_dir}"
+
+# if the first argument is "-v" then the second argument is metrics version, and the third argument is binary path
+# otherwise, if the first argument is present, it's the binary path
+if [ "$1" = "-v" ]
+then
+  metrics_version="$2"
+  binary_path_arg="$3"
+else
+  binary_path_arg="$1"
+fi
+
+if [ -z "$binary_path_arg" ]
+then
+  # download and unzip the latest driver
+  echo "Downloading latest release to: ${tmp_dir}/breezyGNOME.tar.gz"
+  curl -L -O https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME.tar.gz
+else
+  if [[ "$binary_path_arg" = /* ]]; then
+    abs_path="$binary_path_arg"
+  else
+    # Convert relative path to absolute path
+    abs_path=$(realpath "$start_dir/$binary_path_arg")
+  fi
+  cp $abs_path $tmp_dir
+fi
+
+echo "Extracting to: ${tmp_dir}/breezy_gnome"
+tar -xf breezyGNOME.tar.gz
+
+pushd breezy_gnome > /dev/null
+
+# run the setup script that comes with this release
+bin/setup $metrics_version
+
+echo "Deleting temp directory: ${tmp_dir}"
+rm -rf $tmp_dir
+cd "$(dirs -l -0)" && dirs -c

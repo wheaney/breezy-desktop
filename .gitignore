@@ -1,2 +1,6 @@
-/vulkan/build/
-/build/
+build/
+__pycache__
+*.zip
+gschemas.compiled
+.flatpak-builder/
+out/

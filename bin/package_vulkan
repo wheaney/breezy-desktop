@@ -41,8 +41,8 @@ cp $VKBASALT_BUILD_DIR/builddir/config/vkBasalt.json $PACKAGE_DIR/vkBasalt.64/
 cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.32/
 
 # copy Sombrero FX, get ReShade headers
-cp $VULKAN_MODULES/sombrero/*.fx $PACKAGE_DIR
-cp $VULKAN_MODULES/sombrero/*.png $PACKAGE_DIR
+cp modules/sombrero/*.fx $PACKAGE_DIR
+cp modules/sombrero/*.png $PACKAGE_DIR
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShade.fxh
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh
 
@@ -58,7 +58,6 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build xreal driver
 XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
-pushd $XREAL_DRIVER_DIR
 
 if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -66,7 +65,10 @@ if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
   fi
 
+  pushd $XREAL_DRIVER_DIR
   bin/package
+else
+  pushd $XREAL_DRIVER_DIR
 fi
 
 XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)

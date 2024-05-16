@@ -1,0 +1,10 @@
+{
+    "uuid": "breezydesktop@xronlinux.com",
+    "name": "Breezy GNOME XR Desktop",
+    "description": "XR virtual desktop for GNOME.",
+    "settings-schema": "com.xronlinux.BreezyDesktop",
+    "shell-version": [
+        "45", "46"
+    ],
+    "url": "https://github.com/wheaney/breezy-desktop"
+}
