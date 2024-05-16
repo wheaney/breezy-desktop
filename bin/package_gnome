@@ -41,7 +41,7 @@ if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
   fi
 
-  bin/package
+  BREEZY_DESKTOP=1 bin/package
 fi
 
 XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)
