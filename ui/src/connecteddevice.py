@@ -36,7 +36,6 @@ class ConnectedDevice(Gtk.Box):
             self.reassign_toggle_follow_shortcut_button
         ]
 
-
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()
         self.extensions_manager = ExtensionsManager.get_instance()
@@ -65,6 +64,8 @@ class ConnectedDevice(Gtk.Box):
 
         self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
         self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
+
+        self.connect("destroy", self._on_widget_destroy)
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
@@ -98,6 +99,11 @@ class ConnectedDevice(Gtk.Box):
         for widget in widgets:
             widget.connect('clicked', lambda *args, widget=widget: on_set_display_distance_toggle(widget))
             reload_display_distance_toggle_button(widget)
+    
+    def _on_widget_destroy(self, widget):
+        self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
+        self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
+        self.extensions_manager.unbind_property('breezy-enabled', self.effect_enable_switch, 'active')
 
 def reload_display_distance_toggle_button(widget):
     distance = SettingsManager.get_instance().settings.get_double(widget.get_name())

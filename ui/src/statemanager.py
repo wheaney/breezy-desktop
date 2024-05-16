@@ -26,6 +26,12 @@ class StateManager(GObject.GObject):
             StateManager._instance = StateManager()
 
         return StateManager._instance
+        
+    @staticmethod
+    def destroy_instance():
+        if StateManager._instance:
+            StateManager._instance.stop()
+            StateManager._instance = None
 
     @staticmethod
     def device_name(state):

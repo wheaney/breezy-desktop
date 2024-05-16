@@ -31,14 +31,16 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        state_manager = StateManager.get_instance()
-        state_manager.connect('device-update', self._handle_device_update)
+        self.state_manager = StateManager.get_instance()
+        self.state_manager.connect('device-update', self._handle_device_update)
 
         self.connected_device = ConnectedDevice()
         self.no_device = NoDevice()
         self.no_extension = NoExtension()
 
-        self._handle_device_update(state_manager, StateManager.device_name(state_manager.state))
+        self._handle_device_update(self.state_manager, StateManager.device_name(self.state_manager.state))
+
+        self.connect("destroy", self._on_window_destroy)
 
     def _handle_device_update(self, state_manager, connected_device_name):
         if not ExtensionsManager.get_instance().is_installed():
@@ -48,3 +50,6 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
             self.connected_device.set_device_name(connected_device_name)
         else:
             self.set_child(self.no_device)
+
+    def _on_window_destroy(self, widget):
+        self.state_manager.disconnect_by_func(self._handle_device_update)

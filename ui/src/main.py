@@ -25,6 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 
 from gi.repository import Adw, Gtk, Gio
+from .statemanager import StateManager
 from .window import BreezydesktopWindow
 
 class BreezydesktopApplication(Adw.Application):
@@ -45,6 +46,8 @@ class BreezydesktopApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = BreezydesktopWindow(application=self)
+            win.connect('close-request', lambda *_: self.on_quit_action())
+            win.connect('destroy', lambda *_: self.on_quit_action())
         win.present()
 
     def on_about_action(self, widget, _):
@@ -73,7 +76,12 @@ class BreezydesktopApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-    def on_quit_action(self, _action, _pspec):
+    def on_quit_action(self, _action = None, _pspec = None):
+        win = self.props.active_window
+        if win:
+            win.close()
+
+        StateManager.destroy_instance()
         self.quit()
 
 
