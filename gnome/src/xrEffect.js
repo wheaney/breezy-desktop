@@ -164,7 +164,7 @@ function setIntermittentUniformVariables() {
 
         this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
     } else if (dataView.byteLength !== 0) {
-        console.error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+        Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
     }
 }
 
@@ -296,7 +296,7 @@ export const XREffect = GObject.registerClass({
                 setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
             } else if (this._dataView.byteLength !== 0) {
-                console.error(`Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
             }
 
             // improves sampling quality for smooth text and edges

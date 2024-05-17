@@ -2,6 +2,7 @@ import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
 import { MouseSpriteContent } from './cursor.js';
+import Globals from './globals.js';
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
@@ -29,19 +30,23 @@ export class CursorManager {
     }
 
     enable() {
+        Globals.logger.log_debug('CursorManager enable');
         this._enableCloningMouse();
         this.startCloning();
     }
 
     disable() {
+        Globals.logger.log_debug('CursorManager disable');
         this._disableCloningMouse();
     }
 
     startCloning() {
+        Globals.logger.log_debug('CursorManager startCloning');
         this._startCloningMouse();
     }
 
     stopCloning() {
+        Globals.logger.log_debug('CursorManager stopCloning');
         this._stopCloningMouse();
     }
 
@@ -53,6 +58,7 @@ export class CursorManager {
     // okay if _startCloningMouse is not immediately called since set_pointer_visible is bound to our replacement function
     // and will trigger _startCloningMouse when the cursor should be shown
     _enableCloningMouse() {
+        Globals.logger.log_debug('CursorManager _enableCloningMouse');
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
         this._cursorWantedVisible = this._cursorTracker.get_pointer_visible();
         this._cursorTrackerSetPointerVisible = Meta.CursorTracker.prototype.set_pointer_visible;
@@ -81,6 +87,7 @@ export class CursorManager {
     // 
     // completely reverts _enableCloningMouse
     _disableCloningMouse() {
+        Globals.logger.log_debug('CursorManager _disableCloningMouse');
         this._stopCloningMouse();
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
         this._cursorTracker.set_pointer_visible(this._cursorWantedVisible);
@@ -98,6 +105,7 @@ export class CursorManager {
     // bound to Meta.CursorTracker.prototype.set_pointer_visible when cloning is "on"
     // original function available in this._cursorTrackerSetPointerVisibleBound
     _cursorTrackerSetPointerVisibleReplacement(visible) {
+        Globals.logger.log_debug('CursorManager _cursorTrackerSetPointerVisibleReplacement');
         this._cursorWantedVisible = visible;
         if (visible) {
             this._startCloningMouse();
@@ -114,6 +122,7 @@ export class CursorManager {
     // add the clone cursor actor, watch for pointer movement and cursor changes, reflect them in the cloned cursor
     // prereqs: setup in _enableCloningMouse, _cursorWantedVisible is true
     _startCloningMouse() {
+        Globals.logger.log_debug('CursorManager _startCloningMouse');
         if (this._cursorWatch == null) {
             if (Clutter.Container === undefined) {
                 this._mainActor.add_child(this._cursorActor);
@@ -137,7 +146,7 @@ export class CursorManager {
         }
 
         if (!this._cursorUnfocusInhibited) {
-            console.log('Breezy debug - inhibit_unfocus\n');
+            Globals.logger.log_debug('inhibit_unfocus');
             this._cursorSeat.inhibit_unfocus();
             this._cursorUnfocusInhibited = true;
         }
@@ -150,6 +159,7 @@ export class CursorManager {
     // 
     // completely reverts _startCloningMouse
     _stopCloningMouse() {
+        Globals.logger.log_debug('CursorManager _stopCloningMouse');
         if (this._cursorWatch != null) {
             this._cursorWatch.remove();
             this._cursorWatch = null;
@@ -175,7 +185,7 @@ export class CursorManager {
         }
 
         if (this._cursorUnfocusInhibited) {
-            console.log('Breezy debug - uninhibit_unfocus\n');
+            Globals.logger.log_debug('uninhibit_unfocus');
             this._cursorSeat.uninhibit_unfocus();
             this._cursorUnfocusInhibited = false;
         }
@@ -204,7 +214,7 @@ export class CursorManager {
 
         // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
         if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
-            console.log('Breezy debug - reinhibiting\n');
+            Globals.logger.log_debug('reinhibiting');
             this._cursorSeat.inhibit_unfocus();
         }
     }

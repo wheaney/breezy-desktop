@@ -64,5 +64,14 @@
         Enable developer mode
       </description>
     </key>
+    <key name="debug" type="b">
+      <default>
+        false
+      </default>
+      <summary>Log debug messages</summary>
+      <description>
+        Log debug messages
+      </description>
+    </key>
 	</schema>
 </schemalist>

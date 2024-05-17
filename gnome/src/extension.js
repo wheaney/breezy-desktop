@@ -7,6 +7,7 @@ import St from 'gi://St';
 
 import { CursorManager } from './cursormanager.js';
 import Globals from './globals.js';
+import { Logger } from './logger.js';
 import MonitorManager from './monitormanager.js';
 import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 
@@ -36,10 +37,21 @@ export default class BreezyDesktopExtension extends Extension {
         this._distance_binding = null;
         this._start_binding = null;
         this._end_binding = null;
+
+        if (!Globals.logger) {
+            Globals.logger = new Logger({
+                title: 'breezydesktop',
+                debug: this.settings.get_boolean('debug')
+            });
+            Globals.logger.logVersion();
+        }
     }
 
     enable() {
+        Globals.logger.log_debug('BreezyDesktopExtension enable');
         Globals.extension_dir = this.path;
+        this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
+
         this._monitor_manager = new MonitorManager(this.path);
         this._monitor_manager.setChangeHook(this._setup.bind(this));
         this._monitor_manager.enable();
@@ -48,6 +60,7 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _poll_for_ready() {
+        Globals.logger.log_debug('BreezyDesktopExtension _poll_for_ready');
         var target_monitor = this._target_monitor;
         var is_effect_running = this._is_effect_running;
         this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
@@ -55,7 +68,7 @@ export default class BreezyDesktopExtension extends Extension {
 
             const is_driver_running = this._check_driver_running();
             if (is_driver_running && target_monitor) {
-                console.log('Driver is running, supported monitor connected. Enabling XR effect.');
+                Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
                 this._effect_enable();
                 return GLib.SOURCE_REMOVE;
             } else {
@@ -65,6 +78,7 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _find_supported_monitor() {
+        Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
         const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
             monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
         if (target_monitor !== undefined) {
@@ -86,8 +100,9 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _setup() {
+        Globals.logger.log_debug('BreezyDesktopExtension _setup');
         if (this._is_effect_running) {
-            console.log('Monitors changed, disabling XR effect');
+            Globals.logger.log('Monitors changed, disabling XR effect');
             this._effect_disable();
         }
         const target_monitor = this._find_supported_monitor();
@@ -98,7 +113,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._refresh_rate = target_monitor.refreshRate;
 
             if (this._check_driver_running()) {
-                console.log('Ready, enabling XR effect');
+                Globals.logger.log('Ready, enabling XR effect');
                 this._effect_enable();
             } else {
                 this._poll_for_ready();
@@ -112,6 +127,7 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_enable() {
+        Globals.logger.log_debug('BreezyDesktopExtension _effect_enable');
         this._running_poller_id = undefined;
         if (!this._is_effect_running) {
             this._is_effect_running = true;
@@ -159,7 +175,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                console.error(`Error enabling XR effect ${e.message}`, e.stack);
+                Globals.logger.log(`ERROR: Error enabling XR effect ${e.message}`, e.stack);
                 this._effect_disable();
             }
         }
@@ -198,14 +214,17 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _recenter_display() {
+        Globals.logger.log_debug('BreezyDesktopExtension _recenter_display');
         this._write_control('recenter_screen', 'true');
     }
 
     _toggle_follow_mode() {
+        Globals.logger.log_debug('BreezyDesktopExtension _toggle_follow_mode');
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
     _effect_disable() {
+        Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
         this._is_effect_running = false;
 
         if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
@@ -246,6 +265,7 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     disable() {
+        Globals.logger.log_debug('BreezyDesktopExtension disable');
         this._effect_disable();
         this._target_monitor = null;
         if (this._monitor_manager) {

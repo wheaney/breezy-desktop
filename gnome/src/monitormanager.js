@@ -20,6 +20,8 @@ import Gio from 'gi://Gio';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
+import Globals from './globals.js';
+
 let cachedDisplayConfigProxy = null;
 
 function getDisplayConfigProxy(extPath) {
@@ -32,7 +34,7 @@ function getDisplayConfigProxy(extPath) {
                 xml = new TextDecoder().decode(bytes);
             }
         } catch (e) {
-            console.error('failed to load DisplayConfig interface XML');
+            Globals.logger.log('ERROR: failed to load DisplayConfig interface XML');
             throw e;
         }
         cachedDisplayConfigProxy = Gio.DBusProxy.makeProxyWrapper(xml);
@@ -145,7 +147,7 @@ export default class MonitorManager {
             for (let i = 0; i < result.length; i++) {
                 const [monitorName, connectorName, vendor, product, serial, refreshRate] = result[i];
                 const monitorIndex = this._backendManager.get_monitor_for_connector(connectorName);
-                console.log(`\n\nFound monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}\n\n`);
+                Globals.logger.log(`Found monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}`);
                 if (monitorIndex >= 0) {
                     monitorProperties[monitorIndex] = {
                         index: monitorIndex,
