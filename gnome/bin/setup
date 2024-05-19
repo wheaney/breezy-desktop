@@ -11,6 +11,21 @@ if [ -z "$XDG_BIN_HOME" ]; then
   XDG_BIN_HOME="$USER_HOME/.local/bin"
 fi
 
+if [ -d "$XDG_BIN_HOME" ]; then
+  # check ownership and permissions before doing chown and chmod
+  XDG_BIN_USER=$(stat -c %U $XDG_BIN_HOME)
+  XDG_BIN_GROUP=$(stat -c %G $XDG_BIN_HOME)
+
+  USER=$(whoami)
+  GROUP=$(id -gn)
+
+  if [ "$XDG_BIN_USER" != "$USER" ] || [ "$XDG_BIN_GROUP" != "$GROUP" ]; then
+    echo "Fixing ownership and permissions of $XDG_BIN_HOME"
+    sudo chown -R $USER:$GROUP $XDG_BIN_HOME
+    sudo chmod -R 700 $XDG_BIN_HOME
+  fi
+fi
+
 if [ -z "$XDG_DATA_HOME" ]; then
   XDG_DATA_HOME="$USER_HOME/.local/share"
 fi

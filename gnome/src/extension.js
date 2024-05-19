@@ -49,14 +49,19 @@ export default class BreezyDesktopExtension extends Extension {
 
     enable() {
         Globals.logger.log_debug('BreezyDesktopExtension enable');
-        Globals.extension_dir = this.path;
-        this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
 
-        this._monitor_manager = new MonitorManager(this.path);
-        this._monitor_manager.setChangeHook(this._setup.bind(this));
-        this._monitor_manager.enable();
+        try {
+            Globals.extension_dir = this.path;
+            this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
 
-        this._setup();
+            this._monitor_manager = new MonitorManager(this.path);
+            this._monitor_manager.setChangeHook(this._setup.bind(this));
+            this._monitor_manager.enable();
+
+            this._setup();
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension enable ${e.message}`, e.stack);
+        }
     }
 
     _poll_for_ready() {
@@ -78,25 +83,30 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _find_supported_monitor() {
-        Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
-        const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
-            monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
-        if (target_monitor !== undefined) {
-            return {
-                monitor: this._monitor_manager.getMonitors()[target_monitor.index],
-                refreshRate: target_monitor.refreshRate,
-            };
-        }
+        try {
+            Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
+            const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+                monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
+            if (target_monitor !== undefined) {
+                return {
+                    monitor: this._monitor_manager.getMonitors()[target_monitor.index],
+                    refreshRate: target_monitor.refreshRate,
+                };
+            }
 
-        if (this.settings.get_boolean('developer-mode')) {
-            // allow testing XR devices with just USB, no video needed
-            return {
-                monitor: this._monitor_manager.getMonitors()[0],
-                refreshRate: 60,
-            };
-        }
+            if (this.settings.get_boolean('developer-mode')) {
+                // allow testing XR devices with just USB, no video needed
+                return {
+                    monitor: this._monitor_manager.getMonitors()[0],
+                    refreshRate: 60,
+                };
+            }
 
-        return null;
+            return null;
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}`, e.stack);
+            return null;
+        }
     }
 
     _setup() {
@@ -122,8 +132,13 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _check_driver_running() {
-        if (!Globals.ipc_file) Globals.ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
-        return Globals.ipc_file.query_exists(null);
+        try {
+            if (!Globals.ipc_file) Globals.ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
+            return Globals.ipc_file.query_exists(null);
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}`, e.stack);
+            return false;
+        }
     }
 
     _effect_enable() {
@@ -175,27 +190,14 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                Globals.logger.log(`ERROR: Error enabling XR effect ${e.message}`, e.stack);
+                Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}`, e.stack);
                 this._effect_disable();
             }
         }
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
-        Main.wm.addKeybinding(
-            settings_key,
-            this.settings,
-            Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
-            Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
-            bind_to_function
-        );
-                
-        // Connect to the 'changed' signal for the keybinding property
-        this.settings.connect(`changed::${settings_key}`, () => {
-            // Remove the old keybinding
-            Main.wm.removeKeybinding(settings_key);
-        
-            // Add the updated keybinding
+        try {
             Main.wm.addKeybinding(
                 settings_key,
                 this.settings,
@@ -203,7 +205,28 @@ export default class BreezyDesktopExtension extends Extension {
                 Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
                 bind_to_function
             );
-        });
+                    
+            // Connect to the 'changed' signal for the keybinding property
+            this.settings.connect(`changed::${settings_key}`, () => {
+                try {
+                    // Remove the old keybinding
+                    Main.wm.removeKeybinding(settings_key);
+                
+                    // Add the updated keybinding
+                    Main.wm.addKeybinding(
+                        settings_key,
+                        this.settings,
+                        Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                        Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW | Shell.ActionMode.POPUP,
+                        bind_to_function
+                    );
+                } catch (e) {
+                    Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}`, e.stack);
+                }
+            });
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding ${e.message}`, e.stack);
+        }
     }
 
     _write_control(key, value) {
@@ -224,53 +247,61 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _effect_disable() {
-        Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
-        this._is_effect_running = false;
+        try {
+            Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
+            this._is_effect_running = false;
 
-        if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
+            if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
 
-        Main.wm.removeKeybinding('recenter-display-shortcut');
-        Main.wm.removeKeybinding('toggle-display-distance-shortcut');
-        Main.wm.removeKeybinding('toggle-follow-shortcut');
-        Meta.enable_unredirect_for_display(global.display);
+            Main.wm.removeKeybinding('recenter-display-shortcut');
+            Main.wm.removeKeybinding('toggle-display-distance-shortcut');
+            Main.wm.removeKeybinding('toggle-follow-shortcut');
+            Meta.enable_unredirect_for_display(global.display);
 
-        if (this._overlay) {
-            global.stage.remove_child(this._overlay);
-            this._overlay.remove_effect_by_name('xr-desktop');
-            this._overlay.destroy();
-            this._overlay = null;
-        }
+            if (this._overlay) {
+                global.stage.remove_child(this._overlay);
+                this._overlay.remove_effect_by_name('xr-desktop');
+                this._overlay.destroy();
+                this._overlay = null;
+            }
 
-        if (this._distance_binding) {
-            this.settings.unbind(this._distance_binding);
-            this._distance_binding = null;
-        }
-        if (this._start_binding) {
-            this.settings.unbind(this._start_binding);
-            this._start_binding = null;
-        }
-        if (this._end_binding) {
-            this.settings.unbind(this._end_binding);
-            this._end_binding = null;
-        }
-        if (this._xr_effect) {
-            this._xr_effect.cleanup();
-            this._xr_effect = null;
-        }
+            if (this._distance_binding) {
+                this.settings.unbind(this._distance_binding);
+                this._distance_binding = null;
+            }
+            if (this._start_binding) {
+                this.settings.unbind(this._start_binding);
+                this._start_binding = null;
+            }
+            if (this._end_binding) {
+                this.settings.unbind(this._end_binding);
+                this._end_binding = null;
+            }
+            if (this._xr_effect) {
+                this._xr_effect.cleanup();
+                this._xr_effect = null;
+            }
 
-        if (this._cursor_manager) {
-            this._cursor_manager.disable();
-            this._cursor_manager = null;
+            if (this._cursor_manager) {
+                this._cursor_manager.disable();
+                this._cursor_manager = null;
+            }
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}`, e.stack);
         }
     }
 
     disable() {
-        Globals.logger.log_debug('BreezyDesktopExtension disable');
-        this._effect_disable();
-        this._target_monitor = null;
-        if (this._monitor_manager) {
-            this._monitor_manager.disable();
-            this._monitor_manager = null;
+        try {
+            Globals.logger.log_debug('BreezyDesktopExtension disable');
+            this._effect_disable();
+            this._target_monitor = null;
+            if (this._monitor_manager) {
+                this._monitor_manager.disable();
+                this._monitor_manager = null;
+            }
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension disable ${e.message}`, e.stack);
         }
     }
 }
