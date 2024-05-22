@@ -43,8 +43,16 @@ else
   cp $abs_path $tmp_dir
 fi
 
+# if abs_path is present, grab the filename from it
+if [ -n "$abs_path" ]
+then
+  filename=$(basename $abs_path)
+else
+  filename="breezyGNOME.tar.gz"
+fi
+
 echo "Extracting to: ${tmp_dir}/breezy_gnome"
-tar -xf breezyGNOME.tar.gz
+tar -xf $filename
 
 pushd breezy_gnome > /dev/null
 

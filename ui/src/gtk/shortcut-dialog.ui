@@ -2,6 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="ShortcutDialog" parent="GtkDialog">
+    <property name="title">Assign Keyboard Shortcut</property>
     <property name="modal">1</property>
     <property name="default_width">440</property>
     <property name="default_height">200</property>
@@ -19,21 +20,6 @@
             <property name="label" translatable="yes">Press your keyboard shortcut or 'Backspace' to disable...</property>
           </object>
         </child>
-      </object>
-    </child>
-    <child type="titlebar">
-      <object class="GtkHeaderBar">
-        <property name="title-widget">
-          <object class="GtkLabel">
-            <property name="label" translatable="yes">Keyboard Shortcut</property>
-            <property name="single-line-mode">1</property>
-            <property name="ellipsize">end</property>
-            <property name="width-chars">5</property>
-            <style>
-              <class name="title"/>
-            </style>
-          </object>
-        </property>
       </object>
     </child>
     <child>

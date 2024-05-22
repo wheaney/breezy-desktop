@@ -13,7 +13,7 @@
         <property name="column-spacing">4</property>
         <child>
           <object class="GtkLabel" id="device_label">
-            <property name="label">VITURE One</property>
+            <property name="label"></property>
           </object>
         </child>
         <child>

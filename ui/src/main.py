@@ -25,6 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 
 from gi.repository import Adw, Gtk, Gio
+from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow
 
@@ -36,6 +37,7 @@ class BreezydesktopApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
+        self.create_action('license', self.on_license_action)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -60,6 +62,11 @@ class BreezydesktopApplication(Adw.Application):
                                 authors=['Wayne Heaney'],
                                 copyright='© 2024 Wayne Heaney')
         about.present()
+
+    def on_license_action(self, widget, _):
+        dialog = LicenseDialog()
+        dialog.set_transient_for(self.props.active_window)
+        dialog.present()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
