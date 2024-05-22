@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="LicenseFeatureRow" parent="GtkGrid">
+    <property name="margin-start">16</property>
+    <property name="margin-end">16</property>
+    <property name="margin-top">16</property>
+    <property name="margin-bottom">16</property>
+    <property name="row-spacing">2</property>
+    <property name="column-spacing">2</property>
+    <child>
+      <object class="GtkLabel" id="feature_name">
+        <property name="vexpand">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="feature_status">
+        <property name="vexpand">1</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="feature_funds_needed_usd">
+        <property name="vexpand">1</property>
+      </object>
+    </child>
+  </template>
+</interface>

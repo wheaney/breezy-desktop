@@ -26,9 +26,24 @@
         </child>
       </object>
     </property>
+    <property name="child">
+      <object class="GtkBox" id="main_content">
+        <child>
+          <object class="AdwBanner" id="license_action_needed_banner">
+            <property name="revealed">0</property>
+            <property name="title" translatable="yes">Some features expire soon</property>
+            <property name="button-label" translatable="yes">Update your license</property>
+          </object>
+        </child>
+      </object>
+    </property>
   </template>
   <menu id="primary_menu">
     <section>
+      <item>
+        <attribute name="label" translatable="yes">License Details</attribute>
+        <attribute name="action">app.license</attribute>
+      </item>
       <item>
         <attribute name="label" translatable="yes">_About BreezyDesktop</attribute>
         <attribute name="action">app.about</attribute>

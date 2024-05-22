@@ -11,11 +11,13 @@ class Logger:
 
 class StateManager(GObject.GObject):
     __gsignals__ = {
-        'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,))
+        'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        'license-action-needed': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
     }
 
     __gproperties__ = {
-        'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE)
+        'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE),
+        'license-action-needed-date': (int, 'License Action Needed Date', 'The date, in seconds, when the license action was needed', 0, 1024000, 0, GObject.ParamFlags.READWRITE),
     }
 
     _instance = None
@@ -44,6 +46,8 @@ class StateManager(GObject.GObject):
         GObject.GObject.__init__(self)
         self.ipc = XRDriverIPC.get_instance()
         self.connected_device_name = None
+        self.license_action_needed = False
+        self.license_action_needed_seconds = 0
 
         self.start()
 
@@ -61,7 +65,16 @@ class StateManager(GObject.GObject):
             self.connected_device_name = new_device_name
             self.emit('device-update', self.connected_device_name)
 
+        license_view = self.state['ui_view']['license']
+        action_needed_seconds = license_view.get('action_needed_seconds')
+        action_needed = action_needed_seconds is not None
+        if (action_needed != self.license_action_needed):
+            self.license_action_needed = action_needed
+            self.license_action_needed_seconds = action_needed_seconds
+            self.emit('license-action-needed', action_needed_seconds)
+
         self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
+        self.set_property('license-action-needed-date', self.license_action_needed_seconds)
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 

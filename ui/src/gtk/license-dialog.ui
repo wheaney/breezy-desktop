@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="LicenseDialog" parent="GtkDialog">
+    <property name="modal">1</property>
+    <property name="default_width">440</property>
+    <property name="default_height">200</property>
+    <child internal-child="content_area">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="AdwBanner" id="license_action_needed_banner">
+            <property name="revealed">0</property>
+            <property name="title" translatable="yes">Some features expire soon</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="vexpand">1</property>
+            <property name="label" translatable="yes">Tier Status</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="tiers">
+            <property name="orientation">vertical</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="vexpand">1</property>
+            <property name="label" translatable="yes">Feature Availability</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="features">
+            <property name="orientation">vertical</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <object class="GtkHeaderBar">
+        <property name="title-widget">
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">License Details</property>
+            <property name="single-line-mode">1</property>
+            <property name="ellipsize">end</property>
+            <property name="width-chars">5</property>
+            <style>
+              <class name="title"/>
+            </style>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkEventControllerKey" id="event_controller" />
+    </child>
+  </template>
+</interface>
