@@ -3,8 +3,6 @@
   <gresource prefix="/com/xronlinux/BreezyDesktop">
     <file preprocess="xml-stripblanks">gtk/connected-device.ui</file>
     <file preprocess="xml-stripblanks">gtk/license-dialog.ui</file>
-    <file preprocess="xml-stripblanks">gtk/license-feature-row.ui</file>
-    <file preprocess="xml-stripblanks">gtk/license-tier-row.ui</file>
     <file preprocess="xml-stripblanks">gtk/no-device.ui</file>
     <file preprocess="xml-stripblanks">gtk/no-extension.ui</file>
     <file preprocess="xml-stripblanks">gtk/shortcut-dialog.ui</file>
