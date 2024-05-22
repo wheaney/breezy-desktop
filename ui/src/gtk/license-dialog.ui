@@ -2,6 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="LicenseDialog" parent="GtkDialog">
+    <property name="title">License Details</property>
     <property name="modal">1</property>
     <property name="default_width">440</property>
     <property name="default_height">200</property>
@@ -37,24 +38,6 @@
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
-      <object class="GtkHeaderBar">
-        <property name="title-widget">
-          <object class="GtkLabel">
-            <property name="label" translatable="yes">License Details</property>
-            <property name="single-line-mode">1</property>
-            <property name="ellipsize">end</property>
-            <property name="width-chars">5</property>
-            <style>
-              <class name="title"/>
-            </style>
-          </object>
-        </property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkEventControllerKey" id="event_controller" />
     </child>
   </template>
 </interface>
