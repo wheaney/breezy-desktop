@@ -18,7 +18,20 @@
         <child>
           <object class="GtkLabel">
             <property name="vexpand">1</property>
+            <property name="margin-top">5</property>
             <property name="label" translatable="yes">Tier Status</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+              <attribute name="scale" value="1.2"/>
+            </attributes>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
           </object>
         </child>
         <child>
@@ -29,7 +42,20 @@
         <child>
           <object class="GtkLabel">
             <property name="vexpand">1</property>
+            <property name="margin-top">25</property>
             <property name="label" translatable="yes">Feature Availability</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+              <attribute name="scale" value="1.2"/>
+            </attributes>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
           </object>
         </child>
         <child>

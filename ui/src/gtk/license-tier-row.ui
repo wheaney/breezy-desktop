@@ -3,8 +3,21 @@
   <requires lib="gtk" version="4.0"/>
   <template class="LicenseTierRow" parent="GtkGrid">
     <property name="column-spacing">10</property>
+    <property name="column-homogeneous">true</property>
+    <style>
+      <class name="LicenseTierRow">
+        .tier_name {
+          text-align: right;
+        }
+        .tier_status {
+          text-align: left;
+        }
+      </class>
+    </style>
     <child>
       <object class="GtkLabel" id="tier_name">
+        <property name="xalign">1.0</property>
+        <property name="hexpand">true</property>
         <layout>
           <property name="column">0</property>
           <property name="row">0</property>
@@ -13,6 +26,8 @@
     </child>
     <child>
       <object class="GtkLabel" id="tier_status">
+        <property name="xalign">0.0</property>
+        <property name="hexpand">true</property>
         <layout>
           <property name="column">1</property>
           <property name="row">0</property>

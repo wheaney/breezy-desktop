@@ -20,7 +20,7 @@ class LicenseDialog(Gtk.Dialog):
     def _handle_license(self):
         license_view = self.state_manager.state['ui_view']['license']
         for tier_name, tier_details in license_view['tiers'].items():
-            self.tiers.append(LicenseTierRow(tier_name, tier_details))
+            self.tiers.add(LicenseTierRow(tier_name, tier_details))
 
         for feature_name, feature_details in license_view['features'].items():
-            self.features.append(LicenseFeatureRow(feature_name, feature_details))
+            self.features.add(LicenseFeatureRow(feature_name, feature_details))

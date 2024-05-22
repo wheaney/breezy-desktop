@@ -40,6 +40,7 @@ breezydesktop_sources = [
   'settingsmanager.py',
   'shortcutdialog.py',
   'statemanager.py',
+  'time.py',
   'window.py'
 ]
 
