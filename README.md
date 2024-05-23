@@ -6,9 +6,34 @@
 
 ## What is this?
 
-This repo will eventually contain a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using supported XR glasses. This currently includes XREAL Air 1, 2, 2 Pro and VITURE One models.
+This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using supported XR glasses. This currently includes XREAL Air 1, 2, 2 Pro and VITURE One, Lite, and Pro models.
 
-As of now, only a Vulkan implementation is available, primarily for gaming but could theoretically be used for anything that uses Vulkan rendering.
+There are two installations at the moment: [Breezy GNOME](#breezy-gnome) for desktop support in GNOME Linux desktop environments, and [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
+
+## Breezy GNOME
+Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (requires GNOME 45+ on an x86_64 system); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+
+### GNOME Setup
+1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
+2. Run the setup script as root (e.g. `sudo ~/Downloads/breezy_gnome_setup`)
+3. You'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working.
+
+### Non-GNOME Setup
+A workable solution (with [improvements to come](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
+1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 45+, so check that using `gnome-shell --version`
+2. Run the [GNOME setup](#gnome-setup) steps. You shouldn't need to log out and back in since GNOME will be running nested.
+3. Launch the nested GNOME Shell using `MUTTER_DEBUG_DUMMY_MODE_SPECS="1920x1080@60" dbus-run-session -- gnome-shell --nested`
+
+### Breezy GNOME Usage
+All controls are provided through the Breezy Desktop application. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
+
+### Upcoming Features
+1. Port to GNOME 43/44
+2. ARM/AARCH64 build
+3. Multiple virtual monitors + multiple physical monitors
+4. SBS display depth
+5. SBS support for 3D content
+6. Port to other popular desktop environments: Cinnamon, KWin
 
 ## Breezy Vulkan
 
@@ -22,7 +47,7 @@ You may still opt to do a manual installation using the instructions below if yo
 
 #### Manual installation
 
-1. [Download the setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_vulkan_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_vulkan_setup`)
+1. Download the [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_vulkan_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_vulkan_setup`)
 2. Run the setup script as root (e.g. `sudo ~/Downloads/breezy_vulkan_setup`)
 3. If you're not on Steam Deck, you'll need to set the `ENABLE_VKBASALT` environment variable to `1`. You'll either need to set this globally to enable it for all games, or set it as a launch option for individual games (e.g. in Steam's Launch Options field `ENABLE_VKBASALT=1 %command%`).
 
