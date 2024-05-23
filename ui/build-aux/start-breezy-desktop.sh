@@ -5,6 +5,8 @@
 
 IFS=: read -ra host_data_dirs < <(flatpak-spawn --host sh -c 'echo "$XDG_DATA_DIRS"')
 IFS=: read -ra HOST_XDG_STATE_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_STATE_HOME"')
+IFS=: read -ra HOST_XDG_BIN_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_BIN_HOME"')
+IFS=: read -ra HOST_XDG_DATA_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_DATA_HOME"')
 
 # To avoid potentially muddying up $XDG_DATA_DIRS too much, we link the schema paths
 # into a temporary directory.
@@ -34,12 +36,26 @@ if [[ ! -z "${HOST_XDG_DATA_DIRS}" ]]; then
   XDG_DATA_DIRS="${HOST_XDG_DATA_DIRS:1}:${XDG_DATA_DIRS}"
 fi
 
+if [[ ! -z "${HOST_XDG_BIN_HOME}" ]]; then
+  XDG_BIN_HOME="${HOST_XDG_BIN_HOME}"
+else
+  XDG_BIN_HOME="$(realpath ~)/.local/bin"
+fi
+
 if [[ ! -z "${HOST_XDG_STATE_HOME}" ]]; then
   XDG_STATE_HOME="${HOST_XDG_STATE_HOME}"
 else
-  XDG_STATE_HOME="${USER_HOME}/.local/state"
+  XDG_STATE_HOME="$(realpath ~)/.local/state"
+fi
+
+if [[ ! -z "${HOST_XDG_DATA_HOME}" ]]; then
+  XDG_DATA_HOME="${HOST_XDG_DATA_HOME}"
+else
+  XDG_DATA_HOME="$(realpath ~)/.local/share"
 fi
 
 export XDG_DATA_DIRS
+export XDG_BIN_HOME
 export XDG_STATE_HOME
+export XDG_DATA_HOME
 exec breezydesktop "$@"

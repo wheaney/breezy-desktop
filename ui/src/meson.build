@@ -31,6 +31,7 @@ breezydesktop_sources = [
   '__init__.py',
   'connecteddevice.py',
   'extensionsmanager.py',
+  'failedverification.py',
   'licensedialog.py',
   'licensefeaturerow.py',
   'licensetierrow.py',
@@ -41,6 +42,7 @@ breezydesktop_sources = [
   'shortcutdialog.py',
   'statemanager.py',
   'time.py',
+  'verify.py',
   'window.py'
 ]
 

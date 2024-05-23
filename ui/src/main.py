@@ -17,10 +17,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import gi
 import logging
 import os
 import sys
-import gi
 
 from logging.handlers import TimedRotatingFileHandler
 
@@ -29,7 +29,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gio
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow

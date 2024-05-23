@@ -22,8 +22,10 @@ from .extensionsmanager import ExtensionsManager
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .connecteddevice import ConnectedDevice
+from .failedverification import FailedVerification
 from .nodevice import NoDevice
 from .noextension import NoExtension
+from .verify import verify_installation
 from .time import LICENSE_WARN_SECONDS
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
@@ -43,6 +45,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.connected_device = ConnectedDevice()
         self.no_device = NoDevice()
         self.no_extension = NoExtension()
+        self.failed_verification = FailedVerification()
 
         self.license_action_needed_banner.connect('button-clicked', self._on_license_action_needed_button_clicked)
 
@@ -61,7 +64,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         for child in self.main_content:
             self.main_content.remove(child)
 
-        if not ExtensionsManager.get_instance().is_installed():
+        if not verify_installation():
+            self.main_content.append(self.failed_verification)
+        elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
         elif state_manager.connected_device_name:
             self.main_content.append(self.connected_device)
