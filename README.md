@@ -17,7 +17,7 @@ Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNO
 
 ### GNOME Setup
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
-2. Run the setup script as (e.g. `~/Downloads/breezy_gnome_setup`)
+2. Run the setup script (e.g. `~/Downloads/breezy_gnome_setup`)
 3. You'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working.
 
 ### Non-GNOME Setup
