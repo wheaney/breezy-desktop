@@ -4,6 +4,7 @@
 # https://gitlab.gnome.org/GNOME/dconf-editor/-/blob/master/build-aux/start-dconf-editor.sh
 
 IFS=: read -ra host_data_dirs < <(flatpak-spawn --host sh -c 'echo "$XDG_DATA_DIRS"')
+IFS=: read -ra HOST_XDG_STATE_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_STATE_HOME"')
 
 # To avoid potentially muddying up $XDG_DATA_DIRS too much, we link the schema paths
 # into a temporary directory.
@@ -33,5 +34,12 @@ if [[ ! -z "${HOST_XDG_DATA_DIRS}" ]]; then
   XDG_DATA_DIRS="${HOST_XDG_DATA_DIRS:1}:${XDG_DATA_DIRS}"
 fi
 
+if [[ ! -z "${HOST_XDG_STATE_HOME}" ]]; then
+  XDG_STATE_HOME="${HOST_XDG_STATE_HOME}"
+else
+  XDG_STATE_HOME="${USER_HOME}/.local/state"
+fi
+
 export XDG_DATA_DIRS
+export XDG_STATE_HOME
 exec breezydesktop "$@"

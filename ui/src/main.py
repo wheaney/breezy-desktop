@@ -17,17 +17,43 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
+import os
 import sys
 import gi
+
+from logging.handlers import TimedRotatingFileHandler
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, GLib
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow
+from .xrdriveripc import XRDriverIPC
+
+state_dir = os.path.expanduser("~/.local/state")
+log_dir = os.path.join(state_dir, 'breezy_gnome/logs/ui')
+os.makedirs(log_dir, exist_ok=True)
+
+logger = logging.getLogger('breezy_ui')
+logger.setLevel(logging.INFO)
+logname = os.path.join(log_dir, "breezy_desktop.log")
+handler = TimedRotatingFileHandler(logname, when="midnight", backupCount=30)
+handler.suffix = "%Y%m%d"
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+def excepthook(exc_type, exc_value, exc_traceback):
+    logger.error('Unhandled exception', exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = excepthook
+
+XRDriverIPC.set_instance(XRDriverIPC(logger))
 
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
@@ -58,7 +84,7 @@ class BreezydesktopApplication(Adw.Application):
                                 modal=True,
                                 program_name='Breezy Desktop',
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
-                                version='0.1.0',
+                                version='0.1.1',
                                 authors=['Wayne Heaney'],
                                 copyright='© 2024 Wayne Heaney')
         about.present()
@@ -93,6 +119,5 @@ class BreezydesktopApplication(Adw.Application):
 
 
 def main(version):
-    """The application's entry point."""
     app = BreezydesktopApplication()
     return app.run(sys.argv)

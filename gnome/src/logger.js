@@ -44,7 +44,7 @@ export const Logger = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        this._log_file_dir = `${GLib.get_user_data_dir()}/${LOG_DIR_NAME}/`
+        this._log_file_dir = `${GLib.get_user_state_dir()}/${LOG_DIR_NAME}/`
         this._first_log = true;
     }
 
