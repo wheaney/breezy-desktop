@@ -32,7 +32,6 @@ class ExtensionsManager(GObject.GObject):
             self.set_property('breezy-enabled', self.remote_extension_state)
 
     def is_installed(self):
-        # TODO check specific version
         return self._is_installed(BREEZY_DESKTOP_UUID)
 
     def enable(self):
@@ -53,6 +52,9 @@ class ExtensionsManager(GObject.GObject):
         return False
 
     def _enable_extension(self, extension_uuid):
+        if not self.gnome_shell_extensions.UserExtensionsEnabled:
+            self.gnome_shell_extensions.UserExtensionsEnabled = True
+
         self.gnome_shell_extensions.EnableExtension(extension_uuid)
 
     def _disable_extension(self, extension_uuid):
