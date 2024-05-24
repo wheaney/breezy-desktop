@@ -1,4 +1,4 @@
-from gi.repository import Adw, Gtk
+from gi.repository import Adw
 
 from .time import time_remaining_text
 

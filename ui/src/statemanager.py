@@ -16,14 +16,14 @@ class Logger:
 
 class StateManager(GObject.GObject):
     __gsignals__ = {
-        'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
-        'license-action-needed': (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+        'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,))
     }
 
     __gproperties__ = {
         'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE),
         'follow-threshold': (float, 'Follow Threshold', 'The follow threshold', 1.0, 45.0, 15.0, GObject.ParamFlags.READWRITE),
-        'license-action-needed-seconds': (int, 'License Action Needed Seconds', 'The remaining time until the license action is needed', 0, LICENSE_ACTION_NEEDED_MAX, 0, GObject.ParamFlags.READWRITE),
+        'license-action-needed': (bool, 'License Action Needed', 'Whether the license needs attention', False, GObject.ParamFlags.READWRITE),
+        'license-present': (bool, 'License Present', 'Whether a license is present', False, GObject.ParamFlags.READWRITE),
     }
 
     _instance = None
@@ -55,6 +55,7 @@ class StateManager(GObject.GObject):
         self.license_action_needed = False
         self.license_action_needed_seconds = 0
         self.confirmed_token = False
+        self.license_present = False
 
         self.start()
 
@@ -74,30 +75,36 @@ class StateManager(GObject.GObject):
 
         license_view = self.state['ui_view'].get('license')
         if license_view:
-            confirmed_token = license_view.get('confirmed_token') == True
+            if not self.license_present:
+                self.set_property('license-present', True)
+            self.confirmed_token = license_view.get('confirmed_token') == True
             action_needed_details = license_view.get('action_needed')
             action_needed_seconds = action_needed_details.get('seconds') if action_needed_details else None
 
             action_needed = action_needed_seconds is not None and action_needed_seconds < LICENSE_WARN_SECONDS
-            if (action_needed != self.license_action_needed or self.confirmed_token != confirmed_token):
+            if (action_needed != self.license_action_needed):
                 self.license_action_needed = action_needed
                 self.license_action_needed_seconds = action_needed_seconds
-                self.confirmed_token = confirmed_token
-                self.emit('license-action-needed', action_needed or not confirmed_token)
+                self.set_property('license-action-needed', action_needed)
+        elif self.license_present:
+            self.set_property('license-present', False)
 
         self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
-        self.set_property('license-action-needed-seconds', self.license_action_needed_seconds)
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 
     def do_set_property(self, prop, value):
         if prop.name == 'follow-mode':
             self.follow_mode = value
-        if prop.name == 'license-action-needed-seconds':
-            self.license_action_needed_seconds = value
+        if prop.name == 'license-action-needed':
+            self.license_action_needed = value
+        if prop.name == 'license-present':
+            self.license_present = value
 
     def do_get_property(self, prop):
         if prop.name == 'follow-mode':
             return self.follow_mode
-        if prop.name == 'license-action-needed-seconds':
-            return self.license_action_needed_seconds
+        if prop.name == 'license-action-needed':
+            return self.license_action_needed
+        if prop.name == 'license-present':
+            return self.license_present

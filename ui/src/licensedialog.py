@@ -19,7 +19,7 @@ class LicenseDialog(Gtk.Dialog):
         self.init_template()
 
         self.ipc = XRDriverIPC.get_instance()
-        StateManager.get_instance().connect('license-action-needed', self._handle_license)
+        StateManager.get_instance().connect('notify::license-action-needed', self._handle_license)
         self._handle_license(StateManager.get_instance())
 
         self.request_token.connect('apply', self._on_request_token)

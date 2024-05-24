@@ -25,6 +25,7 @@ from .connecteddevice import ConnectedDevice
 from .failedverification import FailedVerification
 from .nodevice import NoDevice
 from .noextension import NoExtension
+from .nolicense import NoLicense
 from .verify import verify_installation
 from .time import LICENSE_WARN_SECONDS
 
@@ -39,33 +40,35 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
 
         self.state_manager = StateManager.get_instance()
-        self.state_manager.connect('device-update', self._handle_device_update)
-        self.state_manager.connect('license-action-needed', self._handle_device_update)
+        self.state_manager.connect('device-update', self._handle_state_update)
+        self.state_manager.connect('notify::license-action-needed', self._handle_state_update)
+        self.state_manager.connect('notify::license-present', self._handle_state_update)
 
         self.connected_device = ConnectedDevice()
+        self.failed_verification = FailedVerification()
         self.no_device = NoDevice()
         self.no_extension = NoExtension()
-        self.failed_verification = FailedVerification()
+        self.no_license = NoLicense()
 
         self.license_action_needed_banner.connect('button-clicked', self._on_license_action_needed_button_clicked)
 
-        self._handle_device_update(self.state_manager, None)
+        self._handle_state_update(self.state_manager, None)
 
         self.connect("destroy", self._on_window_destroy)
 
-    def _handle_device_update(self, state_manager, val):
-        GLib.idle_add(self._handle_device_update_gui, state_manager)
+    def _handle_state_update(self, state_manager, val):
+        GLib.idle_add(self._handle_state_update_gui, state_manager)
 
-    def _handle_device_update_gui(self, state_manager):
-        license_action_needed_seconds = state_manager.get_property('license-action-needed-seconds')
-        show_banner = license_action_needed_seconds is not None and license_action_needed_seconds < LICENSE_WARN_SECONDS
-        self.license_action_needed_banner.set_revealed(show_banner)
+    def _handle_state_update_gui(self, state_manager):
+        self.license_action_needed_banner.set_revealed(state_manager.get_property('license-action-needed') == True)
 
         for child in self.main_content:
             self.main_content.remove(child)
 
         if not verify_installation():
             self.main_content.append(self.failed_verification)
+        elif not self.state_manager.get_property('license-present'):
+            self.main_content.append(self.no_license)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
         elif state_manager.connected_device_name:
@@ -80,4 +83,4 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def _on_window_destroy(self, widget):
-        self.state_manager.disconnect_by_func(self._handle_device_update)
+        self.state_manager.disconnect_by_func(self._handle_state_update)

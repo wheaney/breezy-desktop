@@ -38,6 +38,7 @@ breezydesktop_sources = [
   'main.py',
   'nodevice.py',
   'noextension.py',
+  'nolicense.py',
   'settingsmanager.py',
   'shortcutdialog.py',
   'statemanager.py',

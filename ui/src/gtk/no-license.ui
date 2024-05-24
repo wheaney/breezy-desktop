@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="NoLicense" parent="GtkBox">
+    <property name="orientation">1</property>
+    <property name="margin-top">20</property>
+    <property name="margin-bottom">20</property>
+    <property name="margin-start">20</property>
+    <property name="margin-end">20</property>
+    <property name="spacing">20</property>
+    <child>
+      <object class="AdwStatusPage">
+        <property name="title" translatable="true">No license file was found</property>
+        <property name="description" translatable="true">
+          The first time you use Breezy Desktop, an internet connection is required to retrieve your device's license.
+          
+          Don't worry, there's no obligation to donate at this time. If you haven't, you'll be given a trial license so you can decide if Breezy Desktop fits your needs. 
+          
+          Once you obtain a license, trial or otherwise, you can use Breezy Desktop offline until features expire (or indefinitely, if you've chosen lifetime access).
+        </property>
+        <property name="width-request">650</property>
+        <property name="height-request">400</property>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="refresh_license_button">
+        <property name="label" translatable="true">Try Again</property>
+      </object>
+    </child>
+  </template>
+</interface>

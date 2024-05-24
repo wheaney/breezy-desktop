@@ -1,4 +1,4 @@
-from gi.repository import Adw, Gtk
+from gi.repository import Gtk
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/no-device.ui')
 class NoDevice(Gtk.Box):
