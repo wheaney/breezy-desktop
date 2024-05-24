@@ -24,6 +24,7 @@ class StateManager(GObject.GObject):
         'follow-threshold': (float, 'Follow Threshold', 'The follow threshold', 1.0, 45.0, 15.0, GObject.ParamFlags.READWRITE),
         'license-action-needed': (bool, 'License Action Needed', 'Whether the license needs attention', False, GObject.ParamFlags.READWRITE),
         'license-present': (bool, 'License Present', 'Whether a license is present', False, GObject.ParamFlags.READWRITE),
+        'enabled-features-list': (object, 'Enabled Features List', 'A list of the enabled features', GObject.ParamFlags.READWRITE),
     }
 
     _instance = None
@@ -56,6 +57,7 @@ class StateManager(GObject.GObject):
         self.license_action_needed_seconds = 0
         self.confirmed_token = False
         self.license_present = False
+        self.enabled_features = []
 
         self.start()
 
@@ -83,9 +85,11 @@ class StateManager(GObject.GObject):
 
             action_needed = action_needed_seconds is not None and action_needed_seconds < LICENSE_WARN_SECONDS
             if (action_needed != self.license_action_needed):
-                self.license_action_needed = action_needed
                 self.license_action_needed_seconds = action_needed_seconds
                 self.set_property('license-action-needed', action_needed)
+            enabled_features = license_view.get('enabled_features', [])
+            if self.enabled_features != enabled_features:
+                self.set_property('enabled-features-list', enabled_features)
         elif self.license_present:
             self.set_property('license-present', False)
 
@@ -100,6 +104,8 @@ class StateManager(GObject.GObject):
             self.license_action_needed = value
         if prop.name == 'license-present':
             self.license_present = value
+        if prop.name == 'enabled-features-list':
+            self.enabled_features = value
 
     def do_get_property(self, prop):
         if prop.name == 'follow-mode':
@@ -108,3 +114,5 @@ class StateManager(GObject.GObject):
             return self.license_action_needed
         if prop.name == 'license-present':
             return self.license_present
+        if prop.name == 'enabled-features-list':
+            return self.enabled_features

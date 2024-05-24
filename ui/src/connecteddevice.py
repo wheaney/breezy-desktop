@@ -1,5 +1,6 @@
 from gi.repository import Gio, Gtk, GObject
 from .extensionsmanager import ExtensionsManager
+from .license import BREEZY_GNOME_FEATURES
 from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
@@ -59,6 +60,7 @@ class ConnectedDevice(Gtk.Box):
 
         self.state_manager = StateManager.get_instance()
         self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
+        self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
 
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
@@ -66,10 +68,18 @@ class ConnectedDevice(Gtk.Box):
         self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
         self.effect_enable_switch.connect('notify::active', self._refresh_inputs_for_enabled_state)
 
+        self._handle_enabled_features(self.state_manager, None)
         self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
         self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
         self.connect("destroy", self._on_widget_destroy)
+
+    def _handle_enabled_features(self, state_manager, val):
+        enabled_breezy_features = [feature for feature in state_manager.get_property('enabled-features-list') if feature in BREEZY_GNOME_FEATURES]
+        breezy_features_granted = len(enabled_breezy_features) > 0
+        if not breezy_features_granted:
+            self.effect_enable_switch.set_active(False)
+        self.effect_enable_switch.set_sensitive(breezy_features_granted)
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])

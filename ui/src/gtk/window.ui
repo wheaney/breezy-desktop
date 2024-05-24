@@ -37,6 +37,13 @@
           </object>
         </child>
         <child>
+          <object class="AdwBanner" id="missing_breezy_features_banner">
+            <property name="revealed">0</property>
+            <property name="title" translatable="yes">Productivity features are disabled</property>
+            <property name="button-label" translatable="yes">View details</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkBox" id="main_content" />
         </child>
       </object>

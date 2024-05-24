@@ -1,0 +1,1 @@
+BREEZY_GNOME_FEATURES = ['productivity_basic', 'productivity_pro']

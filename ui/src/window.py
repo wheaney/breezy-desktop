@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk, GLib
 from .extensionsmanager import ExtensionsManager
+from .license import BREEZY_GNOME_FEATURES
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .connecteddevice import ConnectedDevice
@@ -27,7 +28,6 @@ from .nodevice import NoDevice
 from .noextension import NoExtension
 from .nolicense import NoLicense
 from .verify import verify_installation
-from .time import LICENSE_WARN_SECONDS
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
 class BreezydesktopWindow(Gtk.ApplicationWindow):
@@ -35,6 +35,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
     main_content = Gtk.Template.Child()
     license_action_needed_banner = Gtk.Template.Child()
+    missing_breezy_features_banner = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -43,6 +44,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.state_manager.connect('device-update', self._handle_state_update)
         self.state_manager.connect('notify::license-action-needed', self._handle_state_update)
         self.state_manager.connect('notify::license-present', self._handle_state_update)
+        self.state_manager.connect('notify::enabled-features-list', self._handle_state_update)
 
         self.connected_device = ConnectedDevice()
         self.failed_verification = FailedVerification()
@@ -50,7 +52,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.no_extension = NoExtension()
         self.no_license = NoLicense()
 
-        self.license_action_needed_banner.connect('button-clicked', self._on_license_action_needed_button_clicked)
+        self.license_action_needed_banner.connect('button-clicked', self._on_license_button_clicked)
+        self.missing_breezy_features_banner.connect('button-clicked', self._on_license_button_clicked)
 
         self._handle_state_update(self.state_manager, None)
 
@@ -60,6 +63,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         GLib.idle_add(self._handle_state_update_gui, state_manager)
 
     def _handle_state_update_gui(self, state_manager):
+        enabled_breezy_features = [feature for feature in state_manager.get_property('enabled-features-list') if feature in BREEZY_GNOME_FEATURES]
+        breezy_features_granted = len(enabled_breezy_features) > 0
+        self.missing_breezy_features_banner.set_revealed(not breezy_features_granted)
         self.license_action_needed_banner.set_revealed(state_manager.get_property('license-action-needed') == True)
 
         for child in self.main_content:
@@ -77,7 +83,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         else:
             self.main_content.append(self.no_device)
 
-    def _on_license_action_needed_button_clicked(self, widget):
+    def _on_license_button_clicked(self, widget):
         dialog = LicenseDialog()
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
         dialog.present()

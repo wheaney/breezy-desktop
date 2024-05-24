@@ -32,6 +32,7 @@ breezydesktop_sources = [
   'connecteddevice.py',
   'extensionsmanager.py',
   'failedverification.py',
+  'license.py',
   'licensedialog.py',
   'licensefeaturerow.py',
   'licensetierrow.py',
