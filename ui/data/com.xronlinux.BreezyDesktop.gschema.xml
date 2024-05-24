@@ -37,6 +37,15 @@
         How far away the display appears. Farther will look smaller, closer will look larger.
       </description>
     </key>
+    <key name="follow-threshold" type="d">
+      <default>
+        15
+      </default>
+      <summary>Follow threshold</summary>
+      <description>
+        When follow mode is enabled: the threshold, in degrees, at which the display will begin to follow
+      </description>
+    </key>
     <key name="toggle-display-distance-start" type="d">
       <default>
         0.85

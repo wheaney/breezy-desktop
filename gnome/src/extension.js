@@ -35,6 +35,8 @@ export default class BreezyDesktopExtension extends Extension {
         this._target_monitor = null;
         this._is_effect_running = false;
         this._distance_binding = null;
+        this._distance_connection = null;
+        this._follow_threshold_connection = null;
         this._start_binding = null;
         this._end_binding = null;
 
@@ -179,7 +181,12 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
 
+                this._update_display_distance(this.settings);
+                this._update_follow_threshold(this.settings);
+
                 this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
+                this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
+                this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this))
                 this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
 
@@ -236,6 +243,18 @@ export default class BreezyDesktopExtension extends Extension {
         stream.close(null);
     }
 
+    _update_display_distance(settings, event) {
+        const value = settings.get_double('display-distance');
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${value}`);
+        if (value !== undefined) this._write_control('breezy_desktop_display_distance', value);
+    }
+
+    _update_follow_threshold(settings, event) {
+        const value = settings.get_double('follow-threshold');
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_follow_threshold ${value}`);
+        if (value !== undefined) this._write_control('breezy_desktop_follow_threshold', value);
+    }
+
     _recenter_display() {
         Globals.logger.log_debug('BreezyDesktopExtension _recenter_display');
         this._write_control('recenter_screen', 'true');
@@ -268,6 +287,14 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
                 this._distance_binding = null;
+            }
+            if (this._distance_connection) {
+                this.settings.disconnect(this._distance_connection);
+                this._distance_connection = null;
+            }
+            if (this._follow_threshold_connection) {
+                this.settings.disconnect(this._follow_threshold_connection);
+                this._follow_threshold_connection = null;
             }
             if (this._start_binding) {
                 this.settings.unbind(this._start_binding);

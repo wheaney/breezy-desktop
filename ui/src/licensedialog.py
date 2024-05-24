@@ -37,7 +37,7 @@ class LicenseDialog(Gtk.Dialog):
     def _handle_license_idle(self, state_manager):
         self.refresh_license_button.set_sensitive(False)
 
-        license_view = state_manager.state['ui_view']['license']
+        license_view = state_manager.state['ui_view'].get('license', {})
         self.request_token.set_visible(not state_manager.confirmed_token)
         self.verify_token.set_visible(not state_manager.confirmed_token)
 

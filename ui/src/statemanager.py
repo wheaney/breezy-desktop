@@ -22,6 +22,7 @@ class StateManager(GObject.GObject):
 
     __gproperties__ = {
         'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE),
+        'follow-threshold': (float, 'Follow Threshold', 'The follow threshold', 1.0, 45.0, 15.0, GObject.ParamFlags.READWRITE),
         'license-action-needed-seconds': (int, 'License Action Needed Seconds', 'The remaining time until the license action is needed', 0, LICENSE_ACTION_NEEDED_MAX, 0, GObject.ParamFlags.READWRITE),
     }
 
