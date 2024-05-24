@@ -18,6 +18,8 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
     'nreal air',
     'Air',
+    'Air 2', // guessing this one
+    'Air 2 Pro',
     'MetaMonitor' // nested mode dummy monitor
 ];
 
