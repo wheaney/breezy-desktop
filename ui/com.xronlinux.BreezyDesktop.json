@@ -32,7 +32,6 @@
     ],
     "modules" : [
         "python3-pydbus.json",
-        "python3-requests.json",
         {
             "name": "dconf",
             "buildsystem": "meson",
