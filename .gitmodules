@@ -2,8 +2,8 @@
 	path = vulkan/modules/vkBasalt
 	url = https://github.com/wheaney/vkBasalt.git
 	branch = runtime_uniforms
-[submodule "modules/xrealAirLinuxDriver"]
-	path = modules/xrealAirLinuxDriver
+[submodule "modules/XRLinuxDriver"]
+	path = modules/XRLinuxDriver
 	url = https://github.com/wheaney/XRLinuxDriver.git
 [submodule "modules/sombrero"]
 	path = modules/sombrero

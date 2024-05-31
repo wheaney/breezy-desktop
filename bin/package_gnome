@@ -17,7 +17,7 @@ PACKAGE_DIR=$GNOME_BUILD_DIR/breezy_gnome
 rm -rf $PACKAGE_DIR
 mkdir -p $PACKAGE_DIR
 
-XREAL_DRIVER_DIR=$ROOT_DIR/modules/xrealAirLinuxDriver
+XREAL_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
 source $XREAL_DRIVER_DIR/bin/inject_ua
 
 # check out submodules, recursively for nested ones
@@ -40,6 +40,9 @@ if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
   if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
   fi
+
+  # strange issue where the base library produces a .so file if the build is not cleaned
+  rm -rf build/
 
   BREEZY_DESKTOP=1 bin/package
 fi

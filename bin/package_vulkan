@@ -3,7 +3,7 @@
 # exit when any command fails
 set -e
 
-XREAL_DRIVER_DIR=modules/xrealAirLinuxDriver
+XREAL_DRIVER_DIR=modules/XRLinuxDriver
 source $XREAL_DRIVER_DIR/bin/inject_ua
 
 # check out submodules, recursively for nested ones
@@ -66,6 +66,10 @@ if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
   fi
 
   pushd $XREAL_DRIVER_DIR
+
+  # strange issue where the base library produces a .so file if the build is not cleaned
+  rm -rf build/
+
   bin/package
 else
   pushd $XREAL_DRIVER_DIR
