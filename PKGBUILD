@@ -8,7 +8,7 @@ arch=('x86_64')
 url="https://github.com/wheaney/breezy-desktop"
 license=('GPL-3.0')
 makedepends=('ninja' 'meson')
-depends=('python' 'python-pydbus' 'gnome-shell')
+depends=('python' 'python-pydbus' 'gnome-shell' 'XRLinuxDriver')
 conflicts=("${_pkgbase}")
 source=("git+${url}")
 md5sums=(SKIP)
@@ -38,13 +38,6 @@ build() {
 
     unlink gnome/src/textures/calibrating.png
     cp modules/sombrero/calibrating.png gnome/src/textures/
-
-    # build xr driver
-    cd modules/XRLinuxDriver
-    mkdir build/
-    cd build
-    cmake ..
-    make
 }
 
 package() {
@@ -66,10 +59,5 @@ package() {
 
     install -Dm755 ${_pkgbase}/ui/build/src/breezydesktop.gresource "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop.gresource
     install -Dm755 ${_pkgbase}/ui/build/data/com.xronlinux.BreezyDesktop.desktop "${pkgdir}"/usr/share/applications/com.xronlinux.BreezyDesktop.desktop
-
-    # copy xr driver
-    install -Dm755 ${_pkgbase}/modules/XRLinuxDriver/build/xrealAirLinuxDriver "${pkgdir}"/usr/bin/xrealAirLinuxDriver
-    sed -i '/ExecStart/c\ExecStart=xrealAirLinuxDriver' ${_pkgbase}/modules/XRLinuxDriver/systemd/xreal-air-driver.service
-    install -Dm644 ${_pkgbase}/modules/XRLinuxDriver/systemd/xreal-air-driver.service "${pkgdir}"/usr/lib/systemd/system/xreal-air-driver.service
 }
 
