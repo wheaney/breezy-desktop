@@ -18,8 +18,9 @@ _uuid="breezydesktop@xronlinux.com"
 build() {
     cd ${_pkgbase}
 
-    # init submpdules
-    git submodule update --init --recursive
+    # init submodules (only required ones)
+    git submodule update --init --recursive modules/sombrero
+    git submodule update --init --recursive ui/modules/PyXRLinuxDriverIPC
 
     # build binaries
     cd ui
@@ -38,6 +39,9 @@ build() {
 
     unlink gnome/src/textures/calibrating.png
     cp modules/sombrero/calibrating.png gnome/src/textures/
+
+    unlink gnome/src/IMUAdjust.frag
+    cp modules/sombrero/IMUAdjust.frag gnome/src/
 }
 
 package() {
@@ -46,13 +50,11 @@ package() {
 
     install -d "${pkgdir}/usr/share/gnome-shell/extensions/${_uuid}/"
     cp -r ${_pkgbase}/gnome/src/* "${pkgdir}/usr/share/gnome-shell/extensions/${_uuid}/"
-    unlink "${pkgdir}/usr/share/gnome-shell/extensions/${_uuid}/IMUAdjust.frag"
 
     # copy binaries
     install -d "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop/
     cp -r ${_pkgbase}/ui/src/*.py "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop/
     install -Dm755 ${_pkgbase}/ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop/xrdriveripc.py
-    install -Dm755 ${_pkgbase}/ui/build/src/breezydesktop.gresource "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop.gresource
 
     install -Dm755 ${_pkgbase}/ui/build-aux/start-breezy-desktop.sh "${pkgdir}"/usr/bin/start-breezy-desktop
     install -Dm755 ${_pkgbase}/ui/build/src/breezydesktop "${pkgdir}"/usr/bin/breezydesktop
