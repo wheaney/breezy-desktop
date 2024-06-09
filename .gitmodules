@@ -9,6 +9,7 @@
 [submodule "modules/sombrero"]
 	path = modules/sombrero
 	url = https://github.com/wheaney/sombrero.git
+	branch = breezy_sbs
 [submodule "ui/modules/PyXRLinuxDriverIPC"]
 	path = ui/modules/PyXRLinuxDriverIPC
 	url = https://github.com/wheaney/PyXRLinuxDriverIPC.git

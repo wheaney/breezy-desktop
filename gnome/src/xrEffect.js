@@ -50,8 +50,6 @@ const shaderUniformLocations = {
     'imu_quat_data': null,
     'look_ahead_cfg': null,
     'look_ahead_ms': null,
-    'stage_aspect_ratio': null,
-    'display_aspect_ratio': null,
     'trim_width_percent': null,
     'trim_height_percent': null,
     'display_zoom': null,
@@ -63,7 +61,8 @@ const shaderUniformLocations = {
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
     'screen_distance': null,
-    'display_res': null
+    'source_resolution': null,
+    'display_resolution': null
 };
 
 function setUniformFloat(effect, locationName, dataViewInfo, value) {
@@ -119,22 +118,21 @@ function setIntermittentUniformVariables() {
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
         const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
         const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+        const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
 
         if (enabled) {
-            const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
             const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
             const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
 
             // compute these values once, they only change when the XR device changes
             const displayAspectRatio = displayRes[0] / displayRes[1];
-            const stageAspectRatio = this.target_monitor.width / this.target_monitor.height;
-            const diagToVertRatio = Math.sqrt(Math.pow(stageAspectRatio, 2) + 1);
+            const diagToVertRatio = Math.sqrt(Math.pow(displayAspectRatio, 2) + 1);
             const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
-            const halfFovYRads = halfFovZRads * stageAspectRatio;
+            const halfFovYRads = halfFovZRads * displayAspectRatio;
             const screenDistance = 1.0 - lensDistanceRatio;
 
             // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
-            // underneath, so we trim two pixels around the entire edge of the texture
+            // underneath, so we trim three pixels around the entire edge of the texture
             const trimWidthPercent = 3.0 / this.target_monitor.width;
             const trimHeightPercent = 3.0 / this.target_monitor.height;
             
@@ -143,8 +141,6 @@ function setIntermittentUniformVariables() {
             transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
 
             // computed values with no dataViewInfo, so we set these manually
-            setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
-            setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
             setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
             setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
             setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
@@ -162,7 +158,8 @@ function setIntermittentUniformVariables() {
         setSingleFloat(this, 'sbs_enabled', dataViewUint8(dataView, SBS_ENABLED) !== 0 ? 1.0 : 0.0);
         setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
 
-        this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
+        this.set_uniform_float(shaderUniformLocations['source_resolution'], 2, [this.target_monitor.width, this.target_monitor.height]);
+        this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
     } else if (dataView.byteLength !== 0) {
         Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
     }
