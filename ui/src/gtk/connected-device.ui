@@ -38,7 +38,7 @@
           </object>
         </child>
         <child>
-          <object class="AdwActionRow">
+          <object class="AdwActionRow" id="display_distance_row">
             <property name="title" translatable="true">Display distance</property>
             <child>
               <object class="GtkScale" id="display_distance_scale">
@@ -96,6 +96,93 @@
                     <property name="value">15</property>
                   </object>
                 </property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Curved display</property>
+            <property name="subtitle" translatable="true">Switch between flat and curved displays</property>
+            <property name="valign">2</property>
+            <child>
+              <object class="GtkSwitch" id="curved_display_switch">
+                <property name="valign">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child><child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="true">Widescreen</property>
+        <property name="description" translatable="true">Widescreen mode switches your glasses into side-by-side mode and doubles the width of the display</property>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Enable widescreen</property>
+            <property name="subtitle" translatable="true">Switches your glasses into side-by-side mode</property>
+            <property name="valign">2</property>
+            <child>
+              <object class="GtkSwitch" id="widescreen_mode_switch">
+                <property name="valign">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="widescreen_display_distance_row">
+            <property name="title" translatable="true">Display distance</property>
+            <property name="subtitle" translatable="true">Move the screen closer or further using SBS depth</property>
+            <child>
+              <object class="GtkScale" id="widescreen_display_distance_scale">
+                <property name="valign">3</property>
+                <property name="draw-value">true</property>
+                <property name="value-pos">0</property>
+                <property name="digits">2</property>
+                <property name="width-request">350</property>
+                <property name="has-origin">false</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="widescreen_display_distance_adjustment">
+                    <property name="lower">0.2</property>
+                    <property name="upper">2.5</property>
+                    <property name="step-increment">0.01</property>
+                    <property name="value">1.05</property>
+                  </object>
+                </property>
+                <marks>
+                  <mark value="0.2" position="bottom"></mark>
+                  <mark value="1.0" position="bottom"></mark>
+                  <mark value="2.5" position="bottom"></mark>
+                </marks>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="true">Display size</property>
+            <property name="subtitle" translatable="true">Combine with display distance to achieve a comfortable level of depth and size</property>
+            <child>
+              <object class="GtkScale" id="widescreen_display_size_scale">
+                <property name="valign">3</property>
+                <property name="draw-value">true</property>
+                <property name="value-pos">0</property>
+                <property name="digits">2</property>
+                <property name="width-request">350</property>
+                <property name="has-origin">false</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="widescreen_display_size_adjustment">
+                    <property name="lower">0.2</property>
+                    <property name="upper">2.5</property>
+                    <property name="step-increment">0.01</property>
+                    <property name="value">1.0</property>
+                  </object>
+                </property>
+                <marks>
+                  <mark value="0.2" position="bottom"></mark>
+                  <mark value="1.0" position="bottom"></mark>
+                  <mark value="2.5" position="bottom"></mark>
+                </marks>
               </object>
             </child>
           </object>

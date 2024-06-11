@@ -64,6 +64,33 @@
         End distance when using the "toggle display distance" shortcut.
       </description>
     </key>
+    <key name="widescreen-mode" type="b">
+      <default>
+        false
+      </default>
+      <summary>Widescreen mode</summary>
+      <description>
+        Enable widescreen/SBS mode
+      </description>
+    </key>
+    <key name="widescreen-display-size" type="d">
+      <default>
+        1.0
+      </default>
+      <summary>Widescreen display size</summary>
+      <description>
+        The size of the display when in widescreen/SBS mode
+      </description>
+    </key>
+    <key name="curved-display" type="b">
+      <default>
+        false
+      </default>
+      <summary>Curved display</summary>
+      <description>
+        Enable curved display mode
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false

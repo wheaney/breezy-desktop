@@ -22,6 +22,7 @@ class StateManager(GObject.GObject):
     __gproperties__ = {
         'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE),
         'follow-threshold': (float, 'Follow Threshold', 'The follow threshold', 1.0, 45.0, 15.0, GObject.ParamFlags.READWRITE),
+        'widescreen-mode': (bool, 'Widescreen Mode', 'Whether widescreen mode is enabled', False, GObject.ParamFlags.READWRITE),
         'license-action-needed': (bool, 'License Action Needed', 'Whether the license needs attention', False, GObject.ParamFlags.READWRITE),
         'license-present': (bool, 'License Present', 'Whether a license is present', False, GObject.ParamFlags.READWRITE),
         'enabled-features-list': (object, 'Enabled Features List', 'A list of the enabled features', GObject.ParamFlags.READWRITE),
@@ -94,12 +95,15 @@ class StateManager(GObject.GObject):
             self.set_property('license-present', False)
 
         self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
+        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled') == 'true')
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 
     def do_set_property(self, prop, value):
         if prop.name == 'follow-mode':
             self.follow_mode = value
+        if prop.name == 'widescreen-mode':
+            self.widescreen_mode = value
         if prop.name == 'license-action-needed':
             self.license_action_needed = value
         if prop.name == 'license-present':
@@ -110,6 +114,8 @@ class StateManager(GObject.GObject):
     def do_get_property(self, prop):
         if prop.name == 'follow-mode':
             return self.follow_mode
+        if prop.name == 'widescreen-mode':
+            return self.widescreen_mode
         if prop.name == 'license-action-needed':
             return self.license_action_needed
         if prop.name == 'license-present':
