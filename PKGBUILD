@@ -61,5 +61,6 @@ package() {
 
     install -Dm755 ${_pkgbase}/ui/build/src/breezydesktop.gresource "${pkgdir}"/usr/local/share/breezydesktop/breezydesktop.gresource
     install -Dm755 ${_pkgbase}/ui/build/data/com.xronlinux.BreezyDesktop.desktop "${pkgdir}"/usr/share/applications/com.xronlinux.BreezyDesktop.desktop
+    sed -i '/Exec/c\Exec=start-breezy-desktop --skip-verification' "${pkgdir}"/usr/share/applications/com.xronlinux.BreezyDesktop.desktop
 }
 

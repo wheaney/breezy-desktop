@@ -37,7 +37,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     license_action_needed_banner = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, skip_verification, **kwargs):
         super().__init__(**kwargs)
 
         self.state_manager = StateManager.get_instance()
@@ -57,6 +57,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
         self._handle_state_update(self.state_manager, None)
 
+        self._skip_verification = skip_verification
+
         self.connect("destroy", self._on_window_destroy)
 
     def _handle_state_update(self, state_manager, val):
@@ -71,9 +73,11 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         for child in self.main_content:
             self.main_content.remove(child)
 
-        if not verify_installation():
-            self.main_content.append(self.failed_verification)
-        elif not self.state_manager.get_property('license-present'):
+        if not self._skip_verification:
+            if not verify_installation():
+                self.main_content.append(self.failed_verification)
+
+        if not self.state_manager.get_property('license-present'):
             self.main_content.append(self.no_license)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
