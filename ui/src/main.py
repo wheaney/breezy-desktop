@@ -123,7 +123,7 @@ class BreezydesktopApplication(Adw.Application):
 def main(version):
     parser = argparse.ArgumentParser()
     parser.add_argument("-sv", "--skip-verification", action="store_true")
-    parser.parse_args()
+    args = parser.parse_args()
 
-    app = BreezydesktopApplication(parser.skip-verification)
-    return app.run(sys.argv)
+    app = BreezydesktopApplication(args.skip_verification)
+    return app.run(None)
