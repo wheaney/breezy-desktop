@@ -40,8 +40,11 @@ export default class BreezyDesktopExtension extends Extension {
         this._distance_binding = null;
         this._distance_connection = null;
         this._follow_threshold_connection = null;
+        this._widescreen_mode_connection = null;
         this._start_binding = null;
         this._end_binding = null;
+        this._curved_display_binding = null;
+        this._display_size_binding = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -186,12 +189,16 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._update_display_distance(this.settings);
                 this._update_follow_threshold(this.settings);
+                this._update_widescreen_mode(this.settings);
 
                 this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this))
+                this._widescreen_mode_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode.bind(this))
                 this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
+                this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
+                this._display_size_binding = this.settings.bind('widescreen-display-size', this._xr_effect, 'widescreen-display-size', Gio.SettingsBindFlags.DEFAULT)
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -258,6 +265,12 @@ export default class BreezyDesktopExtension extends Extension {
         if (value !== undefined) this._write_control('breezy_desktop_follow_threshold', value);
     }
 
+    _update_widescreen_mode(settings, event) {
+        const value = settings.get_boolean('widescreen-mode');
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode ${value}`);
+        if (value !== undefined) this._write_control('sbs_mode', value ? 'enable' : 'disable');
+    }
+
     _recenter_display() {
         Globals.logger.log_debug('BreezyDesktopExtension _recenter_display');
         this._write_control('recenter_screen', 'true');
@@ -299,6 +312,10 @@ export default class BreezyDesktopExtension extends Extension {
                 this.settings.disconnect(this._follow_threshold_connection);
                 this._follow_threshold_connection = null;
             }
+            if (this._widescreen_mode_connection) {
+                this.settings.disconnect(this._widescreen_mode_connection);
+                this._widescreen_mode_connection = null;
+            }
             if (this._start_binding) {
                 this.settings.unbind(this._start_binding);
                 this._start_binding = null;
@@ -306,6 +323,14 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._end_binding) {
                 this.settings.unbind(this._end_binding);
                 this._end_binding = null;
+            }
+            if (this._curved_display_binding) {
+                this.settings.unbind(this._curved_display_binding);
+                this._curved_display_binding = null;
+            }
+            if (this._display_size_binding) {
+                this.settings.unbind(this._display_size_binding);
+                this._display_size_binding = null;
             }
             if (this._xr_effect) {
                 this._xr_effect.cleanup();
