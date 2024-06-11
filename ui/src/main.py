@@ -129,4 +129,4 @@ def main(version):
 
     print("app created")
 
-    return app.run(sys.argv)
+    return app.run(None)
