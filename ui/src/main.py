@@ -126,7 +126,4 @@ def main(version):
     args = parser.parse_args()
 
     app = BreezydesktopApplication(args.skip_verification)
-
-    print("app created")
-
     return app.run(None)
