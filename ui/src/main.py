@@ -128,7 +128,10 @@ def main(version):
     for arg in vars(args):
         print(arg, getattr(args, arg))
 
-    print(parser.skip_verification)
+    try:
+        print(args.skip_verification)
+    except:
+        print("could not access args")
 
-    app = BreezydesktopApplication(parser.skip_verification)
+    app = BreezydesktopApplication(args.skip_verification)
     return app.run(sys.argv)
