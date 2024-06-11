@@ -63,7 +63,7 @@ const shaderUniformLocations = {
     'half_fov_y_rads': null,
     'source_resolution': null,
     'display_resolution': null,
-    'curved': null
+    'curved_display': null
 };
 
 function setUniformFloat(effect, locationName, dataViewInfo, value) {
@@ -144,9 +144,7 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
             setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
             setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
-
-            // TODO - drive from settings
-            setSingleFloat(this, 'display_size', 1.0);
+            setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
         }
 
         // these variables are always in play, even if enabled is false
@@ -156,7 +154,6 @@ function setIntermittentUniformVariables() {
         setSingleFloat(this, 'sbs_mode_stretched', 1.0); // content always fills the whole display
         setSingleFloat(this, 'sbs_enabled', dataViewUint8(dataView, SBS_ENABLED) !== 0 ? 1.0 : 0.0);
         setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
-        setSingleFloat(this, 'curved', 1.0); // TODO - drive from settings
 
         this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
         this.set_uniform_float(shaderUniformLocations['source_resolution'], 2, [this.target_monitor.width, this.target_monitor.height]);
@@ -205,6 +202,22 @@ export const XREffect = GObject.registerClass({
             0.2, 
             2.5, 
             1.05
+        ),
+        'curved-display': GObject.ParamSpec.boolean(
+            'curved-display',
+            'Curved Display',
+            'Whether the display is curved',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'widescreen-display-size': GObject.ParamSpec.double(
+            'widescreen-display-size',
+            'Widescreen display size',
+            'Size of the display when in widescreen/SBS mode',
+            GObject.ParamFlags.READWRITE,
+            0.2,
+            2.5,
+            1.0
         )
     }
 }, class XREffect extends Shell.GLSLEffect {
@@ -292,6 +305,7 @@ export const XREffect = GObject.registerClass({
                 setSingleFloat(this, 'display_north_offset', this.display_distance);
                 setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                 setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                setSingleFloat(this, 'display_size', this.widescreen_display_size);
             } else if (this._dataView.byteLength !== 0) {
                 Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
             }
