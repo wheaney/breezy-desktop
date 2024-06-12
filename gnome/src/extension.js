@@ -20,6 +20,7 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'Air',
     'Air 2', // guessing this one
     'Air 2 Pro',
+    'SmartGlasses', // TCL/RayNeo
     'MetaMonitor' // nested mode dummy monitor
 ];
 

@@ -6,7 +6,7 @@
 
 ## What is this?
 
-This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using supported XR glasses. This currently includes XREAL Air 1, 2, 2 Pro and VITURE One, Lite, and Pro models.
+This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
 There are two installations at the moment: 
 * [Breezy GNOME](#breezy-gnome) for desktop support, primarily in GNOME Linux desktop environments
@@ -53,6 +53,9 @@ You may still opt to do a manual installation using the instructions below if yo
 1. Download the [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_vulkan_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_vulkan_setup`)
 2. Run the setup script as root (e.g. `sudo ~/Downloads/breezy_vulkan_setup`)
 3. If you're not on Steam Deck, you'll need to set the `ENABLE_VKBASALT` environment variable to `1`. You'll either need to set this globally to enable it for all games, or set it as a launch option for individual games (e.g. in Steam's Launch Options field `ENABLE_VKBASALT=1 %command%`).
+
+### Supported Devices
+See [XRLinuxDriver's supported devices](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
 ### Usage
 
