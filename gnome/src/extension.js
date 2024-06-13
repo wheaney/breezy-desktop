@@ -43,6 +43,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._widescreen_mode_connection = null;
         this._start_binding = null;
         this._end_binding = null;
+        this._stage_child_connection = null;
         this._curved_display_binding = null;
         this._display_size_binding = null;
 
@@ -156,7 +157,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._is_effect_running = true;
 
             try {
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup);
+                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, this._refresh_rate);
                 this._cursor_manager.enable();
 
                 this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
@@ -199,6 +200,11 @@ export default class BreezyDesktopExtension extends Extension {
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
                 this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
                 this._display_size_binding = this.settings.bind('widescreen-display-size', this._xr_effect, 'widescreen-display-size', Gio.SettingsBindFlags.DEFAULT)
+                if (Clutter.Container === undefined) {
+                    this._stage_child_connection = global.stage.connect('child-added', this._cursor_manager.handleStageChildAdded);
+                } else {
+                    this._stage_child_connection = global.stage.connect('actor-added', this._cursor_manager.handleStageChildAdded);
+                }
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -331,6 +337,10 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._display_size_binding) {
                 this.settings.unbind(this._display_size_binding);
                 this._display_size_binding = null;
+            }
+            if (this._stage_child_connection) {
+                global.stage.disconnect(this._stage_child_connection);
+                this._stage_child_connection = null;
             }
             if (this._xr_effect) {
                 this._xr_effect.cleanup();
