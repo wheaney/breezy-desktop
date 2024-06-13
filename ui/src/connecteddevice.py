@@ -108,6 +108,7 @@ class ConnectedDevice(Gtk.Box):
         self.display_distance_row.set_visible(not widescreen_mode_enabled)
         for widget in [self.widescreen_display_distance_scale, self.widescreen_display_size_scale]:
             widget.set_sensitive(widescreen_mode_enabled)
+
     
     def _refresh_inputs_for_enabled_state(self, switch, param):
         requesting_enabled = switch.get_active()

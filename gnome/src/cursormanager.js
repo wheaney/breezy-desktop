@@ -1,4 +1,5 @@
 import Clutter from 'gi://Clutter';
+import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
 import { MouseSpriteContent } from './cursor.js';
@@ -27,6 +28,7 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
+        this._moveToTopTimeout = null;
     }
 
     enable() {
@@ -132,6 +134,15 @@ export class CursorManager {
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._handleVisibilityChanged.bind(this));
 
+            // Some elements will occasionally appear above the cursor, so we periodically reset the actor stacking.
+            // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
+            // but finding a comprehensive list is difficult and not future proof. So this ugly solution helps us
+            // catch everything.
+            this._moveToTopTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
+                this._moveToTop()
+                return GLib.SOURCE_CONTINUE;
+            }).bind(this));
+
             const interval = 1000 / this._refreshRate;
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
@@ -178,6 +189,11 @@ export class CursorManager {
             } else {
                 this._mainActor.remove_actor(this._cursorActor);
             }
+
+            if (this._moveToTopTimeout) {
+                GLib.source_remove(this._moveToTopTimeout);
+                this._moveToTopTimeout = null;
+            }
         }
 
         if (this._cursorUnfocusInhibited) {
@@ -217,7 +233,7 @@ export class CursorManager {
         this._cursorTrackerSetPointerVisibleBound(false);
     }
 
-    handleStageChildAdded() {
+    _moveToTop() {
         this._mainActor.set_child_above_sibling(this._cursorActor, null);
     }
 }

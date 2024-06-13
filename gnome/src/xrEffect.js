@@ -147,12 +147,16 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
         }
 
+        // update the widescreen property if the state changes, so notify events are triggered
+        const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
+        if (this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
+
         // these variables are always in play, even if enabled is false
         setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
         setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
         setSingleFloat(this, 'sbs_content', 0.0); // TODO - drive from settings
         setSingleFloat(this, 'sbs_mode_stretched', 1.0); // content always fills the whole display
-        setSingleFloat(this, 'sbs_enabled', dataViewUint8(dataView, SBS_ENABLED) !== 0 ? 1.0 : 0.0);
+        setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
         setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
 
         this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
@@ -210,6 +214,13 @@ export const XREffect = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             false
         ),
+        'widescreen-mode-state': GObject.ParamSpec.boolean(
+            'widescreen-mode-state',
+            'Widescreen mode state',
+            'The state of widescreen mode from the perspective of the driver',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'widescreen-display-size': GObject.ParamSpec.double(
             'widescreen-display-size',
             'Widescreen display size',
@@ -224,7 +235,9 @@ export const XREffect = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        this._frametime = Math.floor(1000 / this.target_framerate);
+        // target a slightly higher framerate than the monitor's refresh rate to prevent stuttering
+        const frameTimeFramerate = this.target_framerate;
+        this._frametime = Math.floor(1000 / frameTimeFramerate);
 
         this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
