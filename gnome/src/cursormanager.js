@@ -6,8 +6,9 @@ import Globals from './globals.js';
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
-    constructor(mainActor) {
+    constructor(mainActor, refreshRate) {
         this._mainActor = mainActor;
+        this._refreshRate = refreshRate;
 
         this._changeHookFn = null;
 
@@ -26,7 +27,6 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        this._cursorPositionInvalidatedConnection = null;
     }
 
     enable() {
@@ -130,10 +130,9 @@ export class CursorManager {
                 this._mainActor.add_actor(this._cursorActor);
             }
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
-            this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
-            this._cursorPositionInvalidatedConnection = this._cursorTracker.connect('position-invalidated', this._updateMouseSprite.bind(this));
+            this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._handleVisibilityChanged.bind(this));
 
-            const interval = 1000 / 250;
+            const interval = 1000 / this._refreshRate;
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
 
             const [x, y] = global.get_pointer();
@@ -164,24 +163,21 @@ export class CursorManager {
             this._cursorWatch.remove();
             this._cursorWatch = null;
 
-            this._cursorTracker.disconnect(this._cursorChangedConnection);
-            this._cursorChangedConnection = null;
+            if (this._cursorChangedConnection) {
+                this._cursorTracker.disconnect(this._cursorChangedConnection);
+                this._cursorChangedConnection = null;
+            }
 
-            this._cursorTracker.disconnect(this._cursorVisibilityChangedConnection);
-            this._cursorVisibilityChangedConnection = null;
-
-            this._cursorTracker.disconnect(this._cursorPositionInvalidatedConnection);
-            this._cursorPositionInvalidatedConnection = null;
+            if (this._cursorVisibilityChangedConnection) {
+                this._cursorTracker.disconnect(this._cursorVisibilityChangedConnection);
+                this._cursorVisibilityChangedConnection = null;
+            }
 
             if (Clutter.Container === undefined) {
                 this._mainActor.remove_child(this._cursorActor);
             } else {
                 this._mainActor.remove_actor(this._cursorActor);
             }
-        }
-
-        if (this._cursorTracker.set_keep_focus_while_hidden) {
-            this._cursorTracker.set_keep_focus_while_hidden(false);
         }
 
         if (this._cursorUnfocusInhibited) {
@@ -209,13 +205,19 @@ export class CursorManager {
             translation_x: -xHot,
             translation_y: -yHot,
         });
-        this._mainActor.set_child_above_sibling(this._cursorActor, null);
-        this._cursorTrackerSetPointerVisibleBound(false);
 
         // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
         if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
             Globals.logger.log_debug('reinhibiting');
             this._cursorSeat.inhibit_unfocus();
         }
+    }
+
+    _handleVisibilityChanged() {
+        this._cursorTrackerSetPointerVisibleBound(false);
+    }
+
+    handleStageChildAdded() {
+        this._mainActor.set_child_above_sibling(this._cursorActor, null);
     }
 }
