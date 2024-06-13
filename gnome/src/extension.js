@@ -40,10 +40,10 @@ export default class BreezyDesktopExtension extends Extension {
         this._distance_binding = null;
         this._distance_connection = null;
         this._follow_threshold_connection = null;
-        this._widescreen_mode_connection = null;
+        this._widescreen_mode_settings_connection = null;
+        this._widescreen_mode_effect_state_connection = null;
         this._start_binding = null;
         this._end_binding = null;
-        this._stage_child_connection = null;
         this._curved_display_binding = null;
         this._display_size_binding = null;
 
@@ -69,7 +69,7 @@ export default class BreezyDesktopExtension extends Extension {
 
             this._setup();
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension enable ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
         }
     }
 
@@ -113,7 +113,7 @@ export default class BreezyDesktopExtension extends Extension {
 
             return null;
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
             return null;
         }
     }
@@ -129,7 +129,9 @@ export default class BreezyDesktopExtension extends Extension {
         // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
         if (target_monitor && this._running_poller_id === undefined) {
             this._target_monitor = target_monitor.monitor;
-            this._refresh_rate = target_monitor.refreshRate;
+
+            // have everything target a slightly higher refresh rate to avoid stuttering
+            this._refresh_rate = target_monitor.refreshRate * 1.05;
 
             if (this._check_driver_running()) {
                 Globals.logger.log('Ready, enabling XR effect');
@@ -145,7 +147,7 @@ export default class BreezyDesktopExtension extends Extension {
             if (!Globals.ipc_file) Globals.ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
             return Globals.ipc_file.query_exists(null);
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
             return false;
         }
     }
@@ -187,24 +189,19 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
+                this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
+                this._update_widescreen_mode_from_state(this._xr_effect, this._xr_effect.widescreen_mode_state);
 
-                this._update_display_distance(this.settings);
                 this._update_follow_threshold(this.settings);
-                this._update_widescreen_mode(this.settings);
 
                 this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this))
-                this._widescreen_mode_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode.bind(this))
+                this._widescreen_mode_settings_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode_from_settings.bind(this))
                 this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
                 this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
-                this._display_size_binding = this.settings.bind('widescreen-display-size', this._xr_effect, 'widescreen-display-size', Gio.SettingsBindFlags.DEFAULT)
-                if (Clutter.Container === undefined) {
-                    this._stage_child_connection = global.stage.connect('child-added', this._cursor_manager.handleStageChildAdded);
-                } else {
-                    this._stage_child_connection = global.stage.connect('actor-added', this._cursor_manager.handleStageChildAdded);
-                }
+                this._display_size_binding = this.settings.bind('widescreen-display-size', this._xr_effect, 'widescreen-display-size', Gio.SettingsBindFlags.DEFAULT);
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -213,7 +210,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}`, e.stack);
+                Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
                 this._effect_disable();
             }
         }
@@ -244,11 +241,11 @@ export default class BreezyDesktopExtension extends Extension {
                         bind_to_function
                     );
                 } catch (e) {
-                    Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}`, e.stack);
+                    Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}\n${e.stack}`);
                 }
             });
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding ${e.message}\n${e.stack}`);
         }
     }
 
@@ -271,10 +268,22 @@ export default class BreezyDesktopExtension extends Extension {
         if (value !== undefined) this._write_control('breezy_desktop_follow_threshold', value);
     }
 
-    _update_widescreen_mode(settings, event) {
+    _update_widescreen_mode_from_settings(settings, event) {
         const value = settings.get_boolean('widescreen-mode');
-        Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode ${value}`);
-        if (value !== undefined) this._write_control('sbs_mode', value ? 'enable' : 'disable');
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_settings ${value}`);
+        if (value !== undefined && value != this._xr_effect.widescreen_mode_state) 
+            this._write_control('sbs_mode', value ? 'enable' : 'disable');
+        else
+            Globals.logger.log_debug('effect.widescreen_mode_state already matched setting');
+    }
+
+    _update_widescreen_mode_from_state(effect, _pspec) {
+        const value = effect.widescreen_mode_state;
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_state ${value}`);
+        if (value !== this.settings.get_boolean('widescreen-mode'))
+            this.settings.set_boolean('widescreen-mode', value);
+        else
+            Globals.logger.log_debug('widescreen-mode setting already matched state');
     }
 
     _recenter_display() {
@@ -318,9 +327,9 @@ export default class BreezyDesktopExtension extends Extension {
                 this.settings.disconnect(this._follow_threshold_connection);
                 this._follow_threshold_connection = null;
             }
-            if (this._widescreen_mode_connection) {
-                this.settings.disconnect(this._widescreen_mode_connection);
-                this._widescreen_mode_connection = null;
+            if (this._widescreen_mode_settings_connection) {
+                this.settings.disconnect(this._widescreen_mode_settings_connection);
+                this._widescreen_mode_settings_connection = null;
             }
             if (this._start_binding) {
                 this.settings.unbind(this._start_binding);
@@ -338,11 +347,11 @@ export default class BreezyDesktopExtension extends Extension {
                 this.settings.unbind(this._display_size_binding);
                 this._display_size_binding = null;
             }
-            if (this._stage_child_connection) {
-                global.stage.disconnect(this._stage_child_connection);
-                this._stage_child_connection = null;
-            }
             if (this._xr_effect) {
+                if (this._widescreen_mode_effect_state_connection) {
+                    this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
+                    this._widescreen_mode_effect_state_connection = null;
+                }
                 this._xr_effect.cleanup();
                 this._xr_effect = null;
             }
@@ -352,7 +361,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cursor_manager = null;
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
         }
     }
 
@@ -366,7 +375,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._monitor_manager = null;
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension disable ${e.message}`, e.stack);
+            Globals.logger.log(`ERROR: BreezyDesktopExtension disable ${e.message}\n${e.stack}`);
         }
     }
 }

@@ -95,7 +95,7 @@ class StateManager(GObject.GObject):
             self.set_property('license-present', False)
 
         self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
-        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled') == 'true')
+        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled'))
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 
