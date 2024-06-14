@@ -11,7 +11,8 @@ import {
     dataViewEnd,
     dataViewUint8,
     dataViewBigUint,
-    dataViewUintArray,
+    dataViewUint32Array,
+    dataViewUint8Array,
     dataViewFloat,
     dataViewFloatArray,
     BOOL_SIZE,
@@ -28,7 +29,7 @@ import { toSec } from "./time.js";
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
 // the driver should be using the same data layout version
-const DATA_LAYOUT_VERSION = 2;
+const DATA_LAYOUT_VERSION = 3;
 
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
@@ -41,7 +42,8 @@ const SBS_ENABLED = [dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1];
 const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
 const EPOCH_MS = [dataViewEnd(CUSTOM_BANNER_ENABLED), UINT_SIZE, 2];
 const IMU_QUAT_DATA = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
-const DATA_VIEW_LENGTH = dataViewEnd(IMU_QUAT_DATA);
+const IMU_PARITY_BYTE = [dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1];
+const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
 
 // cached after first retrieval
 const shaderUniformLocations = {
@@ -119,7 +121,7 @@ function setIntermittentUniformVariables() {
         const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
         const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
         const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
-        const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
+        const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
 
         if (enabled) {
             const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
@@ -164,6 +166,20 @@ function setIntermittentUniformVariables() {
     } else if (dataView.byteLength !== 0) {
         Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
     }
+}
+
+function checkParityByte(dataView) {
+    const parityByte = dataViewUint8(dataView, IMU_PARITY_BYTE);
+    let parity = 0;
+    const epochUint8 = dataViewUint8Array(dataView, EPOCH_MS);
+    const imuDataUint8 = dataViewUint8Array(dataView, IMU_QUAT_DATA);
+    for (let i = 0; i < epochUint8.length; i++) {
+        parity ^= epochUint8[i];
+    }
+    for (let i = 0; i < imuDataUint8.length; i++) {
+        parity ^= imuDataUint8[i];
+    }
+    return parityByte === parity;
 }
 
 export const XREffect = GObject.registerClass({
@@ -283,9 +299,9 @@ export const XREffect = GObject.registerClass({
         var frametime = this._frametime;
         var calibratingImage = this.calibratingImage;
         var customBannerImage = this.customBannerImage;
-        const data = Globals.ipc_file.load_contents(null);
+        let data = Globals.ipc_file.load_contents(null);
         if (data[0]) {
-            const buffer = new Uint8Array(data[1]).buffer;
+            let buffer = new Uint8Array(data[1]).buffer;
             this._dataView = new DataView(buffer);
             if (!this._initialized) {
                 this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
@@ -314,13 +330,28 @@ export const XREffect = GObject.registerClass({
                 this._initialized = true;
             }
 
-            if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
-                setSingleFloat(this, 'display_north_offset', this.display_distance);
-                setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
-                setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
-                setSingleFloat(this, 'display_size', this.widescreen_display_size);
-            } else if (this._dataView.byteLength !== 0) {
-                Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+            let success = false;
+            let attempts = 0;
+            while (!success && attempts < 2) {
+                if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                    if (checkParityByte(this._dataView)) {
+                        setSingleFloat(this, 'display_north_offset', this.display_distance);
+                        setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
+                        setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                        setSingleFloat(this, 'display_size', this.widescreen_display_size);
+                        success = true;
+                    }
+                } else if (this._dataView.byteLength !== 0) {
+                    Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                }
+
+                if (!success && ++attempts < 3) {
+                    data = Globals.ipc_file.load_contents(null);
+                    if (data[0]) {
+                        buffer = new Uint8Array(data[1]).buffer;
+                        this._dataView = new DataView(buffer);
+                    }
+                }
             }
 
             // improves sampling quality for smooth text and edges
