@@ -24,12 +24,22 @@ export function dataViewBigUint(dataView, dataViewInfo) {
     return Number(dataView.getBigUint64(dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX], true));
 }
 
-export function dataViewUintArray(dataView, dataViewInfo) {
+export function dataViewUint32Array(dataView, dataViewInfo) {
     const uintArray = []
     let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
     for (let i = 0; i < dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX]; i++) {
         uintArray.push(dataView.getUint32(offset, true));
         offset += UINT_SIZE;
+    }
+    return uintArray;
+}
+
+export function dataViewUint8Array(dataView, dataViewInfo) {
+    const uintArray = []
+    let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
+    for (let i = 0; i < dataViewInfo[DATA_VIEW_INFO_SIZE_INDEX] * dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX]; i++) {
+        uintArray.push(dataView.getUint8(offset));
+        offset += UINT8_SIZE;
     }
     return uintArray;
 }
