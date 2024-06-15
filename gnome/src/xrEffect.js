@@ -251,8 +251,8 @@ export const XREffect = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        // target a slightly higher framerate than the monitor's refresh rate to prevent stuttering
-        const frameTimeFramerate = this.target_framerate;
+        // target a slightly lower framerate than the monitor's refresh rate to prevent repainting too frequently
+        const frameTimeFramerate = this.target_framerate * 0.9;
         this._frametime = Math.floor(1000 / frameTimeFramerate);
 
         this._is_display_distance_at_end = false;
@@ -338,7 +338,7 @@ export const XREffect = GObject.registerClass({
                         setSingleFloat(this, 'display_north_offset', this.display_distance);
                         setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                         setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
-                        setSingleFloat(this, 'display_size', this.widescreen_display_size);
+                        setSingleFloat(this, 'display_size', this.widescreen_mode_state ? this.widescreen_display_size : 1.0);
                         success = true;
                     }
                 } else if (this._dataView.byteLength !== 0) {
