@@ -129,9 +129,7 @@ export default class BreezyDesktopExtension extends Extension {
         // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
         if (target_monitor && this._running_poller_id === undefined) {
             this._target_monitor = target_monitor.monitor;
-
-            // have everything target a slightly higher refresh rate to avoid stuttering
-            this._refresh_rate = target_monitor.refreshRate * 1.05;
+            this._refresh_rate = target_monitor.refreshRate;
 
             if (this._check_driver_running()) {
                 Globals.logger.log('Ready, enabling XR effect');
@@ -159,7 +157,7 @@ export default class BreezyDesktopExtension extends Extension {
             this._is_effect_running = true;
 
             try {
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, this._refresh_rate);
+                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, this._refresh_rate * 1.05);
                 this._cursor_manager.enable();
 
                 this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
@@ -189,10 +187,11 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                 });
-                this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
-                this._update_widescreen_mode_from_state(this._xr_effect, this._xr_effect.widescreen_mode_state);
 
                 this._update_follow_threshold(this.settings);
+                this._update_widescreen_mode_from_settings(this.settings);
+
+                this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
 
                 this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
@@ -283,7 +282,7 @@ export default class BreezyDesktopExtension extends Extension {
         if (value !== this.settings.get_boolean('widescreen-mode'))
             this.settings.set_boolean('widescreen-mode', value);
         else
-            Globals.logger.log_debug('widescreen-mode setting already matched state');
+            Globals.logger.log_debug('settings.widescreen-mode already matched state');
     }
 
     _recenter_display() {
