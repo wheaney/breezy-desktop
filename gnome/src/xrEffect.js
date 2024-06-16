@@ -294,8 +294,6 @@ export const XREffect = GObject.registerClass({
     }
 
     vfunc_paint_target(node, paintContext) {
-        var now = Date.now();
-        var lastPaint = this._last_paint || 0;
         var frametime = this._frametime;
         var calibratingImage = this.calibratingImage;
         var customBannerImage = this.customBannerImage;
@@ -316,11 +314,6 @@ export const XREffect = GObject.registerClass({
                 }
                 this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                 this.setIntermittentUniformVariables();
-
-                this._redraw_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                    if ((now - lastPaint) > frametime) global.stage.queue_redraw();
-                    return GLib.SOURCE_CONTINUE;
-                });
 
                 this._uniforms_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
                     this.setIntermittentUniformVariables();
@@ -360,16 +353,11 @@ export const XREffect = GObject.registerClass({
                 Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
                 Cogl.PipelineFilter.LINEAR
             );
-            
-            super.vfunc_paint_target(node, paintContext);
-        } else {
-            super.vfunc_paint_target(node, paintContext);
         }
-        this._last_paint = now;
+        super.vfunc_paint_target(node, paintContext);
     }
 
     cleanup() {
-        if (this._redraw_timeout_id) GLib.source_remove(this._redraw_timeout_id);
         if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }
 });
