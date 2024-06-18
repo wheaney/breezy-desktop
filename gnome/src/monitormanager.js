@@ -251,6 +251,8 @@ export default class MonitorManager {
                     if (configChanged) {
                         Globals.logger.log(`Switched to optimal mode for monitor ${monitorConnector}`);
                     } else if (this._changeHookFn !== null) {
+                        Globals.logger.log_debug('MonitorManager checkOptimalMode: no config change');
+                        
                         // no config change means this won't be triggered automatically, so trigger it manually
                         this._changeHookFn();
                     }
