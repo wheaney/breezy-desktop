@@ -137,8 +137,7 @@ export default class BreezyDesktopExtension extends Extension {
 
         // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
         if (target_monitor && this._running_poller_id === undefined) {
-            this._target_monitor = target_monitor.monitor;
-            this._refresh_rate = target_monitor.refreshRate;
+            this._target_monitor = target_monitor;
 
             if (this._check_driver_running()) {
                 // don't enable the effect yet if an async optimal mode check is needed,
@@ -177,18 +176,20 @@ export default class BreezyDesktopExtension extends Extension {
             this._is_effect_running = true;
 
             try {
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, this._refresh_rate * 1.05);
+                const targetMonitor = this._target_monitor.monitor;
+                const refreshRate = targetMonitor.refreshRate ?? 60;
+                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate * 1.05);
                 this._cursor_manager.enable();
 
                 this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
                 this._overlay.opacity = 255;
-                this._overlay.set_position(this._target_monitor.x, this._target_monitor.y);
-                this._overlay.set_size(this._target_monitor.width, this._target_monitor.height);
+                this._overlay.set_position(targetMonitor.x, targetMonitor.y);
+                this._overlay.set_size(targetMonitor.width, targetMonitor.height);
 
                 const overlayContent = new Clutter.Actor({clip_to_allocation: true});
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
-                uiClone.x = -this._target_monitor.x;
-                uiClone.y = -this._target_monitor.y;
+                uiClone.x = -targetMonitor.x;
+                uiClone.y = -targetMonitor.y;
                 if (Clutter.Container === undefined) {
                     overlayContent.add_child(uiClone);
                 } else {
@@ -201,8 +202,8 @@ export default class BreezyDesktopExtension extends Extension {
                 Shell.util_set_hidden_from_pick(this._overlay, true);
                 
                 this._xr_effect = new XREffect({
-                    target_monitor: this._target_monitor,
-                    target_framerate: this._refresh_rate ?? 60,
+                    target_monitor: targetMonitor,
+                    target_framerate: refreshRate,
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
