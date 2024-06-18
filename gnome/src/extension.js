@@ -82,8 +82,12 @@ export default class BreezyDesktopExtension extends Extension {
 
             const is_driver_running = this._check_driver_running();
             if (is_driver_running && target_monitor) {
-                Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
-                this._effect_enable();
+                // don't enable the effect yet if an async optimal mode check is needed,
+                // _setup will be triggered after a mode change so we can remove this timeout_add
+                if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
+                    Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
+                    this._effect_enable();
+                }
                 return GLib.SOURCE_REMOVE;
             } else {
                 return GLib.SOURCE_CONTINUE;
@@ -99,7 +103,8 @@ export default class BreezyDesktopExtension extends Extension {
             if (target_monitor !== undefined) {
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
-                    refreshRate: target_monitor.refreshRate,
+                    connector: target_monitor.connector,
+                    refreshRate: target_monitor.refreshRate
                 };
             }
 
@@ -107,7 +112,9 @@ export default class BreezyDesktopExtension extends Extension {
                 // allow testing XR devices with just USB, no video needed
                 return {
                     monitor: this._monitor_manager.getMonitors()[0],
+                    connector: 'dummy',
                     refreshRate: 60,
+                    is_dummy: true
                 };
             }
 
@@ -132,8 +139,12 @@ export default class BreezyDesktopExtension extends Extension {
             this._refresh_rate = target_monitor.refreshRate;
 
             if (this._check_driver_running()) {
-                Globals.logger.log('Ready, enabling XR effect');
-                this._effect_enable();
+                // don't enable the effect yet if an async optimal mode check is needed,
+                // _setup will be triggered again after a mode change
+                if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
+                    Globals.logger.log('Ready, enabling XR effect');
+                    this._effect_enable();
+                }
             } else {
                 this._poll_for_ready();
             }

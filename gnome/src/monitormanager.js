@@ -52,10 +52,10 @@ export function newDisplayConfig(extPath, callback) {
     );
 }
 
-export function getMonitorConfig(displayConfigProxy, callback) {
-    displayConfigProxy.GetResourcesRemote((result) => {
-        if (result.length <= 2) {
-            callback(null, 'Cannot get DisplayConfig: No outputs in GetResources()');
+function getMonitorConfig(displayConfigProxy, callback) {
+    displayConfigProxy.GetResourcesRemote((result, error) => {
+        if (error) {
+            callback(null, `GetResourcesRemote failed: ${error}`);
         } else {
             const monitors = [];
             for (let i = 0; i < result[2].length; i++) {
@@ -84,6 +84,106 @@ export function getMonitorConfig(displayConfigProxy, callback) {
     });
 }
 
+// triggers callback with true result if an an async monitor config change was triggered, false if no config change needed
+function performOptimalModeCheck(displayConfigProxy, connectorName, callback) {
+    Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck for ${connectorName}`);
+    displayConfigProxy.GetCurrentStateRemote((result, error) => {
+        if (error) {
+            callback(null, `GetCurrentState failed: ${error}`);
+        } else {
+            Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck GetCurrentState result: ${JSON.stringify(result)}`);
+            const [serial, monitors, logicalMonitors, properties] = result;
+
+            // iterate over all monitors at least once, collecting the best fit mode for our monitor, and mode information
+            // for each monitor
+            let ourMonitor = undefined;
+            let monitorToModeIdMap = {};
+            let bestFitMode = undefined;
+            for (let monitor of monitors) {
+                const [details, modes, monProperties] = monitor;
+                const [connector, vendor, product, monitorSerial] = details;
+                const isOurMonitor = connector == connectorName;
+                if (isOurMonitor) ourMonitor = monitor;
+
+                for (let mode of modes) {
+                    const [modeId, width, height, refreshRate, preferredScale, supportedScales, modeProperites] = mode;
+                    const isCurrent = !!modeProperites['is-current'];
+                    if (isCurrent) monitorToModeIdMap[connector] = modeId;
+                    
+                    if (isOurMonitor && (!bestFitMode || (
+                            width >= bestFitMode.width && 
+                            height >= bestFitMode.height && 
+                            refreshRate >= bestFitMode.refreshRate))) {
+                        // find the scale that is closest to 1.0
+                        const bestScale = supportedScales.reduce((prev, curr) => {
+                            return Math.abs(curr - 1.0) < Math.abs(prev - 1.0) ? curr : prev;
+                        });
+
+                        bestFitMode = {
+                            modeId,
+                            width,
+                            height,
+                            refreshRate,
+                            bestScale,
+                            isCurrent 
+                        };
+                    }
+                }
+            }
+
+            if (!!ourMonitor) {
+                let anyMonitorsChanged = false;
+                if (!!bestFitMode) {
+                    // map from original logical monitors schema to a(iiduba(ssa{sv})) for ApplyMonitorsConfig call
+                    const updatedLogicalMonitors = logicalMonitors.map((logicalMonitor) => {
+                        const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
+                        const hasOurMonitor = !!monitors.some((monitor) => monitor[0] === connectorName);
+                        anyMonitorsChanged |= hasOurMonitor && bestFitMode.bestScale !== scale;
+                        return [
+                            x,
+                            y,
+                            hasOurMonitor ? bestFitMode.bestScale : scale,
+                            transform,
+                            primary, // TODO - user setting should dictate if we want to set ours primary
+                            monitors.map((monitor) => {
+                                const monitorConnector = monitor[0];
+                                const isOurMonitor = monitorConnector === connectorName;
+                                anyMonitorsChanged |= isOurMonitor && !bestFitMode.isCurrent;
+                                return [
+                                    monitorConnector,
+                                    isOurMonitor ? bestFitMode.modeId : monitorToModeIdMap[monitorConnector],
+                                    {} // properties
+                                ];
+                            })
+                        ];
+                    });
+
+                    // if our monitor is already properly configured, we can skip the ApplyMonitorsConfig call
+                    if (anyMonitorsChanged) {
+                        Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck updatedLogicalMonitors: ${JSON.stringify(updatedLogicalMonitors)}`);
+                        displayConfigProxy.ApplyMonitorsConfigRemote(
+                            serial,
+                            1, // "temporary" config -- "permanent" might be pointless since we always do this check
+                            updatedLogicalMonitors,
+                            {}, // properties
+                            (_result, error) => {
+                                if (error) {
+                                    callback(null, `ApplyMonitorsConfig failed: ${error}`);
+                                } else {
+                                    callback(true, null);
+                                }
+                            }
+                        );
+                    }
+                }
+                if (!anyMonitorsChanged) callback(false, null);
+            } else {
+                callback(null, `Monitor ${connectorName} not found in GetCurrentState result`);
+            }
+        }
+    });
+}
+
 // Monitor change handling
 export default class MonitorManager {
     constructor(extPath) {
@@ -94,22 +194,25 @@ export default class MonitorManager {
         this._backendManager = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
+        this._needsConfigCheck = true;
     }
 
     enable() {
+        Globals.logger.log_debug('MonitorManager enable');
         this._backendManager = global.backend.get_monitor_manager();
-        newDisplayConfig(this._extPath, (proxy, error) => {
+        newDisplayConfig(this._extPath, ((proxy, error) => {
             if (error) {
                 return;
             }
             this._displayConfigProxy = proxy;
             this._on_monitors_change();
-        });
+        }).bind(this));
 
         this._monitorsChangedConnection = Main.layoutManager.connect('monitors-changed', this._on_monitors_change.bind(this));
     }
 
     disable() {
+        Globals.logger.log_debug('MonitorManager disable');
         Main.layoutManager.disconnect(this._monitorsChangedConnection);
 
         this._monitorsChangedConnection = null;
@@ -123,10 +226,6 @@ export default class MonitorManager {
         this._changeHookFn = fn;
     }
 
-    setPostCallback(callback) {
-        this._postCallback = callback;
-    }
-
     getMonitors() {
         return Main.layoutManager.monitors;
     }
@@ -135,11 +234,41 @@ export default class MonitorManager {
         return this._monitorProperties;
     }
 
+    // returns true if a check is needed, caller should wait for the next change hook call
+    checkOptimalMode(monitorConnector) {
+        Globals.logger.log_debug(`MonitorManager checkOptimalMode: ${monitorConnector}`);
+        if (this._displayConfigProxy == null) {
+            Globals.logger.log('MonitorManager checkOptimalMode: _displayConfigProxy not set!');
+            return false;
+        }
+
+        if (this._needsConfigCheck) {
+            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, ((configChanged, error) => {
+                this._needsConfigCheck = false;
+                if (error) {
+                    Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
+                } else {
+                    if (configChanged) {
+                        Globals.logger.log(`Switched to optimal mode for monitor ${monitorConnector}`);
+                    } else if (this._changeHookFn !== null) {
+                        // no config change means this won't be triggered automatically, so trigger it manually
+                        this._changeHookFn();
+                    }
+                }
+            }).bind(this));
+        } else {
+            Globals.logger.log_debug('MonitorManager checkOptimalMode: skipping config check');
+        }
+        return this._needsConfigCheck;
+    }
+
     _on_monitors_change() {
+        Globals.logger.log_debug('MonitorManager _on_monitors_change');
         if (this._displayConfigProxy == null) {
             return;
         }
-        getMonitorConfig(this._displayConfigProxy, (result, error) => {
+        this._needsConfigCheck = true;
+        getMonitorConfig(this._displayConfigProxy, ((result, error) => {
             if (error) {
                 return;
             }
@@ -164,6 +293,6 @@ export default class MonitorManager {
             if (this._changeHookFn !== null) {
                 this._changeHookFn();
             }
-        });
+        }).bind(this));
     }
 }
