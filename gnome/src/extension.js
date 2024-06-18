@@ -9,6 +9,7 @@ import { CursorManager } from './cursormanager.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
 import MonitorManager from './monitormanager.js';
+import { isValidKeepAlive } from './time.js';
 import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -42,6 +43,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._follow_threshold_connection = null;
         this._widescreen_mode_settings_connection = null;
         this._widescreen_mode_effect_state_connection = null;
+        this._supported_device_detected_connected = null;
         this._start_binding = null;
         this._end_binding = null;
         this._curved_display_binding = null;
@@ -64,7 +66,7 @@ export default class BreezyDesktopExtension extends Extension {
             this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
 
             this._monitor_manager = new MonitorManager(this.path);
-            this._monitor_manager.setChangeHook(this._setup.bind(this));
+            this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
             this._monitor_manager.enable();
 
             this._setup();
@@ -128,7 +130,7 @@ export default class BreezyDesktopExtension extends Extension {
     _setup() {
         Globals.logger.log_debug('BreezyDesktopExtension _setup');
         if (this._is_effect_running) {
-            Globals.logger.log('Monitors changed, disabling XR effect');
+            Globals.logger.log('Reset triggered, disabling XR effect');
             this._effect_disable();
         }
         const target_monitor = this._find_supported_monitor();
@@ -154,11 +156,18 @@ export default class BreezyDesktopExtension extends Extension {
     _check_driver_running() {
         try {
             if (!Globals.ipc_file) Globals.ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
-            return Globals.ipc_file.query_exists(null);
+            if (Globals.ipc_file.query_exists(null)) {
+                const file_info = Globals.ipc_file.query_info(Gio.FILE_ATTRIBUTE_TIME_MODIFIED, Gio.FileQueryInfoFlags.NONE, null);
+                const file_modified_time = file_info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_TIME_MODIFIED);
+
+                // when the driver is running, the IMU file is updated at least 60x per second, do a strict check
+                return isValidKeepAlive(file_modified_time, true);
+            }
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
-            return false;
         }
+
+        return false;
     }
 
     _effect_enable() {
@@ -203,6 +212,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._update_widescreen_mode_from_settings(this.settings);
 
                 this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
+                this._supported_device_detected_connected = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
 
                 this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
@@ -296,6 +306,22 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.logger.log_debug('settings.widescreen-mode already matched state');
     }
 
+    _handle_monitor_change() {
+        Globals.logger.log('Monitor change detected');
+        this._setup();
+    }
+
+    _handle_supported_device_change(effect, _pspec) {
+        const value = effect.supported_device_detected;
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_supported_device_change ${value}`);
+
+        // this will disable the effect and begin polling for a ready state again
+        if (!value && this._is_effect_running) {
+            Globals.logger.log('Supported device disconnected');
+            this._setup();
+        }
+    }
+
     _recenter_display() {
         Globals.logger.log_debug('BreezyDesktopExtension _recenter_display');
         this._write_control('recenter_screen', 'true');
@@ -361,6 +387,10 @@ export default class BreezyDesktopExtension extends Extension {
                 if (this._widescreen_mode_effect_state_connection) {
                     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
                     this._widescreen_mode_effect_state_connection = null;
+                }
+                if (this._supported_device_detected_connected) {
+                    this._xr_effect.disconnect(this._supported_device_detected_connected);
+                    this._supported_device_detected_connected = null;
                 }
                 this._xr_effect.cleanup();
                 this._xr_effect = null;

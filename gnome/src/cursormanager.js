@@ -177,6 +177,11 @@ export class CursorManager {
     // completely reverts _startCloningMouse
     _stopCloningMouse() {
         Globals.logger.log_debug('CursorManager _stopCloningMouse');
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
+        }
+
         if (this._cursorChangedConnection) {
             this._cursorTracker.disconnect(this._cursorChangedConnection);
             this._cursorChangedConnection = null;
@@ -196,11 +201,6 @@ export class CursorManager {
         if (this._moveToTopTimeout) {
             GLib.source_remove(this._moveToTopTimeout);
             this._moveToTopTimeout = null;
-        }
-
-        if (this._redraw_timeline) {
-            this._redraw_timeline.stop();
-            this._redraw_timeline = null;
         }
 
         if (this._cursorUnfocusInhibited) {

@@ -24,7 +24,7 @@ import {
 } from "./ipc.js";
 import { degreeToRadian } from "./math.js";
 import { getShaderSource } from "./shader.js";
-import { toSec } from "./time.js";
+import { isValidKeepAlive, toSec } from "./time.js";
 
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
@@ -111,60 +111,66 @@ function lookAheadMS(dataView) {
 
 // most uniforms don't change frequently, this function should be called periodically
 function setIntermittentUniformVariables() {
-    const dataView = this._dataView;
+    try {
+        const dataView = this._dataView;
 
-    if (dataView.byteLength === DATA_VIEW_LENGTH) {
-        const version = dataViewUint8(dataView, VERSION);
-        const imuDateMS = dataViewBigUint(dataView, EPOCH_MS);
-        const currentDateMS = Date.now();
-        const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
-        const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-        const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
-        const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
+        if (dataView.byteLength === DATA_VIEW_LENGTH) {
+            const version = dataViewUint8(dataView, VERSION);
+            const imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
+            const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
+            const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+            const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+            const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+            const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
 
-        if (enabled) {
-            const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
+            if (enabled) {
+                const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
 
-            // compute these values once, they only change when the XR device changes
-            const displayAspectRatio = displayRes[0] / displayRes[1];
-            const diagToVertRatio = Math.sqrt(Math.pow(displayAspectRatio, 2) + 1);
-            const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
-            const halfFovYRads = halfFovZRads * displayAspectRatio;
+                // compute these values once, they only change when the XR device changes
+                const displayAspectRatio = displayRes[0] / displayRes[1];
+                const diagToVertRatio = Math.sqrt(Math.pow(displayAspectRatio, 2) + 1);
+                const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
+                const halfFovYRads = halfFovZRads * displayAspectRatio;
 
-            // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
-            // underneath, so we trim three pixels around the entire edge of the texture
-            const trimWidthPercent = 3.0 / this.target_monitor.width;
-            const trimHeightPercent = 3.0 / this.target_monitor.height;
-            
-            // all these values are transferred directly, unmodified from the driver
-            transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
-            transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
+                // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
+                // underneath, so we trim three pixels around the entire edge of the texture
+                const trimWidthPercent = 3.0 / this.target_monitor.width;
+                const trimHeightPercent = 3.0 / this.target_monitor.height;
+                
+                // all these values are transferred directly, unmodified from the driver
+                transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
+                transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
 
-            // computed values with no dataViewInfo, so we set these manually
-            setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
-            setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
-            setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
-            setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
-            setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
+                // computed values with no dataViewInfo, so we set these manually
+                setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
+                setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
+                setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
+                setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
+                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
+            }
+
+            // update the supported device detected property if the state changes, trigger "notify::" events
+            if (this.supported_device_detected !== validKeepalive) this.supported_device_detected = validKeepalive;
+
+            // update the widescreen property if the state changes while still enabled, trigger "notify::" events
+            const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
+            if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
+
+            // these variables are always in play, even if enabled is false
+            setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
+            setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
+            setSingleFloat(this, 'sbs_content', 0.0); // TODO - drive from settings
+            setSingleFloat(this, 'sbs_mode_stretched', 1.0); // content always fills the whole display
+            setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
+            setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
+
+            this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
+            this.set_uniform_float(shaderUniformLocations['source_resolution'], 2, [this.target_monitor.width, this.target_monitor.height]);
+        } else if (dataView.byteLength !== 0) {
+            throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
-
-        // update the widescreen property if the state changes, so notify events are triggered
-        const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
-        if (this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
-
-        // these variables are always in play, even if enabled is false
-        setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
-        setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
-        setSingleFloat(this, 'sbs_content', 0.0); // TODO - drive from settings
-        setSingleFloat(this, 'sbs_mode_stretched', 1.0); // content always fills the whole display
-        setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
-        setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
-
-        this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
-        this.set_uniform_float(shaderUniformLocations['source_resolution'], 2, [this.target_monitor.width, this.target_monitor.height]);
-    } else if (dataView.byteLength !== 0) {
-        Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+    } catch (e) {
+        Globals.logger.log(`ERROR: xrEffect.js setIntermittentUniformVariables ${e.message}\n${e.stack}`);
     }
 }
 
@@ -184,6 +190,13 @@ function checkParityByte(dataView) {
 
 export const XREffect = GObject.registerClass({
     Properties: {
+        'supported-device-detected': GObject.ParamSpec.boolean(
+            'supported-device-detected',
+            'Supported device detected',
+            'Whether a supported device is connected',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'target-monitor': GObject.ParamSpec.jsobject(
             'target-monitor', 
             'Target Monitor', 
