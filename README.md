@@ -8,7 +8,7 @@
 
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
-There are two installations at the moment: 
+There are two installations at the moment. **Note: Only install one of these at a time, as they invalidate each other's installations. This is only temporary.**
 * [Breezy GNOME](#breezy-gnome) for desktop support, primarily in GNOME Linux desktop environments
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
