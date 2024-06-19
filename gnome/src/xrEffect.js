@@ -218,6 +218,15 @@ export const XREffect = GObject.registerClass({
             2.5, 
             1.05
         ),
+        'display-size': GObject.ParamSpec.double(
+            'display-size',
+            'Display size',
+            'Size of the display',
+            GObject.ParamFlags.READWRITE,
+            0.2,
+            2.5,
+            1.0
+        ),
         'toggle-display-distance-start': GObject.ParamSpec.double(
             'toggle-display-distance-start',
             'Display distance start',
@@ -249,15 +258,6 @@ export const XREffect = GObject.registerClass({
             'The state of widescreen mode from the perspective of the driver',
             GObject.ParamFlags.READWRITE,
             false
-        ),
-        'widescreen-display-size': GObject.ParamSpec.double(
-            'widescreen-display-size',
-            'Widescreen display size',
-            'Size of the display when in widescreen/SBS mode',
-            GObject.ParamFlags.READWRITE,
-            0.2,
-            2.5,
-            1.0
         )
     }
 }, class XREffect extends Shell.GLSLEffect {
@@ -344,7 +344,7 @@ export const XREffect = GObject.registerClass({
                         setSingleFloat(this, 'display_north_offset', this.display_distance);
                         setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
                         setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
-                        setSingleFloat(this, 'display_size', this.widescreen_mode_state ? this.widescreen_display_size : 1.0);
+                        setSingleFloat(this, 'display_size', this.display_size);
                         success = true;
                     }
                 } else if (this._dataView.byteLength !== 0) {

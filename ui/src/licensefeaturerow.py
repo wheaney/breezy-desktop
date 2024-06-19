@@ -3,10 +3,10 @@ from gi.repository import Adw
 from .time import time_remaining_text
 
 FEATURE_NAMES = {
-    'sbs': 'Side-by-side mode (for gaming)',
-    'smooth_follow': 'Smooth Follow',
-    'productivity_basic': 'Breezy Desktop',
-    'productivity_pro': 'Breezy Desktop w/ multiple monitors',
+    'sbs': 'Side-by-side mode (gaming)',
+    'smooth_follow': 'Smooth Follow (gaming)',
+    'productivity_basic': 'Breezy Desktop (productivity)',
+    'productivity_pro': 'Breezy Desktop Pro (productivity)',
 }
 
 class LicenseFeatureRow(Adw.ActionRow):

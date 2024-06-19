@@ -12,18 +12,14 @@ class ConnectedDevice(Gtk.Box):
 
     device_label = Gtk.Template.Child()
     effect_enable_switch = Gtk.Template.Child()
-    display_distance_row = Gtk.Template.Child()
     display_distance_scale = Gtk.Template.Child()
     display_distance_adjustment = Gtk.Template.Child()
+    display_size_scale = Gtk.Template.Child()
+    display_size_adjustment = Gtk.Template.Child()
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
     widescreen_mode_switch = Gtk.Template.Child()
-    widescreen_display_distance_row = Gtk.Template.Child()
-    widescreen_display_distance_scale = Gtk.Template.Child()
-    widescreen_display_distance_adjustment = Gtk.Template.Child()
-    widescreen_display_size_scale = Gtk.Template.Child()
-    widescreen_display_size_adjustment = Gtk.Template.Child()
     curved_display_switch = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
@@ -39,11 +35,10 @@ class ConnectedDevice(Gtk.Box):
         self.init_template()
         self.all_enabled_state_inputs = [
             self.display_distance_scale,
+            self.display_size_scale,
             self.follow_mode_switch,
             self.follow_threshold_scale,
             self.widescreen_mode_switch,
-            self.widescreen_display_distance_scale,
-            self.widescreen_display_size_scale,
             self.curved_display_switch,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
@@ -57,10 +52,9 @@ class ConnectedDevice(Gtk.Box):
         self.extensions_manager = ExtensionsManager.get_instance()
 
         self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('display-distance', self.widescreen_display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('widescreen-display-size', self.widescreen_display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
@@ -81,8 +75,6 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
 
-        self.widescreen_mode_switch.connect('notify::active', self._refresh_widescreen_mode)
-
         self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
         self.effect_enable_switch.connect('notify::active', self._refresh_inputs_for_enabled_state)
 
@@ -101,14 +93,6 @@ class ConnectedDevice(Gtk.Box):
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
-
-    def _refresh_widescreen_mode(self, switch, param):
-        widescreen_mode_enabled = switch.get_active()
-        self.widescreen_display_distance_row.set_visible(widescreen_mode_enabled)
-        self.display_distance_row.set_visible(not widescreen_mode_enabled)
-        for widget in [self.widescreen_display_distance_scale, self.widescreen_display_size_scale]:
-            widget.set_sensitive(widescreen_mode_enabled)
-
     
     def _refresh_inputs_for_enabled_state(self, switch, param):
         requesting_enabled = switch.get_active()
@@ -126,7 +110,6 @@ class ConnectedDevice(Gtk.Box):
         
         if requesting_enabled: 
             self._refresh_follow_mode(self.follow_mode_switch, None)
-            self._refresh_widescreen_mode(self.widescreen_mode_switch, None)
 
     def _refresh_follow_mode(self, switch, param):
         self.follow_threshold_scale.set_sensitive(switch.get_active())
@@ -148,6 +131,7 @@ class ConnectedDevice(Gtk.Box):
     def _on_widget_destroy(self, widget):
         self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
         self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
+        self.settings.unbind('display-size', self.display_size_adjustment, 'value')
         self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
         self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
         self.extensions_manager.unbind_property('breezy-enabled', self.effect_enable_switch, 'active')

@@ -57,11 +57,11 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="tiers">
+          <object class="GtkBox" id="features">
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="features">
+          <object class="GtkBox" id="tiers">
           </object>
         </child>
       </object>
