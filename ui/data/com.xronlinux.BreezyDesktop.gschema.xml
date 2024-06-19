@@ -91,6 +91,33 @@
         Enable curved display mode
       </description>
     </key>
+    <key name="look-ahead-override" type="i">
+      <default>
+        -1
+      </default>
+      <summary>Look-ahead override</summary>
+      <description>
+        Manually override the look-ahead calculation
+      </description>
+    </key>
+    <key name="use-optimal-monitor-config" type="b">
+      <default>
+        true
+      </default>
+      <summary>Use optimal monitor configuration</summary>
+      <description>
+        Automatically set the optimal monitor configuration upon connection
+      </description>
+    </key>
+    <key name="headset-as-primary" type="b">
+      <default>
+        true
+      </default>
+      <summary>Headset as primary</summary>
+      <description>
+        Automatically set the headset as the primary display upon connection
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false

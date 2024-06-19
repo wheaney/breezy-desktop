@@ -209,14 +209,13 @@
         <child>
           <object class="AdwViewStackPage">
             <property name="name">shortcuts</property>
-            <property name="title">Shortcuts</property>
+            <property name="title">Keyboard Shortcuts</property>
             <property name="icon-name">preferences-desktop-keyboard-shortcuts-symbolic</property>
             <property name="child">
               <object class="GtkBox">
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title" translatable="true">Shortcuts</property>
-                    <property name="description" translatable="true">Modify keyboard shortcuts and how they work.</property>
+                    <property name="title" translatable="true">Keyboard Shortcuts</property>
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="true">Re-center display shortcut</property>
@@ -300,6 +299,75 @@
                                 <property name="label" translatable="true">Change</property>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwViewStackPage">
+            <property name="name">advanced</property>
+            <property name="title">Advanced Settings</property>
+            <property name="icon-name">applications-system-symbolic</property>
+            <property name="child">
+              <object class="GtkBox">
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title" translatable="true">Advanced Settings</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Find optimal display config</property>
+                        <property name="subtitle" translatable="true">Automatically modify the glasses display configuration for maximum resolution and best scaling when plugged in.</property>
+                        <child>
+                          <object class="GtkSwitch" id="use_optimal_monitor_config_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Always primary display</property>
+                        <property name="subtitle" translatable="true">Automatically set the glasses as the primary display when plugged in.</property>
+                        <child>
+                          <object class="GtkSwitch" id="headset_as_primary_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Movement look-ahead</property>
+                        <property name="subtitle" translatable="true">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
+                        <child>
+                          <object class="GtkScale" id="movement_look_ahead_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">false</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="movement_look_ahead_adjustment">
+                                <property name="lower">-1</property>
+                                <property name="upper">40</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">-1</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-1" position="bottom">Default</mark>
+                              <mark value="10" position="bottom">10ms</mark>
+                              <mark value="20" position="bottom">20ms</mark>
+                              <mark value="30" position="bottom">30ms</mark>
+                              <mark value="40" position="bottom">40ms</mark>
+                            </marks>
                           </object>
                         </child>
                       </object>

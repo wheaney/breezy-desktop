@@ -29,6 +29,11 @@ class ConnectedDevice(Gtk.Box):
     toggle_display_distance_shortcut_label = Gtk.Template.Child()
     reassign_toggle_follow_shortcut_button = Gtk.Template.Child()
     toggle_follow_shortcut_label = Gtk.Template.Child()
+    headset_as_primary_switch = Gtk.Template.Child()
+    use_optimal_monitor_config_switch = Gtk.Template.Child()
+    movement_look_ahead_scale = Gtk.Template.Child()
+    movement_look_ahead_adjustment = Gtk.Template.Child()
+
 
     def __init__(self):
         super(Gtk.Box, self).__init__()
@@ -44,7 +49,10 @@ class ConnectedDevice(Gtk.Box):
             self.set_toggle_display_distance_end_button,
             self.reassign_recenter_display_shortcut_button,
             self.reassign_toggle_display_distance_shortcut_button,
-            self.reassign_toggle_follow_shortcut_button
+            self.reassign_toggle_follow_shortcut_button,
+            self.headset_as_primary_switch,
+            self.use_optimal_monitor_config_switch,
+            self.movement_look_ahead_scale
         ]
 
         self.settings = SettingsManager.get_instance().settings
@@ -56,6 +64,9 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
@@ -78,8 +89,11 @@ class ConnectedDevice(Gtk.Box):
         self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
         self.effect_enable_switch.connect('notify::active', self._refresh_inputs_for_enabled_state)
 
+        self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
+
         self._handle_enabled_features(self.state_manager, None)
         self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
+        self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
         self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
         self.connect("destroy", self._on_widget_destroy)
@@ -119,6 +133,11 @@ class ConnectedDevice(Gtk.Box):
         self.ipc.write_control_flags({
             'enable_breezy_desktop_smooth_follow': switch.get_active()
         })
+
+    def _refresh_use_optimal_monitor_config(self, switch, param):
+        self.headset_as_primary_switch.set_sensitive(switch.get_active())
+        if not switch.get_active():
+            self.headset_as_primary_switch.set_active(False)
 
     def set_device_name(self, name):
         self.device_label.set_markup(f"<b>{name}</b>")

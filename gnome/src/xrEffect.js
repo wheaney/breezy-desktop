@@ -258,6 +258,15 @@ export const XREffect = GObject.registerClass({
             'The state of widescreen mode from the perspective of the driver',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'look-ahead-override': GObject.ParamSpec.int(
+            'look-ahead-override',
+            'Look ahead override',
+            'Override the look ahead value',
+            GObject.ParamFlags.READWRITE,
+            -1,
+            45,
+            -1
         )
     }
 }, class XREffect extends Shell.GLSLEffect {
@@ -342,7 +351,8 @@ export const XREffect = GObject.registerClass({
                 if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
                     if (checkParityByte(this._dataView)) {
                         setSingleFloat(this, 'display_north_offset', this.display_distance);
-                        setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
+                        setSingleFloat(this, 'look_ahead_ms', 
+                            this.look_ahead_override === -1 ? lookAheadMS(this._dataView) : this.look_ahead_override);
                         setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
                         setSingleFloat(this, 'display_size', this.display_size);
                         success = true;
