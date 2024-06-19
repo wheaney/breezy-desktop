@@ -17,6 +17,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -85,7 +86,7 @@ function getMonitorConfig(displayConfigProxy, callback) {
 }
 
 // triggers callback with true result if an an async monitor config change was triggered, false if no config change needed
-function performOptimalModeCheck(displayConfigProxy, connectorName, callback) {
+function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, callback) {
     Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck for ${connectorName}`);
     displayConfigProxy.GetCurrentStateRemote((result, error) => {
         if (error) {
@@ -139,12 +140,16 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, callback) {
                         const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
                         const hasOurMonitor = !!monitors.some((monitor) => monitor[0] === connectorName);
                         anyMonitorsChanged |= hasOurMonitor && bestFitMode.bestScale !== scale;
+
+                        // there can only be one primary monitor, so we need to set all other monitors to not primary and glasses to primary, 
+                        // if headsetAsPrimary is true
+                        anyMonitorsChanged |= headsetAsPrimary && ((hasOurMonitor && !primary) || (!hasOurMonitor && primary));
                         return [
                             x,
                             y,
                             hasOurMonitor ? bestFitMode.bestScale : scale,
                             transform,
-                            primary, // TODO - user setting should dictate if we want to set ours primary
+                            headsetAsPrimary ? hasOurMonitor : primary,
                             monitors.map((monitor) => {
                                 const monitorConnector = monitor[0];
                                 const isOurMonitor = monitorConnector === connectorName;
@@ -185,22 +190,46 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, callback) {
 }
 
 // Monitor change handling
-export default class MonitorManager {
-    constructor(extPath) {
-        this._extPath = extPath;
+export const MonitorManager = GObject.registerClass({
+    Properties: {
+        'use-optimal-monitor-config': GObject.ParamSpec.boolean(
+            'use-optimal-monitor-config',
+            'Use optimal monitor configuration',
+            'Automatically set the optimal monitor configuration upon connection',
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
+        'headset-as-primary': GObject.ParamSpec.boolean(
+            'headset-as-primary',
+            'Use headset as primary monitor',
+            'Automatically set the headset as the primary display upon connection',
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
+        'extension-path': GObject.ParamSpec.string(
+            'extension-path',
+            'Extension path',
+            'Path to the extension directory',
+            GObject.ParamFlags.READWRITE,
+            ''
+        )
+    }
+}, class MonitorManager extends GObject.Object {
+    constructor(params = {}) {
+        super(params);
 
         this._monitorsChangedConnection = null;
         this._displayConfigProxy = null;
         this._backendManager = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
-        this._needsConfigCheck = true;
+        this._needsConfigCheck = this.use_optimal_monitor_config;
     }
 
     enable() {
         Globals.logger.log_debug('MonitorManager enable');
         this._backendManager = global.backend.get_monitor_manager();
-        newDisplayConfig(this._extPath, ((proxy, error) => {
+        newDisplayConfig(this.extension_path, ((proxy, error) => {
             if (error) {
                 return;
             }
@@ -243,7 +272,7 @@ export default class MonitorManager {
         }
 
         if (this._needsConfigCheck) {
-            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, ((configChanged, error) => {
+            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, ((configChanged, error) => {
                 this._needsConfigCheck = false;
                 if (error) {
                     Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
@@ -269,7 +298,7 @@ export default class MonitorManager {
         if (this._displayConfigProxy == null) {
             return;
         }
-        this._needsConfigCheck = true;
+        this._needsConfigCheck = this.use_optimal_monitor_config;
         getMonitorConfig(this._displayConfigProxy, ((result, error) => {
             if (error) {
                 return;
@@ -297,4 +326,4 @@ export default class MonitorManager {
             }
         }).bind(this));
     }
-}
+});

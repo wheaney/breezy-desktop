@@ -8,7 +8,7 @@ import St from 'gi://St';
 import { CursorManager } from './cursormanager.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
-import MonitorManager from './monitormanager.js';
+import { MonitorManager } from './monitormanager.js';
 import { isValidKeepAlive } from './time.js';
 import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 
@@ -48,6 +48,9 @@ export default class BreezyDesktopExtension extends Extension {
         this._end_binding = null;
         this._curved_display_binding = null;
         this._display_size_binding = null;
+        this._look_ahead_override_binding = null;
+        this._optimal_monitor_config_binding = null;
+        this._headset_as_primary_binding = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -65,9 +68,18 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.extension_dir = this.path;
             this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
 
-            this._monitor_manager = new MonitorManager(this.path);
+            this._monitor_manager = new MonitorManager({
+                use_optimal_monitor_config: this.settings.get_boolean('use-optimal-monitor-config'),
+                headset_as_primary: this.settings.get_boolean('headset-as-primary'),
+                extension_path: this.path
+            });
             this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
             this._monitor_manager.enable();
+
+            this._optimal_monitor_config_binding = this.settings.bind('use-optimal-monitor-config', 
+                this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
+            this._headset_as_primary_binding = this.settings.bind('headset-as-primary',
+                this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
 
             this._setup();
         } catch (e) {
@@ -207,6 +219,7 @@ export default class BreezyDesktopExtension extends Extension {
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
+                    look_ahead_override: this.settings.get_double('look-ahead-override'),
                 });
 
                 this._update_follow_threshold(this.settings);
@@ -223,6 +236,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
                 this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
                 this._display_size_binding = this.settings.bind('display-size', this._xr_effect, 'display-size', Gio.SettingsBindFlags.DEFAULT);
+                this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -384,6 +398,10 @@ export default class BreezyDesktopExtension extends Extension {
                 this.settings.unbind(this._display_size_binding);
                 this._display_size_binding = null;
             }
+            if (this._look_ahead_override_binding) {
+                this.settings.unbind(this._look_ahead_override_binding);
+                this._look_ahead_override_binding = null;
+            }
             if (this._xr_effect) {
                 if (this._widescreen_mode_effect_state_connection) {
                     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
@@ -412,6 +430,15 @@ export default class BreezyDesktopExtension extends Extension {
             this._effect_disable();
             this._target_monitor = null;
             if (this._monitor_manager) {
+                if (this._optimal_monitor_config_binding) {
+                    this.settings.unbind(this._optimal_monitor_config_binding);
+                    this._optimal_monitor_config_binding = null
+                }
+                if (this._headset_as_primary_binding) {
+                    this.settings.unbind(this._headset_as_primary_binding);
+                    this._headset_as_primary_binding = null;
+                }
+
                 this._monitor_manager.disable();
                 this._monitor_manager = null;
             }
