@@ -222,7 +222,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
                 this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
                 this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
-                this._display_size_binding = this.settings.bind('widescreen-display-size', this._xr_effect, 'widescreen-display-size', Gio.SettingsBindFlags.DEFAULT);
+                this._display_size_binding = this.settings.bind('display-size', this._xr_effect, 'display-size', Gio.SettingsBindFlags.DEFAULT);
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);

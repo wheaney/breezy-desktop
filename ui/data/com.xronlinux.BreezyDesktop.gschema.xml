@@ -73,13 +73,13 @@
         Enable widescreen/SBS mode
       </description>
     </key>
-    <key name="widescreen-display-size" type="d">
+    <key name="display-size" type="d">
       <default>
         1.0
       </default>
-      <summary>Widescreen display size</summary>
+      <summary>Display size</summary>
       <description>
-        The size of the display when in widescreen/SBS mode
+        The size of the display
       </description>
     </key>
     <key name="curved-display" type="b">

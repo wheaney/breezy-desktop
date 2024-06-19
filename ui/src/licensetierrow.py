@@ -53,7 +53,7 @@ class LicenseTierRow(Adw.ExpanderRow):
                 elif active_period is not None:
                     amount_text += " to upgrade"
             elif active_period is not None and PERIOD_RANKS[period] >= PERIOD_RANKS[active_period]:
-                amount_text = "Ready to auto-renew"
+                amount_text = "Paid through next renewal period"
 
             if amount_text is not None:
                 row_widget = Adw.ActionRow(title=period.capitalize())
