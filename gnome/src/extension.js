@@ -115,6 +115,7 @@ export default class BreezyDesktopExtension extends Extension {
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
                 monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
             if (target_monitor !== undefined) {
+                Globals.logger.log_debug(`BreezyDesktopExtension _find_supported_monitor - Identified supported monitor: ${target_monitor.connector}`);
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
@@ -123,6 +124,7 @@ export default class BreezyDesktopExtension extends Extension {
             }
 
             if (this.settings.get_boolean('developer-mode')) {
+                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
                 // allow testing XR devices with just USB, no video needed
                 return {
                     monitor: this._monitor_manager.getMonitors()[0],
@@ -132,6 +134,7 @@ export default class BreezyDesktopExtension extends Extension {
                 };
             }
 
+            Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - No supported monitor found');
             return null;
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
@@ -157,8 +160,11 @@ export default class BreezyDesktopExtension extends Extension {
                 if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
+                } else {
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but optimal mode check needed');
                 }
             } else {
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver no running, starting poller');
                 this._poll_for_ready();
             }
         }
