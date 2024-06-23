@@ -92,7 +92,10 @@ export default class BreezyDesktopExtension extends Extension {
         var target_monitor = this._target_monitor;
         var is_effect_running = this._is_effect_running;
         this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
-            if (is_effect_running) return GLib.SOURCE_REMOVE;
+            if (is_effect_running) {
+                this._running_poller_id = undefined;
+                return GLib.SOURCE_REMOVE;
+            }
 
             const is_driver_running = this._check_driver_running();
             if (is_driver_running && target_monitor) {
@@ -102,6 +105,7 @@ export default class BreezyDesktopExtension extends Extension {
                     Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
                     this._effect_enable();
                 }
+                this._running_poller_id = undefined;
                 return GLib.SOURCE_REMOVE;
             } else {
                 return GLib.SOURCE_CONTINUE;
@@ -115,6 +119,7 @@ export default class BreezyDesktopExtension extends Extension {
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
                 monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
             if (target_monitor !== undefined) {
+                Globals.logger.log_debug(`BreezyDesktopExtension _find_supported_monitor - Identified supported monitor: ${target_monitor.connector}`);
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
@@ -123,6 +128,7 @@ export default class BreezyDesktopExtension extends Extension {
             }
 
             if (this.settings.get_boolean('developer-mode')) {
+                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
                 // allow testing XR devices with just USB, no video needed
                 return {
                     monitor: this._monitor_manager.getMonitors()[0],
@@ -132,6 +138,7 @@ export default class BreezyDesktopExtension extends Extension {
                 };
             }
 
+            Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - No supported monitor found');
             return null;
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
@@ -157,9 +164,18 @@ export default class BreezyDesktopExtension extends Extension {
                 if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
+                } else {
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but optimal mode check needed');
                 }
             } else {
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver no running, starting poller');
                 this._poll_for_ready();
+            }
+        } else {
+            if (!target_monitor) {
+                Globals.logger.log_debug(`BreezyDesktopExtension _setup - Doing nothing, no supported monitor found`);
+            } else {
+                Globals.logger.log_debug(`BreezyDesktopExtension _setup - Doing nothing, target monitor found, waiting for poller to pick it up`);
             }
         }
     }
@@ -352,7 +368,10 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
 
-            if (this._running_poller_id) GLib.source_remove(this._running_poller_id);
+            if (this._running_poller_id) {
+                GLib.source_remove(this._running_poller_id);
+                this._running_poller_id = undefined;
+            }
 
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');

@@ -279,11 +279,13 @@ export const MonitorManager = GObject.registerClass({
                 } else {
                     if (configChanged) {
                         Globals.logger.log(`Switched to optimal mode for monitor ${monitorConnector}`);
-                    } else if (this._changeHookFn !== null) {
+                    } else if (!!this._changeHookFn) {
                         Globals.logger.log_debug('MonitorManager checkOptimalMode: no config change');
                         
                         // no config change means this won't be triggered automatically, so trigger it manually
                         this._changeHookFn();
+                    } else {
+                        Globals.logger.log('MonitorManager checkOptimalMode: can\'t trigger change hook, no hook set!');
                     }
                 }
             }).bind(this));
@@ -321,8 +323,10 @@ export const MonitorManager = GObject.registerClass({
                 }
             }
             this._monitorProperties = monitorProperties;
-            if (this._changeHookFn !== null) {
+            if (!!this._changeHookFn) {
                 this._changeHookFn();
+            } else {
+                Globals.logger.log('MonitorManager _on_monitors_change: can\'t trigger change hook, no hook set!');
             }
         }).bind(this));
     }
