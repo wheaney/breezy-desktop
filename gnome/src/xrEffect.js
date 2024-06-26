@@ -281,7 +281,7 @@ export const XREffect = GObject.registerClass({
         super(params);
 
         // target a slightly lower framerate than the monitor's refresh rate to prevent repainting too frequently
-        const frameTimeFramerate = this.target_framerate * 0.9;
+        const frameTimeFramerate = this.target_framerate * 1.25;
         this._frametime = Math.floor(1000 / frameTimeFramerate);
 
         this._is_display_distance_at_end = false;
