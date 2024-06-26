@@ -267,6 +267,13 @@ export const XREffect = GObject.registerClass({
             -1,
             45,
             -1
+        ),
+        'disable-anti-aliasing': GObject.ParamSpec.boolean(
+            'disable-anti-aliasing',
+            'Disable anti-aliasing',
+            'Disable anti-aliasing for the effect',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class XREffect extends Shell.GLSLEffect {
@@ -377,12 +384,15 @@ export const XREffect = GObject.registerClass({
                 }
             }
 
-            // improves sampling quality for smooth text and edges
-            this.get_pipeline().set_layer_filters (
-                0,
-                Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
-                Cogl.PipelineFilter.LINEAR
-            );
+            if (!this.disable_anti_aliasing) {
+                Globals.logger.log('Setting layer filters');
+                // improves sampling quality for smooth text and edges
+                this.get_pipeline().set_layer_filters(
+                    0,
+                    Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
+                    Cogl.PipelineFilter.LINEAR
+                );
+            }
             
             super.vfunc_paint_target(node, paintContext);
         } else {
