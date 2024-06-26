@@ -118,6 +118,15 @@
         Automatically set the headset as the primary display upon connection
       </description>
     </key>
+    <key name="disable-anti-aliasing" type="b">
+      <default>
+        false
+      </default>
+      <summary>Disable anti-aliasing</summary>
+      <description>
+        Disable anti-aliasing
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false

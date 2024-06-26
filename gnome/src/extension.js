@@ -49,6 +49,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._curved_display_binding = null;
         this._display_size_binding = null;
         this._look_ahead_override_binding = null;
+        this._disable_anti_aliasing_binding = null;
         this._optimal_monitor_config_binding = null;
         this._headset_as_primary_binding = null;
 
@@ -236,6 +237,7 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                     look_ahead_override: this.settings.get_int('look-ahead-override'),
+                    disable_anti_aliasing: this.settings.get_boolean('disable-anti-aliasing')
                 });
 
                 this._update_follow_threshold(this.settings);
@@ -253,6 +255,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
                 this._display_size_binding = this.settings.bind('display-size', this._xr_effect, 'display-size', Gio.SettingsBindFlags.DEFAULT);
                 this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
+                this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
                 this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
@@ -420,6 +423,10 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._look_ahead_override_binding) {
                 this.settings.unbind(this._look_ahead_override_binding);
                 this._look_ahead_override_binding = null;
+            }
+            if (this._disable_anti_aliasing_binding) {
+                this.settings.unbind(this._disable_anti_aliasing_binding);
+                this._disable_anti_aliasing_binding = null;
             }
             if (this._xr_effect) {
                 if (this._widescreen_mode_effect_state_connection) {
