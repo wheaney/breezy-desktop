@@ -28,7 +28,7 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        this._moveToTopTimeout = null;
+        this._periodicResetTimeout = null;
     }
 
     enable() {
@@ -138,8 +138,8 @@ export class CursorManager {
             // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
             // but finding a comprehensive list is difficult and not future proof. So this ugly solution helps us
             // catch everything.
-            this._moveToTopTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
-                this._moveToTop()
+            this._periodicResetTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
+                this._periodicReset()
                 return GLib.SOURCE_CONTINUE;
             }).bind(this));
 
@@ -190,9 +190,9 @@ export class CursorManager {
                 this._mainActor.remove_actor(this._cursorActor);
             }
 
-            if (this._moveToTopTimeout) {
-                GLib.source_remove(this._moveToTopTimeout);
-                this._moveToTopTimeout = null;
+            if (this._periodicResetTimeout) {
+                GLib.source_remove(this._periodicResetTimeout);
+                this._periodicResetTimeout = null;
             }
         }
 
@@ -221,19 +221,22 @@ export class CursorManager {
             translation_x: -xHot,
             translation_y: -yHot,
         });
+    }
+
+    _handleVisibilityChanged() {
+        this._cursorTrackerSetPointerVisibleBound(false);
+        this._updateMouseSprite();
+    }
+
+    // updates the stacking and other attributes that are hard to track and may periodically get out of sync
+    _periodicReset() {
+        this._handleVisibilityChanged();
+        this._mainActor.set_child_above_sibling(this._cursorActor, null);
 
         // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
         if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
             Globals.logger.log_debug('reinhibiting');
             this._cursorSeat.inhibit_unfocus();
         }
-    }
-
-    _handleVisibilityChanged() {
-        this._cursorTrackerSetPointerVisibleBound(false);
-    }
-
-    _moveToTop() {
-        this._mainActor.set_child_above_sibling(this._cursorActor, null);
     }
 }
