@@ -385,7 +385,6 @@ export const XREffect = GObject.registerClass({
             }
 
             if (!this.disable_anti_aliasing) {
-                Globals.logger.log('Setting layer filters');
                 // improves sampling quality for smooth text and edges
                 this.get_pipeline().set_layer_filters(
                     0,
