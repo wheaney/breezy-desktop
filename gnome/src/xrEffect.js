@@ -280,10 +280,6 @@ export const XREffect = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        // target a slightly lower framerate than the monitor's refresh rate to prevent repainting too frequently
-        const frameTimeFramerate = this.target_framerate * 1.25;
-        this._frametime = Math.floor(1000 / frameTimeFramerate);
-
         this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
 
@@ -296,6 +292,8 @@ export const XREffect = GObject.registerClass({
         this.customBannerImage = new Clutter.Image();
         this.customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
                                         customBanner.width, customBanner.height, customBanner.rowstride);
+
+        this._redraw_timeline = null;
     }
 
     _change_distance() {
@@ -323,9 +321,6 @@ export const XREffect = GObject.registerClass({
     }
 
     vfunc_paint_target(node, paintContext) {
-        var now = Date.now();
-        var lastPaint = this._last_paint || 0;
-        var frametime = this._frametime;
         var calibratingImage = this.calibratingImage;
         var customBannerImage = this.customBannerImage;
         let data = Globals.ipc_file.load_contents(null);
@@ -346,10 +341,12 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                 this.setIntermittentUniformVariables();
 
-                this._redraw_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                    if ((now - lastPaint) > frametime) global.stage.queue_redraw();
-                    return GLib.SOURCE_CONTINUE;
-                });
+                this._redraw_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 1000);
+                this._redraw_timeline.connect('new-frame', (() => {
+                    this.queue_repaint();
+                }).bind(this));
+                this._redraw_timeline.set_repeat_count(-1);
+                this._redraw_timeline.start();
 
                 this._uniforms_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
                     this.setIntermittentUniformVariables();
@@ -392,16 +389,15 @@ export const XREffect = GObject.registerClass({
                     Cogl.PipelineFilter.LINEAR
                 );
             }
-            
-            super.vfunc_paint_target(node, paintContext);
-        } else {
-            super.vfunc_paint_target(node, paintContext);
         }
-        this._last_paint = now;
+        super.vfunc_paint_target(node, paintContext);
     }
 
     cleanup() {
-        if (this._redraw_timeout_id) GLib.source_remove(this._redraw_timeout_id);
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
+        }
         if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }
 });
