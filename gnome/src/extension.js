@@ -151,7 +151,7 @@ export default class BreezyDesktopExtension extends Extension {
         Globals.logger.log_debug('BreezyDesktopExtension _setup');
         if (this._is_effect_running) {
             Globals.logger.log('Reset triggered, disabling XR effect');
-            this._effect_disable();
+            this._effect_disable(true);
         }
         const target_monitor = this._find_supported_monitor();
 
@@ -325,7 +325,7 @@ export default class BreezyDesktopExtension extends Extension {
     _update_widescreen_mode_from_settings(settings, event) {
         const value = settings.get_boolean('widescreen-mode');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_settings ${value}`);
-        if (value !== undefined && value != this._xr_effect.widescreen_mode_state) 
+        if (value !== undefined && value !== this._xr_effect.widescreen_mode_state) 
             this._write_control('sbs_mode', value ? 'enable' : 'disable');
         else
             Globals.logger.log_debug('effect.widescreen_mode_state already matched setting');
@@ -366,7 +366,8 @@ export default class BreezyDesktopExtension extends Extension {
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
-    _effect_disable() {
+    // for_setup should be true if our intention is to immediately re-enable the extension
+    _effect_disable(for_setup = false) {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
@@ -387,7 +388,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay.destroy();
                 this._overlay = null;
             }
-
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
                 this._distance_binding = null;
@@ -440,10 +440,16 @@ export default class BreezyDesktopExtension extends Extension {
                 this._xr_effect.cleanup();
                 this._xr_effect = null;
             }
-
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
                 this._cursor_manager = null;
+            }
+
+            // this should always be done at the end of this function after the widescreen settings binding is removed,
+            // so it doesn't reset the setting to false
+            if (!for_setup && this.settings.get_boolean('widescreen-mode')) {
+                Globals.logger.log('Disabling SBS mode due to disabling effect');
+                this._write_control('sbs_mode', 'disable');
             }
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
