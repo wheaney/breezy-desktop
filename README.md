@@ -30,13 +30,12 @@ A workable solution (with some [QoL improvements needed](#upcoming-features)) is
 All controls are provided through the Breezy Desktop application. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
 ### Upcoming Features
-1. Port to GNOME 43/44
-2. ARM/AARCH64 build
-3. Multiple virtual monitors + multiple physical monitors
-4. Better nested support (clipboard sync, borderless window, snap window to correct display automatically)
-5. SBS display depth
-6. SBS support for 3D content
-7. Port to other popular desktop environments: Cinnamon, KWin
+1. Widescreen + true display depth w/ SBS
+2. Port to GNOME 43/44
+3. ARM/AARCH64 build
+4. Port to KWin Effect (KDE Plasma support)
+5. Multiple virtual monitors + multiple physical monitors
+6. Supported nested or Distrobox deployment
 
 ## Breezy Vulkan
 
