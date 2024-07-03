@@ -56,15 +56,18 @@ const shaderUniformLocations = {
     'trim_height_percent': null,
     'display_size': null,
     'display_north_offset': null,
-    'lens_distance_ratio': null,
+    'lens_vector': null,
+    'lens_vector_r': null,          // only used if sbs_enabled is true
+    'texcoord_x_limits': null,      // index 0: min; index 1: max
+    'texcoord_x_limits_r': null,    // only used if sbs_enabled is true
     'sbs_enabled': null,
-    'sbs_content': null,
-    'sbs_mode_stretched': null,
     'custom_banner_enabled': null,
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
-    'source_resolution': null,
+    'fov_half_widths': null,
+    'fov_widths': null,
     'display_resolution': null,
+    'source_to_display_ratio': null,
     'curved_display': null
 };
 
@@ -122,15 +125,41 @@ function setIntermittentUniformVariables() {
             const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
             const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
             const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
+            const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
             if (enabled) {
                 const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
+
+                // TODO - drive these values from settings
+                const sbsContent = false;
+                const sbsModeStretched = true;
 
                 // compute these values once, they only change when the XR device changes
                 const displayAspectRatio = displayRes[0] / displayRes[1];
                 const diagToVertRatio = Math.sqrt(Math.pow(displayAspectRatio, 2) + 1);
                 const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
                 const halfFovYRads = halfFovZRads * displayAspectRatio;
+                const fovHalfWidths = [Math.tan(halfFovYRads), Math.tan(halfFovZRads)];
+                const fovWidths = [fovHalfWidths[0] * 2, fovHalfWidths[1] * 2];
+                let texcoordXLimits = [0.0, 1.0];
+                let texcoordXLimitsRight = [0.0, 1.0];
+                if (sbsEnabled) {
+                    if (sbsContent) {
+                        texcoordXLimits[1] = 0.5;
+                        texcoordXLimitsRight[0] = 0.5;
+                        if (!sbsModeStretched) {
+                            texcoordXLimits[0] = 0.25;
+                            texcoordXLimitsRight[1] = 0.75;
+                        }
+                    } else if (!sbsModeStretched) {
+                        texcoordXLimits[0] = 0.25;
+                        texcoordXLimits[1] = 0.75;
+                    }
+                }
+                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+                const lensFromCenter = lensDistanceRatio / 3.0;
+                const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
+                const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 
                 // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
                 // underneath, so we trim three pixels around the entire edge of the texture
@@ -146,26 +175,29 @@ function setIntermittentUniformVariables() {
                 setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
                 setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
                 setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
+                this.set_uniform_float(shaderUniformLocations['fov_half_widths'], 2, fovHalfWidths);
+                this.set_uniform_float(shaderUniformLocations['fov_widths'], 2, fovWidths);
                 setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
+                this.set_uniform_float(shaderUniformLocations['texcoord_x_limits'], 2, texcoordXLimits);
+                this.set_uniform_float(shaderUniformLocations['texcoord_x_limits_r'], 2, texcoordXLimitsRight);
+                this.set_uniform_float(shaderUniformLocations['lens_vector'], 3, lensVector);
+                this.set_uniform_float(shaderUniformLocations['lens_vector_r'], 3, lensVectorRight);
             }
 
             // update the supported device detected property if the state changes, trigger "notify::" events
             if (this.supported_device_detected !== validKeepalive) this.supported_device_detected = validKeepalive;
 
             // update the widescreen property if the state changes while still enabled, trigger "notify::" events
-            const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
             if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
 
             // these variables are always in play, even if enabled is false
             setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
             setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
-            setSingleFloat(this, 'sbs_content', 0.0); // TODO - drive from settings
-            setSingleFloat(this, 'sbs_mode_stretched', 1.0); // content always fills the whole display
             setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
             setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
-            this.set_uniform_float(shaderUniformLocations['source_resolution'], 2, [this.target_monitor.width, this.target_monitor.height]);
+            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [this.target_monitor.width/displayRes[0], this.target_monitor.height/displayRes[1]]);
         } else if (dataView.byteLength !== 0) {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
