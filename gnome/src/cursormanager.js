@@ -11,8 +11,6 @@ export class CursorManager {
         this._mainActor = mainActor;
         this._refreshRate = refreshRate;
 
-        this._changeHookFn = null;
-
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
         this._cursorWantedVisible = null;
         this._cursorTracker = null;
@@ -131,8 +129,8 @@ export class CursorManager {
             } else {
                 this._mainActor.add_actor(this._cursorActor);
             }
-            this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
-            this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._handleVisibilityChanged.bind(this));
+            this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._queueSpriteUpdate.bind(this));
+            this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._queueVisibilityUpdate.bind(this));
 
             // Some elements will occasionally appear above the cursor, so we periodically reset the actor stacking.
             // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
@@ -144,11 +142,11 @@ export class CursorManager {
             }).bind(this));
 
             const interval = 1000 / this._refreshRate;
-            this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
+            this._cursorWatch = this._cursorWatcher.addWatch(interval, this._queuePositionUpdate.bind(this));
 
             const [x, y] = global.get_pointer();
-            this._updateMousePosition(x, y);
-            this._updateMouseSprite();
+            this._queuePositionUpdate(x, y);
+            this._queueSpriteUpdate();
         }
 
         if (this._cursorTracker.set_keep_focus_while_hidden) {
@@ -203,34 +201,58 @@ export class CursorManager {
         }
     }
 
-    _updateMousePosition(x, y) {
-        this._cursorActor.set_position(x, y);
+    _queuePositionUpdate(x, y) {
+        this._queued_cursor_position = [x, y];
     }
 
-    _updateMouseSprite() {
-        const sprite = this._cursorTracker.get_sprite();
-        if (sprite) {
-            this._cursorSprite.content.texture = sprite;
-            this._cursorSprite.show();
-        } else {
-            this._cursorSprite.hide();
+    _queueSpriteUpdate() {
+        this._queued_sprite_update = true;
+    }
+
+    _queueVisibilityUpdate() {
+        this._cursorTrackerSetPointerVisibleBound(false);
+        this._queued_visibility_update = true;
+        this._queueSpriteUpdate();
+    }
+
+    handleNewFrame() {
+        let redraw = false;
+        if (this._queued_cursor_position) {
+            const [x, y] = this._queued_cursor_position;
+            this._cursorActor.set_position(x, y);
+            this._queued_cursor_position = null;
+            redraw = true;
         }
 
-        const [xHot, yHot] = this._cursorTracker.get_hot();
-        this._cursorSprite.set({
-            translation_x: -xHot,
-            translation_y: -yHot,
-        });
-    }
+        if (this._queued_sprite_update) {
+            const sprite = this._cursorTracker.get_sprite();
+            if (sprite) {
+                this._cursorSprite.content.texture = sprite;
+                this._cursorSprite.show();
+            } else {
+                this._cursorSprite.hide();
+            }
+    
+            const [xHot, yHot] = this._cursorTracker.get_hot();
+            this._cursorSprite.set({
+                translation_x: -xHot,
+                translation_y: -yHot,
+            });
+            this._queued_sprite_update = false;
+            redraw = true;
+        }
 
-    _handleVisibilityChanged() {
-        this._cursorTrackerSetPointerVisibleBound(false);
-        this._updateMouseSprite();
+        if (this._queued_visibility_update) {
+            this._queued_visibility_update = false;
+            redraw = true;
+        }
+
+        return redraw;
     }
 
     // updates the stacking and other attributes that are hard to track and may periodically get out of sync
     _periodicReset() {
-        this._handleVisibilityChanged();
+        this._queueVisibilityUpdate();
         this._mainActor.set_child_above_sibling(this._cursorActor, null);
 
         // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
