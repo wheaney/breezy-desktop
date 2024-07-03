@@ -56,6 +56,10 @@
         <attribute name="action">app.license</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">Force Reset</attribute>
+        <attribute name="action">app.reset_driver</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">_About BreezyDesktop</attribute>
         <attribute name="action">app.about</attribute>
       </item>

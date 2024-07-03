@@ -64,6 +64,7 @@ class BreezydesktopApplication(Adw.Application):
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
+        self.create_action('reset_driver', self.on_reset_driver_action)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -93,6 +94,11 @@ class BreezydesktopApplication(Adw.Application):
         dialog = LicenseDialog()
         dialog.set_transient_for(self.props.active_window)
         dialog.present()
+
+    def on_reset_driver_action(self, widget, _):
+        XRDriverIPC.get_instance().write_control_flags({
+            'force_quit': True
+        })
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
