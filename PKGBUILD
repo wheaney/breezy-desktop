@@ -1,6 +1,6 @@
 # Maintainer: hodasemi <michaelh.95 at t-online dot de>
-_pkgbase=breezy-desktop-gnome
-pkgname="${_pkgbase}"
+_pkgbase=breezy-desktop
+pkgname="${_pkgbase}"-gnome
 pkgver=0.1
 pkgrel=1
 pkgdesc="Breezy desktop - XR desktop"
@@ -8,7 +8,7 @@ arch=('x86_64')
 url="https://github.com/wheaney/breezy-desktop"
 license=('GPL-3.0')
 makedepends=('ninja' 'meson' 'librsvg')
-depends=('python' 'python-pydbus' 'gnome-shell' 'XRLinuxDriver')
+depends=('python' 'python-pydbus' 'gnome-shell' 'XRLinuxDriver-BreezyGNOME')
 conflicts=("${_pkgbase}")
 source=("git+${url}")
 md5sums=(SKIP)
