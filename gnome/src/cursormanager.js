@@ -26,7 +26,7 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        this._periodicResetTimeout = null;
+        this._redraw_timeline = null;
     }
 
     enable() {
@@ -132,16 +132,23 @@ export class CursorManager {
             this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._queueSpriteUpdate.bind(this));
             this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._queueVisibilityUpdate.bind(this));
 
+            const interval = 1000.0 / this._refreshRate;
+            this._redraw_timeline = Clutter.Timeline.new_for_actor(this._cursorActor, interval * 10);
+            this._redraw_timeline.connect('new-frame', (() => {
+                this.handleNewFrame();
+            }).bind(this));
+
             // Some elements will occasionally appear above the cursor, so we periodically reset the actor stacking.
             // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
             // but finding a comprehensive list is difficult and not future proof. So this ugly solution helps us
             // catch everything.
-            this._periodicResetTimeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
-                this._periodicReset()
-                return GLib.SOURCE_CONTINUE;
+            this._redraw_timeline.connect('completed', (() => {
+                this._periodicReset();
             }).bind(this));
 
-            const interval = 1000 / this._refreshRate;
+            this._redraw_timeline.set_repeat_count(-1);
+            this._redraw_timeline.start();
+
             this._cursorWatch = this._cursorWatcher.addWatch(interval, this._queuePositionUpdate.bind(this));
 
             const [x, y] = global.get_pointer();
@@ -188,9 +195,9 @@ export class CursorManager {
                 this._mainActor.remove_actor(this._cursorActor);
             }
 
-            if (this._periodicResetTimeout) {
-                GLib.source_remove(this._periodicResetTimeout);
-                this._periodicResetTimeout = null;
+            if (this._redraw_timeline) {
+                this._redraw_timeline.stop();
+                this._redraw_timeline = null;
             }
         }
 
@@ -210,9 +217,15 @@ export class CursorManager {
     }
 
     _queueVisibilityUpdate() {
-        this._cursorTrackerSetPointerVisibleBound(false);
         this._queued_visibility_update = true;
+        this._cursorTrackerSetPointerVisibleBound(false);
         this._queueSpriteUpdate();
+    }
+
+    // updates the stacking and other attributes that are hard to track and may periodically get out of sync
+    _periodicReset() {
+        this._queue_reset = true;
+        this._queueVisibilityUpdate();
     }
 
     handleNewFrame() {
@@ -247,18 +260,19 @@ export class CursorManager {
             redraw = true;
         }
 
-        return redraw;
-    }
+        if (this._queue_reset) {
+            if (this._mainActor.get_last_child() !== this._cursorActor)
+                this._mainActor.set_child_above_sibling(this._cursorActor,  null);
 
-    // updates the stacking and other attributes that are hard to track and may periodically get out of sync
-    _periodicReset() {
-        this._queueVisibilityUpdate();
-        this._mainActor.set_child_above_sibling(this._cursorActor, null);
-
-        // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
-        if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
-            Globals.logger.log_debug('reinhibiting');
-            this._cursorSeat.inhibit_unfocus();
+            // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
+            if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
+                Globals.logger.log_debug('reinhibiting');
+                this._cursorSeat.inhibit_unfocus();
+            }
+            this._queue_reset = false;
+            redraw = true;
         }
+
+        return redraw;
     }
 }

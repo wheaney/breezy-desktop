@@ -52,7 +52,6 @@ export default class BreezyDesktopExtension extends Extension {
         this._disable_anti_aliasing_binding = null;
         this._optimal_monitor_config_binding = null;
         this._headset_as_primary_binding = null;
-        this._redraw_timeline = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -211,7 +210,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate);
                 this._cursor_manager.enable();
 
-                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
+                this._overlay = new St.Bin();
                 this._overlay.opacity = 255;
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
@@ -264,17 +263,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
-
-                this._redraw_timeline = Clutter.Timeline.new_for_actor(Main.layoutManager.uiGroup, 1000);
-                this._redraw_timeline.connect('new-frame', (() => {
-                    if (this._is_effect_running) {
-                        // if the cursor's frame handler triggered a redraw, we'll skip triggering it
-                        const skip_repaint = this._cursor_manager?.handleNewFrame();
-                        if (!skip_repaint) this._xr_effect?.queue_repaint();
-                    }
-                }).bind(this));
-                this._redraw_timeline.set_repeat_count(-1);
-                this._redraw_timeline.start();
             } catch (e) {
                 Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
                 this._effect_disable();
@@ -383,11 +371,6 @@ export default class BreezyDesktopExtension extends Extension {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
-
-            if (this._redraw_timeline) {
-                this._redraw_timeline.stop();
-                this._redraw_timeline = null;
-            }
 
             if (this._running_poller_id) {
                 GLib.source_remove(this._running_poller_id);

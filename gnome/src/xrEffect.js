@@ -371,6 +371,13 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                 this.setIntermittentUniformVariables();
 
+                this._redraw_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 1000);
+                this._redraw_timeline.connect('new-frame', (() => {
+                    this.queue_repaint();
+                }).bind(this));
+                this._redraw_timeline.set_repeat_count(-1);
+                this._redraw_timeline.start();
+
                 this._uniforms_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
                     this.setIntermittentUniformVariables();
                     return GLib.SOURCE_CONTINUE;
@@ -417,6 +424,10 @@ export const XREffect = GObject.registerClass({
     }
 
     cleanup() {
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
+        }
         if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }
 });
