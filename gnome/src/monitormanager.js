@@ -264,7 +264,7 @@ export const MonitorManager = GObject.registerClass({
     }
 
     // returns true if a check is needed, caller should wait for the next change hook call
-    checkOptimalMode(monitorConnector) {
+    needsOptimalModeCheck(monitorConnector) {
         Globals.logger.log_debug(`MonitorManager checkOptimalMode: ${monitorConnector}`);
         if (this._displayConfigProxy == null) {
             Globals.logger.log('MonitorManager checkOptimalMode: _displayConfigProxy not set!');

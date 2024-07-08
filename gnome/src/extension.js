@@ -100,9 +100,10 @@ export default class BreezyDesktopExtension extends Extension {
 
             const is_driver_running = this._check_driver_running();
             if (is_driver_running && target_monitor) {
-                // don't enable the effect yet if an async optimal mode check is needed,
-                // _setup will be triggered after a mode change so we can remove this timeout_add
-                if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
+                // Don't enable the effect yet if monitor updates are needed.
+                // _setup will be triggered again since a !ready result means it will trigger monitor changes,
+                // so we can remove this timeout_add no matter what.
+                if (this._target_monitor_ready(target_monitor)) {
                     Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
                     this._effect_enable();
                 }
@@ -147,6 +148,23 @@ export default class BreezyDesktopExtension extends Extension {
         }
     }
 
+    // Assumes target_monitor is set, and was returned by _find_supported_monitor.
+    // A false result means we'll expect _handle_monitor_change to be triggered, so active polling
+    // can be disabled.
+    _target_monitor_ready(target_monitor) {
+        if (target_monitor.is_dummy) {
+            // do this so it updates the state, if needed, but don't worry about the result since
+            // it won't trigger a monitor change
+            this._needs_widescreen_monitor_update();
+            return true;
+        }
+
+        // widescreen check should always be first since it changes the type of monitor, and we wouldn't
+        // want to update the optimal mode if the monitor configs are going to change again
+        return !this._needs_widescreen_monitor_update() && 
+            !this._monitor_manager.needsOptimalModeCheck(target_monitor.connector);
+    }
+
     _setup() {
         Globals.logger.log_debug('BreezyDesktopExtension _setup');
         if (this._is_effect_running) {
@@ -160,16 +178,16 @@ export default class BreezyDesktopExtension extends Extension {
             this._target_monitor = target_monitor;
 
             if (this._check_driver_running()) {
-                // don't enable the effect yet if an async optimal mode check is needed,
-                // _setup will be triggered again after a mode change
-                if (target_monitor.is_dummy || !this._monitor_manager.checkOptimalMode(target_monitor.connector)) {
+                // Don't enable the effect yet if monitor updates are needed.
+                // _setup will be triggered again since a !ready result means it will trigger monitor changes
+                if (this._target_monitor_ready(target_monitor)) {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
                 } else {
-                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but optimal mode check needed');
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but async monitor action needed');
                 }
             } else {
-                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver no running, starting poller');
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver not running, starting poller');
                 this._poll_for_ready();
             }
         } else {
@@ -193,6 +211,20 @@ export default class BreezyDesktopExtension extends Extension {
             }
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
+        }
+
+        return false;
+    }
+
+    _needs_widescreen_monitor_update() {
+        Globals.logger.log_debug('BreezyDesktopExtension _needs_widescreen_monitor_update');
+        const state = this._read_state(['sbs_mode_enabled']);
+        const sbs_enabled = state['sbs_mode_enabled'] === 'true';
+        const widescreen_setting_enabled = this.settings.get_boolean('widescreen-mode');
+        if (widescreen_setting_enabled !== sbs_enabled) {
+            Globals.logger.log_debug('BreezyDesktopExtension _needs_widescreen_monitor_update - true');
+            this._write_control('sbs_mode', widescreen_setting_enabled ? 'enable' : 'disable');
+            return true;
         }
 
         return false;
@@ -241,7 +273,6 @@ export default class BreezyDesktopExtension extends Extension {
                 });
 
                 this._update_follow_threshold(this.settings);
-                this._update_widescreen_mode_from_settings(this.settings);
 
                 this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
                 this._supported_device_detected_connected = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
@@ -308,6 +339,27 @@ export default class BreezyDesktopExtension extends Extension {
         const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
         stream.write(`${key}=${value}`, null);
         stream.close(null);
+    }
+
+    _read_state(keys) {
+        const state = {};
+        const file = Gio.file_new_for_path('/dev/shm/xr_driver_state');
+        if (file.query_exists(null)) {
+            const data = file.load_contents(null);
+        
+            if (data[0]) {
+                const bytes = new Uint8Array(data[1]);
+                const decoder = new TextDecoder();
+                const contents = decoder.decode(bytes);
+
+                const lines = contents.split('\n');
+                for (const line of lines) {
+                    const [k, v] = line.split('=');
+                    if (keys.includes(k)) state[k] = v;
+                }
+            }
+        }
+        return state;
     }
 
     _update_display_distance(settings, event) {
