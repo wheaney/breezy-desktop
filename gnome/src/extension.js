@@ -21,8 +21,7 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'Air',
     'Air 2', // guessing this one
     'Air 2 Pro',
-    'SmartGlasses', // TCL/RayNeo
-    'MetaMonitor' // nested mode dummy monitor
+    'SmartGlasses' // TCL/RayNeo
 ];
 
 export default class BreezyDesktopExtension extends Extension {
@@ -251,11 +250,7 @@ export default class BreezyDesktopExtension extends Extension {
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
                 uiClone.x = -targetMonitor.x;
                 uiClone.y = -targetMonitor.y;
-                if (Clutter.Container === undefined) {
-                    overlayContent.add_child(uiClone);
-                } else {
-                    overlayContent.add_actor(uiClone);
-                }
+                overlayContent.add_child(uiClone);
 
                 this._overlay.set_child(overlayContent);
 
@@ -435,8 +430,10 @@ export default class BreezyDesktopExtension extends Extension {
             Meta.enable_unredirect_for_display(global.display);
 
             if (this._overlay) {
-                global.stage.remove_child(this._overlay);
+                if (this._xr_effect) this._xr_effect.cleanup();
                 this._overlay.remove_effect_by_name('xr-desktop');
+
+                global.stage.remove_child(this._overlay);
                 this._overlay.destroy();
                 this._overlay = null;
             }
@@ -489,7 +486,6 @@ export default class BreezyDesktopExtension extends Extension {
                     this._xr_effect.disconnect(this._supported_device_detected_connected);
                     this._supported_device_detected_connected = null;
                 }
-                this._xr_effect.cleanup();
                 this._xr_effect = null;
             }
             if (this._cursor_manager) {
