@@ -151,16 +151,7 @@ export default class BreezyDesktopExtension extends Extension {
     // A false result means we'll expect _handle_monitor_change to be triggered, so active polling
     // can be disabled.
     _target_monitor_ready(target_monitor) {
-        if (target_monitor.is_dummy) {
-            // do this so it updates the state, if needed, but don't worry about the result since
-            // it won't trigger a monitor change
-            this._needs_widescreen_monitor_update();
-            return true;
-        }
-
-        // widescreen check should always be first since it changes the type of monitor, and we wouldn't
-        // want to update the optimal mode if the monitor configs are going to change again
-        return !this._needs_widescreen_monitor_update() && 
+        return target_monitor.is_dummy ||
             !this._monitor_manager.needsOptimalModeCheck(target_monitor.connector);
     }
 
@@ -268,6 +259,7 @@ export default class BreezyDesktopExtension extends Extension {
                 });
 
                 this._update_follow_threshold(this.settings);
+                this._update_widescreen_mode_from_settings(this.settings);
 
                 this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
                 this._supported_device_detected_connected = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
