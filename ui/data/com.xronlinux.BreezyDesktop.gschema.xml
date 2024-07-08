@@ -64,6 +64,69 @@
         End distance when using the "toggle display distance" shortcut.
       </description>
     </key>
+    <key name="widescreen-mode" type="b">
+      <default>
+        false
+      </default>
+      <summary>Widescreen mode</summary>
+      <description>
+        Enable widescreen/SBS mode
+      </description>
+    </key>
+    <key name="display-size" type="d">
+      <default>
+        1.0
+      </default>
+      <summary>Display size</summary>
+      <description>
+        The size of the display
+      </description>
+    </key>
+    <key name="curved-display" type="b">
+      <default>
+        false
+      </default>
+      <summary>Curved display</summary>
+      <description>
+        Enable curved display mode
+      </description>
+    </key>
+    <key name="look-ahead-override" type="i">
+      <default>
+        -1
+      </default>
+      <summary>Look-ahead override</summary>
+      <description>
+        Manually override the look-ahead calculation
+      </description>
+    </key>
+    <key name="use-optimal-monitor-config" type="b">
+      <default>
+        true
+      </default>
+      <summary>Use optimal monitor configuration</summary>
+      <description>
+        Automatically set the optimal monitor configuration upon connection
+      </description>
+    </key>
+    <key name="headset-as-primary" type="b">
+      <default>
+        true
+      </default>
+      <summary>Headset as primary</summary>
+      <description>
+        Automatically set the headset as the primary display upon connection
+      </description>
+    </key>
+    <key name="disable-anti-aliasing" type="b">
+      <default>
+        false
+      </default>
+      <summary>Disable anti-aliasing</summary>
+      <description>
+        Disable anti-aliasing
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false

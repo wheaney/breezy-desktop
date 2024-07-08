@@ -11,7 +11,8 @@ import {
     dataViewEnd,
     dataViewUint8,
     dataViewBigUint,
-    dataViewUintArray,
+    dataViewUint32Array,
+    dataViewUint8Array,
     dataViewFloat,
     dataViewFloatArray,
     BOOL_SIZE,
@@ -23,12 +24,12 @@ import {
 } from "./ipc.js";
 import { degreeToRadian } from "./math.js";
 import { getShaderSource } from "./shader.js";
-import { toSec } from "./time.js";
+import { isValidKeepAlive, toSec } from "./time.js";
 
 export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
 // the driver should be using the same data layout version
-const DATA_LAYOUT_VERSION = 2;
+const DATA_LAYOUT_VERSION = 3;
 
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
@@ -41,7 +42,8 @@ const SBS_ENABLED = [dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1];
 const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
 const EPOCH_MS = [dataViewEnd(CUSTOM_BANNER_ENABLED), UINT_SIZE, 2];
 const IMU_QUAT_DATA = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
-const DATA_VIEW_LENGTH = dataViewEnd(IMU_QUAT_DATA);
+const IMU_PARITY_BYTE = [dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1];
+const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
 
 // cached after first retrieval
 const shaderUniformLocations = {
@@ -50,20 +52,23 @@ const shaderUniformLocations = {
     'imu_quat_data': null,
     'look_ahead_cfg': null,
     'look_ahead_ms': null,
-    'stage_aspect_ratio': null,
-    'display_aspect_ratio': null,
     'trim_width_percent': null,
     'trim_height_percent': null,
-    'display_zoom': null,
+    'display_size': null,
     'display_north_offset': null,
-    'lens_distance_ratio': null,
+    'lens_vector': null,
+    'lens_vector_r': null,          // only used if sbs_enabled is true
+    'texcoord_x_limits': null,      // index 0: min; index 1: max
+    'texcoord_x_limits_r': null,    // only used if sbs_enabled is true
     'sbs_enabled': null,
-    'sbs_content': null,
     'custom_banner_enabled': null,
     'half_fov_z_rads': null,
     'half_fov_y_rads': null,
-    'screen_distance': null,
-    'display_res': null
+    'fov_half_widths': null,
+    'fov_widths': null,
+    'display_resolution': null,
+    'source_to_display_ratio': null,
+    'curved_display': null
 };
 
 function setUniformFloat(effect, locationName, dataViewInfo, value) {
@@ -109,67 +114,121 @@ function lookAheadMS(dataView) {
 
 // most uniforms don't change frequently, this function should be called periodically
 function setIntermittentUniformVariables() {
-    const dataView = this._dataView;
+    try {
+        const dataView = this._dataView;
 
-    if (dataView.byteLength === DATA_VIEW_LENGTH) {
-        const version = dataViewUint8(dataView, VERSION);
-        const imuDateMS = dataViewBigUint(dataView, EPOCH_MS);
-        const currentDateMS = Date.now();
-        const validKeepalive = Math.abs(toSec(currentDateMS) - toSec(imuDateMS)) < 5;
-        const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-        const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-        const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+        if (dataView.byteLength === DATA_VIEW_LENGTH) {
+            const version = dataViewUint8(dataView, VERSION);
+            const imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
+            const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
+            const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+            const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+            const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+            const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
+            const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
-        if (enabled) {
-            const displayRes = dataViewUintArray(dataView, DISPLAY_RES);
-            const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
-            const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+            if (enabled) {
+                const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
 
-            // compute these values once, they only change when the XR device changes
-            const displayAspectRatio = displayRes[0] / displayRes[1];
-            const stageAspectRatio = this.target_monitor.width / this.target_monitor.height;
-            const diagToVertRatio = Math.sqrt(Math.pow(stageAspectRatio, 2) + 1);
-            const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
-            const halfFovYRads = halfFovZRads * stageAspectRatio;
-            const screenDistance = 1.0 - lensDistanceRatio;
+                // TODO - drive these values from settings
+                const sbsContent = false;
+                const sbsModeStretched = true;
 
-            // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
-            // underneath, so we trim two pixels around the entire edge of the texture
-            const trimWidthPercent = 3.0 / this.target_monitor.width;
-            const trimHeightPercent = 3.0 / this.target_monitor.height;
-            
-            // all these values are transferred directly, unmodified from the driver
-            transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
-            transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
+                // compute these values once, they only change when the XR device changes
+                const displayAspectRatio = displayRes[0] / displayRes[1];
+                const diagToVertRatio = Math.sqrt(Math.pow(displayAspectRatio, 2) + 1);
+                const halfFovZRads = degreeToRadian(displayFov / diagToVertRatio) / 2;
+                const halfFovYRads = halfFovZRads * displayAspectRatio;
+                const fovHalfWidths = [Math.tan(halfFovYRads), Math.tan(halfFovZRads)];
+                const fovWidths = [fovHalfWidths[0] * 2, fovHalfWidths[1] * 2];
+                let texcoordXLimits = [0.0, 1.0];
+                let texcoordXLimitsRight = [0.0, 1.0];
+                if (sbsEnabled) {
+                    if (sbsContent) {
+                        texcoordXLimits[1] = 0.5;
+                        texcoordXLimitsRight[0] = 0.5;
+                        if (!sbsModeStretched) {
+                            texcoordXLimits[0] = 0.25;
+                            texcoordXLimitsRight[1] = 0.75;
+                        }
+                    } else if (!sbsModeStretched) {
+                        texcoordXLimits[0] = 0.25;
+                        texcoordXLimits[1] = 0.75;
+                    }
+                }
+                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+                const lensFromCenter = lensDistanceRatio / 3.0;
+                const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
+                const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 
-            // computed values with no dataViewInfo, so we set these manually
-            setSingleFloat(this, 'stage_aspect_ratio', stageAspectRatio);
-            setSingleFloat(this, 'display_aspect_ratio', displayAspectRatio);
-            setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
-            setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
-            setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
-            setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
-            setSingleFloat(this, 'screen_distance', screenDistance);
+                // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
+                // underneath, so we trim three pixels around the entire edge of the texture
+                const trimWidthPercent = 3.0 / this.target_monitor.width;
+                const trimHeightPercent = 3.0 / this.target_monitor.height;
+                
+                // all these values are transferred directly, unmodified from the driver
+                transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
+                transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
 
-            // TOOD - drive from settings
-            setSingleFloat(this, 'display_zoom', 1.0);
+                // computed values with no dataViewInfo, so we set these manually
+                setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
+                setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
+                setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
+                setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
+                this.set_uniform_float(shaderUniformLocations['fov_half_widths'], 2, fovHalfWidths);
+                this.set_uniform_float(shaderUniformLocations['fov_widths'], 2, fovWidths);
+                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
+                this.set_uniform_float(shaderUniformLocations['texcoord_x_limits'], 2, texcoordXLimits);
+                this.set_uniform_float(shaderUniformLocations['texcoord_x_limits_r'], 2, texcoordXLimitsRight);
+                this.set_uniform_float(shaderUniformLocations['lens_vector'], 3, lensVector);
+                this.set_uniform_float(shaderUniformLocations['lens_vector_r'], 3, lensVectorRight);
+            }
+
+            // update the supported device detected property if the state changes, trigger "notify::" events
+            if (this.supported_device_detected !== validKeepalive) this.supported_device_detected = validKeepalive;
+
+            // update the widescreen property if the state changes while still enabled, trigger "notify::" events
+            if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
+
+            // these variables are always in play, even if enabled is false
+            setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
+            setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
+            setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
+            setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
+
+            this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
+            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [this.target_monitor.width/displayRes[0], this.target_monitor.height/displayRes[1]]);
+        } else if (dataView.byteLength !== 0) {
+            throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
-
-        // these variables are always in play, even if enabled is false
-        setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
-        setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
-        setSingleFloat(this, 'sbs_content', 0.0); // TOOD - drive from settings
-        setSingleFloat(this, 'sbs_enabled', dataViewUint8(dataView, SBS_ENABLED) !== 0 ? 1.0 : 0.0);
-        setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
-
-        this.set_uniform_float(shaderUniformLocations['display_res'], 2, [this.target_monitor.width, this.target_monitor.height]);
-    } else if (dataView.byteLength !== 0) {
-        Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+    } catch (e) {
+        Globals.logger.log(`ERROR: xrEffect.js setIntermittentUniformVariables ${e.message}\n${e.stack}`);
     }
+}
+
+function checkParityByte(dataView) {
+    const parityByte = dataViewUint8(dataView, IMU_PARITY_BYTE);
+    let parity = 0;
+    const epochUint8 = dataViewUint8Array(dataView, EPOCH_MS);
+    const imuDataUint8 = dataViewUint8Array(dataView, IMU_QUAT_DATA);
+    for (let i = 0; i < epochUint8.length; i++) {
+        parity ^= epochUint8[i];
+    }
+    for (let i = 0; i < imuDataUint8.length; i++) {
+        parity ^= imuDataUint8[i];
+    }
+    return parityByte === parity;
 }
 
 export const XREffect = GObject.registerClass({
     Properties: {
+        'supported-device-detected': GObject.ParamSpec.boolean(
+            'supported-device-detected',
+            'Supported device detected',
+            'Whether a supported device is connected',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'target-monitor': GObject.ParamSpec.jsobject(
             'target-monitor', 
             'Target Monitor', 
@@ -191,6 +250,15 @@ export const XREffect = GObject.registerClass({
             2.5, 
             1.05
         ),
+        'display-size': GObject.ParamSpec.double(
+            'display-size',
+            'Display size',
+            'Size of the display',
+            GObject.ParamFlags.READWRITE,
+            0.2,
+            2.5,
+            1.0
+        ),
         'toggle-display-distance-start': GObject.ParamSpec.double(
             'toggle-display-distance-start',
             'Display distance start',
@@ -208,13 +276,41 @@ export const XREffect = GObject.registerClass({
             0.2, 
             2.5, 
             1.05
+        ),
+        'curved-display': GObject.ParamSpec.boolean(
+            'curved-display',
+            'Curved Display',
+            'Whether the display is curved',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'widescreen-mode-state': GObject.ParamSpec.boolean(
+            'widescreen-mode-state',
+            'Widescreen mode state',
+            'The state of widescreen mode from the perspective of the driver',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'look-ahead-override': GObject.ParamSpec.int(
+            'look-ahead-override',
+            'Look ahead override',
+            'Override the look ahead value',
+            GObject.ParamFlags.READWRITE,
+            -1,
+            45,
+            -1
+        ),
+        'disable-anti-aliasing': GObject.ParamSpec.boolean(
+            'disable-anti-aliasing',
+            'Disable anti-aliasing',
+            'Disable anti-aliasing for the effect',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class XREffect extends Shell.GLSLEffect {
     constructor(params = {}) {
         super(params);
-
-        this._frametime = Math.floor(1000 / this.target_framerate);
 
         this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
@@ -255,14 +351,11 @@ export const XREffect = GObject.registerClass({
     }
 
     vfunc_paint_target(node, paintContext) {
-        var now = Date.now();
-        var lastPaint = this._last_paint || 0;
-        var frametime = this._frametime;
         var calibratingImage = this.calibratingImage;
         var customBannerImage = this.customBannerImage;
-        const data = Globals.ipc_file.load_contents(null);
+        let data = Globals.ipc_file.load_contents(null);
         if (data[0]) {
-            const buffer = new Uint8Array(data[1]).buffer;
+            let buffer = new Uint8Array(data[1]).buffer;
             this._dataView = new DataView(buffer);
             if (!this._initialized) {
                 this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
@@ -278,10 +371,12 @@ export const XREffect = GObject.registerClass({
                 this.setIntermittentUniformVariables = setIntermittentUniformVariables.bind(this);
                 this.setIntermittentUniformVariables();
 
-                this._redraw_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._frametime, () => {
-                    if ((now - lastPaint) > frametime) global.stage.queue_redraw();
-                    return GLib.SOURCE_CONTINUE;
-                });
+                this._redraw_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 1000);
+                this._redraw_timeline.connect('new-frame', (() => {
+                    this.queue_repaint();
+                }).bind(this));
+                this._redraw_timeline.set_repeat_count(-1);
+                this._redraw_timeline.start();
 
                 this._uniforms_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
                     this.setIntermittentUniformVariables();
@@ -291,30 +386,48 @@ export const XREffect = GObject.registerClass({
                 this._initialized = true;
             }
 
-            if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
-                setSingleFloat(this, 'display_north_offset', this.display_distance);
-                setSingleFloat(this, 'look_ahead_ms', lookAheadMS(this._dataView));
-                setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
-            } else if (this._dataView.byteLength !== 0) {
-                Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+            let success = false;
+            let attempts = 0;
+            while (!success && attempts < 2) {
+                if (this._dataView.byteLength === DATA_VIEW_LENGTH) {
+                    if (checkParityByte(this._dataView)) {
+                        setSingleFloat(this, 'display_north_offset', this.display_distance);
+                        setSingleFloat(this, 'look_ahead_ms', 
+                            this.look_ahead_override === -1 ? lookAheadMS(this._dataView) : this.look_ahead_override);
+                        setUniformMatrix(this, 'imu_quat_data', 4, this._dataView, IMU_QUAT_DATA);
+                        setSingleFloat(this, 'display_size', this.display_size);
+                        success = true;
+                    }
+                } else if (this._dataView.byteLength !== 0) {
+                    Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                }
+
+                if (!success && ++attempts < 3) {
+                    data = Globals.ipc_file.load_contents(null);
+                    if (data[0]) {
+                        buffer = new Uint8Array(data[1]).buffer;
+                        this._dataView = new DataView(buffer);
+                    }
+                }
             }
 
-            // improves sampling quality for smooth text and edges
-            this.get_pipeline().set_layer_filters (
-                0,
-                Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
-                Cogl.PipelineFilter.LINEAR
-            );
-            
-            super.vfunc_paint_target(node, paintContext);
-        } else {
-            super.vfunc_paint_target(node, paintContext);
+            if (!this.disable_anti_aliasing) {
+                // improves sampling quality for smooth text and edges
+                this.get_pipeline().set_layer_filters(
+                    0,
+                    Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
+                    Cogl.PipelineFilter.LINEAR
+                );
+            }
         }
-        this._last_paint = now;
+        super.vfunc_paint_target(node, paintContext);
     }
 
     cleanup() {
-        if (this._redraw_timeout_id) GLib.source_remove(this._redraw_timeout_id);
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
+        }
         if (this._uniforms_timeout_id) GLib.source_remove(this._uniforms_timeout_id);
     }
 });

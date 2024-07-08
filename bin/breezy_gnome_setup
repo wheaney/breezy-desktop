@@ -18,21 +18,23 @@ tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
-# if the first argument is "-v" then the second argument is metrics version, and the third argument is binary path
-# otherwise, if the first argument is present, it's the binary path
+binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME.tar.gz"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
   binary_path_arg="$3"
+elif [ "$1" = "--tag" ] && [ -n "$2" ]
+then
+  binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/breezyGNOME.tar.gz"
 else
   binary_path_arg="$1"
 fi
 
 if [ -z "$binary_path_arg" ]
 then
-  # download and unzip the latest driver
-  echo "Downloading latest release to: ${tmp_dir}/breezyGNOME.tar.gz"
-  curl -L -O https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME.tar.gz
+  # download and unzip the binary
+  echo "Downloading to: ${tmp_dir}/breezyGNOME.tar.gz"
+  curl -L -O $binary_download_url
 else
   if [[ "$binary_path_arg" = /* ]]; then
     abs_path="$binary_path_arg"
