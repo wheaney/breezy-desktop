@@ -45,7 +45,7 @@ Breezy GNOME comes with 2 free trial months. After that, it requires an active P
 | Payment period | Price              | Upgrade window \*                     |
 | -------------- | ------------------ | ------------------------------------- |
 | Monthly        | $5 USD, recurring  | Within 7 days to upgrade to yearly    |
-| Yearly         | $50 USD, recurring | Within 30 days to upgrade to lifetime |
+| Yearly         | $50 USD, recurring | Within 90 days to upgrade to lifetime |
 | Lifetime       | $125 USD, one-time | &mdash;                               |
 
 \* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
@@ -96,7 +96,7 @@ Breezy Vulkan's Supporter Tier features are enhancments to core functionality, o
 
 | Payment period | Price              | Upgrade window \*                     |
 | -------------- | ------------------ | ------------------------------------- |
-| Yearly         | $10 USD, recurring | Within 30 days to upgrade to lifetime |
+| Yearly         | $10 USD, recurring | Within 90 days to upgrade to lifetime |
 | Lifetime       | $25 USD, one-time  | &mdash;                               |
 
 \* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
