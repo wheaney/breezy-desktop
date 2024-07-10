@@ -59,8 +59,8 @@ To make Breezy widely accessible, Productivity Tier is currently free of charge 
 * Students
 * Public school educators
 * Active duty service members and veterans of the U.S. Armed Forces
-* Ukrainian citizens
 * Individuals experiencing financial hardship or special circumstances that make electronic payments prohibitive
+* Individuals affected by active war zones or humanitarian crises (e.g. Ukrainian citizens)
 
 If you believe you qualify, please email wayne@xronlinux.com. You may be asked to provide documentation to verify your eligibility.
 
