@@ -52,6 +52,18 @@ Breezy GNOME comes with 2 free trial months. After that, it requires an active P
 
 If you have enough funds, your license will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Productivity Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
 
+#### Free Productivity Tier
+
+To make Breezy widely accessible, Productivity Tier is currently free of charge for qualified individuals using it for non-commercial purposes. Eligible groups include:
+
+* Students
+* Public school educators
+* Active duty service members and veterans of the U.S. Armed Forces
+* Ukrainian citizens
+* Individuals experiencing financial hardship or special circumstances that make electronic payments prohibitive
+
+If you believe you qualify, please email wayne@xronlinux.com. You may be asked to provide documentation to verify your eligibility.
+
 #### Unlocking Productivity Tier
 
 After your first payment, you should immediately receive an email (to your Ko-fi email address) with a verification token. Once you receive that, enter it in the `License Details` view of the `Breezy Desktop` application, available from the menu in the top window bar.
