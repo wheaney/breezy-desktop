@@ -5,7 +5,7 @@
     "settings-schema": "com.xronlinux.BreezyDesktop",
     "session-modes": ["user", "unlock-dialog"],
     "shell-version": [
-        "45", "46"
+        "43", "44"
     ],
     "url": "https://github.com/wheaney/breezy-desktop"
 }

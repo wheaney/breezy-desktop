@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import * as Config from 'resource:///org/gnome/shell/misc/config.js';
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import System from 'system';
+const Config = imports.misc.config;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const System = imports.system;
 
 const LOG_DIR_NAME = 'breezy_gnome/logs/gjs';
 
-export const Logger = GObject.registerClass({
+var Logger = GObject.registerClass({
     GTypeName: 'Logger',
     Properties: {
         'title': GObject.ParamSpec.string(

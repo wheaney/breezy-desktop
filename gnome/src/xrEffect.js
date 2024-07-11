@@ -1,13 +1,15 @@
-import Clutter from 'gi://Clutter';
-import Cogl from 'gi://Cogl';
-import GdkPixbuf from 'gi://GdkPixbuf';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import Shell from 'gi://Shell';
+const Clutter = imports.gi.Clutter;
+const Cogl = imports.gi.Cogl;
+const GdkPixbuf = imports.gi.GdkPixbuf;
+const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Shell = imports.gi.Shell;
 
-import Globals from './globals.js';
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
-import { 
+const Globals = Me.imports.globals;
+const { 
     dataViewEnd,
     dataViewUint8,
     dataViewBigUint,
@@ -21,12 +23,12 @@ import {
     FLOAT_SIZE,
     UINT_SIZE,
     UINT8_SIZE
-} from "./ipc.js";
-import { degreeToRadian } from "./math.js";
-import { getShaderSource } from "./shader.js";
-import { isValidKeepAlive, toSec } from "./time.js";
+} = Me.imports.ipc;
+const { degreeToRadian } = Me.imports.math;
+const { getShaderSource } = Me.imports.shader;
+const { isValidKeepAlive, toSec } = Me.imports.time;
 
-export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
+var IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 
 // the driver should be using the same data layout version
 const DATA_LAYOUT_VERSION = 3;
@@ -220,7 +222,7 @@ function checkParityByte(dataView) {
     return parityByte === parity;
 }
 
-export const XREffect = GObject.registerClass({
+var XREffect = GObject.registerClass({
     Properties: {
         'supported-device-detected': GObject.ParamSpec.boolean(
             'supported-device-detected',

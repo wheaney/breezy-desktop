@@ -1,12 +1,15 @@
-import Clutter from 'gi://Clutter';
-import GLib from 'gi://GLib';
-import Meta from 'gi://Meta';
-import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
-import { MouseSpriteContent } from './cursor.js';
-import Globals from './globals.js';
+const Clutter = imports.gi.Clutter;
+const Meta = imports.gi.Meta;
+const PointerWatcher = imports.ui.pointerWatcher;
+
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+
+const Globals = Me.imports.globals;
+const { MouseSpriteContent } = Me.imports.cursor;
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
-export class CursorManager {
+var CursorManager = class CursorManager {
     constructor(mainActor, refreshRate) {
         this._mainActor = mainActor;
         this._refreshRate = refreshRate;

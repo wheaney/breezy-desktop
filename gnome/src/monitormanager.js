@@ -16,12 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
+const Gio = imports.gi.Gio;
+const GObject = imports.gi.GObject;
 
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+const Main = imports.ui.main;
 
-import Globals from './globals.js';
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+
+const Globals = Me.imports.globals;
 
 let cachedDisplayConfigProxy = null;
 
@@ -43,7 +46,7 @@ function getDisplayConfigProxy(extPath) {
     return cachedDisplayConfigProxy;
 }
 
-export function newDisplayConfig(extPath, callback) {
+function newDisplayConfig(extPath, callback) {
     const DisplayConfigProxy = getDisplayConfigProxy(extPath);
     new DisplayConfigProxy(
         Gio.DBus.session,
@@ -190,7 +193,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
 }
 
 // Monitor change handling
-export const MonitorManager = GObject.registerClass({
+var MonitorManager = GObject.registerClass({
     Properties: {
         'use-optimal-monitor-config': GObject.ParamSpec.boolean(
             'use-optimal-monitor-config',

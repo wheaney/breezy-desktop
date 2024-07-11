@@ -1,19 +1,21 @@
-import Clutter from 'gi://Clutter'
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import Meta from 'gi://Meta';
-import Shell from 'gi://Shell';
-import St from 'gi://St';
+const Clutter = imports.gi.Clutter;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const Meta = imports.gi.Meta;
+const Shell = imports.gi.Shell;
+const St = imports.gi.St;
 
-import { CursorManager } from './cursormanager.js';
-import Globals from './globals.js';
-import { Logger } from './logger.js';
-import { MonitorManager } from './monitormanager.js';
-import { isValidKeepAlive } from './time.js';
-import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
+const Main = imports.ui.main;
 
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+
+const Globals = Me.imports.globals;
+const { CursorManager } = Me.imports.cursormanager;
+const { Logger } = Me.imports.logger;
+const { MonitorManager } = Me.imports.monitormanager;
+const { isValidKeepAlive } = Me.imports.time;
+const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
 
 const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
@@ -24,11 +26,10 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'SmartGlasses' // TCL/RayNeo
 ];
 
-export default class BreezyDesktopExtension extends Extension {
-    constructor(metadata, uuid) {
-        super(metadata, uuid);
-
-        this.settings = this.getSettings();
+class BreezyDesktopExtension {
+    constructor(extensionPath) {
+        this.path = extensionPath;
+        this.settings = ExtensionUtils.getSettings();
         
         // Set/destroyed by enable/disable
         this._cursor_manager = null;
@@ -521,6 +522,6 @@ export default class BreezyDesktopExtension extends Extension {
     }
 }
 
-function init() {
-    return new Extension();
+function init(meta) {
+    return new BreezyDesktopExtension(meta.path);
 }

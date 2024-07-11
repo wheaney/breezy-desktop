@@ -1,6 +1,6 @@
-import Gio from 'gi://Gio';
+const Gio = imports.gi.Gio;
 
-export function getShaderSource(path) {
+function getShaderSource(path) {
     const file = Gio.file_new_for_path(path);
     const data = file.load_contents(null);
 

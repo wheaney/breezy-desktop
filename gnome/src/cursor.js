@@ -15,11 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import Clutter from 'gi://Clutter';
-import GObject from 'gi://GObject';
+const Clutter = imports.gi.Clutter;
+const GObject = imports.gi.GObject;
 
 // Copied almost verbatim from ui/magnifier.js.
-export const MouseSpriteContent = GObject.registerClass({
+var MouseSpriteContent = GObject.registerClass({
     Implements: [Clutter.Content],
 }, class MouseSpriteContent extends GObject.Object {
     _init() {
