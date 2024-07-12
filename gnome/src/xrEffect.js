@@ -362,8 +362,13 @@ var XREffect = GObject.registerClass({
             if (!this._initialized) {
                 this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
 
-                this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
-                this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
+                try {
+                    // this can break in GNOME 42
+                    this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
+                    this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
+                } catch (e) {
+                    Globals.logger.log(`ERROR: xrEffect.js vfunc_paint_target ${e.message}\n${e.stack}`);
+                }
                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCalibratingTexture'), 1);
                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCustomBannerTexture'), 2);
 

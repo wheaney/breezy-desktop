@@ -212,7 +212,7 @@ var CursorManager = class CursorManager {
 
     _queueVisibilityUpdate() {
         this._queued_visibility_update = true;
-        this._cursorTrackerSetPointerVisibleBound(false);
+        if (this._cursorTrackerSetPointerVisibleBound) this._cursorTrackerSetPointerVisibleBound(false);
         this._queueSpriteUpdate();
     }
 
