@@ -3,6 +3,9 @@
 # exit when any command fails
 set -e
 
+ARCH=$(uname -m)
+echo "Building for $ARCH"
+
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
@@ -32,7 +35,7 @@ fi
 mkdir -p $PACKAGE_DIR/bin
 copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
 
-XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
+XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver-$ARCH.tar.gz
 pushd $XREAL_DRIVER_DIR
 
 if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
@@ -50,7 +53,7 @@ fi
 XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)
 popd
 
-cp $XREAL_BINARY $PACKAGE_DIR
+cp $XREAL_BINARY $PACKAGE_DIR/xrealAirLinuxDriver.tar.gz
 cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
 
 gnome/bin/package_extension
@@ -73,5 +76,5 @@ popd
 
 # bundle everything up
 pushd $GNOME_BUILD_DIR
-tar -zcvf breezyGNOME.tar.gz breezy_gnome
+tar -zcvf breezyGNOME-$ARCH.tar.gz breezy_gnome
 popd
