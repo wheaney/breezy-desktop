@@ -3,6 +3,9 @@
 # exit when any command fails
 set -e
 
+ARCH=${ARCH:-$(uname -m)}
+echo "Building Breezy UI for $ARCH"
+
 check_command() {
     if ! command -v "$1" &>/dev/null; then
         echo "Please install \"$1\" and make sure it's available in your \$PATH"
@@ -16,14 +19,13 @@ check_command "flatpak-builder"
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
-TMP_DIR=$(mktemp -d --tmpdir=$SCRIPT_DIR -t breezy-ui-flatpak-XXXXXXXXXX)
+TMP_DIR=$(mktemp -d --tmpdir=$SCRIPT_DIR/.. -t .breezy-ui-flatpak-XXXXXXXXXX)
 OUT_DIR=$SCRIPT_DIR/../out
 rm -rf $OUT_DIR
 mkdir -p $OUT_DIR
 
-flatpak build-init $TMP_DIR/build org.example.myapp org.gnome.Sdk org.gnome.Platform
-flatpak-builder  --disable-rofiles-fuse --disable-cache --force-clean $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
-flatpak build-export $TMP_DIR/export $TMP_DIR/build
-flatpak build-bundle $TMP_DIR/export $OUT_DIR/com.xronlinux.BreezyDesktop.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+flatpak-builder --arch $ARCH --disable-rofiles-fuse --disable-cache --force-clean --delete-build-dirs --user $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
+flatpak build-export --arch $ARCH $TMP_DIR/export $TMP_DIR/build
+flatpak build-bundle --arch $ARCH $TMP_DIR/export $OUT_DIR/com.xronlinux.BreezyDesktop-$ARCH.flatpak com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
 
 rm -rf "$TMP_DIR"
