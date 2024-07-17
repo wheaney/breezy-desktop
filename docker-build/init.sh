@@ -13,4 +13,3 @@ fi
 echo "Building docker image"
 docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile -t "breezy-desktop:amd64" --load .
 docker buildx build --platform linux/arm64 -f ./docker-build/Dockerfile -t "breezy-desktop:arm64" --load .
-docker buildx build --platform linux/arm/v7 -f ./docker-build/Dockerfile -t "breezy-desktop:armv7" --load .

@@ -24,7 +24,7 @@ XREAL_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
 source $XREAL_DRIVER_DIR/bin/inject_ua
 
 # check out submodules, recursively for nested ones
-git submodule update --init --recursive
+# git submodule update --init --recursive
 
 # if a custom_banner image exists, copy it over the sombrero one
 if [ -e "$VULKAN_DIR/custom_banner.png" ]; then
