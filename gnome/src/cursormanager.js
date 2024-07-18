@@ -6,10 +6,9 @@ import Globals from './globals.js';
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
-    constructor(mainActor) {
+    constructor(mainActor, refreshRate) {
         this._mainActor = mainActor;
-
-        this._changeHookFn = null;
+        this._refreshRate = refreshRate;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
         this._cursorWantedVisible = null;
@@ -26,7 +25,7 @@ export class CursorManager {
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._cursorVisibilityChangedConnection = null;
-        this._cursorPositionInvalidatedConnection = null;
+        this._redraw_timeline = null;
     }
 
     enable() {
@@ -71,11 +70,7 @@ export class CursorManager {
         this._cursorSprite.content = new MouseSpriteContent();
 
         this._cursorActor = new Clutter.Actor();
-        if (Clutter.Container === undefined) {
-            this._cursorActor.add_child(this._cursorSprite);
-        } else {
-            this._cursorActor.add_actor(this._cursorSprite);
-        }
+        this._cursorActor.add_child(this._cursorSprite);
         this._cursorWatcher = PointerWatcher.getPointerWatcher();
         this._cursorSeat = Clutter.get_default_backend().get_default_seat();
     }
@@ -91,6 +86,11 @@ export class CursorManager {
         this._stopCloningMouse();
         Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
         this._cursorTracker.set_pointer_visible(this._cursorWantedVisible);
+
+        if (this._cursorSprite) {
+            this._cursorSprite.content = null;
+            if (this._cursorActor) this._cursorActor.remove_child(this._cursorSprite);
+        }
 
         this._cursorWantedVisible = null;
         this._cursorTracker = null;
@@ -123,23 +123,32 @@ export class CursorManager {
     // prereqs: setup in _enableCloningMouse, _cursorWantedVisible is true
     _startCloningMouse() {
         Globals.logger.log_debug('CursorManager _startCloningMouse');
-        if (this._cursorWatch == null) {
-            if (Clutter.Container === undefined) {
-                this._mainActor.add_child(this._cursorActor);
-            } else {
-                this._mainActor.add_actor(this._cursorActor);
-            }
-            this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._updateMouseSprite.bind(this));
-            this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._updateMouseSprite.bind(this));
-            this._cursorPositionInvalidatedConnection = this._cursorTracker.connect('position-invalidated', this._updateMouseSprite.bind(this));
+        this._mainActor.add_child(this._cursorActor);
+        this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._queueSpriteUpdate.bind(this));
+        this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._queueVisibilityUpdate.bind(this));
 
-            const interval = 1000 / 250;
-            this._cursorWatch = this._cursorWatcher.addWatch(interval, this._updateMousePosition.bind(this));
+        const interval = 1000.0 / this._refreshRate;
+        this._redraw_timeline = Clutter.Timeline.new_for_actor(this._mainActor, interval * 10);
+        this._redraw_timeline.connect('new-frame', (() => {
+            this.handleNewFrame();
+        }).bind(this));
 
-            const [x, y] = global.get_pointer();
-            this._updateMousePosition(x, y);
-            this._updateMouseSprite();
-        }
+        // Some elements will occasionally appear above the cursor, so we periodically reset the actor stacking.
+        // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
+        // but finding a comprehensive list is difficult and not future proof. So this ugly solution helps us
+        // catch everything.
+        this._redraw_timeline.connect('completed', (() => {
+            this._periodicReset();
+        }).bind(this));
+
+        this._redraw_timeline.set_repeat_count(-1);
+        this._redraw_timeline.start();
+
+        this._cursorWatch = this._cursorWatcher.addWatch(interval, this._queuePositionUpdate.bind(this));
+
+        const [x, y] = global.get_pointer();
+        this._queuePositionUpdate(x, y);
+        this._queueSpriteUpdate();
 
         if (this._cursorTracker.set_keep_focus_while_hidden) {
             this._cursorTracker.set_keep_focus_while_hidden(true);
@@ -163,26 +172,24 @@ export class CursorManager {
         if (this._cursorWatch != null) {
             this._cursorWatch.remove();
             this._cursorWatch = null;
+        }
 
+        if (this._cursorChangedConnection) {
             this._cursorTracker.disconnect(this._cursorChangedConnection);
             this._cursorChangedConnection = null;
+        }
 
+        if (this._cursorVisibilityChangedConnection) {
             this._cursorTracker.disconnect(this._cursorVisibilityChangedConnection);
             this._cursorVisibilityChangedConnection = null;
-
-            this._cursorTracker.disconnect(this._cursorPositionInvalidatedConnection);
-            this._cursorPositionInvalidatedConnection = null;
-
-            if (Clutter.Container === undefined) {
-                this._mainActor.remove_child(this._cursorActor);
-            } else {
-                this._mainActor.remove_actor(this._cursorActor);
-            }
         }
 
-        if (this._cursorTracker.set_keep_focus_while_hidden) {
-            this._cursorTracker.set_keep_focus_while_hidden(false);
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
         }
+
+        if (this._cursorActor) this._mainActor.remove_child(this._cursorActor);
 
         if (this._cursorUnfocusInhibited) {
             Globals.logger.log_debug('uninhibit_unfocus');
@@ -191,31 +198,71 @@ export class CursorManager {
         }
     }
 
-    _updateMousePosition(x, y) {
-        this._cursorActor.set_position(x, y);
+    _queuePositionUpdate(x, y) {
+        this._queued_cursor_position = [x, y];
     }
 
-    _updateMouseSprite() {
-        const sprite = this._cursorTracker.get_sprite();
-        if (sprite) {
-            this._cursorSprite.content.texture = sprite;
-            this._cursorSprite.show();
-        } else {
-            this._cursorSprite.hide();
-        }
+    _queueSpriteUpdate() {
+        this._queued_sprite_update = true;
+    }
 
-        const [xHot, yHot] = this._cursorTracker.get_hot();
-        this._cursorSprite.set({
-            translation_x: -xHot,
-            translation_y: -yHot,
-        });
-        this._mainActor.set_child_above_sibling(this._cursorActor, null);
+    _queueVisibilityUpdate() {
+        this._queued_visibility_update = true;
         this._cursorTrackerSetPointerVisibleBound(false);
+        this._queueSpriteUpdate();
+    }
 
-        // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
-        if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
-            Globals.logger.log_debug('reinhibiting');
-            this._cursorSeat.inhibit_unfocus();
+    // updates the stacking and other attributes that are hard to track and may periodically get out of sync
+    _periodicReset() {
+        this._queue_reset = true;
+        this._queueVisibilityUpdate();
+    }
+
+    handleNewFrame() {
+        let redraw = false;
+        if (this._queued_cursor_position) {
+            const [x, y] = this._queued_cursor_position;
+            this._cursorActor.set_position(x, y);
+            this._queued_cursor_position = null;
+            redraw = true;
         }
+
+        if (this._queued_sprite_update) {
+            const sprite = this._cursorTracker.get_sprite();
+            if (sprite) {
+                this._cursorSprite.content.texture = sprite;
+                this._cursorSprite.show();
+            } else {
+                this._cursorSprite.hide();
+            }
+    
+            const [xHot, yHot] = this._cursorTracker.get_hot();
+            this._cursorSprite.set({
+                translation_x: -xHot,
+                translation_y: -yHot,
+            });
+            this._queued_sprite_update = false;
+            redraw = true;
+        }
+
+        if (this._queued_visibility_update) {
+            this._queued_visibility_update = false;
+            redraw = true;
+        }
+
+        if (this._queue_reset) {
+            if (this._mainActor.get_last_child() !== this._cursorActor)
+                this._mainActor.set_child_above_sibling(this._cursorActor,  null);
+
+            // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
+            if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
+                Globals.logger.log_debug('reinhibiting');
+                this._cursorSeat.inhibit_unfocus();
+            }
+            this._queue_reset = false;
+            redraw = true;
+        }
+
+        return redraw;
     }
 }

@@ -24,201 +24,386 @@
       </object>
     </child>
     <child>
-      <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Settings</property>
+      <object class="AdwViewStack" id="stack">
         <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Effect enabled</property>
-            <property name="subtitle" translatable="true">Turn on or off the XR desktop effect</property>
-            <child>
-              <object class="GtkSwitch" id="effect_enable_switch">
-                <property name="valign">3</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Display distance</property>
-            <child>
-              <object class="GtkScale" id="display_distance_scale">
-                <property name="valign">3</property>
-                <property name="draw-value">true</property>
-                <property name="value-pos">0</property>
-                <property name="digits">2</property>
-                <property name="width-request">350</property>
-                <property name="has-origin">false</property>
-                <property name="adjustment">
-                  <object class="GtkAdjustment" id="display_distance_adjustment">
-                    <property name="lower">0.2</property>
-                    <property name="upper">2.5</property>
-                    <property name="step-increment">0.01</property>
-                    <property name="value">1.05</property>
+          <object class="AdwViewStackPage">
+            <property name="name">general</property>
+            <property name="title">General Settings</property>
+            <property name="icon-name">applications-system-symbolic</property>
+            <property name="child">
+              <object class="GtkBox">
+                <property name="orientation">1</property>
+                <property name="margin-start">20</property>
+                <property name="margin-end">20</property>
+                <property name="spacing">20</property>
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title" translatable="true">Features</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">XR effect</property>
+                        <property name="subtitle" translatable="true">Enables the Breezy Desktop XR effect.</property>
+                        <child>
+                          <object class="GtkSwitch" id="effect_enable_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Widescreen mode</property>
+                        <property name="subtitle" translatable="true">Switches your glasses into side-by-side mode and doubles the width of the display.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkSwitch" id="widescreen_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Follow mode</property>
+                        <property name="subtitle" translatable="true">Keep the virtual display near the center of your view.</property>
+                        <child>
+                          <object class="GtkSwitch" id="follow_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Curved display</property>
+                        <property name="subtitle" translatable="true">Switch between flat and curved displays.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkSwitch" id="curved_display_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
-                </property>
-                <marks>
-                  <mark value="0.2" position="bottom"></mark>
-                  <mark value="1.0" position="bottom"></mark>
-                  <mark value="2.5" position="bottom"></mark>
-                </marks>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Follow enabled</property>
-            <property name="subtitle" translatable="true">Keep the virtual display near the center of your view</property>
-            <child>
-              <object class="GtkSwitch" id="follow_mode_switch">
-                <property name="valign">3</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Follow threshold</property>
-            <property name="subtitle" translatable="true">How far away you can look before the display follows</property>
-            <child>
-              <object class="GtkScale" id="follow_threshold_scale">
-                <property name="valign">3</property>
-                <property name="draw-value">true</property>
-                <property name="value-pos">0</property>
-                <property name="digits">0</property>
-                <property name="width-request">350</property>
-                <property name="has-origin">false</property>
-                <property name="adjustment">
-                  <object class="GtkAdjustment" id="follow_threshold_adjustment">
-                    <property name="lower">1</property>
-                    <property name="upper">45</property>
-                    <property name="step-increment">1</property>
-                    <property name="value">15</property>
+                </child>
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title" translatable="true">Adjustments</property>
+                    <child>
+                      <object class="AdwActionRow" id="display_distance_row">
+                        <property name="title" translatable="true">Display distance</property>
+                        <property name="subtitle" translatable="true">Closer appears larger, further appears smaller. Controls depth when in widescreen mode.</property>
+                        <child>
+                          <object class="GtkScale" id="display_distance_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="display_distance_adjustment">
+                                <property name="lower">0.2</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">1.05</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.2" position="bottom"></mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.5" position="bottom"></mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Display size</property>
+                        <property name="subtitle" translatable="true">Combine with display distance to achieve a comfortable level of depth and size.</property>
+                        <child>
+                          <object class="GtkScale" id="display_size_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="display_size_adjustment">
+                                <property name="lower">0.2</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">1.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.2" position="bottom"></mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.5" position="bottom"></mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Display toggle distances</property>
+                        <property name="subtitle" translatable="true">Use the buttons to capture the current display distance for use with the keyboard shortcut.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="width-request">150</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkButton" id="set_toggle_display_distance_start_button">
+                                <property name="name">toggle-display-distance-start</property>
+                                <property name="valign">3</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="set_toggle_display_distance_end_button">
+                                <property name="name">toggle-display-distance-end</property>
+                                <property name="valign">3</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Follow threshold</property>
+                        <property name="subtitle" translatable="true">How far away you can look before the display follows.</property>
+                        <child>
+                          <object class="GtkScale" id="follow_threshold_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="follow_threshold_adjustment">
+                                <property name="lower">1</property>
+                                <property name="upper">45</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">15</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
-                </property>
+                </child>
               </object>
-            </child>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwViewStackPage">
+            <property name="name">shortcuts</property>
+            <property name="title">Keyboard Shortcuts</property>
+            <property name="icon-name">preferences-desktop-keyboard-shortcuts-symbolic</property>
+            <property name="child">
+              <object class="GtkBox">
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title" translatable="true">Keyboard Shortcuts</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Re-center display shortcut</property>
+                        <property name="subtitle" translatable="true">Pin the virtual display to the current position.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkShortcutLabel" id="recenter_display_shortcut_label">
+                                <property name="valign">3</property>
+                                <property name="accelerator"></property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="reassign_recenter_display_shortcut_button">
+                                <style>
+                                  <class name="row-button"/>
+                                </style>
+                                <property name="name">recenter-display-shortcut</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="true">Change</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Display distance shortcut</property>
+                        <property name="subtitle" translatable="true">Quickly toggle between two predefined distances.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkShortcutLabel" id="toggle_display_distance_shortcut_label">
+                                <property name="valign">3</property>
+                                <property name="accelerator"></property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="reassign_toggle_display_distance_shortcut_button">
+                                <style>
+                                  <class name="row-button"/>
+                                </style>
+                                <property name="name">toggle-display-distance-shortcut</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="true">Change</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Toggle follow mode shortcut</property>
+                        <property name="subtitle" translatable="true">Quickly toggle follow mode.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkShortcutLabel" id="toggle_follow_shortcut_label">
+                                <property name="valign">3</property>
+                                <property name="accelerator"></property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="reassign_toggle_follow_shortcut_button">
+                                <style>
+                                  <class name="row-button"/>
+                                </style>
+                                <property name="name">toggle-follow-shortcut</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="true">Change</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwViewStackPage">
+            <property name="name">advanced</property>
+            <property name="title">Advanced Settings</property>
+            <property name="icon-name">applications-system-symbolic</property>
+            <property name="child">
+              <object class="GtkBox">
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title" translatable="true">Advanced Settings</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Find optimal display config</property>
+                        <property name="subtitle" translatable="true">Automatically modify the glasses display configuration for maximum resolution and best scaling when plugged in.</property>
+                        <child>
+                          <object class="GtkSwitch" id="use_optimal_monitor_config_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Use highest refresh rate</property>
+                        <property name="subtitle" translatable="true">Refresh rate may affect performance, disable this to set it manually.</property>
+                        <child>
+                          <object class="GtkSwitch" id="use_highest_refresh_rate_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Always primary display</property>
+                        <property name="subtitle" translatable="true">Automatically set the glasses as the primary display when plugged in.</property>
+                        <child>
+                          <object class="GtkSwitch" id="headset_as_primary_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Fast SBS mode switching</property>
+                        <property name="subtitle" translatable="true">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
+                        <child>
+                          <object class="GtkSwitch" id="fast_sbs_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Movement look-ahead</property>
+                        <property name="subtitle" translatable="true">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
+                        <child>
+                          <object class="GtkScale" id="movement_look_ahead_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">false</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="movement_look_ahead_adjustment">
+                                <property name="lower">-1</property>
+                                <property name="upper">40</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">-1</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-1" position="bottom">Default</mark>
+                              <mark value="10" position="bottom">10ms</mark>
+                              <mark value="20" position="bottom">20ms</mark>
+                              <mark value="30" position="bottom">30ms</mark>
+                              <mark value="40" position="bottom">40ms</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
           </object>
         </child>
       </object>
     </child>
     <child>
-      <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Shortcuts</property>
-        <property name="description" translatable="true">Modify keyboard shortcuts and how they work</property>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Re-center display shortcut</property>
-            <property name="subtitle" translatable="true">Pin the virtual display to the current position</property>
-            <property name="valign">2</property>
-            <child>
-              <object class="GtkBox">
-                <property name="spacing">30</property>
-                <property name="margin-start">30</property>
-                <child>
-                  <object class="GtkShortcutLabel" id="recenter_display_shortcut_label">
-                    <property name="valign">3</property>
-                    <property name="accelerator"></property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="reassign_recenter_display_shortcut_button">
-                    <style>
-                      <class name="row-button"/>
-                    </style>
-                    <property name="name">recenter-display-shortcut</property>
-                    <property name="valign">3</property>
-                    <property name="label" translatable="true">Change</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Display distance shortcut</property>
-            <property name="subtitle" translatable="true">Quickly toggle between two predefined distances</property>
-            <property name="valign">2</property>
-            <child>
-              <object class="GtkBox">
-                <property name="spacing">30</property>
-                <property name="margin-start">30</property>
-                <child>
-                  <object class="GtkShortcutLabel" id="toggle_display_distance_shortcut_label">
-                    <property name="valign">3</property>
-                    <property name="accelerator"></property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="reassign_toggle_display_distance_shortcut_button">
-                    <style>
-                      <class name="row-button"/>
-                    </style>
-                    <property name="name">toggle-display-distance-shortcut</property>
-                    <property name="valign">3</property>
-                    <property name="label" translatable="true">Change</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Display distance start and end</property>
-            <property name="subtitle" translatable="true">Use the buttons to capture the current display distance as start and end points.</property>
-            <property name="valign">2</property>
-            <child>
-              <object class="GtkBox">
-                <property name="spacing">30</property>
-                <property name="width-request">150</property>
-                <property name="margin-start">30</property>
-                <child>
-                  <object class="GtkButton" id="set_toggle_display_distance_start_button">
-                    <property name="name">toggle-display-distance-start</property>
-                    <property name="valign">3</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="set_toggle_display_distance_end_button">
-                    <property name="name">toggle-display-distance-end</property>
-                    <property name="valign">3</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="true">Toggle follow mode shortcut</property>
-            <property name="subtitle" translatable="true">Quickly toggle follow mode</property>
-            <property name="valign">2</property>
-            <child>
-              <object class="GtkBox">
-                <property name="spacing">30</property>
-                <property name="margin-start">30</property>
-                <child>
-                  <object class="GtkShortcutLabel" id="toggle_follow_shortcut_label">
-                    <property name="valign">3</property>
-                    <property name="accelerator"></property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="reassign_toggle_follow_shortcut_button">
-                    <style>
-                      <class name="row-button"/>
-                    </style>
-                    <property name="name">toggle-follow-shortcut</property>
-                    <property name="valign">3</property>
-                    <property name="label" translatable="true">Change</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
+      <object class="AdwViewSwitcher" id="switcher">
+        <property name="stack">stack</property>
+        <property name="policy">wide</property>
       </object>
     </child>
   </template>

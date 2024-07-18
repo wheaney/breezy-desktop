@@ -8,7 +8,7 @@
 
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
-There are two installations at the moment: 
+There are two installations at the moment. **Note: Only install one of these at a time, as they invalidate each other's installations. This is only temporary.**
 * [Breezy GNOME](#breezy-gnome) for desktop support, primarily in GNOME Linux desktop environments
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
@@ -16,9 +16,11 @@ There are two installations at the moment:
 Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (requires GNOME 45+ on an x86_64 system); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
 
 ### GNOME Setup
-1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
-2. Run the setup script (e.g. `~/Downloads/breezy_gnome_setup`)
-3. You'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working.
+1. Ensure you have the latest graphics drivers installed for your distro.
+2. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
+3. Run the setup script (e.g. `~/Downloads/breezy_gnome_setup`)
+4. You'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working.
+5. For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware**
 
 ### Non-GNOME Setup
 A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
@@ -32,11 +34,41 @@ All controls are provided through the Breezy Desktop application. You can also c
 ### Upcoming Features
 1. Port to GNOME 43/44
 2. ARM/AARCH64 build
-3. Multiple virtual monitors + multiple physical monitors
-4. Better nested support (clipboard sync, borderless window, snap window to correct display automatically)
-5. SBS display depth
-6. SBS support for 3D content
-7. Port to other popular desktop environments: Cinnamon, KWin
+3. Port to KWin Effect (KDE Plasma support)
+4. Multiple virtual monitors + multiple physical monitors
+5. Supported nested or Distrobox deployment
+
+### Breezy GNOME Pricing (Productivity Tier)
+
+Breezy GNOME comes with 2 free trial months. After that, it requires an active Productivity Tier license. Payments are currently only accepted via [Ko-fi](https://ko-fi.com/wheaney). Here's the pricing structure:
+
+| Payment period | Price              | Upgrade window \*                     |
+| -------------- | ------------------ | ------------------------------------- |
+| Monthly        | $5 USD, recurring  | Within 7 days to upgrade to yearly    |
+| Yearly         | $50 USD, recurring | Within 90 days to upgrade to lifetime |
+| Lifetime       | $125 USD, one-time | &mdash;                               |
+
+\* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
+
+If you have enough funds, your license will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Productivity Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
+
+#### Free Productivity Tier
+
+To make Breezy widely accessible, Productivity Tier is currently free of charge for qualified individuals using it for non-commercial purposes. Eligible groups include:
+
+* Students
+* Public school educators
+* Active duty service members and veterans of the U.S. Armed Forces
+* Individuals experiencing financial hardship or special circumstances that make electronic payments prohibitive
+* Individuals affected by active war zones or humanitarian crises (e.g. Ukrainian citizens)
+
+If you believe you qualify, please email wayne@xronlinux.com. You may be asked to provide documentation to verify your eligibility.
+
+#### Unlocking Productivity Tier
+
+After your first payment, you should immediately receive an email (to your Ko-fi email address) with a verification token. Once you receive that, enter it in the `License Details` view of the `Breezy Desktop` application, available from the menu in the top window bar.
+
+If you don't receive a token, you can request one in the `License Details` view by entering your email address.
 
 ## Breezy Vulkan
 
@@ -70,26 +102,18 @@ To see all the configuration options available to you, type `~/bin/xreal_driver_
 #### Multi-tap to re-center or re-calibrate
 I've implemented an experimental multi-tap detection feature for screen **re-centering (2 taps)** and **re-calibrating the device (3 taps)**. To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
 
-### Troubleshooting
-
-#### Screen drag or flickering
-Framerate is really important here, because individual frames are static, so moving your head quickly may produce a noticeable flicker as it moves the screen. Higher framerates will produce an overall better experience (less flicker and smoother follow), but lower framerates should still be totally usable.
-
-#### Unexpected screen movement or drift
-It's important that your glasses are either on your head or sitting on a flat surface when they're first plugged in and calibrated. If you notice that your screen is constantly drifting in one direction or continues to move for several seconds after a head movement, almost as if the screen has some momentum that takes time to slow down, then you'll want to re-calibrate them. To do this, do a triple-tap as described in the Multi-tap section above.  
-
-#### Display size
-
-If the screen appears very small in your view, you may be playing at the Deck screen's native resolution, and not at the glasses' native
-resolution. To fix this:
-1. Go to the game details in Steam, hit the Settings/cog icon, and open `Properties`, then for `Game Resolution` choose `Native`.
-2. After launching the game, if it's still small, go into the game options, and in the graphics or video settings, change the resolution (the glasses run at 1920x1080).
-
-If you *WANT* to keep a low resolution, then you can just use the `Zoom` setting to make the screen appear larger. For now this is done through the config script: `~/bin/xreal_driver_config -z 1.0`. Larger numbers zoom in (e.g. `2.0` doubles the screen size) and smaller numbers zoom out (e.g. `0.5` is half the screen size).
-
 ### Supporter Tier
 
-Supporter Tier features are enhancments to core functionality, offered as a way to reward those who have [supported the project](https://ko-fi.com/wheaney). Core features -- like Virtual Display mode, VR-Lite mouse/joystick modes, and Follow mode's display positioning/resizing settings -- will always remain available to everyone regardless of supporter status. Donating $10 gets you a year, and $25 gets you lifetime of Supporter Tier access. If you have enough funds, your access will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Supporter Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
+Breezy Vulkan's Supporter Tier features are enhancments to core functionality, offered as a way to reward those who have [supported the project](https://ko-fi.com/wheaney). Core features -- like Virtual Display mode, VR-Lite mouse/joystick modes, and Follow mode's display positioning/resizing settings -- will always remain available to everyone regardless of supporter status. Here's the pricing structure:
+
+| Payment period | Price              | Upgrade window \*                     |
+| -------------- | ------------------ | ------------------------------------- |
+| Yearly         | $10 USD, recurring | Within 90 days to upgrade to lifetime |
+| Lifetime       | $25 USD, one-time  | &mdash;                               |
+
+\* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
+
+If you have enough funds, your access will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Supporter Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
 
 Features currently offered:
 * Smooth Follow (in Follow mode)
