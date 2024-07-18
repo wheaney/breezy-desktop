@@ -118,6 +118,24 @@
         Automatically set the headset as the primary display upon connection
       </description>
     </key>
+    <key name="use-highest-refresh-rate" type="b">
+      <default>
+        true
+      </default>
+      <summary>Use highest refresh rate</summary>
+      <description>
+        Automatically set the highest refresh rate upon connection
+      </description>
+    </key>
+    <key name="fast-sbs-mode-switching" type="b">
+      <default>
+        true
+      </default>
+      <summary>Fast SBS mode switching</summary>
+      <description>
+        Enable fast SBS mode switching
+      </description>
+    </key>
     <key name="disable-anti-aliasing" type="b">
       <default>
         false

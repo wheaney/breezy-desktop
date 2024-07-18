@@ -31,6 +31,8 @@ class ConnectedDevice(Gtk.Box):
     toggle_follow_shortcut_label = Gtk.Template.Child()
     headset_as_primary_switch = Gtk.Template.Child()
     use_optimal_monitor_config_switch = Gtk.Template.Child()
+    use_highest_refresh_rate_switch = Gtk.Template.Child()
+    fast_sbs_mode_switch = Gtk.Template.Child()
     movement_look_ahead_scale = Gtk.Template.Child()
     movement_look_ahead_adjustment = Gtk.Template.Child()
 
@@ -52,6 +54,8 @@ class ConnectedDevice(Gtk.Box):
             self.reassign_toggle_follow_shortcut_button,
             self.headset_as_primary_switch,
             self.use_optimal_monitor_config_switch,
+            self.use_highest_refresh_rate_switch,
+            self.fast_sbs_mode_switch,
             self.movement_look_ahead_scale
         ]
 
@@ -66,6 +70,8 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
@@ -136,8 +142,10 @@ class ConnectedDevice(Gtk.Box):
 
     def _refresh_use_optimal_monitor_config(self, switch, param):
         self.headset_as_primary_switch.set_sensitive(switch.get_active())
+        self.use_highest_refresh_rate_switch.set_sensitive(switch.get_active())
         if not switch.get_active():
             self.headset_as_primary_switch.set_active(False)
+            self.use_highest_refresh_rate_switch.set_active(False)
 
     def set_device_name(self, name):
         self.device_label.set_markup(f"<b>{name}</b>")

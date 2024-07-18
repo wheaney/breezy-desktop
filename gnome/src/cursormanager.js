@@ -1,5 +1,4 @@
 import Clutter from 'gi://Clutter';
-import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
 import { MouseSpriteContent } from './cursor.js';

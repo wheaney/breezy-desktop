@@ -330,10 +330,32 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="true">Use highest refresh rate</property>
+                        <property name="subtitle" translatable="true">Refresh rate may affect performance, disable this to set it manually.</property>
+                        <child>
+                          <object class="GtkSwitch" id="use_highest_refresh_rate_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="true">Always primary display</property>
                         <property name="subtitle" translatable="true">Automatically set the glasses as the primary display when plugged in.</property>
                         <child>
                           <object class="GtkSwitch" id="headset_as_primary_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="true">Fast SBS mode switching</property>
+                        <property name="subtitle" translatable="true">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
+                        <child>
+                          <object class="GtkSwitch" id="fast_sbs_mode_switch">
                             <property name="valign">3</property>
                           </object>
                         </child>
