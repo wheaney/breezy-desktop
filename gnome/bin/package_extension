@@ -5,11 +5,6 @@ UUID="breezydesktop@xronlinux.com"
 # fail on error
 set -e
 
-if [[ $EUID -eq 0 ]]; then
-    echo "This script must NOT be run as root" 1>&2
-    exit 1
-fi
-
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
