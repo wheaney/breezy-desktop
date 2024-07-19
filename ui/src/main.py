@@ -21,6 +21,7 @@ import gi
 import logging
 import os
 import sys
+import argparse
 
 from logging.handlers import TimedRotatingFileHandler
 
@@ -58,13 +59,14 @@ XRDriverIPC.set_instance(XRDriverIPC(logger))
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
 
-    def __init__(self):
+    def __init__(self, skip_verification):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
         self.create_action('reset_driver', self.on_reset_driver_action)
+        self._skip_verification = skip_verification
 
     def do_activate(self):
         """Called when the application is activated.
@@ -74,7 +76,7 @@ class BreezydesktopApplication(Adw.Application):
         """
         win = self.props.active_window
         if not win:
-            win = BreezydesktopWindow(application=self)
+            win = BreezydesktopWindow(self._skip_verification, application=self)
             win.connect('close-request', lambda *_: self.on_quit_action())
             win.connect('destroy', lambda *_: self.on_quit_action())
         win.present()
@@ -125,5 +127,9 @@ class BreezydesktopApplication(Adw.Application):
 
 
 def main(version):
-    app = BreezydesktopApplication()
-    return app.run(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-sv", "--skip-verification", action="store_true")
+    args = parser.parse_args()
+
+    app = BreezydesktopApplication(args.skip_verification)
+    return app.run(None)

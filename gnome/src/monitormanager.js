@@ -86,7 +86,7 @@ function getMonitorConfig(displayConfigProxy, callback) {
 }
 
 // triggers callback with true result if an an async monitor config change was triggered, false if no config change needed
-function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, callback) {
+function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, useHighestRefreshRate, callback) {
     Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck for ${connectorName}`);
     displayConfigProxy.GetCurrentStateRemote((result, error) => {
         if (error) {
@@ -101,10 +101,19 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
             let monitorToModeIdMap = {};
             let bestFitMode = undefined;
             for (let monitor of monitors) {
-                const [details, modes, monProperties] = monitor;
+                const [details, availableModes, monProperties] = monitor;
                 const [connector, vendor, product, monitorSerial] = details;
                 const isOurMonitor = connector == connectorName;
-                if (isOurMonitor) ourMonitor = monitor;
+                let modes = availableModes;
+                if (isOurMonitor) {
+                    ourMonitor = monitor;
+                    if (!useHighestRefreshRate) {
+                        const currentMode = modes.find((mode) => !!mode[6]['is-current']);
+                        
+                        // filter modes to only include the current refresh rate
+                        modes = availableModes.filter((mode) => mode[3] === currentMode[3]);
+                    }
+                }
 
                 for (let mode of modes) {
                     const [modeId, width, height, refreshRate, preferredScale, supportedScales, modeProperites] = mode;
@@ -199,6 +208,13 @@ export const MonitorManager = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             true
         ),
+        'use-highest-refresh-rate': GObject.ParamSpec.boolean(
+            'use-highest-refresh-rate',
+            'Use highest refresh rate',
+            'Set the highest refresh rate which choosing optimal configs',
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
         'headset-as-primary': GObject.ParamSpec.boolean(
             'headset-as-primary',
             'Use headset as primary monitor',
@@ -272,7 +288,7 @@ export const MonitorManager = GObject.registerClass({
         }
 
         if (this._needsConfigCheck) {
-            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, ((configChanged, error) => {
+            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, this.use_highest_refresh_rate, ((configChanged, error) => {
                 this._needsConfigCheck = false;
                 if (error) {
                     Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
@@ -309,7 +325,7 @@ export const MonitorManager = GObject.registerClass({
             for (let i = 0; i < result.length; i++) {
                 const [monitorName, connectorName, vendor, product, serial, refreshRate] = result[i];
                 const monitorIndex = this._backendManager.get_monitor_for_connector(connectorName);
-                Globals.logger.log(`Found monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}`);
+                Globals.logger.log_debug(`Found monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}`);
                 if (monitorIndex >= 0) {
                     monitorProperties[monitorIndex] = {
                         index: monitorIndex,
