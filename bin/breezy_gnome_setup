@@ -22,7 +22,7 @@ tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
-binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME.tar.gz"
+binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME-$ARCH.tar.gz"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
