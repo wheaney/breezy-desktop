@@ -23,6 +23,53 @@ For the best performance, ensure you have the latest graphics drivers installed 
 
 Breezy GNOME is in AUR (but not pacman, yet). To install: `yay -S breezy-desktop-gnome-git`
 
+#### Steam Deck Desktop Mode (writeable root filesystem)
+
+These instructions require making your filesystem read-write. Efforts have been made to use distrobox
+but so far have not succeeded. Please contribute if you have success with that!
+
+##### If your root is not already writeable, make it so
+```sh
+sudo steamos-readonly disable
+```
+##### If your pacman environment is not already initialized, make it so
+```sh
+sudo pacman-key --init
+sudo pacman-key --populate archlinux
+sudo pacman-key --populate holo
+```
+##### make sure /usr/share is in your XDG_DATA_DIRS variable
+##### if not, add :/usr/share to it
+##### load depends for breezy
+```sh
+sudo pacman -S --needed base-devel git
+# existing packages are reloaded here in order to install their header files
+sudo pacman -S glibc linux-api-headers holo-3.5/systemd-libs openssl libevdev libusb json-c curl hidapi python python-pydbus 'gnome-shell>=45.0' python-yaml
+```
+##### Install xr-driver-breezy-ghome-git
+```sh
+work=$(mktemp -d)
+cd $work
+mkdir xr-driver
+cd xr-driver
+curl 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=xr-driver-breezy-gnome-git' > PKGBUILD
+curl 'https://aur.archlinux.org/cgit/aur.git/plain/hooks.install?h=xr-driver-breezy-gnome-git' > hooks.install
+mkpkg -si
+```
+##### Install breezy-desktop-gnome-git
+```sh
+cd $work
+mkdir breezy
+cd breezy
+curl 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=breezy-desktop-gnome-git' > PKGBUILD
+```
+##### Make it read-only again (if desired)
+```sh
+sudo steamos-readonly enable
+```
+##### Thanks to TTachyon on Reddit for some very important info
+https://www.reddit.com/r/SteamDeck/comments/t92ozw/for_compiling_c_code
+
 #### All other distros
 
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
