@@ -23,8 +23,8 @@ PACKAGE_DIR=$GNOME_BUILD_DIR/breezy_gnome
 rm -rf $PACKAGE_DIR
 mkdir -p $PACKAGE_DIR
 
-XREAL_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
-source $XREAL_DRIVER_DIR/bin/inject_ua
+XR_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
+source $XR_DRIVER_DIR/bin/inject_ua
 
 # if a custom_banner image exists, copy it over the sombrero one
 if [ -e "$VULKAN_DIR/custom_banner.png" ]; then
@@ -33,36 +33,37 @@ fi
 
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
+copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
 
-XREAL_BINARY=$XREAL_DRIVER_DIR/out/xrealAirLinuxDriver-$ARCH.tar.gz
-pushd $XREAL_DRIVER_DIR
+XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
 
-if [ ! -e "$XREAL_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
+if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
   if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
-    cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
+    cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
   fi
+
+  pushd $XR_DRIVER_DIR
 
   # strange issue where the base library produces a .so file if the build is not cleaned
   rm -rf build/
 
   docker-build/init.sh
   BREEZY_DESKTOP=1 docker-build/run-build.sh $ARCH
+  popd
 fi
-popd
 
 TMP_DIR=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
 pushd $TMP_DIR
-cp $XREAL_BINARY $TMP_DIR/xrealAirLinuxDriver.tar.gz
-tar -xf $TMP_DIR/xrealAirLinuxDriver.tar.gz
+cp $XR_DRIVER_BINARY $TMP_DIR/xrDriver.tar.gz
+tar -xf $TMP_DIR/xrDriver.tar.gz
 
-XREAL_MANIFEST_LINE=$(sha256sum driver_air_glasses/manifest)
+XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
 popd
 rm -rf $TMP_DIR
 
-cp $XREAL_BINARY $PACKAGE_DIR/xrealAirLinuxDriver.tar.gz
-cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
+cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
+cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
 gnome/bin/package_extension
 cp gnome/out/breezydesktop@xronlinux.com.shell-extension.zip $PACKAGE_DIR
@@ -78,7 +79,7 @@ cp ui/out/com.xronlinux.BreezyDesktop-$ARCH.flatpak $PACKAGE_DIR/com.xronlinux.B
 # create manifest file for verifying installed file checksums against the originally packaged versions
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
 pushd $PACKAGE_DIR
-echo $XREAL_MANIFEST_LINE > manifest
+echo $XR_DRIVER_MANIFEST_LINE > manifest
 echo -e "$GNOME_MANIFEST_LINE breezydesktop@xronlinux.com" >> manifest
 popd
 
