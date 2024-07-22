@@ -17,11 +17,11 @@ Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNO
 
 ### GNOME Setup
 
-For the best performance, ensure you have the latest graphics drivers installed for your distro.
+For the best performance, ensure you have the latest graphics drivers installed for your distro. Also, double-check that your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays.
 
 #### Arch Linux
 
-Breezy GNOME is in AUR (but not pacman, yet). To install: `yay -S breezy-desktop-gnome-git`
+Breezy GNOME is in AUR (but not pacman, yet). To install: `yay -S breezy-desktop-gnome-git` and, once that succeeds, `systemctl --user enable --now xreal-air-driver.service`
 
 #### All other distros
 
