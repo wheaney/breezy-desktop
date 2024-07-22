@@ -154,9 +154,9 @@ Rerun the `breezy_vulkan_setup` script. No need to re-download this script, as i
 
 If you wish to completely remove the installation:
 * For **Breezy GNOME**:
-  * If you installed *via the setup script* run the following: `~/$XDG_BIN_HOME/breezy_gnome_uninstall` or `~/.local/bin/breezy_gnome_uninstall` if the XDG variable isn't set
+  * If you installed *via the setup script* run the following: `~/.local/bin/breezy_gnome_uninstall`
   * If you installed via `yay` run the following: `pacman -R breezy-desktop-gnome-git`, you may also want to uninstall the base driver with `pacman -R xr-driver-breezy-gnome-git`
-* For **Breezy Vulkan** run the following: `sudo ~/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
+* For **Breezy Vulkan** run the following: `~/.local/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
 
 ## Data Privacy Notice
 

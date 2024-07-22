@@ -6,8 +6,53 @@ set -e
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
 
 USER=${SUDO_USER:-$USER}
+GROUP=$(id -gn $USER)
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
 UA_EVENT_NAME="breezy_install"
+
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
+if [ ! -d "$DATA_DIR" ]; then
+  mkdir -p $DATA_DIR
+fi
+VULKAN_DATA_DIR="$XDG_DATA_HOME/vulkan"
+XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/xr_driver"
+
+if [ -z "$XDG_CONFIG_HOME" ]; then
+  XDG_CONFIG_HOME="$USER_HOME/.config"
+fi
+RESHADE_CONFIG_DIR="$XDG_CONFIG_HOME/reshade"
+VKBASALT_CONFIG_DIR="$XDG_CONFIG_HOME/vkBasalt"
+
+if [ -z "$XDG_BIN_HOME" ]; then
+  XDG_BIN_HOME="$USER_HOME/.local/bin"
+fi
+OLD_BIN_DIR="$USER_HOME/bin"
+BIN_DIR="$XDG_BIN_HOME"
+if [ ! -d "$BIN_DIR" ]; then
+  mkdir -p $BIN_DIR
+fi
+
+if [ -z "$XDG_STATE_HOME" ]; then
+  XDG_STATE_HOME="$USER_HOME/.local/state"
+fi
+STATE_DIR="$XDG_STATE_HOME/breezy_vulkan"
+if [ ! -d "$STATE_DIR" ]; then
+  mkdir -p $STATE_DIR
+fi
+
+LIB_DIR="$USER_HOME/.local/lib"
+if [ ! -d "$LIB_DIR" ]; then
+  mkdir -p "$LIB_DIR"
+fi
+
+LIB32_DIR="$USER_HOME/.local/lib32"
+if [ ! -d "$LIB32_DIR" ]; then
+  mkdir -p "$LIB32_DIR"
+fi
+
 if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
   echo "Cleaning up the previous installation"
 
@@ -17,68 +62,93 @@ if [ -e "$USER_HOME/bin/breezy_vulkan_uninstall" ]; then
   UA_EVENT_NAME="breezy_update"
 fi
 
+if [ -e "$BIN_DIR/breezy_vulkan_uninstall" ]; then
+  echo "Cleaning up the previous installation"
+
+  # ` || true` will ensure that this can't cause a failure, even with `set -e`
+  $BIN_DIR/breezy_vulkan_uninstall --for-install || true
+
+  UA_EVENT_NAME="breezy_update"
+fi
+
 UA_CLIENT_ID="BreezyVulkan"
 UA_EVENT_VERSION="$1"
 #INJECT_UA_CALL
 
-echo "Copying the breezy_vulkan scripts to ${USER_HOME}/bin"
-if [ ! -d "$USER_HOME/bin" ]; then
-  su -c 'mkdir -p '$USER_HOME'/bin' $USER
-fi
-cp bin/breezy_vulkan_uninstall $USER_HOME/bin
 
-echo "Installing vkBasalt; copying binaries, configs, and shader files to ${USER_HOME}/.local and ${USER_HOME}/.config"
+# escaping sed replace: https://stackoverflow.com/questions/407523/escape-a-string-for-a-sed-replace-pattern
+ESCAPED_BIN_DIR=$(printf '%s\n' "$BIN_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_LIB_DIR=$(printf '%s\n' "$LIB_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_LIB32_DIR=$(printf '%s\n' "$LIB32_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_RESHADE_CONFIG_DIR=$(printf '%s\n' "$RESHADE_CONFIG_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_STATE_DIR=$(printf '%s\n' "$STATE_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_DATA_DIR=$(printf '%s\n' "$DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_XR_DRIVER_DATA_DIR=$(printf '%s\n' "$XR_DRIVER_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+
+echo "Copying the breezy_vulkan scripts to ${BIN_DIR} and related files to ${DATA_DIR}"
+cp bin/breezy_vulkan_uninstall $BIN_DIR
+sed -i -e "s/{bin_dir}/$ESCAPED_BIN_DIR/g" \
+       -e "s/{lib_dir}/$ESCAPED_LIB_DIR/g" \
+       -e "s/{lib32_dir}/$ESCAPED_LIB32_DIR/g" \
+       -e "s/{reshade_config_dir}/$ESCAPED_RESHADE_CONFIG_DIR/g" \
+       -e "s/{state_dir}/$ESCAPED_STATE_DIR/g" \
+       -e "s/{data_dir}/$ESCAPED_DATA_DIR/g" \
+       -e "s/{xr_driver_data_dir}/$ESCAPED_XR_DRIVER_DATA_DIR/g" \
+          bin/breezy_vulkan_verify
+cp bin/breezy_vulkan_verify $BIN_DIR
+cp manifest $DATA_DIR
+
+# keep putting this in the old location in case an older version of the script tries to find it
+cp bin/breezy_vulkan_uninstall $OLD_BIN_DIR
+
+echo "Installing vkBasalt; copying binaries, configs, and shader files"
 
 # much of the setup below was informed by https://github.com/simons-public/steam-deck-vkbasalt-install
 # copy the vkBasalt binaries and configs
-su -c 'mkdir -p '$USER_HOME'/.local/{lib,lib32,share/vulkan/implicit_layer.d}' $USER
-su -c 'mkdir -p '$USER_HOME'/.config/{vkBasalt,reshade/Shaders,reshade/Textures}' $USER
-cp vkBasalt.64/libvkbasalt.so $USER_HOME/.local/lib/
-cp vkBasalt.32/libvkbasalt.so $USER_HOME/.local/lib32/
-chown $USER:$USER $USER_HOME/.local/lib/libvkbasalt.so
-chown $USER:$USER $USER_HOME/.local/lib32/libvkbasalt.so
+mkdir -p "$VULKAN_DATA_DIR"/implicit_layer.d
+mkdir -p "$XDG_CONFIG_HOME"/{vkBasalt,reshade/Shaders,reshade/Textures}
+cp vkBasalt.64/libvkbasalt.so $LIB_DIR/
+cp vkBasalt.32/libvkbasalt.so $LIB32_DIR/
 
 # there is only one vkBasalt.json file, use the 64-bit directory for both, copy and make replacements
 if grep -q SteamOS /etc/os-release ; then
-  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
-  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib32/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+  sed -e "s|libvkbasalt.so|${LIB_DIR}/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
+  sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
 else
-  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
-  sed -e "s|libvkbasalt.so|${USER_HOME}/.local/lib32/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+  sed -e "s|libvkbasalt.so|${LIB_DIR}/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
+  sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
 fi
-chown $USER:$USER $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.*
 
 # copy the vkBasalt.conf file and make replacements
-sed -e "s|/path/to/reshade-shaders|${USER_HOME}/.config/reshade|" \
-    -e "s|/path/to/virtual_display|${USER_HOME}/.config/reshade/Shaders/IMUAdjust.fx|" \
-    -e "s|/path/to/sideview|${USER_HOME}/.config/reshade/Shaders/Sideview.fx|" \
-    config/vkBasalt.conf > $USER_HOME/.config/vkBasalt/vkBasalt.conf
-chown -R $USER:$USER $USER_HOME/.config/vkBasalt
+sed -e "s|/path/to/reshade-shaders|${RESHADE_CONFIG_DIR}|" \
+    -e "s|/path/to/virtual_display|${RESHADE_CONFIG_DIR}/Shaders/IMUAdjust.fx|" \
+    -e "s|/path/to/sideview|${RESHADE_CONFIG_DIR}/Shaders/Sideview.fx|" \
+    config/vkBasalt.conf > $VKBASALT_CONFIG_DIR/vkBasalt.conf
 
-echo "Installing the Sombrero shaders and texture files to ${USER_HOME}/.config/reshade/{Shaders,Textures}"
-cp *.fx* $USER_HOME/.config/reshade/Shaders
-cp *.png $USER_HOME/.config/reshade/Textures
-chown -R $USER:$USER $USER_HOME/.config/reshade
+echo "Installing the Sombrero shaders and texture files to ${RESHADE_CONFIG_DIR}/{Shaders,Textures}"
+cp *.fx* $RESHADE_CONFIG_DIR/Shaders
+cp *.png $RESHADE_CONFIG_DIR/Textures
 
-# escaping sed replace: https://stackoverflow.com/questions/407523/escape-a-string-for-a-sed-replace-pattern
-ESCAPED_USER_HOME=$(printf '%s\n' "$USER_HOME" | sed -e 's/[\/&]/\\&/g')
+chown -R $USER:$GROUP $LIB_DIR
+chown -R $USER:$GROUP $LIB32_DIR
+chown -R $USER:$GROUP $DATA_DIR
+chown -R $USER:$GROUP $VULKAN_DATA_DIR
+chown -R $USER:$GROUP $RESHADE_CONFIG_DIR
+chown -R $USER:$GROUP $VKBASALT_CONFIG_DIR
+chown -R $USER:$GROUP $STATE_DIR
+chown -R $USER:$GROUP $BIN_DIR/breezy_vulkan_*
 
-echo "Copying the verification script and manifest to ${USER_HOME}/.local/bin/breezy_vulkan"
-sed -i -e "s/{user_home}/$ESCAPED_USER_HOME/g" bin/verify_installation
-if [ ! -d "$USER_HOME/.local/bin/breezy_vulkan" ]; then
-  mkdir -p $USER_HOME/.local/bin/breezy_vulkan
-fi
-cp -p bin/verify_installation $USER_HOME/.local/bin/breezy_vulkan
-cp manifest $USER_HOME/.local/bin/breezy_vulkan
+# clear bash's cache of executable locations, so it can find the newly installed scripts
+hash -r
 
-# set up the XREAL driver using the local binary
-echo "Installing xrealAirLinuxDriver"
-echo "BEGIN - xreal_driver_setup"
+# set up the XR driver using the local binary
+echo "Installing xrDriver"
+echo "BEGIN - xr_driver_setup"
 if [ -z "$1" ]
 then
-  bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+  bin/xr_driver_setup $(pwd)/xrDriver.tar.gz
 else
-  bin/xreal_driver_setup -v $1 $(pwd)/xrealAirLinuxDriver.tar.gz
+  bin/xr_driver_setup -v $1 $(pwd)/xrDriver.tar.gz
 fi
 
-echo "END - xreal_driver_setup"
+echo "END - xr_driver_setup"

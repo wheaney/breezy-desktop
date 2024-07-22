@@ -13,9 +13,7 @@ fi
 
 start_dir=$(pwd)
 
-
 ARCH=$(uname -m)
-echo "Building for $ARCH"
 
 # create temp directory
 tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)

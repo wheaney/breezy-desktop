@@ -3,27 +3,28 @@
 # exit when any command fails
 set -e
 
-XREAL_DRIVER_DIR=modules/XRLinuxDriver
-source $XREAL_DRIVER_DIR/bin/inject_ua
+ARCH=${ARCH:-$(uname -m)}
+echo "Building Breezy Vulkan for $ARCH"
 
-# check out submodules, recursively for nested ones
-git submodule update --init --recursive
+XR_DRIVER_DIR=modules/XRLinuxDriver
+source $XR_DRIVER_DIR/bin/inject_ua
 
 VULKAN_DIR=vulkan
-VULKAN_BUILD=$VULKAN_DIR/build
-if [ ! -d "$VULKAN_BUILD" ]; then
-  mkdir -p $VULKAN_BUILD
+VULKAN_BUILD_DIR=$VULKAN_DIR/build
+if [ ! -d "$VULKAN_BUILD_DIR" ]; then
+  mkdir -p $VULKAN_BUILD_DIR
 else
-  rm -rf $VULKAN_BUILD/*
+  rm -rf $VULKAN_BUILD_DIR/*
 fi
 
 VULKAN_MODULES=$VULKAN_DIR/modules
-PACKAGE_DIR=$VULKAN_BUILD/breezy_vulkan
+PACKAGE_DIR=$VULKAN_BUILD_DIR/breezy_vulkan
 if [ ! -d "$PACKAGE_DIR" ]; then
   mkdir -p $PACKAGE_DIR
 else
   rm -rf $PACKAGE_DIR/*
 fi
+BUILD_FILE_NAME=breezyVulkan-$ARCH.tar.gz
 
 # build vkBasalt
 VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
@@ -53,41 +54,55 @@ fi
 
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XREAL_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/verify_installation" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
+copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_verify" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
 cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
-# build xreal driver
-XREAL_BINARY=$XREAL_DRIVER_DIR/build/xrealAirLinuxDriver.tar.gz
+# build XR driver
+XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
 
-if [ ! -e "$XREAL_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
+if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
   if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
-    cp $VULKAN_DIR/custom_banner_config.yml $XREAL_DRIVER_DIR
+    cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
   fi
 
-  pushd $XREAL_DRIVER_DIR
+  pushd $XR_DRIVER_DIR
 
   # strange issue where the base library produces a .so file if the build is not cleaned
   rm -rf build/
 
-  bin/package
-else
-  pushd $XREAL_DRIVER_DIR
+  docker-build/init.sh
+  docker-build/run-build.sh $ARCH
+  popd
 fi
 
-XREAL_MANIFEST_LINE=$(sha256sum build/driver_air_glasses/manifest)
-popd
+TMP_DIR=$(mktemp -d -t breezy-vulkan-XXXXXXXXXX)
+cp $XR_DRIVER_BINARY $TMP_DIR/xrDriver.tar.gz
+pushd $TMP_DIR
+tar -xf $TMP_DIR/xrDriver.tar.gz
 
-# copy xreal binary and setup script
-cp $XREAL_BINARY $PACKAGE_DIR
-cp $XREAL_DRIVER_DIR/bin/xreal_driver_setup $PACKAGE_DIR/bin
+XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
+popd
+rm -rf $TMP_DIR
+
+# copy XR driver binary and setup script
+cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
+cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
 # create manifest file for verifying installed file checksums against the originally packaged versions
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
 pushd $PACKAGE_DIR
-echo $XREAL_MANIFEST_LINE > manifest
+echo $XR_DRIVER_MANIFEST_LINE > manifest
 sha256sum bin/breezy_vulkan_uninstall vkBasalt.64/libvkbasalt.so vkBasalt.32/libvkbasalt.so *.fx* *.png >> manifest
 popd
 
 # bundle everything up
-tar -zcvf $VULKAN_BUILD/breezyVulkan.tar.gz --directory $VULKAN_BUILD breezy_vulkan
+pushd $VULKAN_BUILD_DIR
+tar -zcvf $BUILD_FILE_NAME breezy_vulkan
+popd
+
+mkdir -p out
+if [ -e "out/$BUILD_FILE_NAME" ]; then
+  rm out/$BUILD_FILE_NAME
+fi
+cp $VULKAN_BUILD_DIR/$BUILD_FILE_NAME out

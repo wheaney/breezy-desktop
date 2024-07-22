@@ -14,31 +14,88 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+# Get the directory of the current script
+script_dir=$(dirname "$0")
+
 USER=${SUDO_USER:-$USER}
+GROUP=$(id -gn $USER)
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
+
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
+if [ ! -d "$DATA_DIR" ]; then
+  mkdir -p $DATA_DIR
+fi
+VULKAN_DATA_DIR="$XDG_DATA_HOME/vulkan"
+XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
+
+if [ -z "$XDG_CONFIG_HOME" ]; then
+  XDG_CONFIG_HOME="$USER_HOME/.config"
+fi
+CONFIG_DIR="$XDG_CONFIG_HOME/breezy_vulkan"
+if [ ! -d "$CONFIG_DIR" ]; then
+  mkdir -p $CONFIG_DIR
+fi
+
+if [ -z "$XDG_BIN_HOME" ]; then
+  XDG_BIN_HOME="$USER_HOME/.local/bin"
+fi
+OLD_BIN_DIR="$USER_HOME/bin"
+BIN_DIR="$XDG_BIN_HOME"
+if [ ! -d "$BIN_DIR" ]; then
+  mkdir -p $BIN_DIR
+fi
+
+if [ -z "$XDG_STATE_HOME" ]; then
+  XDG_STATE_HOME="$USER_HOME/.local/state"
+fi
+STATE_DIR="$XDG_STATE_HOME/breezy_vulkan"
+if [ ! -d "$STATE_DIR" ]; then
+  mkdir -p $STATE_DIR
+fi
+
+LIB_DIR="$USER_HOME/.local/lib"
+if [ ! -d "$LIB_DIR" ]; then
+  mkdir -p "$LIB_DIR"
+fi
+
+LIB32_DIR="$USER_HOME/.local/lib32"
+if [ ! -d "$LIB32_DIR" ]; then
+  mkdir -p "$LIB32_DIR"
+fi
+
 if [ "$for_install" -eq 0 ]; then
     UA_EVENT_NAME="breezy_uninstall"
     UA_CLIENT_ID="BreezyVulkan"
     #INJECT_UA_CALL
 fi
 
-[ "$for_install" -eq 0 ] && echo "Removing vkBasalt binaries from $USER_HOME/.local/lib[32]/"
-rm $USER_HOME/.local/lib/libvkbasalt.so
-rm $USER_HOME/.local/lib32/libvkbasalt.so
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt binaries from $LIB_DIR[32]/"
+rm $LIB_DIR/libvkbasalt.so
+rm $LIB32_DIR/libvkbasalt.so
 
-[ "$for_install" -eq 0 ] && echo "Removing vkBasalt vulkan layer configs from $USER_HOME/.local/share/vulkan/implicit_layer.d/"
-rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.json
-rm $USER_HOME/.local/share/vulkan/implicit_layer.d/vkBasalt.x86.json
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt vulkan layer configs from $VULKAN_DATA_DIR/implicit_layer.d/"
+rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
+rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
 
-[ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $USER_HOME/.config/"
-rm -rf $USER_HOME/.config/vkBasalt
-rm -rf $USER_HOME/.config/reshade
+[ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $CONFIG_DIR/"
+rm -rf $CONFIG_DIR/vkBasalt
+rm -rf $CONFIG_DIR/reshade
 
-[ "$for_install" -eq 0 ] && echo "Removing scripts at $USER_HOME/.local/bin/breezy_vulkan"
-rm -rf $USER_HOME/.local/bin/breezy_vulkan
+[ "$for_install" -eq 0 ] && echo "Removing scripts at $BIN_DIR"
+rm -f $BIN_DIR/breezy_vulkan_verify
 
-[ "$for_install" -eq 0 ] && echo "SKIPPING xrealAirLinuxDriver uninstall to keep mouse/joystick driver functionality."
-[ "$for_install" -eq 0 ] && echo "To manually uninstall xrealAirLinuxDriver, do: \"sudo ~/bin/xreal_driver_uninstall\""
+[ "$for_install" -eq 0 ] && echo "SKIPPING xrDriver uninstall to keep mouse/joystick driver functionality."
+[ "$for_install" -eq 0 ] && echo "To manually uninstall xrDriver, do: \"sudo xr_driver_uninstall\""
 
 # this script is self-deleting, leave this as the last command
-rm -f $USER_HOME/bin/breezy_vulkan_uninstall
+# remove the one we're not using first
+if [ "$script_dir" = "$OLD_BIN_DIR" ]; then
+    rm -f "$BIN_DIR/breezy_vulkan_uninstall"
+    rm -f "$OLD_BIN_DIR/breezy_vulkan_uninstall"
+else
+    rm -f "$OLD_BIN_DIR/breezy_vulkan_uninstall"
+    rm -f "$BIN_DIR/breezy_vulkan_uninstall"
+fi
