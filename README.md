@@ -85,7 +85,7 @@ If you don't receive a token, you can request one in the `License Details` view 
 
 #### Steam Deck via Decky Loader
 
-For Steam Deck users, the driver is now available via the [Decky plugin loader](https://github.com/SteamDeckHomebrew/decky-loader). Just search "xreal" in the Decky store to install and use without leaving Gaming Mode. You can now enable or disable the driver and manage other driver settings via the Decky sidebar menu.
+For Steam Deck users, the driver is now available via the [Decky plugin loader](https://github.com/SteamDeckHomebrew/decky-loader). Just search "xr" in the Decky store to install and use without leaving Gaming Mode. You can now enable or disable the driver and manage other driver settings via the Decky sidebar menu.
 
 You may still opt to do a manual installation using the instructions below if you enter Desktop Mode.
 
@@ -100,13 +100,13 @@ See [XRLinuxDriver's supported devices](https://github.com/wheaney/XRLinuxDriver
 
 ### Usage
 
-Once installed, you'll want to make sure you've enabled the driver (`~/bin/xreal_driver_config -e`) and then you can go into whichever output mode you'd like using (`~/bin/xreal_driver_config -m`) where `-m` is for mouse mode, `-j` for joystick, `-vd` for virtual display, and `-sv` for sideview; note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating virtual display or a sideview screen (depending on which mode you've chosen).
+Once installed, you'll want to make sure you've enabled the driver (`xr_driver_cli -e`) and then you can go into whichever output mode you'd like using (`xr_driver_cli -m`) where `-m` is for mouse mode, `-j` for joystick, `-vd` for virtual display, and `-sv` for sideview; note that these two commands can't be combined, they have to be done separately. From there, you should be able to launch any Vulkan game, plug in your glasses (at any point, not just after launching), and see a floating virtual display or a sideview screen (depending on which mode you've chosen).
 
 There's a wait period of 15 seconds after plugging in XREAL glasses where the screen will stay static to allow for the glasses to calibrate. Once ready, the screen will anchor to the space where you are looking.
 
 ### Configurations
 
-To see all the configuration options available to you, type `~/bin/xreal_driver_config` with no parameters to get the usage statement. There are some things you can't trigger from the script, like re-centering the virtual display or entering SBS mode; you can achieve these things through multi-tap or through the physical buttons on the glasses, respectively.
+To see all the configuration options available to you, type `xr_driver_cli` with no parameters to get the usage statement. There are some things you can't trigger from the script, like re-centering the virtual display or entering SBS mode; you can achieve these things through multi-tap or through the physical buttons on the glasses, respectively.
 
 #### Multi-tap to re-center or re-calibrate
 I've implemented an experimental multi-tap detection feature for screen **re-centering (2 taps)** and **re-calibrating the device (3 taps)**. To perform a multi-tap, you'll want to give decent taps on the top of the glasses. I tend to do this on the corner, right on top of the hinge. It should be a firm, sharp tap, and wait just a split second to do the second tap, as it needs to detect a slight pause in between (but it also shouldn't take more than a half a second between taps so don't wait too long).
@@ -133,18 +133,18 @@ Features currently offered:
 
 If you donate at least $10, you should immediately receive an email (to your Ko-fi email address) with a verification token. If you don't, request it using the config script: 
 ```bash
-~/bin/xreal_driver_config --request-token [emailAddress]
+xr_driver_cli --request-token [emailAddress]
 ```
 
 Once you have a token, verify it using:
 ```bash
-~/bin/xreal_driver_config --verify-token [token]
-~/bin/xreal_driver_config --refresh-license
+xr_driver_cli --verify-token [token]
+xr_driver_cli --refresh-license
 ```
 
 ### Disabling
 
-To disable the floating screen effect, either disable the driver (`~/bin/xreal_driver_config -d`), unplug the glasses, or hit the `Home` key (you'll need to bind this to your controller, if on Steam Deck).
+To disable the floating screen effect, either disable the driver (`xr_driver_cli -d`), unplug the glasses, or hit the `Home` key (you'll need to bind this to your controller, if on Steam Deck).
 
 ### Updating
 

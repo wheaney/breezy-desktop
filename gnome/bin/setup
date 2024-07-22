@@ -70,20 +70,14 @@ gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
 flatpak install --user --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak
 
-# set up the XREAL driver using the local binary
-echo "Installing xrealAirLinuxDriver"
-echo "BEGIN - xreal_driver_setup"
+# set up the XR driver using the local binary
+echo "Installing xrDriver"
+echo "BEGIN - xr_driver_setup"
 if [ -z "$1" ]
 then
-  sudo bin/xreal_driver_setup $(pwd)/xrealAirLinuxDriver.tar.gz
+  sudo bin/xr_driver_setup $(pwd)/xrDriver.tar.gz
 else
-  sudo bin/xreal_driver_setup -v $1 $(pwd)/xrealAirLinuxDriver.tar.gz
+  sudo bin/xr_driver_setup -v $1 $(pwd)/xrDriver.tar.gz
 fi
 
-echo "END - xreal_driver_setup"
-
-echo "Enabling the driver and setting it to Breezy Desktop mode"
-$USER_HOME/bin/xreal_driver_config -e
-$USER_HOME/bin/xreal_driver_config -vd
-
-sed -i 's/virtual_display/breezy_desktop/g' $USER_HOME/.xreal_driver_config
+echo "END - xr_driver_setup"
