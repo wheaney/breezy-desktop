@@ -14,6 +14,9 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+# Get the directory of the current script
+script_dir=$(dirname "$0")
+
 USER=${SUDO_USER:-$USER}
 GROUP=$(id -gn $USER)
 USER_HOME=$(getent passwd $USER | cut -d: -f6)
@@ -39,6 +42,7 @@ fi
 if [ -z "$XDG_BIN_HOME" ]; then
   XDG_BIN_HOME="$USER_HOME/.local/bin"
 fi
+OLD_BIN_DIR="$USER_HOME/bin"
 BIN_DIR="$XDG_BIN_HOME"
 if [ ! -d "$BIN_DIR" ]; then
   mkdir -p $BIN_DIR
@@ -87,4 +91,11 @@ rm -f $BIN_DIR/breezy_vulkan_verify
 [ "$for_install" -eq 0 ] && echo "To manually uninstall xrDriver, do: \"sudo xr_driver_uninstall\""
 
 # this script is self-deleting, leave this as the last command
-rm -f $BIN_DIR/breezy_vulkan_uninstall
+# remove the one we're not using first
+if [ "$script_dir" = "$OLD_BIN_DIR" ]; then
+    rm -f "$BIN_DIR/breezy_vulkan_uninstall"
+    rm -f "$OLD_BIN_DIR/breezy_vulkan_uninstall"
+else
+    rm -f "$OLD_BIN_DIR/breezy_vulkan_uninstall"
+    rm -f "$BIN_DIR/breezy_vulkan_uninstall"
+fi
