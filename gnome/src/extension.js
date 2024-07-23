@@ -15,6 +15,7 @@ import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
+const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
 const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
     'nreal air',
@@ -22,7 +23,7 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'Air 2', // guessing this one
     'Air 2 Pro',
     'SmartGlasses', // TCL/RayNeo
-    'MetaMonitor' // nested mode dummy monitor
+    NESTED_MONITOR_PRODUCT
 ];
 
 export default class BreezyDesktopExtension extends Extension {
@@ -126,7 +127,8 @@ export default class BreezyDesktopExtension extends Extension {
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
-                    refreshRate: target_monitor.refreshRate
+                    refreshRate: target_monitor.refreshRate,
+                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT
                 };
             }
 
