@@ -17,9 +17,17 @@ check_command "gnome-extensions"
 
 USER_HOME=$(realpath ~)
 
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/xr_driver"
+GNOME_SHELL_DATA_DIR="$XDG_DATA_HOME/gnome-shell"
+DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
+
 if [ -z "$XDG_BIN_HOME" ]; then
   XDG_BIN_HOME="$USER_HOME/.local/bin"
 fi
+BIN_DIR="$XDG_BIN_HOME"
 
 if [ -d "$XDG_BIN_HOME" ]; then
   # check ownership and permissions before doing chown and chmod
@@ -36,11 +44,6 @@ if [ -d "$XDG_BIN_HOME" ]; then
   fi
 fi
 
-if [ -z "$XDG_DATA_HOME" ]; then
-  XDG_DATA_HOME="$USER_HOME/.local/share"
-fi
-DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
-
 UA_EVENT_NAME="breezy_gnome_install"
 if [ -e "$XDG_BIN_HOME/breezy_gnome_uninstall" ]; then
   echo "Cleaning up the previous installation"
@@ -55,9 +58,20 @@ UA_CLIENT_ID="BreezyGNOME"
 UA_EVENT_VERSION="$1"
 #INJECT_UA_CALL
 
+# escaping sed replace: https://stackoverflow.com/questions/407523/escape-a-string-for-a-sed-replace-pattern
+ESCAPED_BIN_DIR=$(printf '%s\n' "$BIN_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_DATA_DIR=$(printf '%s\n' "$DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_XR_DRIVER_DATA_DIR=$(printf '%s\n' "$XR_DRIVER_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_GNOME_SHELL_DATA_DIR=$(printf '%s\n' "$GNOME_SHELL_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+
 echo "Copying the breezy_gnome scripts to ${XDG_BIN_HOME}"
 mkdir -p $XDG_BIN_HOME
 cp bin/breezy_gnome_uninstall $XDG_BIN_HOME
+sed -i -e "s/{bin_dir}/$ESCAPED_BIN_DIR/g" \
+       -e "s/{data_dir}/$ESCAPED_DATA_DIR/g" \
+       -e "s/{xr_driver_data_dir}/$ESCAPED_XR_DRIVER_DATA_DIR/g" \
+       -e "s/{gnome_shell_data_dir}/$ESCAPED_GNOME_SHELL_DATA_DIR/g" \
+          bin/breezy_gnome_verify
 cp bin/breezy_gnome_verify $XDG_BIN_HOME
 
 echo "Copying the manifest file to ${DATA_DIR}"

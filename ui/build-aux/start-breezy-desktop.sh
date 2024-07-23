@@ -5,6 +5,7 @@
 
 IFS=: read -ra host_data_dirs < <(flatpak-spawn --host sh -c 'echo "$XDG_DATA_DIRS"')
 IFS=: read -ra HOST_XDG_STATE_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_STATE_HOME"')
+IFS=: read -ra HOST_XDG_CONFIG_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_CONFIG_HOME"')
 IFS=: read -ra HOST_XDG_BIN_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_BIN_HOME"')
 IFS=: read -ra HOST_XDG_DATA_HOME < <(flatpak-spawn --host sh -c 'echo "$XDG_DATA_HOME"')
 
@@ -48,6 +49,12 @@ else
   XDG_STATE_HOME="$(realpath ~)/.local/state"
 fi
 
+if [[ ! -z "${HOST_XDG_CONFIG_HOME}" ]]; then
+  XDG_CONFIG_HOME="${HOST_XDG_CONFIG_HOME}"
+else
+  XDG_CONFIG_HOME="$(realpath ~)/.config"
+fi
+
 if [[ ! -z "${HOST_XDG_DATA_HOME}" ]]; then
   XDG_DATA_HOME="${HOST_XDG_DATA_HOME}"
 else
@@ -57,5 +64,6 @@ fi
 export XDG_DATA_DIRS
 export XDG_BIN_HOME
 export XDG_STATE_HOME
+export XDG_CONFIG_HOME
 export XDG_DATA_HOME
 exec breezydesktop "$@"
