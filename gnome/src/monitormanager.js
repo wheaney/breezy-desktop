@@ -86,9 +86,18 @@ function getMonitorConfig(displayConfigProxy, callback) {
 }
 
 // triggers callback with true result if an an async monitor config change was triggered, false if no config change needed
-function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, useHighestRefreshRate, callback) {
+function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, useHighestRefreshRate, 
+                                 allowConfigUpdateFn, callback) {
     Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck for ${connectorName}`);
+
     displayConfigProxy.GetCurrentStateRemote((result, error) => {
+        if (!allowConfigUpdateFn()) {
+            // other requests are in progress, this monitor state may be stale, do nothing
+            Globals.logger.log_debug('MonitorManager performOptimalModeCheck: allowConfigUpdate is false');
+            callback(false, null);
+            return;
+        }
+
         if (error) {
             callback(null, `GetCurrentState failed: ${error}`);
         } else {
@@ -239,7 +248,10 @@ export const MonitorManager = GObject.registerClass({
         this._backendManager = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
-        this._needsConfigCheck = this.use_optimal_monitor_config;
+
+        // help prevent certain actions from taking place multiple times in the event of rapid monitor updates
+        this._configCheckRequestCount = this.use_optimal_monitor_config ? 1 : 0;
+        this._asyncRequestsCount = 0;
     }
 
     enable() {
@@ -279,36 +291,43 @@ export const MonitorManager = GObject.registerClass({
         return this._monitorProperties;
     }
 
-    // returns true if a check is needed, caller should wait for the next change hook call
+    // returns true if an async check is needed, caller should wait for the next change hook call
     needsOptimalModeCheck(monitorConnector) {
-        Globals.logger.log_debug(`MonitorManager checkOptimalMode: ${monitorConnector}`);
+        Globals.logger.log_debug(`MonitorManager needsOptimalModeCheck: ${monitorConnector}`);
         if (this._displayConfigProxy == null) {
-            Globals.logger.log('MonitorManager checkOptimalMode: _displayConfigProxy not set!');
+            Globals.logger.log('MonitorManager needsOptimalModeCheck: _displayConfigProxy not set!');
             return false;
         }
 
-        if (this._needsConfigCheck) {
+        let needsConfigCheck = this._configCheckRequestCount > 0;
+        if (needsConfigCheck && --this._configCheckRequestCount === 0) {
+            this._asyncRequestsCount++;
+            const allowConfigUpdateFn = (() => this._asyncRequestsCount === 1).bind(this);
             performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, this.use_highest_refresh_rate, ((configChanged, error) => {
-                this._needsConfigCheck = false;
+                if (--this._asyncRequestsCount > 0) {
+                    Globals.logger.log_debug(`MonitorManager _on_monitors_change: ${this._asyncRequestsCount} async requests still pending, skipping change hook`);
+                    return;
+                }
+
                 if (error) {
                     Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
                 } else {
                     if (configChanged) {
                         Globals.logger.log(`Switched to optimal mode for monitor ${monitorConnector}`);
                     } else if (!!this._changeHookFn) {
-                        Globals.logger.log_debug('MonitorManager checkOptimalMode: no config change');
+                        Globals.logger.log_debug('MonitorManager needsOptimalModeCheck: no config change');
                         
                         // no config change means this won't be triggered automatically, so trigger it manually
                         this._changeHookFn();
                     } else {
-                        Globals.logger.log('MonitorManager checkOptimalMode: can\'t trigger change hook, no hook set!');
+                        Globals.logger.log('MonitorManager needsOptimalModeCheck: can\'t trigger change hook, no hook set!');
                     }
                 }
-            }).bind(this));
+            }).bind(this), this._allowConfigChange.bind(this));
         } else {
-            Globals.logger.log_debug('MonitorManager checkOptimalMode: skipping config check');
+            Globals.logger.log_debug('MonitorManager needsOptimalModeCheck: skipping config check');
         }
-        return this._needsConfigCheck;
+        return needsConfigCheck;
     }
 
     _on_monitors_change() {
@@ -316,9 +335,16 @@ export const MonitorManager = GObject.registerClass({
         if (this._displayConfigProxy == null) {
             return;
         }
-        this._needsConfigCheck = this.use_optimal_monitor_config;
+        if (this.use_optimal_monitor_config) this._configCheckRequestCount++;
+        this._asyncRequestsCount++;
         getMonitorConfig(this._displayConfigProxy, ((result, error) => {
+            if (--this._asyncRequestsCount > 0) {
+                Globals.logger.log_debug(`MonitorManager _on_monitors_change: ${this._asyncRequestsCount} async requests still pending, skipping change hook`);
+                return;
+            }
+
             if (error) {
+                Globals.logger.log(error);
                 return;
             }
             const monitorProperties = [];
