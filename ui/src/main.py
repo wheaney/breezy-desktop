@@ -21,6 +21,7 @@ import gi
 import logging
 import os
 import sys
+import argparse
 
 from logging.handlers import TimedRotatingFileHandler
 
@@ -35,8 +36,12 @@ from .statemanager import StateManager
 from .window import BreezydesktopWindow
 from .xrdriveripc import XRDriverIPC
 
-state_dir = os.path.expanduser("~/.local/state")
-log_dir = os.path.join(state_dir, 'breezy_gnome/logs/ui')
+config_home = os.environ.get('XDG_CONFIG_HOME', '~/.config')
+config_dir = os.path.expanduser(config_home)
+state_home = os.environ.get('XDG_STATE_HOME', '~/.local/state')
+state_dir = os.path.expanduser(state_home)
+breezy_state_dir = os.path.join(state_dir, 'breezy_gnome')
+log_dir = os.path.join(breezy_state_dir, 'logs/ui')
 os.makedirs(log_dir, exist_ok=True)
 
 logger = logging.getLogger('breezy_ui')
@@ -53,18 +58,19 @@ def excepthook(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = excepthook
 
-XRDriverIPC.set_instance(XRDriverIPC(logger))
+XRDriverIPC.set_instance(XRDriverIPC(logger, config_dir))
 
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
 
-    def __init__(self):
+    def __init__(self, skip_verification):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
         self.create_action('reset_driver', self.on_reset_driver_action)
+        self._skip_verification = skip_verification
 
     def do_activate(self):
         """Called when the application is activated.
@@ -74,7 +80,7 @@ class BreezydesktopApplication(Adw.Application):
         """
         win = self.props.active_window
         if not win:
-            win = BreezydesktopWindow(application=self)
+            win = BreezydesktopWindow(self._skip_verification, application=self)
             win.connect('close-request', lambda *_: self.on_quit_action())
             win.connect('destroy', lambda *_: self.on_quit_action())
         win.present()
@@ -125,5 +131,9 @@ class BreezydesktopApplication(Adw.Application):
 
 
 def main(version):
-    app = BreezydesktopApplication()
-    return app.run(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-sv", "--skip-verification", action="store_true")
+    args = parser.parse_args()
+
+    app = BreezydesktopApplication(args.skip_verification)
+    return app.run(None)

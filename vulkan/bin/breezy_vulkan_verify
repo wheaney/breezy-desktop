@@ -5,8 +5,16 @@ set -e
 # create a string to string mapping, file name to expected file location
 declare -A file_paths
 file_paths=(
+  ["bin/breezy_vulkan_uninstall"]="{bin_dir}/breezy_vulkan_uninstall"
+  ["vkBasalt.64/libvkbasalt.so"]="{lib_dir}/libvkbasalt.so"
+  ["vkBasalt.32/libvkbasalt.so"]="{lib32_dir}/libvkbasalt.so"
+  ["IMUAdjust.fx"]="{reshade_config_dir}/Shaders/IMUAdjust.fx"
+  ["ReShade.fxh"]="{reshade_config_dir}/Shaders/ReShade.fxh"
+  ["ReShadeUI.fxh"]="{reshade_config_dir}/Shaders/ReShadeUI.fxh"
+  ["Sideview.fx"]="{reshade_config_dir}/Shaders/Sideview.fx"
+  ["calibrating.png"]="{reshade_config_dir}/Textures/calibrating.png"
+  ["custom_banner.png"]="{reshade_config_dir}/Textures/custom_banner.png"
   ["xr_driver/manifest"]="{xr_driver_data_dir}/manifest"
-  ["breezydesktop@xronlinux.com"]="{gnome_shell_data_dir}/extensions/breezydesktop@xronlinux.com"
 )
 
 # verify the file hashes in ./manifest
@@ -18,16 +26,8 @@ do
 
   actual_file_path=${file_paths[$file]}
 
-  # check if the file path is a directory
-    if [ -d "$actual_file_path" ]; then
-        # compute the SHA256 hash of the directory contents
-        pushd $actual_file_path > /dev/null
-        actual_hash=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
-        popd > /dev/null
-    else
-        # compute the SHA256 hash of the actual file
-        actual_hash=$(sha256sum $actual_file_path | awk '{print $1}')
-    fi
+  # compute the SHA256 hash of the actual file
+  actual_hash=$(sha256sum $actual_file_path | awk '{print $1}')
 
   # compare the hashes
   if ! [ "$manifest_hash" = "$actual_hash" ]; then

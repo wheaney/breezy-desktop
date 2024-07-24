@@ -3,7 +3,13 @@
 	<id>com.xronlinux.BreezyDesktop.desktop</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
+	<name>Breezy Desktop</name>
+  	<summary>XR Desktop Control Panel</summary>
 	<description>
-	  <p>No description</p>
+	  <p>XR Desktop Control Panel</p>
 	</description>
+	<categories>
+		<category>Office</category>
+		<category>Development</category>
+	</categories>
 </component>

@@ -42,9 +42,9 @@ flatpak uninstall --user --noninteractive --force-remove  com.xronlinux.BreezyDe
 [ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
 # if for-install
 if [ "$for_install" -eq 1 ]; then
-    sudo ~/bin/xreal_driver_uninstall --for-install
+    sudo ~/.local/bin/xr_driver_uninstall --for-install
 else
-    sudo ~/bin/xreal_driver_uninstall
+    sudo ~/.local/bin/xr_driver_uninstall
 fi
 
 

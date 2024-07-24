@@ -17,13 +17,15 @@ const { MonitorManager } = Me.imports.monitormanager;
 const { isValidKeepAlive } = Me.imports.time;
 const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
 
+const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
 const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
     'nreal air',
     'Air',
     'Air 2', // guessing this one
     'Air 2 Pro',
-    'SmartGlasses' // TCL/RayNeo
+    'SmartGlasses', // TCL/RayNeo
+    NESTED_MONITOR_PRODUCT
 ];
 
 class BreezyDesktopExtension {
@@ -72,6 +74,7 @@ class BreezyDesktopExtension {
             this._monitor_manager = new MonitorManager({
                 use_optimal_monitor_config: this.settings.get_boolean('use-optimal-monitor-config'),
                 headset_as_primary: this.settings.get_boolean('headset-as-primary'),
+                use_highest_refresh_rate: this.settings.get_boolean('use-highest-refresh-rate'),
                 extension_path: this.path
             });
             this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
@@ -121,11 +124,12 @@ class BreezyDesktopExtension {
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
                 monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
             if (target_monitor !== undefined) {
-                Globals.logger.log_debug(`BreezyDesktopExtension _find_supported_monitor - Identified supported monitor: ${target_monitor.connector}`);
+                Globals.logger.log(`Identified supported monitor: ${target_monitor.product} on ${target_monitor.connector}`);
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
-                    refreshRate: target_monitor.refreshRate
+                    refreshRate: target_monitor.refreshRate,
+                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT
                 };
             }
 
@@ -152,8 +156,11 @@ class BreezyDesktopExtension {
     // A false result means we'll expect _handle_monitor_change to be triggered, so active polling
     // can be disabled.
     _target_monitor_ready(target_monitor) {
-        return target_monitor.is_dummy ||
-            !this._monitor_manager.needsOptimalModeCheck(target_monitor.connector);
+        if (target_monitor.is_dummy) return true;
+
+        const needs_sbs_mode_switch = this.settings.get_boolean('fast-sbs-mode-switching') && 
+                                      this._needs_widescreen_monitor_update();
+        return !needs_sbs_mode_switch && !this._monitor_manager.needsOptimalModeCheck(target_monitor.connector);
     }
 
     _setup() {
@@ -214,7 +221,7 @@ class BreezyDesktopExtension {
         const widescreen_setting_enabled = this.settings.get_boolean('widescreen-mode');
         if (widescreen_setting_enabled !== sbs_enabled) {
             Globals.logger.log_debug('BreezyDesktopExtension _needs_widescreen_monitor_update - true');
-            this._write_control('sbs_mode', widescreen_setting_enabled ? 'enable' : 'disable');
+            this._request_sbs_mode_change(widescreen_setting_enabled);
             return true;
         }
 
@@ -260,7 +267,10 @@ class BreezyDesktopExtension {
                 });
 
                 this._update_follow_threshold(this.settings);
-                this._update_widescreen_mode_from_settings(this.settings);
+
+                // this gets triggered before _effect_enable if in fast-sbs-mode-switching mode
+                if (!this.settings.get_boolean('fast-sbs-mode-switching')) 
+                    this._update_widescreen_mode_from_settings(this.settings);
 
                 this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
                 this._supported_device_detected_connected = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
@@ -363,16 +373,41 @@ class BreezyDesktopExtension {
         if (value !== undefined) this._write_control('breezy_desktop_follow_threshold', value);
     }
 
+    // requests sbs_mode change and monitors to ensure the state reflects the setting
+    _request_sbs_mode_change(value) {
+        this._write_control('sbs_mode', value ? 'enable' : 'disable');
+        if (!this._sbs_mode_update_timeout) {
+            var attempts = 0;
+            this._sbs_mode_update_timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10000, (() => {
+                if (attempts++ < 3) {
+                    this._write_control('sbs_mode', value ? 'enable' : 'disable');
+                    return GLib.SOURCE_CONTINUE;
+                }
+
+                // the state never updated to reflect our request, revert the setting
+                this.settings.set_boolean('widescreen-mode', !value);
+                this._sbs_mode_update_timeout = undefined;
+                return GLib.SOURCE_REMOVE;
+            }).bind(this));
+        }
+    }
+
     _update_widescreen_mode_from_settings(settings, event) {
         const value = settings.get_boolean('widescreen-mode');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_settings ${value}`);
-        if (value !== undefined && value !== this._xr_effect.widescreen_mode_state) 
-            this._write_control('sbs_mode', value ? 'enable' : 'disable');
-        else
+        if (value !== undefined && value !== this._xr_effect.widescreen_mode_state) {
+            this._request_sbs_mode_change(value);
+        } else
             Globals.logger.log_debug('effect.widescreen_mode_state already matched setting');
     }
 
     _update_widescreen_mode_from_state(effect, _pspec) {
+        // kill our state checker if it's running
+        if (this._sbs_mode_update_timeout) {
+            GLib.source_remove(this._sbs_mode_update_timeout);
+            this._sbs_mode_update_timeout = undefined;
+        }
+
         const value = effect.widescreen_mode_state;
         Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_state ${value}`);
         if (value !== this.settings.get_boolean('widescreen-mode'))
