@@ -116,6 +116,9 @@ wmclassmatch=1
 To install the rule
 1. copy the above text into a file
 2. go to KDE settings and click on Window Management
+
 ![image](settings1.jpg)
+
 3. click on Window Rules and then click the Import button to import the rules
+
 ![image](settings2.jpg)
