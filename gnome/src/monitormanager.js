@@ -109,6 +109,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
             let ourMonitor = undefined;
             let monitorToModeIdMap = {};
             let bestFitMode = undefined;
+            const skipScaleUpdate = !!properties['global-scale-required'];
             for (let monitor of monitors) {
                 const [details, availableModes, monProperties] = monitor;
                 const [connector, vendor, product, monitorSerial] = details;
@@ -157,7 +158,8 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                     const updatedLogicalMonitors = logicalMonitors.map((logicalMonitor) => {
                         const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
                         const hasOurMonitor = !!monitors.some((monitor) => monitor[0] === connectorName);
-                        anyMonitorsChanged |= hasOurMonitor && bestFitMode.bestScale !== scale;
+                        const newScale = (!skipScaleUpdate && hasOurMonitor) ? bestFitMode.bestScale : scale;
+                        anyMonitorsChanged |= newScale !== scale;
 
                         // there can only be one primary monitor, so we need to set all other monitors to not primary and glasses to primary, 
                         // if headsetAsPrimary is true
@@ -165,7 +167,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                         return [
                             x,
                             y,
-                            hasOurMonitor ? bestFitMode.bestScale : scale,
+                            newScale,
                             transform,
                             headsetAsPrimary ? hasOurMonitor : primary,
                             monitors.map((monitor) => {
