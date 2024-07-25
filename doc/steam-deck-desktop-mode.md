@@ -22,7 +22,7 @@ sudo pacman-key --populate archlinux
 sudo pacman-key --populate holo
 ```
 # make sure /usr/share is in your XDG_DATA_DIRS variable
-# if not, add :/usr/share to it
+if not, add :/usr/share to it
 # load depends for breezy
 ```sh
 sudo pacman -S --needed base-devel git
