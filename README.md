@@ -21,9 +21,10 @@ For the best performance, ensure you have the latest graphics drivers installed 
 
 #### Arch Linux
 
-*Note: if you've previously installed Breezy GNOME using the setup script, you must uninstall it first: `~/.local/bin/breezy_gnome_uninstall`*
-
-Breezy GNOME is in AUR (but not pacman, yet). To install: `yay -S breezy-desktop-gnome-git` and, once that succeeds, `systemctl --user enable --now xr-driver.service`
+Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands from a terminal:
+1. If you've previously installed Breezy GNOME using the setup script, you must uninstall it first with `breezy_gnome_uninstall`
+2. `yay -S breezy-desktop-gnome-git`
+3. `systemctl --user enable --now xr-driver.service`
 
 #### All other distros
 
