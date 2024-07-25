@@ -31,7 +31,7 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script:
    * For **GNOME 45+**: `~/Downloads/breezy_gnome_setup`
-   * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max-beta-1` 
+   * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max-beta-2`
 
 ### Non-GNOME Setup
 A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
