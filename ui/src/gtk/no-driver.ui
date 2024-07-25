@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="NoDriver" parent="GtkBox">
+    <property name="orientation">1</property>
+    <property name="margin-top">20</property>
+    <property name="margin-bottom">20</property>
+    <property name="margin-start">20</property>
+    <property name="margin-end">20</property>
+    <property name="spacing">20</property>
+    <child>
+      <object class="AdwStatusPage">
+        <property name="title" translatable="true">No driver running</property>
+        <property name="description" translatable="true">
+          If you installed via AUR, make sure you ran the recommended post-install command:
+          systemctl --user enable --now xr-driver.service
+
+          Otherwise, please file an issue on GitHub, or create a new thread in the #troubleshooting channel on Discord.
+        </property>
+        <property name="width-request">650</property>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -95,24 +95,30 @@ export default class BreezyDesktopExtension extends Extension {
         var target_monitor = this._target_monitor;
         var is_effect_running = this._is_effect_running;
         this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
-            if (is_effect_running) {
-                this._running_poller_id = undefined;
-                return GLib.SOURCE_REMOVE;
-            }
-
-            const is_driver_running = this._check_driver_running();
-            if (is_driver_running && target_monitor) {
-                // Don't enable the effect yet if monitor updates are needed.
-                // _setup will be triggered again since a !ready result means it will trigger monitor changes,
-                // so we can remove this timeout_add no matter what.
-                if (this._target_monitor_ready(target_monitor)) {
-                    Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
-                    this._effect_enable();
+            try {
+                if (is_effect_running) {
+                    this._running_poller_id = undefined;
+                    return GLib.SOURCE_REMOVE;
                 }
+
+                const is_driver_running = this._check_driver_running();
+                if (is_driver_running && target_monitor) {
+                    // Don't enable the effect yet if monitor updates are needed.
+                    // _setup will be triggered again since a !ready result means it will trigger monitor changes,
+                    // so we can remove this timeout_add no matter what.
+                    if (this._target_monitor_ready(target_monitor)) {
+                        Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
+                        this._effect_enable();
+                    }
+                    this._running_poller_id = undefined;
+                    return GLib.SOURCE_REMOVE;
+                } else {
+                    return GLib.SOURCE_CONTINUE;
+                }
+            } catch (e) {
+                Globals.logger.log(`ERROR: BreezyDesktopExtension _poll_for_ready ${e.message}\n${e.stack}`);
                 this._running_poller_id = undefined;
                 return GLib.SOURCE_REMOVE;
-            } else {
-                return GLib.SOURCE_CONTINUE;
             }
         }).bind(this));
     }
@@ -333,29 +339,37 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _write_control(key, value) {
-        const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
-        const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        stream.write(`${key}=${value}`, null);
-        stream.close(null);
+        try {
+            const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
+            const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+            stream.write(`${key}=${value}`, null);
+            stream.close(null);
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
+        }
     }
 
     _read_state(keys) {
         const state = {};
-        const file = Gio.file_new_for_path('/dev/shm/xr_driver_state');
-        if (file.query_exists(null)) {
-            const data = file.load_contents(null);
-        
-            if (data[0]) {
-                const bytes = new Uint8Array(data[1]);
-                const decoder = new TextDecoder();
-                const contents = decoder.decode(bytes);
+        try {
+            const file = Gio.file_new_for_path('/dev/shm/xr_driver_state');
+            if (file.query_exists(null)) {
+                const data = file.load_contents(null);
+            
+                if (data[0]) {
+                    const bytes = new Uint8Array(data[1]);
+                    const decoder = new TextDecoder();
+                    const contents = decoder.decode(bytes);
 
-                const lines = contents.split('\n');
-                for (const line of lines) {
-                    const [k, v] = line.split('=');
-                    if (keys.includes(k)) state[k] = v;
+                    const lines = contents.split('\n');
+                    for (const line of lines) {
+                        const [k, v] = line.split('=');
+                        if (keys.includes(k)) state[k] = v;
+                    }
                 }
             }
+        } catch (e) {
+            Globals.logger.log(`ERROR: BreezyDesktopExtension _read_state ${e.message}\n${e.stack}`);
         }
         return state;
     }
@@ -377,13 +391,14 @@ export default class BreezyDesktopExtension extends Extension {
         this._write_control('sbs_mode', value ? 'enable' : 'disable');
         if (!this._sbs_mode_update_timeout) {
             var attempts = 0;
-            this._sbs_mode_update_timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10000, (() => {
+            this._sbs_mode_update_timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, (() => {
                 if (attempts++ < 3) {
                     this._write_control('sbs_mode', value ? 'enable' : 'disable');
                     return GLib.SOURCE_CONTINUE;
                 }
 
                 // the state never updated to reflect our request, revert the setting
+                Globals.logger.log('Failed to update sbs_mode state, reverting setting');
                 this.settings.set_boolean('widescreen-mode', !value);
                 this._sbs_mode_update_timeout = undefined;
                 return GLib.SOURCE_REMOVE;
@@ -403,6 +418,7 @@ export default class BreezyDesktopExtension extends Extension {
     _update_widescreen_mode_from_state(effect, _pspec) {
         // kill our state checker if it's running
         if (this._sbs_mode_update_timeout) {
+            Globals.logger.log_debug('BreezyDesktopExtension _update_widescreen_mode_from_state - clearing timeout');
             GLib.source_remove(this._sbs_mode_update_timeout);
             this._sbs_mode_update_timeout = undefined;
         }
@@ -448,8 +464,9 @@ export default class BreezyDesktopExtension extends Extension {
             this._is_effect_running = false;
 
             if (this._running_poller_id) {
-                GLib.source_remove(this._running_poller_id);
+                const poller_id = this._running_poller_id;
                 this._running_poller_id = undefined;
+                GLib.source_remove(poller_id);
             }
 
             Main.wm.removeKeybinding('recenter-display-shortcut');
