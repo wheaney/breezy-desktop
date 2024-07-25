@@ -64,8 +64,12 @@ For reference, I'm using the Inateck 10-in-1 USB-C hub [(Amazon link)](https://w
 
 # More setup stuff
 ## My current `breezy` script
-This starts the breezy desktop in a nested gnome-shell, and waits for you to activate the window (like by
-clicking on it). This expects the `classify-gnome-shell` script to be in your path.
+This starts the breezy desktop in a nested gnome-shell and, after you activate the window (like by
+clicking on it) and, provided you have the window rule below, this will full-screen the window, remove the
+title bar, and make it ignore KDE desktop keyboard shortcuts so that the desktop can fully function as a gnome
+desktop.
+
+This expects the `classify-gnome-shell` script to be in your path.
 
 ```sh
 #!/bin/sh
