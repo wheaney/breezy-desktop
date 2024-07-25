@@ -360,6 +360,7 @@ export const MonitorManager = GObject.registerClass({
         }
         this._asyncRequestsInFlight++;
         getMonitorConfig(this._displayConfigProxy, ((result, error) => {
+            this._asyncRequestsInFlight--;
             if (error) {
                 Globals.logger.log(error);
                 return;
@@ -384,7 +385,7 @@ export const MonitorManager = GObject.registerClass({
             }
             this._monitorProperties = monitorProperties;
             if (!!this._changeHookFn) {
-                if (--this._asyncRequestsInFlight === 0) {
+                if (this._asyncRequestsInFlight === 0) {
                     this._changeHookFn();
                 } else {
                     Globals.logger.log_debug(`MonitorManager _on_monitors_change: ${this._asyncRequestsInFlight} requests still pending, skipping change hook`);
