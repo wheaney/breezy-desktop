@@ -64,6 +64,9 @@ For reference, I'm using the Inateck 10-in-1 USB-C hub [(Amazon link)](https://w
 
 # More setup stuff
 ## My current `breezy` script
+This starts the breezy desktop in a nested gnome-shell, and waits for you to activate the window (like by
+clicking on it). This expects the `classify-gnome-shell` script to be in your path.
+
 ```sh
 #!/bin/sh
 dconf write /com/xronlinux/BreezyDesktop/debug true
@@ -73,7 +76,6 @@ MUTTER_DEBUG_DUMMY_MODE_SPECS='1920x1080@60' exec dbus-run-session -- gnome-shel
 #MUTTER_DEBUG_DUMMY_MODE_SPECS='3840x1080@60' exec dbus-run-session -- gnome-shell --nested
 ```
 ## My current `classify-gnome-shell` script
-After the window is up, I run this script (which I'll probably merge into the `breezy` script at some point). 
 This script waits for you to make the nested gnome shell active (like by clicking on it) and then puts a
 "gnome-shell" class onto the window (which has no class for some reason). I have a KDE window rule that needs
 the window to have the "gnome-shell" class.
