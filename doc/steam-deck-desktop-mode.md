@@ -29,7 +29,7 @@ sudo pacman -S --needed base-devel git
 # existing packages are reloaded here in order to install their header files
 sudo pacman -S glibc linux-api-headers systemd-libs openssl libevdev libusb json-c curl hidapi python python-pydbus 'gnome-shell>=45.0' python-yaml
 ```
-# Install xr-driver-breezy-ghome-git
+# Install xr-driver-breezy-gnome-git
 ```sh
 work=$(mktemp -d)
 cd $work
