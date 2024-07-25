@@ -71,6 +71,8 @@ desktop.
 
 This expects the `classify-gnome-shell` script to be in your path.
 
+Note the last line of the script is if you need a double size window for wide screen mode. Wheany suggested trying this and it worked for me.
+
 ```sh
 #!/bin/sh
 clssify-gnome-shell&
@@ -126,3 +128,28 @@ To install the rule
 3. click on Window Rules and then click the Import button to import the rules
 
 ![image](settings2.jpg)
+
+## xwayland script
+I currently use Emacs remotely for my work (because the emacs lsp glue code doesn't currently support tramp) and
+I've found that, even though this is not an ideal setup, running X inside of `gnome-shell -nested` inside of the
+X on the desktop actually does work. So, until we can run Wayland on the Steam Deck desktop and that language
+server code works within tramp, this is what I'll be using for my work. Aaaand, it's a full-screen window for
+now, until I can get rootless working.
+
+This runs the `awesome` window manager which, just to make things even more indirect, I have installed inside an
+Ubuntu distrobox so I can avoid dirtying the Steam Deck's root any more than I need to. So I run xwayland in
+distrobox. When you quit `awesome`, it kills xwayland for you.
+
+So feel free to use this but you have been warned...
+
+```sh
+#!/bin/sh
+Xwayland :3 -fullscreen -geometry 1920x1080&
+#Xwayland :3 -fullscreen -geometry 3840x1080&
+pid=$!
+sleep 2
+echo PID=$pid
+export DISPLAY=:3
+awesome
+kill -2 $pid
+```
