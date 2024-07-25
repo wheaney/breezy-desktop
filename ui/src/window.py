@@ -25,6 +25,7 @@ from .statemanager import StateManager
 from .connecteddevice import ConnectedDevice
 from .failedverification import FailedVerification
 from .nodevice import NoDevice
+from .nodriver import NoDriver
 from .noextension import NoExtension
 from .nolicense import NoLicense
 from .verify import verify_installation
@@ -49,6 +50,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.connected_device = ConnectedDevice()
         self.failed_verification = FailedVerification()
         self.no_device = NoDevice()
+        self.no_driver = NoDriver()
         self.no_extension = NoExtension()
         self.no_license = NoLicense()
 
@@ -77,15 +79,17 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
             if not verify_installation():
                 self.main_content.append(self.failed_verification)
 
-        if not self.state_manager.get_property('license-present'):
+        if not self.state_manager.driver_running:
+            self.main_content.append(self.no_driver)
+        elif not state_manager.connected_device_name:
+            self.main_content.append(self.no_device)
+        elif not self.state_manager.license_present:
             self.main_content.append(self.no_license)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
-        elif state_manager.connected_device_name:
+        else:
             self.main_content.append(self.connected_device)
             self.connected_device.set_device_name(state_manager.connected_device_name)
-        else:
-            self.main_content.append(self.no_device)
 
     def _on_license_button_clicked(self, widget):
         dialog = LicenseDialog()

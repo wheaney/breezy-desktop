@@ -20,6 +20,7 @@ class StateManager(GObject.GObject):
     }
 
     __gproperties__ = {
+        'driver-running': (bool, 'Driver Running', 'Whether the driver is running', False, GObject.ParamFlags.READWRITE),
         'follow-mode': (bool, 'Follow Mode', 'Whether the follow mode is enabled', False, GObject.ParamFlags.READWRITE),
         'follow-threshold': (float, 'Follow Threshold', 'The follow threshold', 1.0, 45.0, 15.0, GObject.ParamFlags.READWRITE),
         'widescreen-mode': (bool, 'Widescreen Mode', 'Whether widescreen mode is enabled', False, GObject.ParamFlags.READWRITE),
@@ -53,6 +54,7 @@ class StateManager(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
         self.ipc = XRDriverIPC.get_instance()
+        self.driver_running = False
         self.connected_device_name = None
         self.license_action_needed = False
         self.license_action_needed_seconds = 0
@@ -71,6 +73,8 @@ class StateManager(GObject.GObject):
 
     def _refresh_state(self):
         self.state = self.ipc.retrieve_driver_state()
+        self.set_property('driver-running', self.state['ui_view'].get('driver_running'))
+
         new_device_name = StateManager.device_name(self.state)
         if self.connected_device_name != new_device_name:
             self.connected_device_name = new_device_name
@@ -94,12 +98,14 @@ class StateManager(GObject.GObject):
         elif self.license_present:
             self.set_property('license-present', False)
 
-        self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled'))
-        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled'))
+        self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
+        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 
     def do_set_property(self, prop, value):
+        if prop.name == 'driver-running':
+            self.driver_running = value
         if prop.name == 'follow-mode':
             self.follow_mode = value
         if prop.name == 'widescreen-mode':
@@ -112,6 +118,8 @@ class StateManager(GObject.GObject):
             self.enabled_features = value
 
     def do_get_property(self, prop):
+        if prop.name == 'driver-running':
+            return self.driver_running
         if prop.name == 'follow-mode':
             return self.follow_mode
         if prop.name == 'widescreen-mode':

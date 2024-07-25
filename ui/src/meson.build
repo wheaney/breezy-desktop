@@ -38,6 +38,7 @@ breezydesktop_sources = [
   'licensetierrow.py',
   'main.py',
   'nodevice.py',
+  'nodriver.py',
   'noextension.py',
   'nolicense.py',
   'settingsmanager.py',
