@@ -73,8 +73,6 @@ This expects the `classify-gnome-shell` script to be in your path.
 
 ```sh
 #!/bin/sh
-dconf write /com/xronlinux/BreezyDesktop/debug true
-dconf write /com/xronlinux/BreezyDesktop/developer-mode true
 clssify-gnome-shell&
 MUTTER_DEBUG_DUMMY_MODE_SPECS='1920x1080@60' exec dbus-run-session -- gnome-shell --nested
 #MUTTER_DEBUG_DUMMY_MODE_SPECS='3840x1080@60' exec dbus-run-session -- gnome-shell --nested
