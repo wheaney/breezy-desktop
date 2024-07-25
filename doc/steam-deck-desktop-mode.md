@@ -47,10 +47,12 @@ cd breezy
 curl 'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=breezy-desktop-gnome-git' > PKGBUILD
 makepkg -si
 ```
-# Continue with wheaney's instructions
+# Continue with wheaney's setup instructions
 [Instructions](../README.md#non-gnome-setup)
+
 # Thanks to TTachyon on Reddit for some very important info
 https://www.reddit.com/r/SteamDeck/comments/t92ozw/for_compiling_c_code
+
 # Docks
 My Steam Deck dock does not support displayport alt mode on any of its ports (except the one that goes into the deck of course). There are a few docks out there that do, but not many.
 If you need to use a third party dock with your glasses, make sure it has a port with the displayport alt mode symbol
@@ -59,3 +61,61 @@ If you need to use a third party dock with your glasses, make sure it has a port
 |-|-|-|-|
 
 For reference, I'm using the Inateck 10-in-1 USB-C hub [(Amazon link)](https://www.amazon.com/dp/B0CCXZWS9C)
+
+# More setup stuff
+## My current `breezy` script
+```sh
+#!/bin/sh
+dconf write /com/xronlinux/BreezyDesktop/debug true
+dconf write /com/xronlinux/BreezyDesktop/developer-mode true
+clssify-gnome-shell&
+MUTTER_DEBUG_DUMMY_MODE_SPECS='1920x1080@60' exec dbus-run-session -- gnome-shell --nested
+#MUTTER_DEBUG_DUMMY_MODE_SPECS='3840x1080@60' exec dbus-run-session -- gnome-shell --nested
+```
+## My current `classify-gnome-shell` script
+After the window is up, I run this script (which I'll probably merge into the `breezy` script at some point). 
+This script waits for you to make the nested gnome shell active (like by clicking on it) and then puts a
+"gnome-shell" class onto the window (which has no class for some reason). I have a KDE window rule that needs
+the window to have the "gnome-shell" class.
+
+```sh
+#!/bin/sh
+while true; do
+    id=$(xdotool getactivewindow)
+    if xprop -id $id | grep -q "WM_NAME.*gnome-shell"; then
+        xdotool getactivewindow set_window --class gnome-shell --classname gnome-shell
+        echo -e "\n\nGNOME-SHELL: $id\n\n"
+        break
+    fi
+    sleep 0.25
+done
+```
+
+## KDE Window rule
+This rule full-screens the window, removes the title bar, and makes it ignore KEY desktop shortcuts (so you can
+use the super key in your nested gnome session).
+
+```
+[gnome-shell nested]
+Description=gnome-shell nested
+above=true
+disableglobalshortcuts=true
+disableglobalshortcutsrule=2
+fullscreen=true
+fullscreenrule=2
+noborder=true
+noborderrule=2
+skiptaskbar=true
+title=Steam Keyboard
+type=16
+wmclass=gnome-shell gnome-shell
+wmclasscomplete=true
+wmclassmatch=1
+```
+
+To install the rule
+1. copy the above text into a file
+2. go to KDE settings and click on Window Management
+![image](settings1.jpg)
+3. click on Window Rules and then click the Import button to import the rules
+![image](settings2.jpg)
