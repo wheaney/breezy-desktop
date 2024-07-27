@@ -82,6 +82,7 @@ echo "Installing the breezydesktop@xronlinux.com GNOME extension"
 gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 
 echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install --user --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak
 
 # set up the XR driver using the local binary
