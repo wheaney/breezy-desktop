@@ -4,13 +4,14 @@ set -e
 
 check_command() {
     if ! command -v "$1" &>/dev/null; then
-        echo "Please install \"$1\" and make sure it's available in your \$PATH"
+        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
         exit 1
     fi
 }
 
 check_command "flatpak"
 check_command "gnome-extensions"
+check_command "glib-compile-schemas"
 
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
@@ -78,8 +79,10 @@ echo "Copying the manifest file to ${DATA_DIR}"
 mkdir -p $DATA_DIR
 cp manifest $DATA_DIR
 
-echo "Installing the breezydesktop@xronlinux.com GNOME extension"
-gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
+EXTENSION_UUID="breezydesktop@xronlinux.com"
+echo "Installing the $EXTENSION_UUID GNOME extension"
+gnome-extensions install --force "$EXTENSION_UUID.shell-extension.zip"
+glib-compile-schemas "$GNOME_SHELL_DATA_DIR/extensions/$EXTENSION_UUID/schemas"
 
 echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
