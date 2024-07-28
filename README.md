@@ -13,7 +13,7 @@ There are two installations at the moment. **Note: Only install one of these at 
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
 ## Breezy GNOME
-Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (supports GNOME versions 42-46 on an x86_64 system); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment supports GNOME versions 42-46; see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
 
 ### GNOME Setup
 
