@@ -322,13 +322,13 @@ export const MonitorManager = GObject.registerClass({
                     return;
                 }
 
+                this._needsConfigCheck = false;
                 if (error) {
                     Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
 
                     // tell the extension to proceed, this should result in another config check
                     this._changeHookFn();
                 } else {
-                    this._needsConfigCheck = false;
                     if (configChanged) {
                         Globals.logger.log(`Switched to optimal mode for monitor ${monitorConnector}`);
                     } else if (!!this._changeHookFn) {
