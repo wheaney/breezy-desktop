@@ -13,7 +13,7 @@ There are two installations at the moment. **Note: Only install one of these at 
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
 ## Breezy GNOME
-Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (supports GNOME versions 42-46 on an x86_64 system); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment supports GNOME versions 42-46; see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
 
 ### GNOME Setup
 
@@ -31,7 +31,7 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script:
    * For **GNOME 45+**: `~/Downloads/breezy_gnome_setup`
-   * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max-beta-2`
+   * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max`
 
 ### Non-GNOME Setup
 A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:

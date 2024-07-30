@@ -102,8 +102,7 @@ class BreezyDesktopExtension {
                     return GLib.SOURCE_REMOVE;
                 }
 
-                const is_driver_running = this._check_driver_running();
-                if (is_driver_running && target_monitor) {
+                if (this._check_driver_running() && target_monitor) {
                     // Don't enable the effect yet if monitor updates are needed.
                     // _setup will be triggered again since a !ready result means it will trigger monitor changes,
                     // so we can remove this timeout_add no matter what.
@@ -222,7 +221,7 @@ class BreezyDesktopExtension {
 
     _needs_widescreen_monitor_update() {
         Globals.logger.log_debug('BreezyDesktopExtension _needs_widescreen_monitor_update');
-        const state = this._read_state(['sbs_mode_enabled']);
+        const state = this._read_state();
         const sbs_enabled = state['sbs_mode_enabled'] === 'true';
         const widescreen_setting_enabled = this.settings.get_boolean('widescreen-mode');
         if (widescreen_setting_enabled !== sbs_enabled) {
@@ -250,6 +249,8 @@ class BreezyDesktopExtension {
                 this._overlay.opacity = 255;
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
+                Globals.logger.log_debug(`BreezyDesktopExtension _effect_enable overlay size: \
+                    ${targetMonitor.width}x${targetMonitor.height} at ${targetMonitor.x},${targetMonitor.y}`);
 
                 const overlayContent = new Clutter.Actor({clip_to_allocation: true});
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
@@ -350,7 +351,7 @@ class BreezyDesktopExtension {
         }
     }
 
-    _read_state(keys) {
+    _read_state() {
         const state = {};
         try {
             const file = Gio.file_new_for_path('/dev/shm/xr_driver_state');
@@ -365,7 +366,7 @@ class BreezyDesktopExtension {
                     const lines = contents.split('\n');
                     for (const line of lines) {
                         const [k, v] = line.split('=');
-                        if (keys.includes(k)) state[k] = v;
+                        state[k] = v;
                     }
                 }
             }
@@ -389,10 +390,25 @@ class BreezyDesktopExtension {
 
     // requests sbs_mode change and monitors to ensure the state reflects the setting
     _request_sbs_mode_change(value) {
+        Globals.logger.log_debug(`BreezyDesktopExtension _request_sbs_mode_change ${value}`);
         this._write_control('sbs_mode', value ? 'enable' : 'disable');
         if (!this._sbs_mode_update_timeout) {
             var attempts = 0;
             this._sbs_mode_update_timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, (() => {
+                const state = this._read_state();
+                const sbs_enabled = state['sbs_mode_enabled'] === 'true';
+                if (sbs_enabled === value) {
+                    Globals.logger.log_debug('BreezyDesktopExtension _request_sbs_mode_change - successfully updated');
+                    this._sbs_mode_update_timeout = undefined;
+
+                    if (this.settings.get_boolean('fast-sbs-mode-switching')) {
+                        // setup and polling were halted if this is enabled, so we have to re-trigger setup
+                        this._setup();
+                    }
+                    
+                    return GLib.SOURCE_REMOVE;
+                }
+
                 if (attempts++ < 3) {
                     this._write_control('sbs_mode', value ? 'enable' : 'disable');
                     return GLib.SOURCE_CONTINUE;

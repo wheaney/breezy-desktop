@@ -110,7 +110,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
             // iterate over all monitors at least once, collecting the best fit mode for our monitor, and mode information
             // for each monitor
             let ourMonitor = undefined;
-            let monitorToModeIdMap = {};
+            let monitorToCurrentModeMap = {};
             let bestFitMode = undefined;
             const skipScaleUpdate = !!properties['global-scale-required'];
             for (let monitor of monitors) {
@@ -131,7 +131,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                 for (let mode of modes) {
                     const [modeId, width, height, refreshRate, preferredScale, supportedScales, modeProperites] = mode;
                     const isCurrent = !!modeProperites['is-current'];
-                    if (isCurrent) monitorToModeIdMap[connector] = modeId;
+                    if (isCurrent) monitorToCurrentModeMap[connector] = mode;
                     
                     if (isOurMonitor && (!bestFitMode || (
                             width >= bestFitMode.width && 
@@ -147,8 +147,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                             width,
                             height,
                             refreshRate,
-                            bestScale,
-                            isCurrent 
+                            bestScale
                         };
                     }
                 }
@@ -157,6 +156,14 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
             if (!!ourMonitor) {
                 let anyMonitorsChanged = false;
                 if (!!bestFitMode) {
+                    // this will hold how much the width of the monitor has changed,
+                    // and what range of y values is affected
+                    let deltaX = 0;
+                    let rangeY = [0, 0];
+
+                    // sort logicalMonitors by x ascending, so we can tell if any are affected by a width change
+                    logicalMonitors.sort((a, b) => a[0] - b[0]);
+
                     // map from original logical monitors schema to a(iiduba(ssa{sv})) for ApplyMonitorsConfig call
                     const updatedLogicalMonitors = logicalMonitors.map((logicalMonitor) => {
                         const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
@@ -167,8 +174,29 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                         // there can only be one primary monitor, so we need to set all other monitors to not primary and glasses to primary, 
                         // if headsetAsPrimary is true
                         anyMonitorsChanged |= headsetAsPrimary && ((hasOurMonitor && !primary) || (!hasOurMonitor && primary));
+
+                        // we need to figure out if the deltaX applies to this logical monitor,
+                        // i.e. if it is within the same row as our monitor and to the right of it
+                        let thisDeltaX = deltaX;
+                        if (thisDeltaX !== 0) {
+                            // find the monitor with the largest height
+                            const maxMonitorHeight = monitors.reduce((maxHeight, monitor) => {
+                                const monitorConnector = monitor[0];
+                                const currentMode = monitorToCurrentModeMap[monitorConnector];
+                                const currentHeight = currentMode[2];
+                                return Math.max(maxHeight, currentHeight);
+                            }, 0);
+
+                            if (y >= rangeY[1] || y + maxMonitorHeight <= rangeY[0]) {
+                                // monitors outside the y range are not affected by the width change
+                                thisDeltaX = 0;
+                            } else {
+                                anyMonitorsChanged = true;
+                            }
+                        }
+
                         return [
-                            x,
+                            x + thisDeltaX,
                             y,
                             newScale,
                             transform,
@@ -176,10 +204,15 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                             monitors.map((monitor) => {
                                 const monitorConnector = monitor[0];
                                 const isOurMonitor = monitorConnector === connectorName;
-                                anyMonitorsChanged |= isOurMonitor && !bestFitMode.isCurrent;
+                                const [currentModeId, currentWidth, currentHeight] = monitorToCurrentModeMap[monitorConnector];
+                                if (isOurMonitor) {
+                                    deltaX = bestFitMode.width - currentWidth;
+                                    rangeY = [y, y + currentHeight];
+                                }
+                                anyMonitorsChanged |= isOurMonitor && bestFitMode.modeId !== currentModeId;
                                 return [
                                     monitorConnector,
-                                    isOurMonitor ? bestFitMode.modeId : monitorToModeIdMap[monitorConnector],
+                                    isOurMonitor ? bestFitMode.modeId : currentModeId,
                                     {} // properties
                                 ];
                             })
