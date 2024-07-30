@@ -33,6 +33,10 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
    * For **GNOME 45+**: `~/Downloads/breezy_gnome_setup`
    * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max`
 
+### Steam Deck desktop mode
+
+Steam Deck's desktop mode runs KDE Plasma, so, for now, Breezy Desktop can only be run by launching a nested GNOME shell, and requires the read-only file system to be disabled to get setup. If you're interested, and *willing to accept any risks that come with disabling the read-only file system*, check out [the wiki entry](https://github.com/wheaney/breezy-desktop/wiki/Installing-on-Steam-Deck).
+
 ### Non-GNOME Setup
 A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
 1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 42-46, so check that using `gnome-shell --version`
