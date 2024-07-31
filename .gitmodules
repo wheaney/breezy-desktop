@@ -5,6 +5,7 @@
 [submodule "modules/XRLinuxDriver"]
 	path = modules/XRLinuxDriver
 	url = https://github.com/wheaney/XRLinuxDriver.git
+	branch = user_setup
 [submodule "modules/sombrero"]
 	path = modules/sombrero
 	url = https://github.com/wheaney/sombrero.git
