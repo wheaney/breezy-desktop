@@ -20,8 +20,9 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
     'nreal air',
     'Air',
-    'Air 2', // guessing this one
+    'Air 2',
     'Air 2 Pro',
+    'Air 2 Ultra',
     'SmartGlasses', // TCL/RayNeo
     NESTED_MONITOR_PRODUCT
 ];
