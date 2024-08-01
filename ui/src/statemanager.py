@@ -27,6 +27,7 @@ class StateManager(GObject.GObject):
         'license-action-needed': (bool, 'License Action Needed', 'Whether the license needs attention', False, GObject.ParamFlags.READWRITE),
         'license-present': (bool, 'License Present', 'Whether a license is present', False, GObject.ParamFlags.READWRITE),
         'enabled-features-list': (object, 'Enabled Features List', 'A list of the enabled features', GObject.ParamFlags.READWRITE),
+        'device-supports-sbs': (bool, 'Device Supports SBS', 'Whether the connected device supports SBS', False, GObject.ParamFlags.READWRITE),
     }
 
     _instance = None
@@ -99,6 +100,7 @@ class StateManager(GObject.GObject):
             self.set_property('license-present', False)
 
         self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
+        self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
         self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
@@ -116,6 +118,8 @@ class StateManager(GObject.GObject):
             self.license_present = value
         if prop.name == 'enabled-features-list':
             self.enabled_features = value
+        if prop.name == 'device-supports-sbs':
+            self.device_supports_sbs = value
 
     def do_get_property(self, prop):
         if prop.name == 'driver-running':
@@ -130,3 +134,5 @@ class StateManager(GObject.GObject):
             return self.license_present
         if prop.name == 'enabled-features-list':
             return self.enabled_features
+        if prop.name == 'device-supports-sbs':
+            return self.device_supports_sbs

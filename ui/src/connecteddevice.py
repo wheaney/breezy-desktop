@@ -5,6 +5,9 @@ from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
 from .xrdriveripc import XRDriverIPC
+import gettext
+
+_ = gettext.gettext
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/connected-device.ui')
 class ConnectedDevice(Gtk.Box):
@@ -20,6 +23,7 @@ class ConnectedDevice(Gtk.Box):
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
     widescreen_mode_switch = Gtk.Template.Child()
+    widescreen_mode_row = Gtk.Template.Child()
     curved_display_switch = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
@@ -45,19 +49,14 @@ class ConnectedDevice(Gtk.Box):
             self.display_size_scale,
             self.follow_mode_switch,
             self.follow_threshold_scale,
-            self.widescreen_mode_switch,
             self.curved_display_switch,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
-            self.reassign_recenter_display_shortcut_button,
-            self.reassign_toggle_display_distance_shortcut_button,
-            self.reassign_toggle_follow_shortcut_button,
-            self.headset_as_primary_switch,
-            self.use_optimal_monitor_config_switch,
-            self.use_highest_refresh_rate_switch,
-            self.fast_sbs_mode_switch,
             self.movement_look_ahead_scale
         ]
+
+        self.widescreen_mode_subtitle = _("Switches your glasses into side-by-side mode and doubles the width of the display.")
+        self.widescreen_mode_not_supported_subtitle = _("This feature is not currently supported for your device.")
 
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()
@@ -88,6 +87,7 @@ class ConnectedDevice(Gtk.Box):
         self.state_manager = StateManager.get_instance()
         self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
         self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
+        self.state_manager.connect('notify::device-supports-sbs', self._handle_device_supports_sbs)
 
         self.follow_mode_switch.set_active(self.state_manager.follow_mode)
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
@@ -98,6 +98,7 @@ class ConnectedDevice(Gtk.Box):
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
         self._handle_enabled_features(self.state_manager, None)
+        self._handle_device_supports_sbs(self.state_manager, None)
         self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
         self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
@@ -110,6 +111,13 @@ class ConnectedDevice(Gtk.Box):
         if not breezy_features_granted:
             self.effect_enable_switch.set_active(False)
         self.effect_enable_switch.set_sensitive(breezy_features_granted)
+
+    def _handle_device_supports_sbs(self, state_manager, val):
+        if not state_manager.get_property('device-supports-sbs'):
+            self.settings.set_boolean('widescreen-mode', False)
+        self.widescreen_mode_switch.set_sensitive(state_manager.get_property('device-supports-sbs'))
+        subtitle = self.widescreen_mode_subtitle if state_manager.get_property('device-supports-sbs') else self.widescreen_mode_not_supported_subtitle
+        self.widescreen_mode_row.set_subtitle(subtitle)
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
