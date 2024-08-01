@@ -13,7 +13,7 @@ There are two installations at the moment. **Note: Only install one of these at 
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
 ## Breezy GNOME
-Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment supports GNOME versions 42-46; see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one virtual monitor and multiple physical monitors, but it will soon support multiple virtual monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (support GNOME versions 42 through 46); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports one widescreen virtual monitor and multiple physical monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
 
 ### GNOME Setup
 
@@ -33,6 +33,10 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
    * For **GNOME 45+**: `~/Downloads/breezy_gnome_setup`
    * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max`
 
+### Steam Deck desktop mode
+
+Steam Deck's desktop mode runs KDE Plasma, so, for now, Breezy Desktop can only be run by launching a nested GNOME shell, and requires the read-only file system to be disabled to get setup. If you're interested, and *willing to accept any risks that come with disabling the read-only file system*, check out [the wiki entry](https://github.com/wheaney/breezy-desktop/wiki/Installing-on-Steam-Deck).
+
 ### Non-GNOME Setup
 A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
 1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 42-46, so check that using `gnome-shell --version`
@@ -46,11 +50,12 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware.**
 
 ### Upcoming Features
-1. Port to GNOME 43/44
-2. ARM/AARCH64 build
-3. Port to KWin Effect (KDE Plasma support)
-4. Multiple virtual monitors + multiple physical monitors
-5. Supported nested or Distrobox deployment
+1. Port to KWin Effect (KDE Plasma support)
+2. Multiple virtual monitors + multiple physical monitors
+3. Supported nested or AppImage style deployment. QoL improvements:
+   * clipboard support
+   * snapping to proper monitor
+   * hide window chrome/title bar
 
 ### Breezy GNOME Pricing (Productivity Tier)
 

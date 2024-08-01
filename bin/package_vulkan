@@ -29,7 +29,7 @@ BUILD_FILE_NAME=breezyVulkan-$ARCH.tar.gz
 # build vkBasalt
 VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
 VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
-if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" != "--skip-module-builds" ]; then
+if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" == "--rebuild-vkbasalt" ]; then
   pushd $VKBASALT_MODULE_DIR
   ./docker-build
   popd
@@ -60,7 +60,7 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 # build XR driver
 XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
 
-if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" != "--skip-module-builds" ]; then
+if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
   if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
