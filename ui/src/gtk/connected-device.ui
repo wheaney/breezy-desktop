@@ -51,9 +51,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="AdwActionRow">
+                      <object class="AdwActionRow" id="widescreen_mode_row">
                         <property name="title" translatable="true">Widescreen mode</property>
-                        <property name="subtitle" translatable="true">Switches your glasses into side-by-side mode and doubles the width of the display.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkSwitch" id="widescreen_mode_switch">
