@@ -4,3 +4,4 @@ __pycache__
 gschemas.compiled
 .flatpak-builder/
 out/
+*.po~

@@ -10,8 +10,8 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
-        <property name="title" translatable="true">Breezy Desktop GNOME extension not ready</property>
-        <property name="description" translatable="true">If you have just run the setup, then you may need to log out and back in to use it. Otherwise, please follow the Breezy GNOME setup instructions.</property>
+        <property name="title" translatable="yes">Breezy Desktop GNOME extension not ready</property>
+        <property name="description" translatable="yes">If you have just run the setup, then you may need to log out and back in to use it. Otherwise, please follow the Breezy GNOME setup instructions.</property>
         <property name="width-request">650</property>
       </object>
     </child>

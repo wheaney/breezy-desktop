@@ -17,7 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import gettext
 import gi
+import locale
 import logging
 import os
 import sys
@@ -29,6 +31,15 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+po_dir = os.path.join(script_dir, 'po')
+locale_dir = '/app/share/locale'
+
+locale.setlocale(locale.LC_ALL, '')
+locale.bindtextdomain('breezydesktop', None)
+gettext.bindtextdomain('breezydesktop', None)
+gettext.textdomain('breezydesktop')
 
 from gi.repository import Adw, Gtk, Gio
 from .licensedialog import LicenseDialog

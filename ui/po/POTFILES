@@ -1,6 +1,0 @@
-data/com.xronlinux.BreezyDesktop.desktop.in
-data/com.xronlinux.BreezyDesktop.metainfo.xml.in
-data/com.xronlinux.BreezyDesktop.gschema.xml
-src/main.py
-src/window.py
-src/window.ui

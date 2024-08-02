@@ -28,7 +28,7 @@
         <child>
           <object class="AdwViewStackPage">
             <property name="name">general</property>
-            <property name="title">General Settings</property>
+            <property name="title" translatable="yes"><!-- tab for navigating to the general settings -->General Settings</property>
             <property name="icon-name">applications-system-symbolic</property>
             <property name="child">
               <object class="GtkBox">
@@ -38,11 +38,11 @@
                 <property name="spacing">20</property>
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title" translatable="true">Features</property>
+                    <property name="title" translatable="yes"><!-- section heading for switches that enable certain features -->Features</property>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">XR effect</property>
-                        <property name="subtitle" translatable="true">Enables the Breezy Desktop XR effect.</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->XR effect</property>
+                        <property name="subtitle" translatable="yes">Enables the Breezy Desktop XR effect.</property>
                         <child>
                           <object class="GtkSwitch" id="effect_enable_switch">
                             <property name="valign">3</property>
@@ -52,7 +52,7 @@
                     </child>
                     <child>
                       <object class="AdwActionRow" id="widescreen_mode_row">
-                        <property name="title" translatable="true">Widescreen mode</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->Widescreen mode</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkSwitch" id="widescreen_mode_switch">
@@ -63,8 +63,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Follow mode</property>
-                        <property name="subtitle" translatable="true">Keep the virtual display near the center of your view.</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->Follow mode</property>
+                        <property name="subtitle" translatable="yes">Keep the virtual display near the center of your view.</property>
                         <child>
                           <object class="GtkSwitch" id="follow_mode_switch">
                             <property name="valign">3</property>
@@ -74,8 +74,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Curved display</property>
-                        <property name="subtitle" translatable="true">Switch between flat and curved displays.</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->Curved display</property>
+                        <property name="subtitle" translatable="yes">Switch between flat and curved displays.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkSwitch" id="curved_display_switch">
@@ -88,11 +88,11 @@
                 </child>
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title" translatable="true">Adjustments</property>
+                    <property name="title" translatable="yes"><!-- Section containing sliders for adjusting the XR effect -->Adjustments</property>
                     <child>
                       <object class="AdwActionRow" id="display_distance_row">
-                        <property name="title" translatable="true">Display distance</property>
-                        <property name="subtitle" translatable="true">Closer appears larger, further appears smaller. Controls depth when in widescreen mode.</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display distance</property>
+                        <property name="subtitle" translatable="yes">Closer appears larger, further appears smaller. Controls depth when in widescreen mode.</property>
                         <child>
                           <object class="GtkScale" id="display_distance_scale">
                             <property name="valign">3</property>
@@ -120,8 +120,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Display size</property>
-                        <property name="subtitle" translatable="true">Combine with display distance to achieve a comfortable level of depth and size.</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display size</property>
+                        <property name="subtitle" translatable="yes">Combine with display distance to achieve a comfortable level of depth and size.</property>
                         <child>
                           <object class="GtkScale" id="display_size_scale">
                             <property name="valign">3</property>
@@ -149,8 +149,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Display toggle distances</property>
-                        <property name="subtitle" translatable="true">Use the buttons to capture the current display distance for use with the keyboard shortcut.</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display toggle distances</property>
+                        <property name="subtitle" translatable="yes">Use the buttons to capture the current display distance for use with the keyboard shortcut.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -175,8 +175,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Follow threshold</property>
-                        <property name="subtitle" translatable="true">How far away you can look before the display follows.</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Follow threshold</property>
+                        <property name="subtitle" translatable="yes">How far away you can look before the display follows.</property>
                         <child>
                           <object class="GtkScale" id="follow_threshold_scale">
                             <property name="valign">3</property>
@@ -206,17 +206,17 @@
         <child>
           <object class="AdwViewStackPage">
             <property name="name">shortcuts</property>
-            <property name="title">Keyboard Shortcuts</property>
+            <property name="title" translatable="yes"><!-- tab for navigating to keyboard shortcuts -->Keyboard Shortcuts</property>
             <property name="icon-name">preferences-desktop-keyboard-shortcuts-symbolic</property>
             <property name="child">
               <object class="GtkBox">
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title" translatable="true">Keyboard Shortcuts</property>
+                    <property name="title" translatable="yes"><!-- section heading for updating keyboard shortcuts -->Keyboard Shortcuts</property>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Re-center display shortcut</property>
-                        <property name="subtitle" translatable="true">Pin the virtual display to the current position.</property>
+                        <property name="title" translatable="yes">Re-center display shortcut</property>
+                        <property name="subtitle" translatable="yes">Pin the virtual display to the current position.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -235,7 +235,7 @@
                                 </style>
                                 <property name="name">recenter-display-shortcut</property>
                                 <property name="valign">3</property>
-                                <property name="label" translatable="true">Change</property>
+                                <property name="label" translatable="yes">Change</property>
                               </object>
                             </child>
                           </object>
@@ -244,8 +244,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Display distance shortcut</property>
-                        <property name="subtitle" translatable="true">Quickly toggle between two predefined distances.</property>
+                        <property name="title" translatable="yes">Display distance shortcut</property>
+                        <property name="subtitle" translatable="yes">Quickly toggle between two predefined distances.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -264,7 +264,7 @@
                                 </style>
                                 <property name="name">toggle-display-distance-shortcut</property>
                                 <property name="valign">3</property>
-                                <property name="label" translatable="true">Change</property>
+                                <property name="label" translatable="yes">Change</property>
                               </object>
                             </child>
                           </object>
@@ -273,8 +273,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Toggle follow mode shortcut</property>
-                        <property name="subtitle" translatable="true">Quickly toggle follow mode.</property>
+                        <property name="title" translatable="yes">Toggle follow mode shortcut</property>
+                        <property name="subtitle" translatable="yes">Quickly toggle follow mode.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -293,7 +293,7 @@
                                 </style>
                                 <property name="name">toggle-follow-shortcut</property>
                                 <property name="valign">3</property>
-                                <property name="label" translatable="true">Change</property>
+                                <property name="label" translatable="yes">Change</property>
                               </object>
                             </child>
                           </object>
@@ -309,17 +309,17 @@
         <child>
           <object class="AdwViewStackPage">
             <property name="name">advanced</property>
-            <property name="title">Advanced Settings</property>
+            <property name="title" translatable="yes"><!-- tab for navigating to the advanced settings -->Advanced Settings</property>
             <property name="icon-name">applications-system-symbolic</property>
             <property name="child">
               <object class="GtkBox">
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title" translatable="true">Advanced Settings</property>
+                    <property name="title" translatable="yes"><!-- section heading for the advanced settings -->Advanced Settings</property>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Find optimal display config</property>
-                        <property name="subtitle" translatable="true">Automatically modify the glasses display configuration for maximum resolution and best scaling when plugged in.</property>
+                        <property name="title" translatable="yes"><!-- feature that tries to the find best-fit monitor config -->Find optimal display config</property>
+                        <property name="subtitle" translatable="yes">Automatically modify the glasses display configuration for maximum resolution and best scaling when plugged in.</property>
                         <child>
                           <object class="GtkSwitch" id="use_optimal_monitor_config_switch">
                             <property name="valign">3</property>
@@ -329,8 +329,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Use highest refresh rate</property>
-                        <property name="subtitle" translatable="true">Refresh rate may affect performance, disable this to set it manually.</property>
+                        <property name="title" translatable="yes">Use highest refresh rate</property>
+                        <property name="subtitle" translatable="yes">Refresh rate may affect performance, disable this to set it manually.</property>
                         <child>
                           <object class="GtkSwitch" id="use_highest_refresh_rate_switch">
                             <property name="valign">3</property>
@@ -340,8 +340,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Always primary display</property>
-                        <property name="subtitle" translatable="true">Automatically set the glasses as the primary display when plugged in.</property>
+                        <property name="title" translatable="yes">Always primary display</property>
+                        <property name="subtitle" translatable="yes">Automatically set the glasses as the primary display when plugged in.</property>
                         <child>
                           <object class="GtkSwitch" id="headset_as_primary_switch">
                             <property name="valign">3</property>
@@ -351,8 +351,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Fast SBS mode switching</property>
-                        <property name="subtitle" translatable="true">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
+                        <property name="title" translatable="yes">Fast SBS mode switching</property>
+                        <property name="subtitle" translatable="yes">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
                         <child>
                           <object class="GtkSwitch" id="fast_sbs_mode_switch">
                             <property name="valign">3</property>
@@ -362,8 +362,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="true">Movement look-ahead</property>
-                        <property name="subtitle" translatable="true">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
+                        <property name="title" translatable="yes">Movement look-ahead</property>
+                        <property name="subtitle" translatable="yes">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
                         <child>
                           <object class="GtkScale" id="movement_look_ahead_scale">
                             <property name="valign">3</property>
@@ -381,7 +381,7 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="-1" position="bottom">Default</mark>
+                              <mark value="-1" position="bottom" translatable="yes">Default</mark>
                               <mark value="10" position="bottom">10ms</mark>
                               <mark value="20" position="bottom">20ms</mark>
                               <mark value="30" position="bottom">30ms</mark>

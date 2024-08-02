@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+pushd $SCRIPT_DIR/..
+
+xgettext --from-code=UTF-8 -k_ -kN_ -L Python -o po/breezydesktop.pot src/*.py
+xgettext --from-code=UTF-8 -k_ -kN_ -j -L Glade -o po/breezydesktop.pot src/gtk/*.ui
+
+msgmerge --update po/de.po po/breezydesktop.pot
+msgmerge --update po/es.po po/breezydesktop.pot
+msgmerge --update po/fr.po po/breezydesktop.pot
+msgmerge --update po/it.po po/breezydesktop.pot
+msgmerge --update po/zh_CN.po po/breezydesktop.pot
+msgmerge --update po/ja.po po/breezydesktop.pot
+
+for file in po/*.po; do
+    lang=${file##*/}
+    lang=${lang%.po}
+    outdir="po/$lang/LC_MESSAGES"
+    mkdir -p "$outdir"
+    msgfmt -o "$outdir/breezydesktop.mo" "$file"
+done
+
+popd
