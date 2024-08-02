@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="ShortcutDialog" parent="GtkDialog">
-    <property name="title">Assign Keyboard Shortcut</property>
+    <property name="title" translatable="yes">Assign Keyboard Shortcut</property>
     <property name="modal">1</property>
     <property name="default_width">440</property>
     <property name="default_height">200</property>

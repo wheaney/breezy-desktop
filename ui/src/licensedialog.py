@@ -3,6 +3,9 @@ from .statemanager import StateManager
 from .licensetierrow import LicenseTierRow
 from .licensefeaturerow import LicenseFeatureRow
 from .xrdriveripc import XRDriverIPC
+import gettext
+
+_ = gettext.gettext
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/license-dialog.ui')
 class LicenseDialog(Gtk.Dialog):
@@ -43,7 +46,7 @@ class LicenseDialog(Gtk.Dialog):
 
         for child in self.tiers:
             self.tiers.remove(child)
-        tiers_group = Adw.PreferencesGroup(title="Paid Tier Status", margin_top=20)
+        tiers_group = Adw.PreferencesGroup(title=_("Paid Tier Status"), margin_top=20)
         self.tiers.append(tiers_group)
         
         for tier_name, tier_details in license_view['tiers'].items():
@@ -51,7 +54,7 @@ class LicenseDialog(Gtk.Dialog):
 
         for child in self.features:
             self.features.remove(child)
-        features_group = Adw.PreferencesGroup(title="Feature Availability", margin_top=20)
+        features_group = Adw.PreferencesGroup(title=_("Feature Availability"), margin_top=20)
         self.features.append(features_group)
 
         for feature_name, feature_details in license_view['features'].items():

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+pushd $SCRIPT_DIR/..
+
+xgettext --from-code=UTF-8 -k_ -kN_ -L Python -o po/breezy_desktop.pot src/*.py
+xgettext --from-code=UTF-8 -k_ -kN_ -j -L Glade -o po/breezy_desktop.pot src/gtk/*.ui
+
+msgmerge --update po/de.po po/breezy_desktop.pot
+msgmerge --update po/es.po po/breezy_desktop.pot
+msgmerge --update po/fr.po po/breezy_desktop.pot
+msgmerge --update po/it.po po/breezy_desktop.pot
+msgmerge --update po/zh_CN.po po/breezy_desktop.pot
+msgmerge --update po/ja.po po/breezy_desktop.pot
+
+popd

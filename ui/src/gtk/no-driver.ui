@@ -10,8 +10,8 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
-        <property name="title" translatable="true">No driver running</property>
-        <property name="description" translatable="true">
+        <property name="title" translatable="yes">No driver running</property>
+        <property name="description" translatable="yes">
           If you installed via AUR, make sure you ran the recommended post-install command:
           systemctl --user enable --now xr-driver.service
 

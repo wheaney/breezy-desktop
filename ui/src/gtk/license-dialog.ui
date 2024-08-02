@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="LicenseDialog" parent="GtkDialog">
-    <property name="title">License Details</property>
+    <property name="title" translatable="yes">License Details</property>
     <property name="modal">1</property>
     <property name="default_width">440</property>
     <property name="default_height">200</property>
@@ -24,8 +24,8 @@
             <property name="margin-top">10</property>
             <child>
               <object class="AdwActionRow">
-                <property name="title" translatable="true">Donate</property>
-                <property name="subtitle" translatable="true">ko-fi.com/wheaney</property>
+                <property name="title" translatable="yes">Donate</property>
+                <property name="subtitle">ko-fi.com/wheaney</property>
                 <property name="subtitle-selectable">True</property>
                 <child type="suffix">
                   <object class="GtkLinkButton">
@@ -41,7 +41,7 @@
             <child>
               <object class="AdwEntryRow" id="request_token">
                 <property name="visible">0</property>
-                <property name="title" translatable="true">Request a token</property>
+                <property name="title" translatable="yes">Request a token</property>
                 <property name="input-purpose">6</property>
                 <property name="show-apply-button">1</property>
               </object>
@@ -49,7 +49,7 @@
             <child>
               <object class="AdwEntryRow" id="verify_token">
                 <property name="visible">0</property>
-                <property name="title" translatable="true">Verify token</property>
+                <property name="title" translatable="yes">Verify token</property>
                 <property name="input-hints">16</property>
                 <property name="show-apply-button">1</property>
               </object>

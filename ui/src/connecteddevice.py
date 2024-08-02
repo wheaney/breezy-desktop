@@ -13,6 +13,9 @@ _ = gettext.gettext
 class ConnectedDevice(Gtk.Box):
     __gtype_name__ = "ConnectedDevice"
 
+    widescreen_mode_subtitle = _("Switches your glasses into side-by-side mode and doubles the width of the display.")
+    widescreen_mode_not_supported_subtitle = _("This feature is not currently supported for your device.")
+
     device_label = Gtk.Template.Child()
     effect_enable_switch = Gtk.Template.Child()
     display_distance_scale = Gtk.Template.Child()
@@ -54,9 +57,6 @@ class ConnectedDevice(Gtk.Box):
             self.set_toggle_display_distance_end_button,
             self.movement_look_ahead_scale
         ]
-
-        self.widescreen_mode_subtitle = _("Switches your glasses into side-by-side mode and doubles the width of the display.")
-        self.widescreen_mode_not_supported_subtitle = _("This feature is not currently supported for your device.")
 
         self.settings = SettingsManager.get_instance().settings
         self.ipc = XRDriverIPC.get_instance()

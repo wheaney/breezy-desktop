@@ -10,8 +10,8 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
-        <property name="title" translatable="true">No device connected</property>
-        <property name="description" translatable="true">Breezy Desktop was unable to detect any supported XR devices.</property>
+        <property name="title" translatable="yes">No device connected</property>
+        <property name="description" translatable="yes">Breezy Desktop was unable to detect any supported XR devices.</property>
         <property name="width-request">650</property>
       </object>
     </child>
