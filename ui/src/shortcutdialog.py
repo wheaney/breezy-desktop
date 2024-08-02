@@ -1,4 +1,7 @@
 from gi.repository import Gtk, Gdk
+import gettext
+
+_ = gettext.gettext
 
 from .settingsmanager import SettingsManager
 
@@ -101,7 +104,7 @@ def on_assign_shortcut(window, widget):
 
 def reload_shortcut_widget(widget, label):
     shortcut = SettingsManager.get_instance().settings.get_strv(widget.get_name())
-    label.set_accelerator(shortcut[0] if len(shortcut) > 0 else 'Disabled')
+    label.set_accelerator(shortcut[0] if len(shortcut) > 0 else _('Disabled'))
 
 def reload_shortcut_widgets(widget_tuples):
     for widget_tuple in widget_tuples:

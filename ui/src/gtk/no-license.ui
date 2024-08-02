@@ -10,8 +10,8 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
-        <property name="title" translatable="true">No license file was found</property>
-        <property name="description" translatable="true">
+        <property name="title" translatable="yes">No license file was found</property>
+        <property name="description" translatable="yes">
           The first time you use Breezy Desktop, an internet connection is required to retrieve your device's license.
           
           Don't worry, there's no obligation to donate at this time. If you haven't, you'll be given a trial license so you can decide if Breezy Desktop fits your needs. 
@@ -24,7 +24,7 @@
     </child>
     <child type="action">
       <object class="GtkButton" id="refresh_license_button">
-        <property name="label" translatable="true">Try Again</property>
+        <property name="label" translatable="yes">Try Again</property>
       </object>
     </child>
   </template>
