@@ -75,11 +75,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         for child in self.main_content:
             self.main_content.remove(child)
 
-        if not self._skip_verification:
-            if not verify_installation():
-                self.main_content.append(self.failed_verification)
-
-        if not self.state_manager.driver_running:
+        if not self._skip_verification and not verify_installation():
+            self.main_content.append(self.failed_verification)
+        elif not self.state_manager.driver_running:
             self.main_content.append(self.no_driver)
         elif not state_manager.connected_device_name:
             self.main_content.append(self.no_device)

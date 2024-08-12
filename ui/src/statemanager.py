@@ -99,9 +99,11 @@ class StateManager(GObject.GObject):
         elif self.license_present:
             self.set_property('license-present', False)
 
-        self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
-        self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
-        self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
+        # only update these properties if a device is still connected
+        if (self.connected_device_name):
+            self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
+            self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
+            self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
 
         if self.running: threading.Timer(1.0, self._refresh_state).start()
 
