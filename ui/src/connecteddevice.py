@@ -89,7 +89,7 @@ class ConnectedDevice(Gtk.Box):
         self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
         self.state_manager.connect('notify::device-supports-sbs', self._handle_device_supports_sbs)
 
-        self.follow_mode_switch.set_active(self.state_manager.follow_mode)
+        self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
 
         self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
@@ -141,7 +141,7 @@ class ConnectedDevice(Gtk.Box):
 
     def _refresh_follow_mode(self, switch, param):
         self.follow_threshold_scale.set_sensitive(switch.get_active())
-        if (self.state_manager.follow_mode == switch.get_active()):
+        if (self.state_manager.get_property('follow-mode') == switch.get_active()):
             return
         
         self.ipc.write_control_flags({
