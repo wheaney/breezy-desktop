@@ -37,7 +37,7 @@ copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin
 
 XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
 
-if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
+if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ] || [ "$1" == "--rebuild-all" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
   if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
     cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
@@ -74,7 +74,7 @@ GNOME_MANIFEST_LINE=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} 
 popd
 
 FLATPAK_BUILD_ARTIFACT=ui/out/com.xronlinux.BreezyDesktop-$ARCH.flatpak
-if [ ! -e "$FLATPAK_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-flatpak" ]; then
+if [ ! -e "$FLATPAK_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-flatpak" ] || [ "$1" == "--rebuild-all" ]; then
   ui/bin/package $ARCH
 fi
 cp $FLATPAK_BUILD_ARTIFACT $PACKAGE_DIR/com.xronlinux.BreezyDesktop.flatpak
