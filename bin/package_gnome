@@ -49,7 +49,7 @@ if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ] || [ "$1" == "
   rm -rf build/
 
   docker-build/init.sh
-  BREEZY_DESKTOP=1 docker-build/run-build.sh $ARCH
+  docker-build/run-build.sh $ARCH
   popd
 fi
 
