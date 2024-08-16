@@ -20,213 +20,213 @@ msgstr ""
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
-msgstr ""
+msgstr "切换到并排模式，并将显示宽度翻倍。"
 
 #: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
-msgstr ""
+msgstr "您的设备目前不支持此功能。"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
-msgstr ""
+msgstr "付费层状态"
 
 #: src/licensedialogcontent.py:71
 msgid "Feature Availability"
-msgstr ""
+msgstr "功能可用性"
 
 #: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
 msgid "Disabled"
-msgstr ""
+msgstr "已禁用"
 
 #: src/licensefeaturerow.py:18
 msgid "In trial"
-msgstr ""
+msgstr "试用中"
 
 #: src/licensefeaturerow.py:18
 msgid "Enabled"
-msgstr ""
+msgstr "已启用"
 
 #: src/licensefeaturerow.py:24 src/licensetierrow.py:30
 #, python-brace-format
 msgid " ({time_remaining} remaining)"
-msgstr ""
+msgstr " ({time_remaining} 剩余)"
 
 #: src/licensefeaturerow.py:32
 msgid "Side-by-side mode (gaming)"
-msgstr ""
+msgstr "并排模式（游戏）"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr ""
+msgstr "平滑跟随（游戏）"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
-msgstr ""
+msgstr "清爽桌面（生产力）"
 
 #: src/licensetierrow.py:24
 msgid "Active"
-msgstr ""
+msgstr "激活"
 
 #: src/licensetierrow.py:24
 msgid "Inactive"
-msgstr ""
+msgstr "未激活"
 
 #: src/licensetierrow.py:41
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid "<b>${amount}</b> USD"
-msgstr ""
+msgstr "${amount} 美元"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr ""
+msgstr "续订"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr ""
+msgstr "升级"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
-msgstr ""
+msgstr "已付费至下次续订期"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
-msgstr ""
+msgstr "游戏"
 
 #: src/licensetierrow.py:57
 msgid "Productivity"
-msgstr ""
+msgstr "生产力"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
-msgstr ""
+msgstr " - 每月续订"
 
 #: src/licensetierrow.py:64
 msgid " - renewing yearly"
-msgstr ""
+msgstr " - 每年续订"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
-msgstr ""
+msgstr "终身访问"
 
 #: src/licensetierrow.py:72
 msgid "Monthly"
-msgstr ""
+msgstr "每月"
 
 #: src/licensetierrow.py:73
 msgid "Yearly"
-msgstr ""
+msgstr "每年"
 
 #: src/licensetierrow.py:74
 msgid "Lifetime"
-msgstr ""
+msgstr "终身"
 
 #: src/time.py:14
 msgid "less than an hour"
-msgstr ""
+msgstr "不到一个小时"
 
 #: src/time.py:17
 msgid "1 hour"
-msgstr ""
+msgstr "1小时"
 
 #: src/time.py:17
 #, python-brace-format
 msgid "{time_remaining} hours"
-msgstr ""
+msgstr "{time_remaining} 小时"
 
 #: src/time.py:20
 msgid "1 day"
-msgstr ""
+msgstr "1天"
 
 #: src/time.py:20
 #, python-brace-format
 msgid "{time_remaining} days"
-msgstr ""
+msgstr "{time_remaining} 天"
 
 #: src/gtk/connected-device.ui:21
 msgid "connected"
-msgstr ""
+msgstr "已连接"
 
 #: src/gtk/connected-device.ui:31
 msgid "General Settings"
-msgstr ""
+msgstr "通用设置"
 
 #: src/gtk/connected-device.ui:41
 msgid "Features"
-msgstr ""
+msgstr "功能"
 
 #: src/gtk/connected-device.ui:44
 msgid "XR effect"
-msgstr ""
+msgstr "XR 效果"
 
 #: src/gtk/connected-device.ui:45
 msgid "Enables the Breezy Desktop XR effect."
-msgstr ""
+msgstr "启用 Breezy Desktop XR 效果。"
 
 #: src/gtk/connected-device.ui:55
 msgid "Widescreen mode"
-msgstr ""
+msgstr "宽屏模式"
 
 #: src/gtk/connected-device.ui:66
 msgid "Follow mode"
-msgstr ""
+msgstr "跟随模式"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr ""
+msgstr "保持虚拟显示屏在视野中心。"
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
-msgstr ""
+msgstr "曲线显示屏"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr ""
+msgstr "在平板和曲线显示屏之间切换。"
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
-msgstr ""
+msgstr "调整"
 
 #: src/gtk/connected-device.ui:94
 msgid "Display distance"
-msgstr ""
+msgstr "显示距离"
 
 #: src/gtk/connected-device.ui:95
 msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
-msgstr ""
+msgstr "距离近看起来大，距离远看起来小。当使用宽屏模式时控制深度。"
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
-msgstr ""
+msgstr "显示大小"
 
 #: src/gtk/connected-device.ui:124
 msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
-msgstr ""
+msgstr "结合显示距离来实现舒适的深度和大小级别。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr ""
+msgstr "显示切换距离"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
-msgstr ""
+msgstr "使用按钮捕获当前的显示距离，用于键盘快捷键。"
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr ""
+msgstr "跟随阈值"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr ""
+msgstr "您可以看多远才能让显示屏跟随。"
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "键盘快捷键"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
@@ -241,19 +241,19 @@ msgstr ""
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
-msgstr ""
+msgstr "更改"
 
 #: src/gtk/connected-device.ui:247
 msgid "Re-center display shortcut"
-msgstr ""
+msgstr "重新居中显示快捷键"
 
 #: src/gtk/connected-device.ui:248
 msgid "Pin the virtual display to the current position."
-msgstr ""
+msgstr "将虚拟显示屏固定在当前位置。"
 
 #: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
-msgstr ""
+msgstr "显示距离快捷键"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
@@ -265,51 +265,52 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
-msgstr ""
+msgstr "快速切换跟随模式。"
 
 #: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
-msgstr ""
+msgstr "高级设置"
 
 #: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
-msgstr ""
+msgstr "寻找最佳显示配置"
 
 #: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
-msgstr ""
+msgstr "当插入时，自动修改眼镜显示配置以获得最大分辨率和最佳缩放。"
 
 #: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
-msgstr ""
+msgstr "使用最高刷新率"
 
 #: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr ""
+msgstr "刷新率可能会影响性能，禁用此功能可手动设置。"
 
 #: src/gtk/connected-device.ui:372
 msgid "Always primary display"
-msgstr ""
+msgstr "始终为主要显示"
 
 #: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr ""
+msgstr "当插入时，自动将眼镜设置为主要显示。"
 
 #: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
-msgstr ""
+msgstr "快速 SBS 模式切换"
 
 #: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
+"当插入时，如果宽屏模式开启，眼镜会立即切换到 SBS 模式。这可能会导致不稳定。"
 
 #: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
-msgstr ""
+msgstr "移动预测"
 
 #: src/gtk/connected-device.ui:395
 msgid ""
@@ -317,10 +318,12 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
+"通过预测头追踪位置来抵消输入延迟，预测时间超过渲染时间。除非虚拟显示屏落后于"
+"您的头移动、跳到或非常抖动，否则请使用默认值。"
 
 #: src/gtk/connected-device.ui:413
 msgid "Default"
-msgstr ""
+msgstr "默认"
 
 #: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
@@ -332,37 +335,39 @@ msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
-msgstr ""
+msgstr "Breezy Desktop GNOME 无效设置"
 
 #: src/gtk/failed-verification.ui:14
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
+"您的 Breezy GNOME 设置无效或不完整。请重新运行设置脚本。如果问题仍然存在，请"
+"报告此问题。"
 
 #: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
-msgstr ""
+msgstr "捐赠"
 
 #: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
-msgstr ""
+msgstr "请求令牌"
 
 #: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
-msgstr ""
+msgstr "验证令牌"
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
 msgid "License Details"
-msgstr ""
+msgstr "许可证详细信息"
 
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
-msgstr ""
+msgstr "未连接设备"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr ""
+msgstr "Breezy Desktop 无法检测到任何支持的 XR 设备。"
 
 #: src/gtk/no-device.ui:23
 msgid "Auto-enable XR effect"
@@ -384,7 +389,7 @@ msgstr ""
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
-msgstr ""
+msgstr "未运行驱动程序"
 
 #: src/gtk/no-driver.ui:14
 msgid ""
@@ -397,20 +402,29 @@ msgid ""
 "in the #troubleshooting channel on Discord.\n"
 "        "
 msgstr ""
+"\n"
+" 如果您通过 AUR 安装，请确保运行推荐的后安装命令：\n"
+" systemctl --user enable --now xr-driver.service\n"
+"\n"
+" 否则，请在 GitHub 上提交问题，或在 Discord 的 #troubleshooting 频道中创建新"
+"主题。\n"
+" "
 
 #: src/gtk/no-extension.ui:13
 msgid "Breezy Desktop GNOME extension not ready"
-msgstr ""
+msgstr "Breezy Desktop GNOME 扩展未准备好"
 
 #: src/gtk/no-extension.ui:14
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
+"如果您刚运行设置，则可能需要注销并重新登录才能使用它。否则，请按照 Breezy "
+"GNOME 设置说明进行操作。"
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
-msgstr ""
+msgstr "未找到许可证文件"
 
 #: src/gtk/no-license.ui:14
 msgid ""
@@ -427,18 +441,27 @@ msgid ""
 "lifetime access).\n"
 "        "
 msgstr ""
+"\n"
+" 首次使用 Breezy Desktop 时，需要互联网连接以获取设备许可证。\n"
+" \n"
+" 不要担心，您无需立即捐赠。如果您尚未捐赠，您将获得试用许可证，以便您可以决"
+"定 Breezy Desktop 是否适合您的需求。 \n"
+" \n"
+" 获得许可证后，无论是试用还是付费，您都可以离线使用 Breezy Desktop（直到功能"
+"过期，如果您选择了终身访问，则可以无限期使用）。\n"
+" "
 
 #: src/gtk/no-license.ui:27
 msgid "Try Again"
-msgstr ""
+msgstr "重新尝试"
 
 #: src/gtk/shortcut-dialog.ui:5
 msgid "Assign Keyboard Shortcut"
-msgstr ""
+msgstr "分配键盘快捷键"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr ""
+msgstr "按下键盘快捷键或 'Backspace' 禁用..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
@@ -446,24 +469,24 @@ msgstr ""
 
 #: src/gtk/window.ui:23
 msgid "Menu"
-msgstr ""
+msgstr "菜单"
 
 #: src/gtk/window.ui:43
 msgid "Some features expire soon"
-msgstr ""
+msgstr "某些功能即将过期"
 
 #: src/gtk/window.ui:51 src/gtk/window.ui:76
 msgid "View details"
-msgstr ""
+msgstr "查看详细信息"
 
 #: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
-msgstr ""
+msgstr "生产力功能已禁用"
 
 #: src/gtk/window.ui:95
 msgid "Force Reset"
-msgstr ""
+msgstr "强制重置"
 
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
-msgstr ""
+msgstr "关于BreezyDesktop"
