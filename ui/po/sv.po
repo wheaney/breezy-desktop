@@ -81,11 +81,11 @@ msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr "att förnya"
+msgstr " att förnya"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr "att uppgradera"
+msgstr " att uppgradera"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
