@@ -60,7 +60,7 @@
         <attribute name="action">app.reset_driver</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">_About BreezyDesktop</attribute>
+        <attribute name="label" translatable="yes">About BreezyDesktop</attribute>
         <attribute name="action">app.about</attribute>
       </item>
     </section>
