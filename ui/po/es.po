@@ -181,7 +181,7 @@ msgstr "Pantalla curvada"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr "Cambie entre pantallas planas y curvas."
+msgstr "Cambiar entre pantallas planas y curvadas."
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
@@ -251,7 +251,7 @@ msgstr "Atajo de distancia de pantalla"
 
 #: src/gtk/connected-device.ui:248
 msgid "Quickly toggle between two predefined distances."
-msgstr "Cambie rápidamente entre dos distancias predefinidas."
+msgstr "Cambiar rápidamente entre dos distancias predefinidas."
 
 #: src/gtk/connected-device.ui:276
 msgid "Toggle follow mode shortcut"
@@ -259,7 +259,7 @@ msgstr "Atajo para alternar el modo de seguimiento"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle follow mode."
-msgstr "Alternar rápidamente el modo de seguimiento."
+msgstr "Activar el modo de seguimiento."
 
 #: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
 msgid "Advanced Settings"
@@ -278,11 +278,11 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
-msgstr "Utilice la tasa de refresco más alta"
+msgstr "Utilizar la frecuencia de actualización más alta"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "La tasa de refresco puede afectar el rendimiento, deshabilite esto para configurarlo manualmente."
+msgstr "La frecuencia de actualización puede afectar el rendimiento, deshabilite esto para configurarlo manualmente."
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
@@ -290,7 +290,7 @@ msgstr "Siempre como pantalla principal"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "Configurar automáticamente las gafas como la pantalla principal cuando estén enchufadas."
+msgstr "Automáticamente configurar las gafas como pantalla principal al enchufarse."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
