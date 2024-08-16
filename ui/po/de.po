@@ -60,7 +60,7 @@ msgstr "Side-by-Side-Modus (Gaming)"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "Glatte Folge (Gaming)"
+msgstr "Glattes Verfolgen (Gaming)"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
@@ -121,7 +121,7 @@ msgstr "Jährlich"
 
 #: src/licensetierrow.py:74
 msgid "Lifetime"
-msgstr "Lebensdauer"
+msgstr "Lebenslang"
 
 #: src/time.py:14
 msgid "less than an hour"
@@ -176,7 +176,7 @@ msgstr "Folgemodus"
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
 msgstr ""
-"Halten Sie das virtuelle Display in der Nähe der Mitte Ihres Blickfelds."
+"Halten Sie das virtuelle Display Nahe der Mitte Ihres Blickfelds."
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
@@ -216,7 +216,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "Display-Umschaltentfernungen"
+msgstr "Umschalten der Display-Entfernungen"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
@@ -228,7 +228,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr "Folgeschwelle"
+msgstr "Folgemodus-Schwelle"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
@@ -295,12 +295,12 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
-msgstr "Immer primärer Display"
+msgstr "Immer primäres Display"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
-"Setzen Sie die Brille automatisch als primären Display ein, wenn sie "
+"Setzen Sie die Brille automatisch als primäres Display ein, wenn sie "
 "angeschlossen ist."
 
 #: src/gtk/connected-device.ui:354
@@ -325,9 +325,9 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Gegensteuert Eingabeverzögerungen, indem die Kopfverfolgungsposition vor der "
-"Renderzeit vorhergesagt wird. Bleiben Sie beim Standard, es sei denn, das "
-"virtuelle Display hängt hinter Ihren Kopfbewegungen zurück, springt vor oder "
+"Wirkt Eingabeverzögerungen entgegen, indem die Kopfverfolgungsposition vor der "
+"Renderzeit vorhergesagt wird. Bleiben Sie bei den Standardeinstellungen, es sei denn, das "
+"virtuelle Display hängt hinter Ihren Kopfbewegungen hinterher, springt vor oder "
 "ist sehr wackelig."
 
 #: src/gtk/connected-device.ui:384
@@ -475,7 +475,7 @@ msgstr "Produktivitätsfunktionen sind deaktiviert"
 
 #: src/gtk/window.ui:59
 msgid "Force Reset"
-msgstr "Erzwingen Sie den Reset"
+msgstr "Erzwingt Zurrücksetzung"
 
 #: src/gtk/window.ui:63
 msgid "About BreezyDesktop"
