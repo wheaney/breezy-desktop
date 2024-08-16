@@ -29,7 +29,7 @@ msgstr "Esta función no es compatible con tu dispositivo en este momento."
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
-msgstr "Estado de Nivel Pagado"
+msgstr "Estado del Nivel de Membresía Pagada"
 
 #: src/licensedialog.py:57
 msgid "Feature Availability"
@@ -301,7 +301,7 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Cambia las gafas al modo SBS inmediatamente cuando se enchufan, si el modo de pantalla ancha está activado. Puede causar inestabilidad."
+"Cambia las gafas al modo SBS (lado a lado) inmediatamente cuando se enchufan, si el modo de pantalla ancha está activado. Puede causar inestabilidad."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -424,7 +424,7 @@ msgstr "Asignar método abreviado de teclado"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "Presione su método abreviado de teclado o 'Backspace' para deshabilitar..."
+msgstr "Presione su método abreviado de teclado o pulsa 'retroceso' para deshabilitar..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
