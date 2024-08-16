@@ -22,285 +22,291 @@ msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
+"Passa le tue lenti in modalità side-by-side e raddoppia la larghezza del display."
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
-msgstr ""
+msgstr "Questa funzione non è attualmente supportata per il tuo dispositivo."
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
-msgstr ""
+msgstr "Stato del livello a pagamento"
 
 #: src/licensedialog.py:57
 msgid "Feature Availability"
-msgstr ""
+msgstr "Disponibilità delle funzionalità"
 
 #: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
 msgid "Disabled"
-msgstr ""
+msgstr "Disabilitato"
 
 #: src/licensefeaturerow.py:18
 msgid "In trial"
-msgstr ""
+msgstr "In prova"
 
 #: src/licensefeaturerow.py:18
 msgid "Enabled"
-msgstr ""
+msgstr "Abilitato"
 
 #: src/licensefeaturerow.py:24 src/licensetierrow.py:30
 #, python-brace-format
 msgid " ({time_remaining} remaining)"
-msgstr ""
+msgstr " ({time_remaining} rimanenti)"
 
 #: src/licensefeaturerow.py:32
 msgid "Side-by-side mode (gaming)"
-msgstr ""
+msgstr "Modalità side-by-side (gaming)"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr ""
+msgstr "Smooth Follow (gaming)"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
-msgstr ""
+msgstr "Breezy Desktop (produttività)"
 
 #: src/licensetierrow.py:24
 msgid "Active"
-msgstr ""
+msgstr "Attivo"
 
 #: src/licensetierrow.py:24
 msgid "Inactive"
-msgstr ""
+msgstr "Inattivo"
 
 #: src/licensetierrow.py:41
 #, python-brace-format
 msgid "<b>${amount}</b> USD"
-msgstr ""
+msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr ""
+msgstr " da rinnovare"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr ""
+msgstr " per aggiornare"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
-msgstr ""
+msgstr "Pagato fino al prossimo periodo di rinnovo"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
-msgstr ""
+msgstr "Gaming"
 
 #: src/licensetierrow.py:57
 msgid "Productivity"
-msgstr ""
+msgstr "Produttività"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
-msgstr ""
+msgstr " - rinnovo mensile"
 
 #: src/licensetierrow.py:64
 msgid " - renewing yearly"
-msgstr ""
+msgstr " - rinnovo annuale"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
-msgstr ""
+msgstr "con accesso a vita"
 
 #: src/licensetierrow.py:72
 msgid "Monthly"
-msgstr ""
+msgstr "Mensile"
 
 #: src/licensetierrow.py:73
 msgid "Yearly"
-msgstr ""
+msgstr "Annuale"
 
 #: src/licensetierrow.py:74
 msgid "Lifetime"
-msgstr ""
+msgstr "A vita"
 
 #: src/time.py:14
 msgid "less than an hour"
-msgstr ""
+msgstr "meno di un'ora"
 
 #: src/time.py:17
 msgid "1 hour"
-msgstr ""
+msgstr "1 ora"
 
 #: src/time.py:17
 #, python-brace-format
 msgid "{time_remaining} hours"
-msgstr ""
+msgstr "{time_remaining} ore"
 
 #: src/time.py:20
 msgid "1 day"
-msgstr ""
+msgstr "1 giorno"
 
 #: src/time.py:20
 #, python-brace-format
 msgid "{time_remaining} days"
-msgstr ""
+msgstr "{time_remaining} giorni"
 
 #: src/gtk/connected-device.ui:21
 msgid "connected"
-msgstr ""
+msgstr "connesso"
 
 #: src/gtk/connected-device.ui:31
 msgid "General Settings"
-msgstr ""
+msgstr "Impostazioni generali"
 
 #: src/gtk/connected-device.ui:41
 msgid "Features"
-msgstr ""
+msgstr "Funzionalità"
 
 #: src/gtk/connected-device.ui:44
 msgid "XR effect"
-msgstr ""
+msgstr "Effetto XR"
 
 #: src/gtk/connected-device.ui:45
 msgid "Enables the Breezy Desktop XR effect."
-msgstr ""
+msgstr "Abilita l'effetto XR di Breezy Desktop."
 
 #: src/gtk/connected-device.ui:55
 msgid "Widescreen mode"
-msgstr ""
+msgstr "Modalità widescreen"
 
 #: src/gtk/connected-device.ui:66
 msgid "Follow mode"
-msgstr ""
+msgstr "Modalità di inseguimento"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr ""
+msgstr "Mantieni il display virtuale vicino al centro del tuo campo visivo."
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
-msgstr ""
+msgstr "Display curvo"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr ""
+msgstr "Passa da display piatti a curvi."
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
-msgstr ""
+msgstr "Regolazioni"
 
 #: src/gtk/connected-device.ui:94
 msgid "Display distance"
-msgstr ""
+msgstr "Distanza del display"
 
 #: src/gtk/connected-device.ui:95
 msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
+"Più vicino appare più grande, più lontano appare più piccolo. Controlla la profondità quando è in modalità widescreen."
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
-msgstr ""
+msgstr "Dimensione del display"
 
 #: src/gtk/connected-device.ui:124
 msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
+"Combina con la distanza del display per ottenere un livello confortevole di profondità e dimensione."
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr ""
+msgstr "Distanze di attivazione del display"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
 msgstr ""
+"Usa i pulsanti per acquisire la distanza attuale del display da utilizzare con la scorciatoia da tastiera."
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr ""
+msgstr "Soglia di inseguimento"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr ""
+msgstr "Quanto lontano puoi guardare prima che il display ti segua."
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "Scorciatoie da tastiera"
 
 #: src/gtk/connected-device.ui:218
 msgid "Re-center display shortcut"
-msgstr ""
+msgstr "Scorciatoia per recentrare il display"
 
 #: src/gtk/connected-device.ui:219
 msgid "Pin the virtual display to the current position."
-msgstr ""
+msgstr "Fissa il display virtuale alla posizione attuale."
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296
 msgid "Change"
-msgstr ""
+msgstr "Cambia"
 
 #: src/gtk/connected-device.ui:247
 msgid "Display distance shortcut"
-msgstr ""
+msgstr "Scorciatoia per la distanza del display"
 
 #: src/gtk/connected-device.ui:248
 msgid "Quickly toggle between two predefined distances."
-msgstr ""
+msgstr "Passa rapidamente tra due distanze predefinite."
 
 #: src/gtk/connected-device.ui:276
 msgid "Toggle follow mode shortcut"
-msgstr ""
+msgstr "Scorciatoia per attivare/disattivare la modalità di inseguimento"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle follow mode."
-msgstr ""
+msgstr "Attiva/disattiva rapidamente la modalità di inseguimento."
 
 #: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
 msgid "Advanced Settings"
-msgstr ""
+msgstr "Impostazioni avanzate"
 
 #: src/gtk/connected-device.ui:321
 msgid "Find optimal display config"
-msgstr ""
+msgstr "Trova la configurazione ottimale del display"
 
 #: src/gtk/connected-device.ui:322
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
+"Modifica automaticamente la configurazione del display delle lenti per ottenere la massima risoluzione e la migliore scalabilità quando sono collegate."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
-msgstr ""
+msgstr "Usa il frequenza di aggiornamento più alta"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr ""
+msgstr "La frequenza di aggiornamento potrebbe influire sulle prestazioni, disabilitala per impostarla manualmente."
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
-msgstr ""
+msgstr "Imposta sempre il display primario"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr ""
+msgstr "Imposta automaticamente le lenti come display primario quando sono collegate."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
-msgstr ""
+msgstr "Passaggio rapido alla modalità SBS"
 
 #: src/gtk/connected-device.ui:355
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
+"Passa immediatamente le lenti alla modalità SBS quando vengono collegate, se la modalità widescreen è attiva. Potrebbe causare instabilità."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
-msgstr ""
+msgstr "Anticipo del movimento"
 
 #: src/gtk/connected-device.ui:366
 msgid ""
@@ -308,48 +314,50 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
+"Compensa il ritardo di input prevedendo la posizione del tracciamento della testa prima del tempo di rendering. Rimani con il valore predefinito a meno che il display virtuale non rimanga indietro rispetto ai tuoi movimenti, non salti in avanti o sia molto tremolante."
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
-msgstr ""
+msgstr "Predefinito"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
-msgstr ""
+msgstr "Configurazione non valida di Breezy Desktop GNOME"
 
 #: src/gtk/failed-verification.ui:14
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
+"La tua configurazione di Breezy GNOME non è valida o incompleta. Ripeti l'esecuzione dello script di configurazione. Segnala questo problema se persiste."
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
-msgstr ""
+msgstr "Dettagli della licenza"
 
 #: src/gtk/license-dialog.ui:27
 msgid "Donate"
-msgstr ""
+msgstr "Donare"
 
 #: src/gtk/license-dialog.ui:44
 msgid "Request a token"
-msgstr ""
+msgstr "Richiesta di un token"
 
 #: src/gtk/license-dialog.ui:52
 msgid "Verify token"
-msgstr ""
+msgstr "Verifica del token"
 
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
-msgstr ""
+msgstr "Nessun dispositivo connesso"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr ""
+msgstr "Breezy Desktop non è riuscito a rilevare alcun dispositivo XR supportato."
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
-msgstr ""
+msgstr "Nessun driver in esecuzione"
 
 #: src/gtk/no-driver.ui:14
 msgid ""
@@ -362,20 +370,27 @@ msgid ""
 "in the #troubleshooting channel on Discord.\n"
 "        "
 msgstr ""
+"\n"
+"          Se hai installato tramite AUR, assicurati di aver eseguito il comando di installazione consigliato:\n"
+"          systemctl --user enable --now xr-driver.service\n"
+"\n"
+"          In caso contrario, segnala il problema su GitHub o crea un nuovo thread nel canale #troubleshooting su Discord.\n"
+"        "
 
 #: src/gtk/no-extension.ui:13
 msgid "Breezy Desktop GNOME extension not ready"
-msgstr ""
+msgstr "Estensione di Breezy Desktop GNOME non pronta"
 
 #: src/gtk/no-extension.ui:14
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
+"Se hai appena eseguito la configurazione, potrebbe essere necessario disconnettersi e riconnettersi per utilizzarla. In caso contrario, segui le istruzioni di configurazione di Breezy GNOME."
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
-msgstr ""
+msgstr "Nessun file di licenza trovato"
 
 #: src/gtk/no-license.ui:14
 msgid ""
@@ -392,43 +407,50 @@ msgid ""
 "lifetime access).\n"
 "        "
 msgstr ""
+"\n"
+"          La prima volta che utilizzi Breezy Desktop, è necessaria una connessione Internet per recuperare la licenza del tuo dispositivo.\n"
+"          \n"
+"          Non preoccuparti, non è obbligatorio donare in questo momento. Se non lo hai già fatto, ti verrà fornita una licenza di prova in modo da poter decidere se Breezy Desktop soddisfa le tue esigenze.\n"
+"          \n"
+"          Una volta ottenuta una licenza, di prova o meno, puoi utilizzare Breezy Desktop offline fino alla scadenza delle funzionalità (o a tempo indeterminato, se hai scelto l'accesso a vita).\n"
+"        "
 
 #: src/gtk/no-license.ui:27
 msgid "Try Again"
-msgstr ""
+msgstr "Riprova"
 
 #: src/gtk/shortcut-dialog.ui:5
 msgid "Assign Keyboard Shortcut"
-msgstr ""
+msgstr "Assegna una scorciatoia da tastiera"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr ""
+msgstr "Premi la tua scorciatoia da tastiera o 'Backspace' per disabilitare..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
-msgstr ""
+msgstr "Breezy Desktop"
 
 #: src/gtk/window.ui:23
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: src/gtk/window.ui:35
 msgid "Some features expire soon"
-msgstr ""
+msgstr "Alcune funzionalità scadono presto"
 
 #: src/gtk/window.ui:36 src/gtk/window.ui:43
 msgid "View details"
-msgstr ""
+msgstr "Visualizza dettagli"
 
 #: src/gtk/window.ui:42
 msgid "Productivity features are disabled"
-msgstr ""
+msgstr "Le funzionalità di produttività sono disabilitate"
 
 #: src/gtk/window.ui:59
 msgid "Force Reset"
-msgstr ""
+msgstr "Reset forzato"
 
 #: src/gtk/window.ui:63
 msgid "About BreezyDesktop"
-msgstr ""
+msgstr "Informazioni su BreezyDesktop"
