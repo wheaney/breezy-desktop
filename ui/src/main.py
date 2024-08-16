@@ -34,7 +34,7 @@ gi.require_version('GLib', '2.0')
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 po_dir = os.path.join(script_dir, 'po')
-locale_dir = '/app/share/locale'
+locale_dir = os.environ.get('LOCALE_DIR', '/app/share/locale')
 
 locale.setlocale(locale.LC_ALL, locale.getdefaultlocale())
 locale.bindtextdomain('breezydesktop', locale_dir)
