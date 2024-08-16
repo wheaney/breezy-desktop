@@ -37,8 +37,8 @@ po_dir = os.path.join(script_dir, 'po')
 locale_dir = '/app/share/locale'
 
 locale.setlocale(locale.LC_ALL, '')
-locale.bindtextdomain('breezydesktop', None)
-gettext.bindtextdomain('breezydesktop', None)
+locale.bindtextdomain('breezydesktop', locale_dir)
+gettext.bindtextdomain('breezydesktop', locale_dir)
 gettext.textdomain('breezydesktop')
 
 from gi.repository import Adw, Gtk, Gio
