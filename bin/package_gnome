@@ -4,23 +4,26 @@
 set -e
 
 ARCH=${ARCH:-$(uname -m)}
-echo "Building Breezy GNOME for $ARCH"
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
 VULKAN_DIR=$ROOT_DIR/vulkan
 
-# if GNOME_44_MAX is not set
 if [ -z "$GNOME_44_MAX" ]; then
+  # standard build for GNOME 45 and up
+  echo "Building Breezy GNOME for $ARCH, GNOME versions 45 and up"
   GNOME_DIR=$ROOT_DIR/gnome
   BUILD_FILE_NAME=breezyGNOME-$ARCH.tar.gz
 else
+  # special patched build for GNOME 44 and below
+  echo "Building Breezy GNOME for $ARCH, GNOME versions 44 and below"
+
   # use a special directory for the GNOME 44 max build, ignored by git
   GNOME_DIR=$ROOT_DIR/gnome-44-max
   rm -rf $GNOME_DIR
   mkdir $GNOME_DIR
-  BUILD_FILE_NAME=breezyGNOME.44-max.$ARCH.tar.gz
+  BUILD_FILE_NAME=breezyGNOME-44-max-$ARCH.tar.gz
 
   # copy the GNOME extension source code to the new directory and apply 
   # a patch that makes it compatible with GNOME 44 and below
@@ -81,11 +84,11 @@ rm -rf $TMP_DIR
 cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
 cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
-gnome/bin/package_extension
-cp gnome/out/breezydesktop@xronlinux.com.shell-extension.zip $PACKAGE_DIR
+$GNOME_DIR/bin/package_extension
+cp $GNOME_DIR/out/breezydesktop@xronlinux.com.shell-extension.zip $PACKAGE_DIR
 
 # create a checksum that combines the checksums of all files in the directory
-pushd gnome/src
+pushd $GNOME_DIR/src
 GNOME_MANIFEST_LINE=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
 popd
 
