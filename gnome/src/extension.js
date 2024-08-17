@@ -129,7 +129,8 @@ export default class BreezyDesktopExtension extends Extension {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
-                monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product));
+                monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
+                           this.settings.get_string('custom-monitor-product') === monitor.product);
             if (target_monitor !== undefined) {
                 Globals.logger.log(`Identified supported monitor: ${target_monitor.product} on ${target_monitor.connector}`);
                 return {

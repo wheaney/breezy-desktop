@@ -163,5 +163,14 @@
         Log debug messages
       </description>
     </key>
+    <key name="custom-monitor-product" type="s">
+      <default>
+        ""
+      </default>
+      <summary>Custom monitor product</summary>
+      <description>
+        Custom monitor product
+      </description>
+    </key>
 	</schema>
 </schemalist>
