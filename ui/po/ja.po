@@ -21,7 +21,7 @@ msgstr ""
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
-msgstr "メガネをサイドバイサイドモードに切り替え、表示の幅を2倍にします。"
+msgstr "ARグラスをサイドバイサイドモードに切り替え、表示の幅を2倍にします。"
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
@@ -29,7 +29,7 @@ msgstr "この機能は現在、お使いのデバイスではサポートされ
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
-msgstr "有料ティアの状態"
+msgstr "有料会員資格"
 
 #: src/licensedialog.py:57
 msgid "Feature Availability"
@@ -41,7 +41,7 @@ msgstr "無効"
 
 #: src/licensefeaturerow.py:18
 msgid "In trial"
-msgstr "トライアル中"
+msgstr "試用中"
 
 #: src/licensefeaturerow.py:18
 msgid "Enabled"
@@ -177,11 +177,11 @@ msgstr "仮想ディスプレイを視界の中心近くに保ちます。"
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
-msgstr "カーブディスプレイ"
+msgstr "曲面ディスプレイ"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr "フラットとカーブディスプレイを切り替えます。"
+msgstr "フラットと曲面ディスプレイを切り替えます。"
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
@@ -189,7 +189,7 @@ msgstr "調整"
 
 #: src/gtk/connected-device.ui:94
 msgid "Display distance"
-msgstr "ディスプレイ距離"
+msgstr "ディスプレイとの距離"
 
 #: src/gtk/connected-device.ui:95
 msgid ""
@@ -278,7 +278,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
-msgstr "最高のリフレッシュレートを使用する"
+msgstr "最も高いリフレッシュレートを使用"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
@@ -436,7 +436,7 @@ msgstr "メニュー"
 
 #: src/gtk/window.ui:35
 msgid "Some features expire soon"
-msgstr "一部の機能はすぐに期限切れになります"
+msgstr "一部の機能はもうすぐ期限が切れます"
 
 #: src/gtk/window.ui:36 src/gtk/window.ui:43
 msgid "View details"
