@@ -10,9 +10,25 @@ echo "Building Breezy GNOME for $ARCH"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
 VULKAN_DIR=$ROOT_DIR/vulkan
-GNOME_DIR=$ROOT_DIR/gnome
+
+# if GNOME_44_MAX is not set
+if [ -z "$GNOME_44_MAX" ]; then
+  GNOME_DIR=$ROOT_DIR/gnome
+  BUILD_FILE_NAME=breezyGNOME-$ARCH.tar.gz
+else
+  # use a special directory for the GNOME 44 max build, ignored by git
+  GNOME_DIR=$ROOT_DIR/gnome-44-max
+  rm -rf $GNOME_DIR
+  mkdir $GNOME_DIR
+  BUILD_FILE_NAME=breezyGNOME.44-max.$ARCH.tar.gz
+
+  # copy the GNOME extension source code to the new directory and apply 
+  # a patch that makes it compatible with GNOME 44 and below
+  cp -ra $ROOT_DIR/gnome/* $GNOME_DIR
+  rm -rf $GNOME_DIR/build
+  git apply gnome-44-max.patch
+fi
 GNOME_BUILD_DIR=$GNOME_DIR/build
-BUILD_FILE_NAME=breezyGNOME-$ARCH.tar.gz
 
 mkdir -p $GNOME_BUILD_DIR
 if [ -e "$GNOME_BUILD_DIR/$BUILD_FILE_NAME" ]; then
