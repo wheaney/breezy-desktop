@@ -5,7 +5,7 @@
 #
 # Breezy DesktopやXR、GNOMEのような固有名詞はそのままの表記にしています。
 #「gaming」が「ゲーミング」なので「productivity」も「プロダクティビティ」とカナ表記にしました。
-#「glasses」は「XR効果」から「XRメガネ」にしても良かったんですが、繰り返すのもくどいので「メガネ」にしてます。
+#「glasses」は「XRエフェクト」から「XRメガネ」にしても良かったんですが、繰り返すのもくどいので「メガネ」にしてます。
 # 
 msgid ""
 msgstr ""
@@ -25,11 +25,11 @@ msgstr ""
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
-msgstr "ARグラスをサイドバイサイドモードに切り替え、表示の幅を2倍にします。"
+msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします。"
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
-msgstr "この機能は現在、お使いのデバイスではサポートされていません。"
+msgstr "この機能は現在接続されているデバイスではサポートされていません。"
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
@@ -45,7 +45,7 @@ msgstr "無効"
 
 #: src/licensefeaturerow.py:18
 msgid "In trial"
-msgstr "試用中"
+msgstr "試用期間中"
 
 #: src/licensefeaturerow.py:18
 msgid "Enabled"
@@ -161,11 +161,11 @@ msgstr "機能"
 
 #: src/gtk/connected-device.ui:44
 msgid "XR effect"
-msgstr "XR効果"
+msgstr "XRエフェクト"
 
 #: src/gtk/connected-device.ui:45
 msgid "Enables the Breezy Desktop XR effect."
-msgstr "Breezy DesktopのXR効果を有効にします。"
+msgstr "Breezy DesktopのXRエフェクトを有効にします。"
 
 #: src/gtk/connected-device.ui:55
 msgid "Widescreen mode"
@@ -193,14 +193,15 @@ msgstr "調整"
 
 #: src/gtk/connected-device.ui:94
 msgid "Display distance"
-msgstr "ディスプレイとの距離"
+msgstr "ディスプレイ距離"
 
 #: src/gtk/connected-device.ui:95
 msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
-"近づけると大きく見え、遠ざけると小さく見えます。ワイドスクリーンモードの奥行きを制御します。"
+"近づけると大きく見え、遠ざけると小さく見えます。"
+"ワイドスクリーンモードの奥行きを制御します。"
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
@@ -211,11 +212,11 @@ msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"ディスプレイ距離と組み合わせて、奥行きとサイズの快適なレベルを達成します。"
+"ディスプレイ距離と組み合わせて、快適な奥行きとサイズを実現します。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "ディスプレイ距離切り替え"
+msgstr "ディスプレイ距離の切り替え"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
@@ -230,7 +231,7 @@ msgstr "フォローしきい値"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "どれだけ遠ざかるとディスプレイがフォロー(追従)するか"
+msgstr "ディスプレイがフォロー(追従)を開始するまでの距離"
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -238,7 +239,7 @@ msgstr "キーボードショートカット"
 
 #: src/gtk/connected-device.ui:218
 msgid "Re-center display shortcut"
-msgstr "中心へ移動するショートカット"
+msgstr "ディスプレイを中央へ移動"
 
 #: src/gtk/connected-device.ui:219
 msgid "Pin the virtual display to the current position."
@@ -251,7 +252,7 @@ msgstr "変更"
 
 #: src/gtk/connected-device.ui:247
 msgid "Display distance shortcut"
-msgstr "ディスプレイ距離ショートカット"
+msgstr "ディスプレイ距離の切り替え"
 
 #: src/gtk/connected-device.ui:248
 msgid "Quickly toggle between two predefined distances."
@@ -259,11 +260,11 @@ msgstr "設定してある2個の距離をすばやく切り替えます。"
 
 #: src/gtk/connected-device.ui:276
 msgid "Toggle follow mode shortcut"
-msgstr "フォローモードに切り替えるショートカット"
+msgstr "フォローモードの切り替え"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle follow mode."
-msgstr "フォローモードにすばやく切り替えます。"
+msgstr "フォローモードのオン／オフをすばやく切り替えます。"
 
 #: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
 msgid "Advanced Settings"
@@ -411,11 +412,11 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Breezy Desktopを初めて使用する際は、デバイスのライセンスを取得するためにインターネット接続が必要です。\n"
+"          Breezy Desktopを初めて使用する際は、デバイスライセンスを取得するためにインターネット接続が必要です。\n"
 "          \n"
-"          寄付する義務はありません。まだであれば、Breezy Desktopがニーズに合っているかどうかを判断できるトライアルライセンスが提供されます。\n"
+"          ご安心ください。今すぐに寄付する必要はありません。寄付していない場合は、Breezy Desktopがニーズに合っているかどうかを判断できる試用ライセンスが提供されます。\n"
 "          \n"
-"          ライセンスを取得したら、トライアルであろうと、Breezy Desktopをオフラインで使用できます。機能が期限切れるまで（または生涯アクセスを選択した場合）、無期限に使用できます。\n"
+"          ライセンスを取得したら、試用期間中であろうと期限切れるまではBreezy Desktopをオフラインで使用できます。(生涯アクセスを選択した場合は期限はありません。)\n"
 "        "
 
 #: src/gtk/no-license.ui:27
