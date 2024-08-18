@@ -31,7 +31,7 @@ msgstr "Эта функция в настоящее время не поддер
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
-msgstr "Оплачиваемый статус"
+msgstr "Статус платного уровня"
 
 #: src/licensedialog.py:57
 msgid "Feature Availability"
@@ -81,7 +81,7 @@ msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr " для продления"
+msgstr " для обновления"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
@@ -101,11 +101,11 @@ msgstr "Продуктивный режим"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
-msgstr " - ежемесячное продление"
+msgstr " - ежемесячное обновление"
 
 #: src/licensetierrow.py:64
 msgid " - renewing yearly"
-msgstr " - ежегодное продление"
+msgstr " - ежегодное обновление"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
@@ -346,7 +346,7 @@ msgid ""
 msgstr ""
 "Ваша настройка Breezy GNOME недействительна или неполна. Пожалуйста, "
 "перезапустите скрипт настройки. Сообщите об этой проблеме, если она "
-"будет продолжаться."
+"сохраняется."
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
@@ -432,12 +432,12 @@ msgstr ""
 "          При первом использовании Breezy Desktop требуется интернет-"
 "соединение для получения лицензии вашего устройства.\n"
 "          \n"
-"          Не волнуйтесь, вы не обязаны донатить в этот "
-"момент. Если вы не сделали этого, вам будет предоставлена пробная "
+"          Не волнуйтесь, на данный момент нет обязательства донатить. "
+"Если вы не сделали этого, вам будет предоставлена пробная "
 "лицензия, чтобы вы могли решить, подходит ли вам Breezy Desktop.\n"
 "          \n"
 "          После получения лицензии, пробной или иной, вы можете "
-"использовать Breezy Desktop оффлайн до истечения срока "
+"использовать Breezy Desktop офлайн до истечения срока "
 "действия функций (или бессрочно, если вы выбрали пожизненный доступ).\n"
 "        "
 
