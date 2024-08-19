@@ -83,6 +83,10 @@ class BreezydesktopApplication(Adw.Application):
         self.create_action('reset_driver', self.on_reset_driver_action)
         self._skip_verification = skip_verification
 
+        # always do this on start-up since the driver sometimes fails to update the license on boot,
+        # prevent showing a license warning unnecessarily
+        XRDriverIPC.get_instance().write_control_flags({'refresh_device_license': True})
+
     def do_activate(self):
         """Called when the application is activated.
 
