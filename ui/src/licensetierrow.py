@@ -24,7 +24,7 @@ class LicenseTierRow(Adw.ExpanderRow):
         status = _('Active') if active_period else _('Inactive')
         details = ''
         if active_period:
-            details += f" {self._period_description[active_period]}"
+            details += f" {self._period_description(active_period)}"
             if funds_needed_in_seconds is not None and funds_needed_in_seconds > 0:
                 time_remaining = time_remaining_text(funds_needed_in_seconds) 
                 if time_remaining: details += _(" ({time_remaining} remaining)").format(time_remaining=time_remaining)
