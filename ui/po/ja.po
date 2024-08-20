@@ -33,7 +33,7 @@ msgstr "この機能は現在接続されているデバイスではサポート
 
 #: src/licensedialog.py:49
 msgid "Paid Tier Status"
-msgstr "有料会員資格"
+msgstr "有料ティアの状態"
 
 #: src/licensedialog.py:57
 msgid "Feature Availability"
@@ -79,15 +79,15 @@ msgstr "非アクティブ"
 #: src/licensetierrow.py:41
 #, python-brace-format
 msgid "<b>${amount}</b> USD"
-msgstr "<b>${amount}</b>ドル"
+msgstr "<b>あと${amount}</b> (USD)"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr "を更新"
+msgstr "で更新可能"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr "にアップグレード"
+msgstr "でアップグレード可能"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
@@ -103,27 +103,27 @@ msgstr "プロダクティビティ"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
-msgstr " - 毎月更新"
+msgstr " - 月払い"
 
 #: src/licensetierrow.py:64
 msgid " - renewing yearly"
-msgstr " - 毎年更新"
+msgstr " - 年払い"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
-msgstr "生涯アクセス権付き"
+msgstr "一括払い済み"
 
 #: src/licensetierrow.py:72
 msgid "Monthly"
-msgstr "月額"
+msgstr "月払い"
 
 #: src/licensetierrow.py:73
 msgid "Yearly"
-msgstr "年額"
+msgstr "年払い"
 
 #: src/licensetierrow.py:74
 msgid "Lifetime"
-msgstr "生涯"
+msgstr "一括払い"
 
 #: src/time.py:14
 msgid "less than an hour"
@@ -200,7 +200,7 @@ msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
-"近づけると大きく見え、遠ざけると小さく見えます。"
+"近づけると大きく見え、遠ざけると小さく見えます。\n"
 "ワイドスクリーンモードの奥行きを制御します。"
 
 #: src/gtk/connected-device.ui:123
@@ -212,7 +212,7 @@ msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"ディスプレイ距離と組み合わせて、快適な奥行きとサイズを実現します。"
+"ディスプレイ距離と組み合わせて、\n快適な奥行きとサイズを実現します。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
@@ -337,7 +337,7 @@ msgstr ""
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
-msgstr "ライセンス詳細"
+msgstr "ライセンスの詳細"
 
 #: src/gtk/license-dialog.ui:27
 msgid "Donate"
