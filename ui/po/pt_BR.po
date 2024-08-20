@@ -56,11 +56,11 @@ msgstr " ({time_remaining} restantes)"
 
 #: src/licensefeaturerow.py:32
 msgid "Side-by-side mode (gaming)"
-msgstr "Modo lado a lado (jogando)"
+msgstr "Modo lado a lado (Jogos)"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "Seguir Suave (jogando)"
+msgstr "Seguir Suave (Jogos)"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
@@ -93,7 +93,7 @@ msgstr "Pago até o próximo período de renovação"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
-msgstr "Jogando"
+msgstr "Jogos"
 
 #: src/licensetierrow.py:57
 msgid "Productivity"
@@ -215,7 +215,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "Distâncias de alternância da exibição"
+msgstr "Alternância entre distâncias de exibição"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
@@ -227,11 +227,11 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr "Limiar de acompanhamento"
+msgstr "Sensibilidade de acompanhamento"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "Quão longe você pode olhar antes que a exibição acompanhe."
+msgstr "Quanto você pode mover a cabeça antes que a exibição acompanhe."
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -280,7 +280,7 @@ msgid ""
 "resolution and best scaling when plugged in."
 msgstr ""
 "Modifique automaticamente a configuração de exibição dos óculos para máxima "
-"resolução e melhor escalonamento quando conectado."
+"resolução e melhor dimensionamento quando conectado."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -294,12 +294,12 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
-msgstr "Sempre exibição primária"
+msgstr "Sempre vídeo principal"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
-"Defina automaticamente os óculos como a exibição primária quando conectados."
+"Defina automaticamente os óculos como vídeo principal quando conectados."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
@@ -325,8 +325,7 @@ msgid ""
 msgstr ""
 "Compensa o atraso de entrada prevendo a posição de rastreamento de cabeça "
 "antes do tempo de renderização. Mantenha o padrão, a menos que a exibição "
-"virtual fique para trás dos movimentos da cabeça, avance ou seja muito "
-"instável."
+"virtual tenha atrasos, avance ou seja muito instável em relação aos movimentos da cabeça "
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
@@ -471,7 +470,7 @@ msgstr "As funcionalidades de produtividade estão desabilitadas"
 
 #: src/gtk/window.ui:59
 msgid "Force Reset"
-msgstr "Redefinir forçado"
+msgstr "Forçar redefinição"
 
 #: src/gtk/window.ui:63
 msgid "About BreezyDesktop"
