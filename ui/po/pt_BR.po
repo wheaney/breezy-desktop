@@ -56,11 +56,11 @@ msgstr " ({time_remaining} restantes)"
 
 #: src/licensefeaturerow.py:32
 msgid "Side-by-side mode (gaming)"
-msgstr "Modo SBS (jogo)"
+msgstr "Modo lado a lado (Jogos)"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "Seguir Suavemente (jogo)"
+msgstr "Seguir Suavemente (Jogos)"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
@@ -93,7 +93,7 @@ msgstr "Pago até o próximo período de renovação"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
-msgstr "Jogo"
+msgstr "Jogos"
 
 #: src/licensetierrow.py:57
 msgid "Productivity"
@@ -215,7 +215,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "Alternância da distância da tela"
+msgstr "Alternância das distâncias de tela"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
@@ -227,11 +227,11 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr "Tolerância do modo de seguir"
+msgstr "Sensibilidade do modo de seguir"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "Quão longe você pode olhar antes que a tela te siga."
+msgstr "Quanto você pode mover a cabeça antes que a tela te siga."
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -280,7 +280,7 @@ msgid ""
 "resolution and best scaling when plugged in."
 msgstr ""
 "Modifique automaticamente a configuração de exibição dos óculos para máxima "
-"resolução e melhor escala quando conectado."
+"resolução e melhor dimensionamento quando conectado."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -294,7 +294,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
-msgstr "Sempre tela primária"
+msgstr "Sempre tela principal"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
@@ -325,8 +325,7 @@ msgid ""
 msgstr ""
 "Compensa o atraso de entrada prevendo a posição de rastreamento de cabeça "
 "antes do tempo de renderização. Mantenha o padrão, a menos que a exibição "
-"virtual fique para trás dos movimentos da cabeça, avance ou seja muito "
-"instável."
+"virtual tenha atrasos, avance ou seja muito instável em relação aos movimentos da cabeça "
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
