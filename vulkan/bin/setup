@@ -99,6 +99,9 @@ cp bin/breezy_vulkan_verify $BIN_DIR
 cp manifest $DATA_DIR
 
 # keep putting this in the old location in case an older version of the script tries to find it
+if [ ! -d "$OLD_BIN_DIR" ]; then
+  mkdir -p $OLD_BIN_DIR
+fi
 cp bin/breezy_vulkan_uninstall $OLD_BIN_DIR
 
 echo "Installing vkBasalt; copying binaries, configs, and shader files"
@@ -137,6 +140,7 @@ chown -R $USER:$GROUP $RESHADE_CONFIG_DIR
 chown -R $USER:$GROUP $VKBASALT_CONFIG_DIR
 chown -R $USER:$GROUP $STATE_DIR
 chown -R $USER:$GROUP $BIN_DIR/breezy_vulkan_*
+chown -R $USER:$GROUP $OLD_BIN_DIR
 
 # clear bash's cache of executable locations, so it can find the newly installed scripts
 hash -r

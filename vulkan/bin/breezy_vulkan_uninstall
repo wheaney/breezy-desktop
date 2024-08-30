@@ -24,19 +24,10 @@ USER_HOME=$(getent passwd $USER | cut -d: -f6)
 if [ -z "$XDG_DATA_HOME" ]; then
   XDG_DATA_HOME="$USER_HOME/.local/share"
 fi
-DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
-if [ ! -d "$DATA_DIR" ]; then
-  mkdir -p $DATA_DIR
-fi
 VULKAN_DATA_DIR="$XDG_DATA_HOME/vulkan"
-XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
 
 if [ -z "$XDG_CONFIG_HOME" ]; then
   XDG_CONFIG_HOME="$USER_HOME/.config"
-fi
-CONFIG_DIR="$XDG_CONFIG_HOME/breezy_vulkan"
-if [ ! -d "$CONFIG_DIR" ]; then
-  mkdir -p $CONFIG_DIR
 fi
 
 if [ -z "$XDG_BIN_HOME" ]; then
@@ -44,27 +35,9 @@ if [ -z "$XDG_BIN_HOME" ]; then
 fi
 OLD_BIN_DIR="$USER_HOME/bin"
 BIN_DIR="$XDG_BIN_HOME"
-if [ ! -d "$BIN_DIR" ]; then
-  mkdir -p $BIN_DIR
-fi
-
-if [ -z "$XDG_STATE_HOME" ]; then
-  XDG_STATE_HOME="$USER_HOME/.local/state"
-fi
-STATE_DIR="$XDG_STATE_HOME/breezy_vulkan"
-if [ ! -d "$STATE_DIR" ]; then
-  mkdir -p $STATE_DIR
-fi
 
 LIB_DIR="$USER_HOME/.local/lib"
-if [ ! -d "$LIB_DIR" ]; then
-  mkdir -p "$LIB_DIR"
-fi
-
 LIB32_DIR="$USER_HOME/.local/lib32"
-if [ ! -d "$LIB32_DIR" ]; then
-  mkdir -p "$LIB32_DIR"
-fi
 
 if [ "$for_install" -eq 0 ]; then
     UA_EVENT_NAME="breezy_uninstall"
@@ -81,8 +54,8 @@ rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
 rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
 
 [ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $CONFIG_DIR/"
-rm -rf $CONFIG_DIR/vkBasalt
-rm -rf $CONFIG_DIR/reshade
+rm -rf $XDG_CONFIG_HOME/vkBasalt
+rm -rf $XDG_CONFIG_HOME/reshade
 
 [ "$for_install" -eq 0 ] && echo "Removing scripts at $BIN_DIR"
 rm -f $BIN_DIR/breezy_vulkan_verify
