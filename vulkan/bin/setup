@@ -124,11 +124,12 @@ fi
 
 # copy the vkBasalt.conf file and make replacements
 sed -e "s|/path/to/reshade-shaders|${RESHADE_CONFIG_DIR}|" \
-    -e "s|/path/to/virtual_display|${RESHADE_CONFIG_DIR}/Shaders/IMUAdjust.fx|" \
+    -e "s|/path/to/virtual_display|${RESHADE_CONFIG_DIR}/Shaders/IMUAdjust.frag|" \
     -e "s|/path/to/sideview|${RESHADE_CONFIG_DIR}/Shaders/Sideview.fx|" \
     config/vkBasalt.conf > $VKBASALT_CONFIG_DIR/vkBasalt.conf
 
 echo "Installing the Sombrero shaders and texture files to ${RESHADE_CONFIG_DIR}/{Shaders,Textures}"
+cp *.frag $RESHADE_CONFIG_DIR/Shaders
 cp *.fx* $RESHADE_CONFIG_DIR/Shaders
 cp *.png $RESHADE_CONFIG_DIR/Textures
 

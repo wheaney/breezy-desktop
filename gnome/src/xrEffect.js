@@ -140,9 +140,12 @@ function setIntermittentUniformVariables() {
                 const halfFovYRads = halfFovZRads * displayAspectRatio;
                 const fovHalfWidths = [Math.tan(halfFovYRads), Math.tan(halfFovZRads)];
                 const fovWidths = [fovHalfWidths[0] * 2, fovHalfWidths[1] * 2];
+                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+                let lensFromCenter = 0.0;
                 let texcoordXLimits = [0.0, 1.0];
                 let texcoordXLimitsRight = [0.0, 1.0];
                 if (sbsEnabled) {
+                    lensFromCenter = lensDistanceRatio / 3.0;
                     if (sbsContent) {
                         texcoordXLimits[1] = 0.5;
                         texcoordXLimitsRight[0] = 0.5;
@@ -155,8 +158,6 @@ function setIntermittentUniformVariables() {
                         texcoordXLimits[1] = 0.75;
                     }
                 }
-                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
-                const lensFromCenter = lensDistanceRatio / 3.0;
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
                 const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 

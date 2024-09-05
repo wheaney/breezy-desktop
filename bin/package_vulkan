@@ -43,6 +43,7 @@ cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.32/
 
 # copy Sombrero FX, get ReShade headers
 cp modules/sombrero/*.fx $PACKAGE_DIR
+cp modules/sombrero/*.frag $PACKAGE_DIR
 cp modules/sombrero/*.png $PACKAGE_DIR
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShade.fxh
 wget -P $PACKAGE_DIR https://raw.githubusercontent.com/crosire/reshade-shaders/384465d0287999caa6190b5ebea506200b4f4a0a/Shaders/ReShadeUI.fxh
@@ -93,7 +94,7 @@ cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
 pushd $PACKAGE_DIR
 echo $XR_DRIVER_MANIFEST_LINE > manifest
-sha256sum bin/breezy_vulkan_uninstall vkBasalt.64/libvkbasalt.so vkBasalt.32/libvkbasalt.so *.fx* *.png >> manifest
+sha256sum bin/breezy_vulkan_uninstall vkBasalt.64/libvkbasalt.so vkBasalt.32/libvkbasalt.so *.frag *.fx* *.png >> manifest
 popd
 
 # bundle everything up
