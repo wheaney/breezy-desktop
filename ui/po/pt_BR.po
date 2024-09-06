@@ -23,7 +23,7 @@ msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
-"Altera o modo dos óculos para lado a lado e dobra a largura da exibição."
+"Altera o modo dos óculos para lado a lado (SBS) e dobra a largura da tela (ultrawide)."
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
@@ -39,7 +39,7 @@ msgstr "Disponibilidade de Recursos"
 
 #: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
 msgid "Disabled"
-msgstr "Desativado"
+msgstr "Desabilitado"
 
 #: src/licensefeaturerow.py:18
 msgid "In trial"
@@ -60,7 +60,7 @@ msgstr "Modo lado a lado (Jogos)"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "Seguir Suave (Jogos)"
+msgstr "Acompanhar Suavemente (Jogos)"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
@@ -167,7 +167,7 @@ msgstr "Habilita o efeito XR do Breezy Desktop."
 
 #: src/gtk/connected-device.ui:55
 msgid "Widescreen mode"
-msgstr "Modo de tela larga"
+msgstr "Modo Ultrawide"
 
 #: src/gtk/connected-device.ui:66
 msgid "Follow mode"
@@ -175,15 +175,15 @@ msgstr "Modo de acompanhamento"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr "Mantenha a exibição virtual perto do centro da sua visão."
+msgstr "Mantenha a tela virtual próxima ao centro da sua visão."
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
-msgstr "Exibição curvada"
+msgstr "Tela curva"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr "Alterne entre exibições planas e curvas."
+msgstr "Alterne entre tela plana e tela curva."
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
@@ -191,7 +191,7 @@ msgstr "Ajustes"
 
 #: src/gtk/connected-device.ui:94
 msgid "Display distance"
-msgstr "Distância da exibição"
+msgstr "Distância da tela"
 
 #: src/gtk/connected-device.ui:95
 msgid ""
@@ -199,39 +199,39 @@ msgid ""
 "widescreen mode."
 msgstr ""
 "Mais perto parece maior, mais longe parece menor. Controla a profundidade "
-"quando no modo de tela larga."
+"no modo ultrawide."
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
-msgstr "Tamanho da exibição"
+msgstr "Tamanho da tela"
 
 #: src/gtk/connected-device.ui:124
 msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"Combine com a distância da exibição para alcançar um nível confortável de "
+"Combine com a distância da tela para alcançar um nível confortável de "
 "profundidade e tamanho."
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "Alternância entre distâncias de exibição"
+msgstr "Alternância das distâncias de tela"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
 msgstr ""
-"Use os botões para capturar a distância atual da exibição para uso com o "
+"Use os botões para obter a distância atual da tela para depois usar com o "
 "atalho de teclado."
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr "Sensibilidade de acompanhamento"
+msgstr "Sensibilidade do modo de acompanhamento"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "Quanto você pode mover a cabeça antes que a exibição acompanhe."
+msgstr "Quanto você pode mover a cabeça antes que a tela te acompanhe."
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -239,24 +239,24 @@ msgstr "Atalhos de teclado"
 
 #: src/gtk/connected-device.ui:218
 msgid "Re-center display shortcut"
-msgstr "Atalho para recentrar a exibição"
+msgstr "Atalho para recentralizar a tela"
 
 #: src/gtk/connected-device.ui:219
 msgid "Pin the virtual display to the current position."
-msgstr "Fixe a exibição virtual na posição atual."
+msgstr "Traga a tela virtual para onde você está olhando."
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296
 msgid "Change"
-msgstr "Mudar"
+msgstr "Alterar"
 
 #: src/gtk/connected-device.ui:247
 msgid "Display distance shortcut"
-msgstr "Atalho de distância de exibição"
+msgstr "Atalho de distância da tela"
 
 #: src/gtk/connected-device.ui:248
 msgid "Quickly toggle between two predefined distances."
-msgstr "Alterne rapidamente entre duas distâncias predefinidas."
+msgstr "Alterne rapidamente entre as duas distâncias predefinidas."
 
 #: src/gtk/connected-device.ui:276
 msgid "Toggle follow mode shortcut"
@@ -272,7 +272,7 @@ msgstr "Configurações Avançadas"
 
 #: src/gtk/connected-device.ui:321
 msgid "Find optimal display config"
-msgstr "Encontre a configuração de exibição ideal"
+msgstr "Encontre a configuração de tela ideal"
 
 #: src/gtk/connected-device.ui:322
 msgid ""
@@ -294,16 +294,16 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
-msgstr "Sempre vídeo principal"
+msgstr "Sempre tela principal"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
-"Defina automaticamente os óculos como vídeo principal quando conectados."
+"Defina automaticamente os óculos como a tela primária quando conectados."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
-msgstr "Alternância rápida de modo SBS"
+msgstr "Alternância rápida do modo SBS"
 
 #: src/gtk/connected-device.ui:355
 msgid ""
@@ -311,7 +311,7 @@ msgid ""
 "is on. May cause instability."
 msgstr ""
 "Altera os óculos para o modo SBS imediatamente quando conectados, se o modo "
-"de tela larga estiver ativado. Pode causar instabilidade."
+"ultrawide estiver ativado. Pode causar instabilidade."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -387,9 +387,9 @@ msgid ""
 msgstr ""
 " Se você instalou via AUR, certifique-se de ter executado o comando de pós-"
 "instalação recomendado:\n"
-" systemctl --user enable --now xr-driver.service\n"
+"          systemctl --user enable --now xr-driver.service\n"
 "\n"
-" Caso contrário, por favor, crie um problema no GitHub ou um novo tópico no "
+" Caso contrário, por favor, crie uma issue no GitHub ou um novo tópico no "
 "canal #troubleshooting no Discord."
 
 #: src/gtk/no-extension.ui:13
@@ -401,8 +401,8 @@ msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"Se você acabou de executar a configuração, pode ser necessário fazer login e "
-"logout novamente para usá-la. Caso contrário, siga as instruções de "
+"Se você acabou de executar a configuração, pode ser necessário fazer logout e "
+"login novamente para usá-la. Caso contrário, siga as instruções de "
 "configuração do Breezy GNOME."
 
 #: src/gtk/no-license.ui:13
@@ -425,14 +425,14 @@ msgid ""
 "lifetime access).\n"
 "        "
 msgstr ""
-" A primeira vez que você usar o Breezy Desktop, uma conexão com a internet "
+"           A primeira vez que você usar o Breezy Desktop, uma conexão com a internet "
 "será necessária para obter a licença do seu dispositivo.\n"
-" \n"
-" Não se preocupe, não há nenhuma obrigação de doar neste momento. Se você "
+"          \n"
+"          Não se preocupe, não há nenhuma obrigação de doar neste momento. Se você "
 "ainda não o fez, será fornecida uma licença de teste para que você possa "
 "decidir se o Breezy Desktop atende às suas necessidades.\n"
-" \n"
-" Uma vez que você obtenha uma licença, de teste ou não, você poderá usar o "
+"          \n"
+"          Uma vez que você obtenha uma licença, de teste ou não, você poderá usar o "
 "Breezy Desktop offline até que os recursos expirem (ou indefinidamente, se "
 "você escolheu o acesso vitalício)."
 
