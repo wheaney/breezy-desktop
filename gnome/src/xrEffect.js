@@ -346,7 +346,7 @@ export const XREffect = GObject.registerClass({
     }
 
     vfunc_build_pipeline() {
-        const code = getShaderSource(`${Globals.extension_dir}/IMUAdjust.frag`);
+        const code = getShaderSource(`${Globals.extension_dir}/Sombrero.frag`);
         const main = 'PS_Sombrero(true, false, source_to_display_ratio, show_banner, cogl_tex_coord_in[0].xy, cogl_color_out);';
         this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
     }
