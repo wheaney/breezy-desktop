@@ -353,7 +353,7 @@ index 7883b9b..5478d2a 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/xrEffect.js b/gnome-44-max/src/xrEffect.js
-index 2680cae..bfb036f 100644
+index aab805c..922ec0f 100644
 --- a/gnome-44-max/src/xrEffect.js
 +++ b/gnome-44-max/src/xrEffect.js
 @@ -1,13 +1,15 @@
@@ -378,7 +378,7 @@ index 2680cae..bfb036f 100644
 +const Me = ExtensionUtils.getCurrentExtension();
 +
 +const Globals = Me.imports.globals;
-+const { 
++const {
      dataViewEnd,
      dataViewUint8,
      dataViewBigUint,
@@ -400,7 +400,7 @@ index 2680cae..bfb036f 100644
  
  // the driver should be using the same data layout version
  const DATA_LAYOUT_VERSION = 3;
-@@ -220,7 +222,7 @@ function checkParityByte(dataView) {
+@@ -221,7 +223,7 @@ function checkParityByte(dataView) {
      return parityByte === parity;
  }
  
@@ -409,9 +409,9 @@ index 2680cae..bfb036f 100644
      Properties: {
          'supported-device-detected': GObject.ParamSpec.boolean(
              'supported-device-detected',
-@@ -360,8 +362,13 @@ export const XREffect = GObject.registerClass({
+@@ -361,8 +363,13 @@ export const XREffect = GObject.registerClass({
              if (!this._initialized) {
-                 this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
+                 this.set_uniform_float(this.get_uniform_location('screenTexture'), 1, [0]);
  
 -                this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
 -                this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
@@ -422,6 +422,6 @@ index 2680cae..bfb036f 100644
 +                } catch (e) {
 +                    Globals.logger.log(`ERROR: xrEffect.js vfunc_paint_target ${e.message}\n${e.stack}`);
 +                }
-                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCalibratingTexture'), 1);
-                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCustomBannerTexture'), 2);
+                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('calibratingTexture'), 1);
+                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('customBannerTexture'), 2);
  
