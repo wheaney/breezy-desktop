@@ -52,8 +52,7 @@ const shaderUniformLocations = {
     'imu_quat_data': null,
     'look_ahead_cfg': null,
     'look_ahead_ms': null,
-    'trim_width_percent': null,
-    'trim_height_percent': null,
+    'trim_percent': null,
     'display_size': null,
     'display_north_offset': null,
     'lens_vector': null,
@@ -141,9 +140,12 @@ function setIntermittentUniformVariables() {
                 const halfFovYRads = halfFovZRads * displayAspectRatio;
                 const fovHalfWidths = [Math.tan(halfFovYRads), Math.tan(halfFovZRads)];
                 const fovWidths = [fovHalfWidths[0] * 2, fovHalfWidths[1] * 2];
+                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
+                let lensFromCenter = 0.0;
                 let texcoordXLimits = [0.0, 1.0];
                 let texcoordXLimitsRight = [0.0, 1.0];
                 if (sbsEnabled) {
+                    lensFromCenter = lensDistanceRatio / 3.0;
                     if (sbsContent) {
                         texcoordXLimits[1] = 0.5;
                         texcoordXLimitsRight[0] = 0.5;
@@ -154,10 +156,10 @@ function setIntermittentUniformVariables() {
                     } else if (!sbsModeStretched) {
                         texcoordXLimits[0] = 0.25;
                         texcoordXLimits[1] = 0.75;
+                        texcoordXLimitsRight[0] = 0.25;
+                        texcoordXLimitsRight[1] = 0.75;
                     }
                 }
-                const lensDistanceRatio = dataViewFloat(dataView, LENS_DISTANCE_RATIO);
-                const lensFromCenter = lensDistanceRatio / 3.0;
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
                 const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 
@@ -171,8 +173,7 @@ function setIntermittentUniformVariables() {
                 transferUniformFloat(this, 'lens_distance_ratio', dataView, LENS_DISTANCE_RATIO);
 
                 // computed values with no dataViewInfo, so we set these manually
-                setSingleFloat(this, 'trim_width_percent', trimWidthPercent);
-                setSingleFloat(this, 'trim_height_percent', trimHeightPercent);
+                this.set_uniform_float(shaderUniformLocations['trim_percent'], 2, [trimWidthPercent, trimHeightPercent]);
                 setSingleFloat(this, 'half_fov_z_rads', halfFovZRads);
                 setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
                 this.set_uniform_float(shaderUniformLocations['fov_half_widths'], 2, fovHalfWidths);
@@ -191,7 +192,7 @@ function setIntermittentUniformVariables() {
             if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
 
             // these variables are always in play, even if enabled is false
-            setSingleFloat(this, 'enabled', enabled ? 1.0 : 0.0);
+            setSingleFloat(this, 'virtual_display_enabled', enabled ? 1.0 : 0.0);
             setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
             setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
             setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
@@ -345,8 +346,8 @@ export const XREffect = GObject.registerClass({
     }
 
     vfunc_build_pipeline() {
-        const code = getShaderSource(`${Globals.extension_dir}/IMUAdjust.frag`);
-        const main = 'PS_IMU_Transform(vec4(0, 0, 0, 0), cogl_tex_coord_in[0].xy, cogl_color_out);';
+        const code = getShaderSource(`${Globals.extension_dir}/Sombrero.frag`);
+        const main = 'PS_Sombrero(true, false, source_to_display_ratio, show_banner, cogl_tex_coord_in[0].xy, cogl_color_out);';
         this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
     }
 
@@ -358,12 +359,12 @@ export const XREffect = GObject.registerClass({
             let buffer = new Uint8Array(data[1]).buffer;
             this._dataView = new DataView(buffer);
             if (!this._initialized) {
-                this.set_uniform_float(this.get_uniform_location('uDesktopTexture'), 1, [0]);
+                this.set_uniform_float(this.get_uniform_location('screenTexture'), 1, [0]);
 
                 this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
                 this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
-                this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCalibratingTexture'), 1);
-                this.get_pipeline().set_uniform_1i(this.get_uniform_location('uCustomBannerTexture'), 2);
+                this.get_pipeline().set_uniform_1i(this.get_uniform_location('calibratingTexture'), 1);
+                this.get_pipeline().set_uniform_1i(this.get_uniform_location('customBannerTexture'), 2);
 
                 for (let key in shaderUniformLocations) {
                     shaderUniformLocations[key] = this.get_uniform_location(key);
