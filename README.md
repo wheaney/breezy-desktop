@@ -8,7 +8,7 @@
 
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
-There are two installations at the moment. **Note: Only install one of these at a time, as they invalidate each other's installations. This is only temporary.**
+There are two installations at the moment. **Note: Don't manually install either of these if you're running the Decky plugin on the same machine, as they invalidate each other's installations. This is only temporary.**
 * [Breezy GNOME](#breezy-gnome) for desktop support, primarily in GNOME Linux desktop environments
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
@@ -29,9 +29,7 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 #### All other distros
 
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
-2. Run the setup script:
-   * For **GNOME 45+**: `~/Downloads/breezy_gnome_setup`
-   * For **GNOME 42-44**: `~/Downloads/breezy_gnome_setup --tag gnome-44-max`
+2. Run the setup script: `~/Downloads/breezy_gnome_setup`
 
 ### Steam Deck desktop mode
 

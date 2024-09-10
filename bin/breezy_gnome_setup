@@ -11,23 +11,40 @@ if [ "$(id -u)" == "0" ]; then
    exit 1
 fi
 
-start_dir=$(pwd)
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
+        exit 1
+    fi
+}
+
+check_command "gnome-shell"
 
 ARCH=$(uname -m)
+FILE_NAME="breezyGNOME-$ARCH.tar.gz"
+if [ "$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1)" -lt 45 ]; then
+  echo "Performing setup for GNOME 44 and below ($ARCH)"
+  FILE_NAME="breezyGNOME-44-max-$ARCH.tar.gz"
+else 
+  echo "Performing setup for GNOME 45 and up ($ARCH)"
+fi
+
+start_dir=$(pwd)
+
 
 # create temp directory
 tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
 pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
-binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyGNOME-$ARCH.tar.gz"
+binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$FILE_NAME"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
   binary_path_arg="$3"
 elif [ "$1" = "--tag" ] && [ -n "$2" ]
 then
-  binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/breezyGNOME-$ARCH.tar.gz"
+  binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$FILE_NAME"
 else
   binary_path_arg="$1"
 fi
@@ -35,10 +52,10 @@ fi
 if [ -z "$binary_path_arg" ]
 then
   # download and unzip the binary
-  echo "Downloading to: ${tmp_dir}/breezyGNOME-$ARCH.tar.gz"
+  echo "Downloading to: ${tmp_dir}/$FILE_NAME"
   curl -L -O $binary_download_url
-  binary_path_arg="breezyGNOME-$ARCH.tar.gz"
 else
+  FILE_NAME=$(basename $binary_path_arg)
   if [[ "$binary_path_arg" = /* ]]; then
     abs_path="$binary_path_arg"
   else
@@ -49,7 +66,7 @@ else
 fi
 
 echo "Extracting to: ${tmp_dir}/breezy_gnome"
-tar -xf $(basename $binary_path_arg)
+tar -xf $FILE_NAME
 
 pushd breezy_gnome > /dev/null
 
