@@ -106,7 +106,7 @@ class BreezydesktopApplication(Adw.Application):
                                 modal=True,
                                 program_name='Breezy Desktop',
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
-                                version='0.11.0',
+                                version='0.12.0',
                                 authors=['Wayne Heaney'],
                                 copyright='© 2024 Wayne Heaney')
         about.present()
