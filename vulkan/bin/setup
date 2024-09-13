@@ -20,6 +20,10 @@ fi
 VULKAN_DATA_DIR="$XDG_DATA_HOME/vulkan"
 XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/xr_driver"
 
+GAMESCOPE_DATA_DIR="$XDG_DATA_HOME/gamescope"
+GAMESCOPE_RESHADE_SHADERS_DIR="$GAMESCOPE_DATA_DIR/reshade/Shaders"
+GAMESCOPE_RESHADE_TEXTURES_DIR="$GAMESCOPE_DATA_DIR/reshade/Textures"
+
 if [ -z "$XDG_CONFIG_HOME" ]; then
   XDG_CONFIG_HOME="$USER_HOME/.config"
 fi
@@ -127,14 +131,21 @@ sed -e "s|/path/to/reshade-shaders|${RESHADE_CONFIG_DIR}|" \
     -e "s|/path/to/sombrero|${RESHADE_CONFIG_DIR}/Shaders/Sombrero.frag|" \
     config/vkBasalt.conf > $VKBASALT_CONFIG_DIR/vkBasalt.conf
 
-echo "Installing the Sombrero shaders and texture files to ${RESHADE_CONFIG_DIR}/{Shaders,Textures}"
+echo "Installing the Sombrero shader and texture files to ${RESHADE_CONFIG_DIR}/{Shaders,Textures} and ${GAMESCOPE_DATA_DIR}/reshade/{Shaders,Textures}"
 cp *.frag $RESHADE_CONFIG_DIR/Shaders
 cp *.fx* $RESHADE_CONFIG_DIR/Shaders
 cp *.png $RESHADE_CONFIG_DIR/Textures
 
+mkdir -p $GAMESCOPE_RESHADE_SHADERS_DIR
+mkdir -p $GAMESCOPE_RESHADE_TEXTURES_DIR
+cp *.frag $GAMESCOPE_RESHADE_SHADERS_DIR
+cp *.fx* $GAMESCOPE_RESHADE_SHADERS_DIR
+cp *.png $GAMESCOPE_RESHADE_TEXTURES_DIR
+
 chown -R $USER:$GROUP $LIB_DIR
 chown -R $USER:$GROUP $LIB32_DIR
 chown -R $USER:$GROUP $DATA_DIR
+chown -R $USER:$GROUP $GAMESCOPE_DATA_DIR
 chown -R $USER:$GROUP $VULKAN_DATA_DIR
 chown -R $USER:$GROUP $RESHADE_CONFIG_DIR
 chown -R $USER:$GROUP $VKBASALT_CONFIG_DIR

@@ -1,4 +1,5 @@
 from gi.repository import Adw, Gtk, GLib
+from .nolicense import NoLicense
 from .statemanager import StateManager
 from .licensetierrow import LicenseTierRow
 from .licensefeaturerow import LicenseFeatureRow
@@ -29,6 +30,8 @@ class LicenseDialog(Gtk.Dialog):
         self.verify_token.connect('apply', self._on_verify_token)
         self.refresh_license_button.connect('clicked', self._refresh_license)
 
+        self.no_license = NoLicense(hide_refresh_button = True)
+
     def _refresh_license(self, widget):
         self.refresh_license_button.set_sensitive(False)
         self.ipc.write_control_flags({'refresh_device_license': True})
@@ -46,19 +49,24 @@ class LicenseDialog(Gtk.Dialog):
 
         for child in self.tiers:
             self.tiers.remove(child)
-        tiers_group = Adw.PreferencesGroup(title=_("Paid Tier Status"), margin_top=20)
-        self.tiers.append(tiers_group)
-        
-        for tier_name, tier_details in license_view['tiers'].items():
-            tiers_group.add(LicenseTierRow(tier_name, tier_details))
 
         for child in self.features:
             self.features.remove(child)
-        features_group = Adw.PreferencesGroup(title=_("Feature Availability"), margin_top=20)
-        self.features.append(features_group)
 
-        for feature_name, feature_details in license_view['features'].items():
-            features_group.add(LicenseFeatureRow(feature_name, feature_details))
+        if license_view:
+            tiers_group = Adw.PreferencesGroup(title=_("Paid Tier Status"), margin_top=20)
+            self.tiers.append(tiers_group)
+            
+            for tier_name, tier_details in license_view['tiers'].items():
+                tiers_group.add(LicenseTierRow(tier_name, tier_details))
+
+            features_group = Adw.PreferencesGroup(title=_("Feature Availability"), margin_top=20)
+            self.features.append(features_group)
+
+            for feature_name, feature_details in license_view['features'].items():
+                features_group.add(LicenseFeatureRow(feature_name, feature_details))
+        else:
+            self.tiers.append(self.no_license)
 
         self.refresh_license_button.set_sensitive(True)
 

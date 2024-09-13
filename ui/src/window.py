@@ -79,10 +79,10 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
             self.main_content.append(self.failed_verification)
         elif not self.state_manager.driver_running:
             self.main_content.append(self.no_driver)
-        elif not state_manager.connected_device_name:
-            self.main_content.append(self.no_device)
         elif not self.state_manager.license_present:
             self.main_content.append(self.no_license)
+        elif not state_manager.connected_device_name:
+            self.main_content.append(self.no_device)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
         else:
