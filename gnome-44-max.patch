@@ -271,7 +271,7 @@ index b9b5ebf..c888f94 100644
      "settings-schema": "com.xronlinux.BreezyDesktop",
      "session-modes": ["user", "unlock-dialog"],
      "shell-version": [
--        "45", "46"
+-        "45", "46", "47"
 +        "42", "43", "44"
      ],
      "url": "https://github.com/wheaney/breezy-desktop"
