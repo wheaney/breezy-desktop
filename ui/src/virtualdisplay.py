@@ -13,7 +13,7 @@ logger = logging.getLogger('breezy_ui')
 screen_cast_iface = 'org.gnome.Mutter.ScreenCast'
 screen_cast_session_iface = 'org.gnome.Mutter.ScreenCast.Session'
 screen_cast_stream_iface = 'org.gnome.Mutter.ScreenCast.Session'
-gst_pipeline_format = "pipewiresrc path=%u ! video/x-raw,max-framerate=120/1,width=%d,height=%d ! videoconvert ! fakesink sync=false"
+gst_pipeline_format = "pipewiresrc path=%u ! video/x-raw,max-framerate=120/1,width=%d,height=%d ! fakesink sync=false"
 
 
 def _screen_cast_session():

@@ -6,6 +6,7 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { 
     dataViewEnd,
@@ -209,7 +210,7 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'sideview_display_size', 1.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
-            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [this.target_monitor.width/displayRes[0], this.target_monitor.height/displayRes[1]]);
+            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [Main.layoutManager.uiGroup.width/displayRes[0], Main.layoutManager.uiGroup.height/displayRes[1]]);
         } else if (dataView.byteLength !== 0) {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }

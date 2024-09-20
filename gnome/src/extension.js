@@ -131,8 +131,8 @@ export default class BreezyDesktopExtension extends Extension {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
-                monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
-                           this.settings.get_string('custom-monitor-product') === monitor.product);
+                monitor => monitor && (SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
+                           this.settings.get_string('custom-monitor-product') === monitor.product));
             if (target_monitor !== undefined) {
                 Globals.logger.log(`Identified supported monitor: ${target_monitor.product} on ${target_monitor.connector}`);
                 return {
@@ -250,12 +250,10 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate);
                 this._cursor_manager.enable();
 
-                this._overlay = new St.Bin();
+                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);'});
                 this._overlay.opacity = 255;
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
-                Globals.logger.log_debug(`BreezyDesktopExtension _effect_enable overlay size: \
-                    ${targetMonitor.width}x${targetMonitor.height} at ${targetMonitor.x},${targetMonitor.y}`);
 
                 const overlayContent = new Clutter.Actor({clip_to_allocation: true});
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
