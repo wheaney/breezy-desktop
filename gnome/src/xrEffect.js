@@ -210,6 +210,7 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'sideview_display_size', 1.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
+            Globals.logger.log_debug(`Source resolution ${Main.layoutManager.uiGroup.width}x${Main.layoutManager.uiGroup.height}`);
             this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [Main.layoutManager.uiGroup.width/displayRes[0], Main.layoutManager.uiGroup.height/displayRes[1]]);
         } else if (dataView.byteLength !== 0) {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);

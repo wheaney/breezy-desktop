@@ -256,10 +256,10 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
 
                 const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-                const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
-                uiClone.x = -targetMonitor.x;
-                uiClone.y = -targetMonitor.y;
-                overlayContent.add_child(uiClone);
+                this._ui_clone = new Clutter.Clone({ source: Main.layoutManager.uiGroup });
+                this._ui_clone.x = -targetMonitor.x;
+                this._ui_clone.y = -targetMonitor.y;
+                overlayContent.add_child(this._ui_clone);
 
                 this._overlay.set_child(overlayContent);
 
@@ -308,7 +308,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
                 this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
-                this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
+                this._ui_clone.add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
@@ -520,7 +520,8 @@ export default class BreezyDesktopExtension extends Extension {
             }
             if (this._overlay) {
                 if (this._xr_effect) this._xr_effect.cleanup();
-                this._overlay.remove_effect_by_name('xr-desktop');
+                if (this._ui_clone) this._ui_clone.remove_effect_by_name('xr-desktop');
+                this._ui_clone = null;
 
                 global.stage.remove_child(this._overlay);
                 this._overlay.destroy();
