@@ -57,8 +57,7 @@ class ConnectedDevice(Gtk.Box):
             self.curved_display_switch,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
-            self.movement_look_ahead_scale,
-            self.text_scaling_scale
+            self.movement_look_ahead_scale
         ]
 
         self.settings = SettingsManager.get_instance().settings
