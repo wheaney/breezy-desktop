@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-16 08:38-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -29,11 +29,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Diese Funktion wird von Ihrem Gerät derzeit nicht unterstützt."
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "Bezahlter Tarifstatus"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "Funktionsverfügbarkeit"
 
@@ -175,8 +175,7 @@ msgstr "Folgemodus"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr ""
-"Halten Sie das virtuelle Display Nahe der Mitte Ihres Blickfelds."
+msgstr "Halten Sie das virtuelle Display Nahe der Mitte Ihres Blickfelds."
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
@@ -325,14 +324,22 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Wirkt Eingabeverzögerungen entgegen, indem die Kopfverfolgungsposition vor der "
-"Renderzeit vorhergesagt wird. Bleiben Sie bei den Standardeinstellungen, es sei denn, das "
-"virtuelle Display hängt hinter Ihren Kopfbewegungen hinterher, springt vor oder "
-"ist sehr wackelig."
+"Wirkt Eingabeverzögerungen entgegen, indem die Kopfverfolgungsposition vor "
+"der Renderzeit vorhergesagt wird. Bleiben Sie bei den Standardeinstellungen, "
+"es sei denn, das virtuelle Display hängt hinter Ihren Kopfbewegungen "
+"hinterher, springt vor oder ist sehr wackelig."
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
 msgstr "Standard"
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -451,7 +458,9 @@ msgstr "Tastenkombination zuweisen"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "Drücken Sie Ihre Tastenkombination oder die 'Rücktaste', um sie zu deaktivieren..."
+msgstr ""
+"Drücken Sie Ihre Tastenkombination oder die 'Rücktaste', um sie zu "
+"deaktivieren..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"

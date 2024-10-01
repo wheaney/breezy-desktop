@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 15:36-0700\n"
+"POT-Creation-Date: 2024-10-01 13:24-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,11 +27,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr ""
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr ""
 
@@ -311,6 +311,14 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
+msgstr ""
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 
 #: src/gtk/failed-verification.ui:13

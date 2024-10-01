@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 15:19-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -21,17 +21,18 @@ msgstr ""
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
-msgstr "Cambia tus gafas al modo lado a lado y duplica el ancho de la pantalla."
+msgstr ""
+"Cambia tus gafas al modo lado a lado y duplica el ancho de la pantalla."
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
 msgstr "Esta función no es compatible con tu dispositivo en este momento."
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "Estado del Nivel de Membresía Pagada"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "Disponibilidad de Características"
 
@@ -196,7 +197,8 @@ msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
-"Más cerca parece más grande, más lejos parece más pequeño. Controla la profundidad cuando está en modo de pantalla ancha."
+"Más cerca parece más grande, más lejos parece más pequeño. Controla la "
+"profundidad cuando está en modo de pantalla ancha."
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
@@ -207,7 +209,8 @@ msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"Combínalo con la distancia de la pantalla para lograr un nivel cómodo de profundidad y tamaño."
+"Combínalo con la distancia de la pantalla para lograr un nivel cómodo de "
+"profundidad y tamaño."
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
@@ -218,7 +221,8 @@ msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
 msgstr ""
-"Utilice los botones para capturar la distancia actual de la pantalla para su uso con el método abreviado de teclado."
+"Utilice los botones para capturar la distancia actual de la pantalla para su "
+"uso con el método abreviado de teclado."
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
@@ -274,7 +278,9 @@ msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"Modifique automáticamente la configuración de pantalla de las gafas para obtener la máxima resolución y la mejor escalabilidad cuando estén enchufadas."
+"Modifique automáticamente la configuración de pantalla de las gafas para "
+"obtener la máxima resolución y la mejor escalabilidad cuando estén "
+"enchufadas."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -282,7 +288,9 @@ msgstr "Utilizar la frecuencia de actualización más alta"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "La frecuencia de actualización puede afectar el rendimiento, deshabilite esto para configurarlo manualmente."
+msgstr ""
+"La frecuencia de actualización puede afectar el rendimiento, deshabilite "
+"esto para configurarlo manualmente."
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
@@ -290,7 +298,8 @@ msgstr "Siempre como pantalla principal"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "Automáticamente configurar las gafas como pantalla principal al enchufarse."
+msgstr ""
+"Automáticamente configurar las gafas como pantalla principal al enchufarse."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
@@ -301,7 +310,9 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Cambia las gafas al modo SBS (lado a lado) inmediatamente cuando se enchufan, si el modo de pantalla ancha está activado. Puede causar inestabilidad."
+"Cambia las gafas al modo SBS (lado a lado) inmediatamente cuando se "
+"enchufan, si el modo de pantalla ancha está activado. Puede causar "
+"inestabilidad."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -313,11 +324,22 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Compensa el retraso de entrada al predecir la posición de seguimiento de la cabeza antes del tiempo de representación. Manténgase en el valor predeterminado a menos que la pantalla virtual se retrase detrás de los movimientos de la cabeza, se adelante o sea muy inestable."
+"Compensa el retraso de entrada al predecir la posición de seguimiento de la "
+"cabeza antes del tiempo de representación. Manténgase en el valor "
+"predeterminado a menos que la pantalla virtual se retrase detrás de los "
+"movimientos de la cabeza, se adelante o sea muy inestable."
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
 msgstr "Predeterminado"
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -328,7 +350,8 @@ msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
-"Su configuración de Breezy GNOME es inválida o incompleta. Vuelva a ejecutar el script de configuración. Informe sobre este problema si persiste."
+"Su configuración de Breezy GNOME es inválida o incompleta. Vuelva a ejecutar "
+"el script de configuración. Informe sobre este problema si persiste."
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
@@ -370,10 +393,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" Si instaló a través de AUR, asegúrese de haber ejecutado el comando de instalación recomendado:\n"
+" Si instaló a través de AUR, asegúrese de haber ejecutado el comando de "
+"instalación recomendado:\n"
 " systemctl --user enable --now xr-driver.service\n"
 "\n"
-" De lo contrario, por favor informe sobre el problema en GitHub, o cree un nuevo hilo en el canal #troubleshooting de Discord.\n"
+" De lo contrario, por favor informe sobre el problema en GitHub, o cree un "
+"nuevo hilo en el canal #troubleshooting de Discord.\n"
 " "
 
 #: src/gtk/no-extension.ui:13
@@ -385,7 +410,9 @@ msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"Si acaba de ejecutar la configuración, es posible que deba cerrar sesión y volver a iniciar para usarla. De lo contrario, siga las instrucciones de configuración de Breezy GNOME."
+"Si acaba de ejecutar la configuración, es posible que deba cerrar sesión y "
+"volver a iniciar para usarla. De lo contrario, siga las instrucciones de "
+"configuración de Breezy GNOME."
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
@@ -407,12 +434,16 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" La primera vez que use Breezy Desktop, se requiere una conexión a Internet para recuperar la licencia de su dispositivo.\n"
+" La primera vez que use Breezy Desktop, se requiere una conexión a Internet "
+"para recuperar la licencia de su dispositivo.\n"
 " \n"
-" No se preocupe, no hay ninguna obligación de donar en este momento. Si no lo ha hecho, se le proporcionará una licencia de prueba para que pueda decidir si Breezy Desktop se ajusta a sus necesidades.\n"
+" No se preocupe, no hay ninguna obligación de donar en este momento. Si no "
+"lo ha hecho, se le proporcionará una licencia de prueba para que pueda "
+"decidir si Breezy Desktop se ajusta a sus necesidades.\n"
 " \n"
-" Una vez que obtenga una licencia, de prueba o de otro tipo, podrá utilizar Breezy Desktop sin conexión hasta que expiren las características (o indefinidamente, si ha elegido el acceso de por vida)."
-" "
+" Una vez que obtenga una licencia, de prueba o de otro tipo, podrá utilizar "
+"Breezy Desktop sin conexión hasta que expiren las características (o "
+"indefinidamente, si ha elegido el acceso de por vida). "
 
 #: src/gtk/no-license.ui:27
 msgid "Try Again"
@@ -424,7 +455,9 @@ msgstr "Asignar método abreviado de teclado"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "Presione su método abreviado de teclado o pulsa 'retroceso' para deshabilitar..."
+msgstr ""
+"Presione su método abreviado de teclado o pulsa 'retroceso' para "
+"deshabilitar..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
