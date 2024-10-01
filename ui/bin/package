@@ -6,30 +6,43 @@ set -e
 ARCH=${ARCH:-$(uname -m)}
 echo "Building Breezy UI for $ARCH"
 
-check_command() {
-    if ! command -v "$1" &>/dev/null; then
-        echo "Please install \"$1\" and make sure it's available in your \$PATH"
-        exit 1
-    fi
-}
+BUILD_PATH=build
+UI_BUILD_PATH=$BUILD_PATH/ui
+PACKAGE_DIR=$BUILD_PATH/breezy_ui
+mkdir -p $UI_BUILD_PATH
+mkdir -p $PACKAGE_DIR
 
-check_command "flatpak"
-check_command "flatpak-builder"
+meson setup $UI_BUILD_PATH
+pushd $UI_BUILD_PATH
+meson compile
+popd
 
-# https://stackoverflow.com/a/246128
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+PACKAGE_SRC_DIR=$PACKAGE_DIR/src
+PACKAGE_BIN_DIR=$PACKAGE_DIR/bin
+PACKAGE_ICONS_DIR=$PACKAGE_DIR/icons
+mkdir -p $PACKAGE_SRC_DIR
+mkdir -p $PACKAGE_BIN_DIR
+mkdir -p $PACKAGE_ICONS_DIR
 
-TMP_DIR=$(mktemp -d --tmpdir=$SCRIPT_DIR/.. -t .breezy-ui-flatpak-XXXXXXXXXX)
-OUT_DIR=$SCRIPT_DIR/../out
-mkdir -p $OUT_DIR
+cp src/*.py $PACKAGE_SRC_DIR
+cp -r po $BUILD_PATH
+cp modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_SRC_DIR
+cp $UI_BUILD_PATH/src/breezydesktop $PACKAGE_BIN_DIR
+cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_DIR
+cp $UI_BUILD_PATH/data/com.xronlinux.BreezyDesktop.desktop $PACKAGE_DIR
 
-BUILD_ARTIFACT=$OUT_DIR/com.xronlinux.BreezyDesktop-$ARCH.flatpak
-if [ -e "$BUILD_ARTIFACT" ]; then
-  rm $BUILD_ARTIFACT
-fi
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 64 -h 64 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_64.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 128 -h 128 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_128.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 256 -h 256 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_256.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 1024 -h 1024 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_1024.png
 
-flatpak-builder --arch $ARCH --disable-rofiles-fuse --disable-cache --force-clean --delete-build-dirs --user $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
-flatpak build-export --arch $ARCH $TMP_DIR/export $TMP_DIR/build
-flatpak build-bundle --arch $ARCH $TMP_DIR/export $BUILD_ARTIFACT com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+pushd $BUILD_PATH
 
-rm -rf "$TMP_DIR"
+tar -zcvf breezyUI-$ARCH.tar.gz breezy_ui
+
+popd
+
+mkdir -p out
+cp $BUILD_PATH/breezyUI-$ARCH.tar.gz out/
+
+rm -rf $BUILD_PATH
