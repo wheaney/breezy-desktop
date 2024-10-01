@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 15:36-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-16 10:31-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -22,18 +22,18 @@ msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
-"Växlar dina glasögon till side-by-side-läget och dubblerar bredden "
-"på visningen."
+"Växlar dina glasögon till side-by-side-läget och dubblerar bredden på "
+"visningen."
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
 msgstr "Din enhet stöder inte den här funktionen för tillfället."
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "Betalningsstatus"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "Funktions tillgänglighet"
 
@@ -198,8 +198,8 @@ msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
-"Närmare verkar större, längre verkar mindre. Kontrollerar djupet när du är "
-"i bredbildsläge."
+"Närmare verkar större, längre verkar mindre. Kontrollerar djupet när du är i "
+"bredbildsläge."
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
@@ -209,7 +209,8 @@ msgstr "Skärmens storlek"
 msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
-msgstr "Kombinera med skärmens avstånd för att uppnå en bekväm nivå av djup och "
+msgstr ""
+"Kombinera med skärmens avstånd för att uppnå en bekväm nivå av djup och "
 "storlek."
 
 #: src/gtk/connected-device.ui:152
@@ -221,8 +222,8 @@ msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
 msgstr ""
-"Använd knapparna för att fanga nuvarande skärmavståndet för användning "
-"med tangentbordsgenvägar."
+"Använd knapparna för att fanga nuvarande skärmavståndet för användning med "
+"tangentbordsgenvägar."
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
@@ -278,8 +279,8 @@ msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"Ändrar automatisk glasögonens skärmkonfiguration för maximal "
-"upplösning och bästa skälning när den är ansluten."
+"Ändrar automatisk glasögonens skärmkonfiguration för maximal upplösning och "
+"bästa skälning när den är ansluten."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -287,7 +288,9 @@ msgstr "Använd högsta uppdateringsfrekvens"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "Uppdateringsfrekvens kan påverka prestanda, inaktivera detta för att ställa in det manuellt."
+msgstr ""
+"Uppdateringsfrekvens kan påverka prestanda, inaktivera detta för att ställa "
+"in det manuellt."
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
@@ -306,8 +309,8 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Växlar glasögon till SBS läge omedelbart när den är ansluten, om brevläge "
-"är på. Kan orsaka instabilitet."
+"Växlar glasögon till SBS läge omedelbart när den är ansluten, om brevläge är "
+"på. Kan orsaka instabilitet."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -319,13 +322,20 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Motverkar ingångsfördröjning genom förutsägelse av huvudrörelser."
-"Behåll standardinställningen om inte skärmen skakar mycket eller rör"
-"sig konstigt."
+"Motverkar ingångsfördröjning genom förutsägelse av huvudrörelser.Behåll "
+"standardinställningen om inte skärmen skakar mycket eller rörsig konstigt."
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
 msgstr "Standard"
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -336,8 +346,8 @@ msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
-"Din Breezy GNOME inställning är ogiltig eller ofullständig. Var god "
-"kör inställning skriptet igen. Rapportera detta problem om det fortsätter."
+"Din Breezy GNOME inställning är ogiltig eller ofullständig. Var god kör "
+"inställning skriptet igen. Rapportera detta problem om det fortsätter."
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
@@ -379,12 +389,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Om du har installerat via AUR, kontrollerar du att du körde den rekommenderade post-"
-"install kommandot:\n"
+"          Om du har installerat via AUR, kontrollerar du att du körde den "
+"rekommenderade post-install kommandot:\n"
 "          systemctl --user enable --now xr-driver.service\n"
 "\n"
-"          Annars, var god att filer ett problem på GitHub, eller skapa en ny tråd "
-"i #troubleshooting kanal på Discord.\n"
+"          Annars, var god att filer ett problem på GitHub, eller skapa en ny "
+"tråd i #troubleshooting kanal på Discord.\n"
 "        "
 
 #: src/gtk/no-extension.ui:13
@@ -423,13 +433,13 @@ msgstr ""
 "          Den första gången du använder Breezy Desktop, krävs en internet "
 "anslutning för att hämta din enhets licens.\n"
 "          \n"
-"          Var inte bekymrad, det finns ingen förpliktelse att donera just nu. Om du "
-"inte har, kommer du att få en försöks licens så du kan bestämma om Breezy Desktop "
-"passar dina behov. \n"
+"          Var inte bekymrad, det finns ingen förpliktelse att donera just "
+"nu. Om du inte har, kommer du att få en försöks licens så du kan bestämma om "
+"Breezy Desktop passar dina behov. \n"
 "          \n"
 "          En gång du har fått en licens, försöks eller annat, kan du använda "
-"Breezy Desktop offline tills funktioner upphör (eller oändligt, om du har valt "
-"livstidsåtkomst).\n"
+"Breezy Desktop offline tills funktioner upphör (eller oändligt, om du har "
+"valt livstidsåtkomst).\n"
 "        "
 
 #: src/gtk/no-license.ui:27
