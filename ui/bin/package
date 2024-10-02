@@ -17,24 +17,41 @@ pushd $UI_BUILD_PATH
 meson compile
 popd
 
-PACKAGE_SRC_DIR=$PACKAGE_DIR/src
+# mimick the XDG directory structure in our archive file so setup can just copy the directories and not individual files
+PACKAGE_DATA_DIR=$PACKAGE_DIR/data
 PACKAGE_BIN_DIR=$PACKAGE_DIR/bin
-PACKAGE_ICONS_DIR=$PACKAGE_DIR/icons
-mkdir -p $PACKAGE_SRC_DIR
+
+# these are all subdirectories of XDG_DATA_HOME
+PACKAGE_BREEZY_DIR=$PACKAGE_DATA_DIR/breezydesktop
+PACKAGE_BREEZY_SRC_DIR=$PACKAGE_BREEZY_DIR/breezydesktop
+PACKAGE_ICONS_DIR=$PACKAGE_DATA_DIR/icons/hicolor
+PACKAGE_LOCALE_DIR=$PACKAGE_DATA_DIR/locale
+PACKAGE_APPS_DIR=$PACKAGE_DATA_DIR/applications
+PACKAGE_SCHEMAS_DIR=$PACKAGE_DATA_DIR/glib-2.0/schemas
+
 mkdir -p $PACKAGE_BIN_DIR
+mkdir -p $PACKAGE_BREEZY_SRC_DIR
 mkdir -p $PACKAGE_ICONS_DIR
+mkdir -p $PACKAGE_LOCALE_DIR
+mkdir -p $PACKAGE_APPS_DIR
+mkdir -p $PACKAGE_SCHEMAS_DIR
 
-cp src/*.py $PACKAGE_SRC_DIR
-cp -r po $BUILD_PATH
-cp modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_SRC_DIR
+cp src/*.py $PACKAGE_BREEZY_SRC_DIR
+cp -L modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_BREEZY_SRC_DIR
+cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_BREEZY_DIR
+cp -r po/mo/* $PACKAGE_LOCALE_DIR
+cp data/com.xronlinux.BreezyDesktop.gschema.xml $PACKAGE_SCHEMAS_DIR
 cp $UI_BUILD_PATH/src/breezydesktop $PACKAGE_BIN_DIR
-cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_DIR
-cp $UI_BUILD_PATH/data/com.xronlinux.BreezyDesktop.desktop $PACKAGE_DIR
+cp $UI_BUILD_PATH/data/com.xronlinux.BreezyDesktop.desktop $PACKAGE_APPS_DIR
 
-rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 64 -h 64 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_64.png
-rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 128 -h 128 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_128.png
-rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 256 -h 256 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_256.png
-rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 1024 -h 1024 -o $PACKAGE_ICONS_DIR/com.xronlinux.BreezyDesktop_1024.png
+mkdir -p $PACKAGE_ICONS_DIR/64x64/apps
+mkdir -p $PACKAGE_ICONS_DIR/128x128/apps
+mkdir -p $PACKAGE_ICONS_DIR/256x256/apps
+mkdir -p $PACKAGE_ICONS_DIR/1024x1024/apps
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 64 -h 64 -o $PACKAGE_ICONS_DIR/64x64/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 128 -h 128 -o $PACKAGE_ICONS_DIR/128x128/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 256 -h 256 -o $PACKAGE_ICONS_DIR/256x256/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 1024 -h 1024 -o $PACKAGE_ICONS_DIR/1024x1024/apps/com.xronlinux.BreezyDesktop.png
 
 pushd $BUILD_PATH
 

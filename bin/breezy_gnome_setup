@@ -18,6 +18,7 @@ check_command() {
     fi
 }
 
+check_command "curl"
 check_command "gnome-shell"
 
 ARCH=$(uname -m)

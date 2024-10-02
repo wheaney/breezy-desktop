@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Breezy Desktop
-Exec=env LOCALE_DIR=/usr/local/share/breezydesktop/breezydesktop/po breezydesktop
+Exec=breezydesktop
 Icon=com.xronlinux.BreezyDesktop
 Terminal=false
 Type=Application

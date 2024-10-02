@@ -9,8 +9,10 @@ check_command() {
     fi
 }
 
-check_command "flatpak"
 check_command "gnome-extensions"
+check_command "glib-compile-schemas"
+check_command "update-desktop-database"
+check_command "gtk-update-icon-cache"
 
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
@@ -22,12 +24,11 @@ if [ -z "$XDG_DATA_HOME" ]; then
 fi
 XR_DRIVER_DATA_DIR="$XDG_DATA_HOME/xr_driver"
 GNOME_SHELL_DATA_DIR="$XDG_DATA_HOME/gnome-shell"
-DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
+BREEZY_GNOME_DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
 
 if [ -z "$XDG_BIN_HOME" ]; then
   XDG_BIN_HOME="$USER_HOME/.local/bin"
 fi
-BIN_DIR="$XDG_BIN_HOME"
 
 if [ -d "$XDG_BIN_HOME" ]; then
   # check ownership and permissions before doing chown and chmod
@@ -59,31 +60,40 @@ UA_EVENT_VERSION="$1"
 #INJECT_UA_CALL
 
 # escaping sed replace: https://stackoverflow.com/questions/407523/escape-a-string-for-a-sed-replace-pattern
-ESCAPED_BIN_DIR=$(printf '%s\n' "$BIN_DIR" | sed -e 's/[\/&]/\\&/g')
-ESCAPED_DATA_DIR=$(printf '%s\n' "$DATA_DIR" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_XDG_BIN_HOME=$(printf '%s\n' "$XDG_BIN_HOME" | sed -e 's/[\/&]/\\&/g')
+ESCAPED_BREEZY_GNOME_DATA_DIR=$(printf '%s\n' "$BREEZY_GNOME_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
 ESCAPED_XR_DRIVER_DATA_DIR=$(printf '%s\n' "$XR_DRIVER_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
 ESCAPED_GNOME_SHELL_DATA_DIR=$(printf '%s\n' "$GNOME_SHELL_DATA_DIR" | sed -e 's/[\/&]/\\&/g')
 
 echo "Copying the breezy_gnome scripts to ${XDG_BIN_HOME}"
 mkdir -p $XDG_BIN_HOME
 cp bin/breezy_gnome_uninstall $XDG_BIN_HOME
-sed -i -e "s/{bin_dir}/$ESCAPED_BIN_DIR/g" \
-       -e "s/{data_dir}/$ESCAPED_DATA_DIR/g" \
+sed -i -e "s/{bin_dir}/$ESCAPED_XDG_BIN_HOME/g" \
+       -e "s/{data_dir}/$ESCAPED_BREEZY_GNOME_DATA_DIR/g" \
        -e "s/{xr_driver_data_dir}/$ESCAPED_XR_DRIVER_DATA_DIR/g" \
        -e "s/{gnome_shell_data_dir}/$ESCAPED_GNOME_SHELL_DATA_DIR/g" \
           bin/breezy_gnome_verify
 cp bin/breezy_gnome_verify $XDG_BIN_HOME
 
-echo "Copying the manifest file to ${DATA_DIR}"
-mkdir -p $DATA_DIR
-cp manifest $DATA_DIR
+echo "Copying the manifest file to ${BREEZY_GNOME_DATA_DIR}"
+mkdir -p $BREEZY_GNOME_DATA_DIR
+cp manifest $BREEZY_GNOME_DATA_DIR
 
 echo "Installing the breezydesktop@xronlinux.com GNOME extension"
 gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 
-echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install --user --noninteractive --reinstall com.xronlinux.BreezyDesktop.flatpak
+echo "Installing the Breezy Desktop UI application"
+cp -r breezy_ui/data/* $XDG_DATA_HOME
+cp -r breezy_ui/bin/* $XDG_BIN_HOME
+
+# update copied files to use the local XDG paths
+ESCAPED_XDG_DATA_HOME=$(printf '%s\n' "$XDG_DATA_HOME" | sed -e 's/[\/&]/\\&/g')
+sed -i -e "s/\/usr\/local\/share/$ESCAPED_XDG_DATA_HOME/g" $XDG_BIN_HOME/breezydesktop
+sed -i "/Exec/c\Exec=$XDG_BIN_HOME/breezydesktop" $XDG_DATA_HOME/applications/com.xronlinux.BreezyDesktop.desktop
+
+glib-compile-schemas $XDG_DATA_HOME/glib-2.0/schemas
+update-desktop-database $XDG_DATA_HOME/applications
+gtk-update-icon-cache
 
 # set up the XR driver using the local binary
 echo "Installing xrDriver"

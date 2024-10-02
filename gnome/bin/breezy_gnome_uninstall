@@ -36,8 +36,12 @@ rm -rf $DATA_DIR
 [ "$for_install" -eq 0 ] && echo "Uninstalling the breezydesktop@xronlinux.com GNOME extension"
 gnome-extensions uninstall breezydesktop@xronlinux.com
 
-[ "$for_install" -eq 0 ] && echo "Uninstalling the Breezy Desktop UI Flatpak"
-flatpak uninstall --user --noninteractive --force-remove  com.xronlinux.BreezyDesktop
+[ "$for_install" -eq 0 ] && echo "Uninstalling the Breezy Desktop UI application"
+rm -rf $XDG_DATA_HOME/breezydesktop
+rm -f $XDG_DATA_HOME/applications/com.xronlinux.BreezyDesktop.desktop
+rm -f $XDG_DATA_HOME/icons/hicolor/*/apps/com.xronlinux.BreezyDesktop.png
+rm -f $XDG_DATA_HOME/locale/*/LC_MESSAGES/breezydesktop.mo
+rm -f $XDG_BIN_HOME/breezydesktop
 
 [ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
 # if for-install
