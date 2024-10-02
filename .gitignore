@@ -2,7 +2,6 @@ build/
 __pycache__
 *.zip
 gschemas.compiled
-.flatpak-builder/
 out/
 *.po~
 gnome-44-max/
