@@ -32,14 +32,15 @@ gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-po_dir = os.path.join(script_dir, 'po')
-locale_dir = os.environ.get('LOCALE_DIR', '/app/share/locale')
+user_home = os.path.expanduser('~')
+xdg_data_home = os.environ.get('XDG_DATA_HOME') or os.path.join(user_home, '.local', 'share')      
+locale_dir = os.environ.get('LOCALE_DIR', os.path.join(xdg_data_home, 'locale'))
 
 locale.setlocale(locale.LC_ALL, locale.getdefaultlocale())
 locale.bindtextdomain('breezydesktop', locale_dir)
 gettext.bindtextdomain('breezydesktop', locale_dir)
 gettext.textdomain('breezydesktop')
+
 
 from gi.repository import Adw, Gtk, Gio
 from .licensedialog import LicenseDialog

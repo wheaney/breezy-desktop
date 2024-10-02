@@ -92,11 +92,13 @@ pushd $GNOME_DIR/src
 GNOME_MANIFEST_LINE=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
 popd
 
-FLATPAK_BUILD_ARTIFACT=ui/out/com.xronlinux.BreezyDesktop-$ARCH.flatpak
-if [ ! -e "$FLATPAK_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-flatpak" ] || [ "$1" == "--rebuild-all" ]; then
-  ui/bin/package $ARCH
+UI_BUILD_ARTIFACT=ui/out/breezyUI-$ARCH.tar.gz
+if [ ! -e "$UI_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-ui" ] || [ "$1" == "--rebuild-all" ]; then
+  pushd ui
+  bin/package $ARCH
+  popd
 fi
-cp $FLATPAK_BUILD_ARTIFACT $PACKAGE_DIR/com.xronlinux.BreezyDesktop.flatpak
+tar -xf $UI_BUILD_ARTIFACT -C $PACKAGE_DIR
 
 # create manifest file for verifying installed file checksums against the originally packaged versions
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
