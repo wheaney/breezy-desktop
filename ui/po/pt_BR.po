@@ -335,11 +335,11 @@ msgstr "Padrão"
 
 #: src/gtk/connected-device.ui:396
 msgid "Text Scaling"
-msgstr ""
+msgstr "Redimensionamento de Texto"
 
 #: src/gtk/connected-device.ui:397
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "Redimensionar o texto abaixo de 1.0 simulará uma tela de resolução mais alta"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
