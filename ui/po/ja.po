@@ -4,14 +4,14 @@
 #  <wayne@xronlinux.com>, 2024.
 #
 # Breezy DesktopやXR、GNOMEのような固有名詞はそのままの表記にしています。
-#「gaming」が「ゲーミング」なので「productivity」も「プロダクティビティ」とカナ表記にしました。
-#「glasses」は「XRエフェクト」から「XRメガネ」にしても良かったんですが、繰り返すのもくどいので「メガネ」にしてます。
-# 
+# 「gaming」が「ゲーミング」なので「productivity」も「プロダクティビティ」とカナ表記にしました。
+# 「glasses」は「XRエフェクト」から「XRメガネ」にしても良かったんですが、繰り返すのもくどいので「メガネ」にしてます。
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 15:19-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -31,11 +31,11 @@ msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします
 msgid "This feature is not currently supported for your device."
 msgstr "この機能は現在接続されているデバイスではサポートされていません。"
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "有料ティアの状態"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "利用できる機能"
 
@@ -212,7 +212,8 @@ msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"ディスプレイ距離と組み合わせて、\n快適な奥行きとサイズを実現します。"
+"ディスプレイ距離と組み合わせて、\n"
+"快適な奥行きとサイズを実現します。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
@@ -223,7 +224,8 @@ msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
 msgstr ""
-"2個のボタンを使用して、キーボードショートカットで使用する現在のディスプレイ距離をそれぞれ設定します。"
+"2個のボタンを使用して、キーボードショートカットで使用する現在のディスプレイ距"
+"離をそれぞれ設定します。"
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
@@ -279,7 +281,8 @@ msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"メガネ接続時、最大解像度と最適なスケーリングのためにディスプレイ設定を自動的に変更します。"
+"メガネ接続時、最大解像度と最適なスケーリングのためにディスプレイ設定を自動的"
+"に変更します。"
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -287,7 +290,9 @@ msgstr "最大のリフレッシュレートを使用する"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "リフレッシュレートはパフォーマンスに影響を与える可能性があります。手動で設定する場合は無効にしてください。"
+msgstr ""
+"リフレッシュレートはパフォーマンスに影響を与える可能性があります。手動で設定"
+"する場合は無効にしてください。"
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
@@ -306,7 +311,8 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"ワイドスクリーンモードがオンになっている場合、メガネ接続時にたたちにSBSモードに切り替えます。不安定になる可能性があります。"
+"ワイドスクリーンモードがオンになっている場合、メガネ接続時にたたちにSBSモード"
+"に切り替えます。不安定になる可能性があります。"
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -318,11 +324,21 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"入力遅延を相殺するために、レンダリング時間前にヘッドトラッキング位置を予測します。仮想ディスプレイが頭の動きに遅れたり、先に進んだり、非常に揺れたりする場合を除き、デフォルトのままで問題ありません。"
+"入力遅延を相殺するために、レンダリング時間前にヘッドトラッキング位置を予測し"
+"ます。仮想ディスプレイが頭の動きに遅れたり、先に進んだり、非常に揺れたりする"
+"場合を除き、デフォルトのままで問題ありません。"
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
 msgstr "デフォルト"
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr "テキストスケーリング"
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr "テキストを1.0未満にスケーリングすると、高解像度ディスプレイをシミュレートします。"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -333,7 +349,8 @@ msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
-"Breezy GNOMEのセットアップが無効または不完全です。セットアップスクリプトを再実行してください。問題が解決しない場合は、この問題を報告してください。"
+"Breezy GNOMEのセットアップが無効または不完全です。セットアップスクリプトを再"
+"実行してください。問題が解決しない場合は、この問題を報告してください。"
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
 msgid "License Details"
@@ -375,10 +392,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          AUR経由でインストールした場合は、推奨されるポストインストールコマンドを実行したことを確認してください:\n"
+"          AUR経由でインストールした場合は、推奨されるポストインストールコマン"
+"ドを実行したことを確認してください:\n"
 "          systemctl --user enable --now xr-driver.service\n"
 "          \n"
-"          それ以外の場合は、GitHubで問題を報告するか、Discordの#troubleshootingチャンネルで新しいスレッドを作成してください。\n"
+"          それ以外の場合は、GitHubで問題を報告するか、Discordの"
+"#troubleshootingチャンネルで新しいスレッドを作成してください。\n"
 "        "
 
 #: src/gtk/no-extension.ui:13
@@ -390,7 +409,9 @@ msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"セットアップを実行した直後の場合は、使用する前にログアウトして再度ログインする必要があるかもしれません。それ以外の場合は、Breezy GNOMEのセットアップ手順に従ってください。"
+"セットアップを実行した直後の場合は、使用する前にログアウトして再度ログインす"
+"る必要があるかもしれません。それ以外の場合は、Breezy GNOMEのセットアップ手順"
+"に従ってください。"
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
@@ -412,11 +433,16 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Breezy Desktopを初めて使用する際は、デバイスライセンスを取得するためにインターネット接続が必要です。\n"
+"          Breezy Desktopを初めて使用する際は、デバイスライセンスを取得するた"
+"めにインターネット接続が必要です。\n"
 "          \n"
-"          ご安心ください。今すぐに寄付する必要はありません。寄付していない場合は、Breezy Desktopがニーズに合っているかどうかを判断できる試用ライセンスが提供されます。\n"
+"          ご安心ください。今すぐに寄付する必要はありません。寄付していない場"
+"合は、Breezy Desktopがニーズに合っているかどうかを判断できる試用ライセンスが"
+"提供されます。\n"
 "          \n"
-"          ライセンスを取得したら、試用期間中であろうと期限切れるまではBreezy Desktopをオフラインで使用できます。(生涯アクセスを選択した場合は期限はありません。)\n"
+"          ライセンスを取得したら、試用期間中であろうと期限切れるまではBreezy "
+"Desktopをオフラインで使用できます。(生涯アクセスを選択した場合は期限はありま"
+"せん。)\n"
 "        "
 
 #: src/gtk/no-license.ui:27
@@ -429,7 +455,8 @@ msgstr "キーボードショートカットを割り当てる"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "キーボードショートカットを押す、または「Backspace」を押して無効にします..."
+msgstr ""
+"キーボードショートカットを押す、または「Backspace」を押して無効にします..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"

@@ -57,6 +57,8 @@ class BreezyDesktopExtension {
         this._disable_anti_aliasing_binding = null;
         this._optimal_monitor_config_binding = null;
         this._headset_as_primary_binding = null;
+        this._actor_added_connection = null;
+        this._actor_removed_connection = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -264,8 +266,19 @@ class BreezyDesktopExtension {
 
                 this._overlay.set_child(overlayContent);
 
-                global.stage.insert_child_above(this._overlay, null);
                 Shell.util_set_hidden_from_pick(this._overlay, true);
+                global.stage.add_child(this._overlay);
+
+                // In GS 45, use of "actor" was renamed to "child".
+                const clutterContainer = Clutter.Container !== undefined;
+                this._actor_added_connection = global.stage.connect(
+                    clutterContainer ? 'actor-added' : 'child-added',
+                    this._handle_sibling_update.bind(this),
+                );
+                this._actor_removed_connection = global.stage.connect(
+                    clutterContainer ? 'actor-removed' : 'child-removed',
+                    this._handle_sibling_update.bind(this),
+                );
                 
                 this._xr_effect = new XREffect({
                     target_monitor: targetMonitor,
@@ -309,6 +322,11 @@ class BreezyDesktopExtension {
                 this._effect_disable();
             }
         }
+    }
+
+    _handle_sibling_update() {
+        Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
+        global.stage.set_child_above_sibling(this._overlay, null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -495,6 +513,14 @@ class BreezyDesktopExtension {
             Main.wm.removeKeybinding('toggle-follow-shortcut');
             Meta.enable_unredirect_for_display(global.display);
 
+            if (this._actor_added_connection) {
+                global.stage.disconnect(this._actor_added_connection);
+                this._actor_added_connection = null;
+            }
+            if (this._actor_removed_connection) {
+                global.stage.disconnect(this._actor_removed_connection);
+                this._actor_removed_connection = null;
+            }
             if (this._overlay) {
                 if (this._xr_effect) this._xr_effect.cleanup();
                 this._overlay.remove_effect_by_name('xr-desktop');

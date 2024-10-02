@@ -5,10 +5,9 @@
 #
 msgid ""
 msgstr ""
-
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 15:19-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -23,17 +22,20 @@ msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
-"Basculez vos lunettes en mode Side-By-Side (Côte-à-Côte) et doublez la largeur de l'écran."
+"Basculez vos lunettes en mode Side-By-Side (Côte-à-Côte) et doublez la "
+"largeur de l'écran."
 
 #: src/connecteddevice.py:17
 msgid "This feature is not currently supported for your device."
-msgstr "Cette fonctionnalité n'est actuellement pas prise en charge par votre appareil."
+msgstr ""
+"Cette fonctionnalité n'est actuellement pas prise en charge par votre "
+"appareil."
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "Statut de l'abonnement payant"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "Disponibilité des fonctionnalités"
 
@@ -198,8 +200,8 @@ msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
 msgstr ""
-"Plus proche apparaît plus grand, plus éloigné apparaît plus petit. Contrôle la "
-"profondeur lorsque vous êtes en mode grand écran."
+"Plus proche apparaît plus grand, plus éloigné apparaît plus petit. Contrôle "
+"la profondeur lorsque vous êtes en mode grand écran."
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
@@ -210,8 +212,8 @@ msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
 msgstr ""
-"Combinez avec la distance d'affichage pour obtenir un niveau de profondeur et "
-"de taille confortable."
+"Combinez avec la distance d'affichage pour obtenir un niveau de profondeur "
+"et de taille confortable."
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
@@ -280,7 +282,8 @@ msgid ""
 "resolution and best scaling when plugged in."
 msgstr ""
 "Modifiez automatiquement la configuration d'affichage des lunettes pour une "
-"résolution maximale et une meilleure mise à l'échelle lorsque elles sont branchées."
+"résolution maximale et une meilleure mise à l'échelle lorsque elles sont "
+"branchées."
 
 #: src/gtk/connected-device.ui:332
 msgid "Use highest refresh rate"
@@ -288,7 +291,9 @@ msgstr "Utiliser le taux de rafraîchissement le plus élevé"
 
 #: src/gtk/connected-device.ui:333
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "Un taux de rafraîchissement élevé peut affecter les performances, désactivez-le pour le définir manuellement."
+msgstr ""
+"Un taux de rafraîchissement élevé peut affecter les performances, désactivez-"
+"le pour le définir manuellement."
 
 #: src/gtk/connected-device.ui:343
 msgid "Always primary display"
@@ -296,7 +301,9 @@ msgstr "Affichage principal en permanence"
 
 #: src/gtk/connected-device.ui:344
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "Définissez automatiquement les lunettes comme affichage principal lorsqu'elles sont branchées."
+msgstr ""
+"Définissez automatiquement les lunettes comme affichage principal "
+"lorsqu'elles sont branchées."
 
 #: src/gtk/connected-device.ui:354
 msgid "Fast SBS mode switching"
@@ -307,8 +314,8 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Bascule les lunettes vers le mode SBS immédiatement lorsqu'elles sont branchées "
-"si le mode grand écran est activé. Peut provoquer des instabilités."
+"Bascule les lunettes vers le mode SBS immédiatement lorsqu'elles sont "
+"branchées si le mode grand écran est activé. Peut provoquer des instabilités."
 
 #: src/gtk/connected-device.ui:365
 msgid "Movement look-ahead"
@@ -321,12 +328,20 @@ msgid ""
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 "Compense le lag d'entrée en prédisant la position de suivi de la tête avant "
-"le temps de rendu. Restez sur la valeur par défaut à moins que l'affichage virtuel "
-"ne soit lent, ne saute pas ou ne soit très instable."
+"le temps de rendu. Restez sur la valeur par défaut à moins que l'affichage "
+"virtuel ne soit lent, ne saute pas ou ne soit très instable."
 
 #: src/gtk/connected-device.ui:384
 msgid "Default"
 msgstr "Par défaut"
+
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -381,12 +396,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" Si vous avez installé via AUR, assurez-vous d'avoir exécuté la "
-"commande de post-installation recommandée:\n"
+" Si vous avez installé via AUR, assurez-vous d'avoir exécuté la commande de "
+"post-installation recommandée:\n"
 " systemctl --user enable --now xr-driver.service\n"
 "\n"
-" Sinon, veuillez signaler le problème sur GitHub, ou créer un nouveau "
-"fil de discussion dans le canal #troubleshooting sur Discord.\n"
+" Sinon, veuillez signaler le problème sur GitHub, ou créer un nouveau fil de "
+"discussion dans le canal #troubleshooting sur Discord.\n"
 " "
 
 #: src/gtk/no-extension.ui:13
@@ -398,9 +413,9 @@ msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"Si vous venez d'exécuter la configuration, vous devrez peut-être vous déconnecter "
-"et vous reconnecter pour l'utiliser. Sinon, veuillez suivre les instructions "
-"d'installation de Breezy GNOME."
+"Si vous venez d'exécuter la configuration, vous devrez peut-être vous "
+"déconnecter et vous reconnecter pour l'utiliser. Sinon, veuillez suivre les "
+"instructions d'installation de Breezy GNOME."
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
@@ -422,15 +437,15 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" La première fois que vous utilisez Breezy Desktop, une connexion "
-"Internet est requise pour récupérer la licence de votre appareil.\n"
+" La première fois que vous utilisez Breezy Desktop, une connexion Internet "
+"est requise pour récupérer la licence de votre appareil.\n"
 " \n"
-" Ne vous inquiétez pas, vous n'êtes pas obligé de faire un don à "
-"ce stade. Si vous ne le faites pas, vous obtiendrez une licence d'essai pour "
-"vous permettre de décider si Breezy Desktop répond à vos besoins.\n"
+" Ne vous inquiétez pas, vous n'êtes pas obligé de faire un don à ce stade. "
+"Si vous ne le faites pas, vous obtiendrez une licence d'essai pour vous "
+"permettre de décider si Breezy Desktop répond à vos besoins.\n"
 " \n"
-" Une fois que vous avez obtenu une licence, d'essai ou autre, vous "
-"pouvez utiliser Breezy Desktop hors ligne jusqu'à l'expiration des fonctionnalités "
+" Une fois que vous avez obtenu une licence, d'essai ou autre, vous pouvez "
+"utiliser Breezy Desktop hors ligne jusqu'à l'expiration des fonctionnalités "
 "(ou indéfiniment, si vous avez choisi l'accès à vie).\n"
 " "
 
@@ -444,7 +459,8 @@ msgstr "Attribuer un raccourci clavier"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "Appuyez sur votre raccourci clavier ou sur 'Backspace' pour désactiver..."
+msgstr ""
+"Appuyez sur votre raccourci clavier ou sur 'Backspace' pour désactiver..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"

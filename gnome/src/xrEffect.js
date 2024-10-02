@@ -49,7 +49,7 @@ const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
 
 // cached after first retrieval
 const shaderUniformLocations = {
-    'enabled': null,
+    'virtual_display_enabled': null,
     'show_banner': null,
     'imu_quat_data': null,
     'look_ahead_cfg': null,
@@ -69,7 +69,13 @@ const shaderUniformLocations = {
     'fov_widths': null,
     'display_resolution': null,
     'source_to_display_ratio': null,
-    'curved_display': null
+    'curved_display': null,
+
+    // only used by the reshade integration, but needs to be set to a default value by this effect
+    'frametime': null,
+    'sideview_enabled': null,
+    'sideview_position': null,
+    'sideview_display_size': null
 };
 
 function setUniformFloat(effect, locationName, dataViewInfo, value) {
@@ -198,6 +204,11 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'show_banner', imuResetState ? 1.0 : 0.0);
             setSingleFloat(this, 'sbs_enabled', sbsEnabled ? 1.0 : 0.0);
             setSingleFloat(this, 'custom_banner_enabled', dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0 ? 1.0 : 0.0);
+            setSingleFloat(this, 'frametime', 0.0);
+            
+            setSingleFloat(this, 'sideview_enabled', 0.0);
+            setSingleFloat(this, 'sideview_position', 0.0);
+            setSingleFloat(this, 'sideview_display_size', 1.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
             this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [this.target_monitor.width/displayRes[0], this.target_monitor.height/displayRes[1]]);
@@ -349,7 +360,7 @@ var XREffect = GObject.registerClass({
 
     vfunc_build_pipeline() {
         const code = getShaderSource(`${Globals.extension_dir}/Sombrero.frag`);
-        const main = 'PS_Sombrero(true, false, source_to_display_ratio, show_banner, cogl_tex_coord_in[0].xy, cogl_color_out);';
+        const main = 'PS_Sombrero(virtual_display_enabled, false, source_to_display_ratio, show_banner, cogl_tex_coord_in[0].xy, cogl_color_out);';
         this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, code, main, false);
     }
 

@@ -42,6 +42,8 @@ class ConnectedDevice(Gtk.Box):
     fast_sbs_mode_switch = Gtk.Template.Child()
     movement_look_ahead_scale = Gtk.Template.Child()
     movement_look_ahead_adjustment = Gtk.Template.Child()
+    text_scaling_scale = Gtk.Template.Child()
+    text_scaling_adjustment = Gtk.Template.Child()
 
 
     def __init__(self):
@@ -59,6 +61,7 @@ class ConnectedDevice(Gtk.Box):
         ]
 
         self.settings = SettingsManager.get_instance().settings
+        self.desktop_settings = SettingsManager.get_instance().desktop_settings
         self.ipc = XRDriverIPC.get_instance()
         self.extensions_manager = ExtensionsManager.get_instance()
 
@@ -72,6 +75,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],

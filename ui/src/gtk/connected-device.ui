@@ -391,6 +391,37 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Text Scaling</property>
+                        <property name="subtitle" translatable="yes">Scaling text below 1.0 will simulate a higher resolution display</property>
+                        <child>
+                          <object class="GtkScale" id="text_scaling_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">false</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="text_scaling_adjustment">
+                                <property name="lower">0.5</property>
+                                <property name="upper">1.5</property>
+                                <property name="step-increment">0.05</property>
+                                <property name="value">1.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.5" position="bottom">0.5</mark>
+                              <mark value="0.75" position="bottom">0.75</mark>
+                              <mark value="1.0" position="bottom">1.0</mark>
+                              <mark value="1.25" position="bottom">1.25</mark>
+                              <mark value="1.5" position="bottom">1.5</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

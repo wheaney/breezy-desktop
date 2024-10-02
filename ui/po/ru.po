@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-17 09:44-0700\n"
+"POT-Creation-Date: 2024-10-01 13:21-0700\n"
 "PO-Revision-Date: 2024-08-17 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Russian <gnu@d07.ru>\n"
@@ -29,11 +29,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Эта функция в настоящее время не поддерживается для вашего устройства."
 
-#: src/licensedialog.py:49
+#: src/licensedialog.py:57
 msgid "Paid Tier Status"
 msgstr "Статус платного уровня"
 
-#: src/licensedialog.py:57
+#: src/licensedialog.py:63
 msgid "Feature Availability"
 msgstr "Статус функций"
 
@@ -232,8 +232,7 @@ msgstr "Порог следования"
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
 msgstr ""
-"Как далеко вы можете отвернуть взгляд, прежде чем дисплей последует за "
-"вами."
+"Как далеко вы можете отвернуть взгляд, прежде чем дисплей последует за вами."
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -335,6 +334,14 @@ msgstr ""
 msgid "Default"
 msgstr "По умолчанию"
 
+#: src/gtk/connected-device.ui:396
+msgid "Text Scaling"
+msgstr ""
+
+#: src/gtk/connected-device.ui:397
+msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
+
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
 msgstr "Недействительная настройка Breezy Desktop GNOME"
@@ -432,13 +439,13 @@ msgstr ""
 "          При первом использовании Breezy Desktop требуется интернет-"
 "соединение для получения лицензии вашего устройства.\n"
 "          \n"
-"          Не волнуйтесь, на данный момент нет обязательства донатить. "
-"Если вы не сделали этого, вам будет предоставлена пробная "
-"лицензия, чтобы вы могли решить, подходит ли вам Breezy Desktop.\n"
+"          Не волнуйтесь, на данный момент нет обязательства донатить. Если "
+"вы не сделали этого, вам будет предоставлена пробная лицензия, чтобы вы "
+"могли решить, подходит ли вам Breezy Desktop.\n"
 "          \n"
-"          После получения лицензии, пробной или иной, вы можете "
-"использовать Breezy Desktop офлайн до истечения срока "
-"действия функций (или бессрочно, если вы выбрали пожизненный доступ).\n"
+"          После получения лицензии, пробной или иной, вы можете использовать "
+"Breezy Desktop офлайн до истечения срока действия функций (или бессрочно, "
+"если вы выбрали пожизненный доступ).\n"
 "        "
 
 #: src/gtk/no-license.ui:27
