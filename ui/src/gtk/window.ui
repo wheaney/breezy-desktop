@@ -30,17 +30,53 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="AdwBanner" id="license_action_needed_banner">
+          <object class="GtkInfoBar" id="license_action_needed_banner">
             <property name="revealed">0</property>
-            <property name="title" translatable="yes">Some features expire soon</property>
-            <property name="button-label" translatable="yes">View details</property>
+            <property name="show-close-button">False</property>
+            <property name="message-type">warning</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Some features expire soon</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="license_action_needed_button">
+                <property name="label" translatable="yes">View details</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
-          <object class="AdwBanner" id="missing_breezy_features_banner">
+          <object class="GtkInfoBar" id="missing_breezy_features_banner">
             <property name="revealed">0</property>
-            <property name="title" translatable="yes">Productivity features are disabled</property>
-            <property name="button-label" translatable="yes">View details</property>
+            <property name="show-close-button">False</property>
+            <property name="message-type">error</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Productivity features are disabled</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="missing_breezy_features_button">
+                <property name="label" translatable="yes">View details</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>

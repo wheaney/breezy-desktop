@@ -36,10 +36,14 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
     main_content = Gtk.Template.Child()
     license_action_needed_banner = Gtk.Template.Child()
+    license_action_needed_button = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
+    missing_breezy_features_button = Gtk.Template.Child()
 
     def __init__(self, skip_verification, **kwargs):
         super().__init__(**kwargs)
+        
+        self._skip_verification = skip_verification
 
         self.state_manager = StateManager.get_instance()
         self.state_manager.connect('device-update', self._handle_state_update)
@@ -54,8 +58,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.no_extension = NoExtension()
         self.no_license = NoLicense()
 
-        self.license_action_needed_banner.connect('button-clicked', self._on_license_button_clicked)
-        self.missing_breezy_features_banner.connect('button-clicked', self._on_license_button_clicked)
+        self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
+        self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)
 
         self._handle_state_update(self.state_manager, None)
 

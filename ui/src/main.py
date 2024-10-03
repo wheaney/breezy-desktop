@@ -85,7 +85,7 @@ class BreezydesktopApplication(Adw.Application):
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
         self.create_action('reset_driver', self.on_reset_driver_action)
-        self._skip_verification = skip_verification
+        self._skip_verification = skip_verification or False
 
         # always do this on start-up since the driver sometimes fails to update the license on boot,
         # prevent showing a license warning unnecessarily
