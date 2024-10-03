@@ -17,12 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import os
+import sys
+
+lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
+sys.path.insert(0, lib_dir)
+
 import gettext
 import gi
 import locale
 import logging
-import os
-import sys
 import argparse
 
 from logging.handlers import TimedRotatingFileHandler
@@ -40,7 +44,6 @@ locale.setlocale(locale.LC_ALL, locale.getdefaultlocale())
 locale.bindtextdomain('breezydesktop', locale_dir)
 gettext.bindtextdomain('breezydesktop', locale_dir)
 gettext.textdomain('breezydesktop')
-
 
 from gi.repository import Adw, Gtk, Gio
 from .licensedialog import LicenseDialog
