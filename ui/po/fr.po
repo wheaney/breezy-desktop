@@ -337,11 +337,11 @@ msgstr "Par défaut"
 
 #: src/gtk/connected-device.ui:396
 msgid "Text Scaling"
-msgstr ""
+msgstr "Mise à l'échelle du texte"
 
 #: src/gtk/connected-device.ui:397
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "Une mise à l'échelle du texte en dessous de 1.0 simulera un affichage de plus haute résolution"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
