@@ -26,14 +26,20 @@ import locale
 import gettext
 
 VERSION = '@VERSION@'
-pkgdatadir = '@pkgdatadir@'
-localedir = '@localedir@'
+
+appdir = os.getenv('APPDIR', '/')
+pkgdatadir = os.path.join(appdir, 'usr', 'share', 'breezydesktop')
+localedir = os.path.join(appdir, 'usr', 'share', 'locale')
 
 sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-locale.bindtextdomain('breezydesktop', localedir)
+
+locale.setlocale(locale.LC_ALL, locale.getdefaultlocale())
 locale.textdomain('breezydesktop')
+locale.bindtextdomain('breezydesktop', localedir)
 gettext.install('breezydesktop', localedir)
+gettext.bindtextdomain('breezydesktop', localedir)
+gettext.textdomain('breezydesktop')
 
 if __name__ == '__main__':
     import gi

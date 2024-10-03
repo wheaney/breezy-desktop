@@ -18,7 +18,7 @@ meson compile
 popd
 
 # mimick the XDG directory structure in our archive file so setup can just copy the directories and not individual files
-PACKAGE_DATA_DIR=$PACKAGE_DIR/data
+PACKAGE_DATA_DIR=$PACKAGE_DIR/share
 PACKAGE_BIN_DIR=$PACKAGE_DIR/bin
 
 # these are all subdirectories of XDG_DATA_HOME
@@ -54,13 +54,20 @@ rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w
 rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 256 -h 256 -o $PACKAGE_ICONS_DIR/256x256/apps/com.xronlinux.BreezyDesktop.png
 rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 1024 -h 1024 -o $PACKAGE_ICONS_DIR/1024x1024/apps/com.xronlinux.BreezyDesktop.png
 
-pushd $BUILD_PATH
+# pushd $BUILD_PATH
 
-tar -zcvf breezyUI-$ARCH.tar.gz breezy_ui
+mkdir -p $APPDIR/usr
+cp -r $PACKAGE_DATA_DIR $APPDIR/usr
+cp -r $PACKAGE_BIN_DIR $APPDIR/usr
 
-popd
+"$LINUXDEPLOY_PLUGIN_GTK" --appdir $APPDIR
+"$LINUXDEPLOY" --appdir $APPDIR --output appimage --icon-file $APPDIR/usr/share/icons/hicolor/256x256/apps/com.xronlinux.BreezyDesktop.png --desktop-file $APPDIR/usr/share/applications/com.xronlinux.BreezyDesktop.desktop
 
-mkdir -p out
-cp $BUILD_PATH/breezyUI-$ARCH.tar.gz out/
+# tar -zcvf breezyUI-$ARCH.tar.gz breezy_ui
 
-rm -rf $BUILD_PATH
+# popd
+
+# mkdir -p out
+cp Breezy_Desktop-*.AppImage out/
+
+# rm -rf $BUILD_PATH
