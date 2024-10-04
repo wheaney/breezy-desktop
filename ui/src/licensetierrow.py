@@ -56,7 +56,7 @@ class LicenseTierRow(Adw.ExpanderRow):
             'supporter': _('Gaming'),
             'subscriber': _('Productivity')
         }
-        return tier_names[tier]
+        return tier_names.get(tier) or ""
 
     def _period_description(self, period):
         period_descriptions = {

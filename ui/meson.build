@@ -1,13 +1,11 @@
 project('breezydesktop',
-          version: '1.0.0',
+          version: run_command('cat', join_paths('..', 'VERSION'), check: true).stdout().strip(),
     meson_version: '>= 0.62.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
 
 i18n = import('i18n')
 gnome = import('gnome')
-
-
 
 subdir('data')
 subdir('src')

@@ -1,18 +1,10 @@
 diff --git a/gnome-44-max/bin/setup b/gnome-44-max/bin/setup
-index 7ee291a..3bd001b 100755
+index e34efb5..ee5e694 100755
 --- a/gnome-44-max/bin/setup
 +++ b/gnome-44-max/bin/setup
-@@ -11,6 +11,7 @@ check_command() {
- 
- check_command "flatpak"
- check_command "gnome-extensions"
-+check_command "glib-compile-schemas"
- 
- # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
- # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
-@@ -78,8 +79,10 @@ echo "Copying the manifest file to ${DATA_DIR}"
- mkdir -p $DATA_DIR
- cp manifest $DATA_DIR
+@@ -79,8 +79,10 @@ echo "Copying the manifest file to ${BREEZY_GNOME_DATA_DIR}"
+ mkdir -p $BREEZY_GNOME_DATA_DIR
+ cp manifest $BREEZY_GNOME_DATA_DIR
  
 -echo "Installing the breezydesktop@xronlinux.com GNOME extension"
 -gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
@@ -21,8 +13,8 @@ index 7ee291a..3bd001b 100755
 +gnome-extensions install --force "$EXTENSION_UUID.shell-extension.zip"
 +glib-compile-schemas "$GNOME_SHELL_DATA_DIR/extensions/$EXTENSION_UUID/schemas"
  
- echo "Installing the Breezy Desktop UI Flatpak (this may take a couple minutes the first time)"
- flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+ echo "Installing the Breezy Desktop UI application"
+ cp -r breezy_ui/data/* $XDG_DATA_HOME
 diff --git a/gnome-44-max/src/cursor.js b/gnome-44-max/src/cursor.js
 index 36ad7ee..41102a0 100644
 --- a/gnome-44-max/src/cursor.js
@@ -78,7 +70,7 @@ index 44b3f5f..fa65a4a 100644
      }
  
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index cd17162..435154d 100644
+index 5f62bfd..d06f91c 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
 @@ -1,19 +1,21 @@
@@ -135,7 +127,7 @@ index cd17162..435154d 100644
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -593,6 +594,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -619,6 +620,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -264,7 +256,7 @@ index 497274e..6c98cdb 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/metadata.json b/gnome-44-max/src/metadata.json
-index b9b5ebf..c888f94 100644
+index 125954e..c888f94 100644
 --- a/gnome-44-max/src/metadata.json
 +++ b/gnome-44-max/src/metadata.json
 @@ -5,7 +5,7 @@
@@ -353,7 +345,7 @@ index 7883b9b..5478d2a 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/xrEffect.js b/gnome-44-max/src/xrEffect.js
-index aab805c..922ec0f 100644
+index 6b1421b..7d36c46 100644
 --- a/gnome-44-max/src/xrEffect.js
 +++ b/gnome-44-max/src/xrEffect.js
 @@ -1,13 +1,15 @@
@@ -378,7 +370,7 @@ index aab805c..922ec0f 100644
 +const Me = ExtensionUtils.getCurrentExtension();
 +
 +const Globals = Me.imports.globals;
-+const {
++const { 
      dataViewEnd,
      dataViewUint8,
      dataViewBigUint,
@@ -400,7 +392,7 @@ index aab805c..922ec0f 100644
  
  // the driver should be using the same data layout version
  const DATA_LAYOUT_VERSION = 3;
-@@ -221,7 +223,7 @@ function checkParityByte(dataView) {
+@@ -232,7 +234,7 @@ function checkParityByte(dataView) {
      return parityByte === parity;
  }
  
@@ -409,7 +401,7 @@ index aab805c..922ec0f 100644
      Properties: {
          'supported-device-detected': GObject.ParamSpec.boolean(
              'supported-device-detected',
-@@ -361,8 +363,13 @@ export const XREffect = GObject.registerClass({
+@@ -372,8 +374,13 @@ export const XREffect = GObject.registerClass({
              if (!this._initialized) {
                  this.set_uniform_float(this.get_uniform_location('screenTexture'), 1, [0]);
  

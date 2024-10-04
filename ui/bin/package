@@ -6,30 +6,61 @@ set -e
 ARCH=${ARCH:-$(uname -m)}
 echo "Building Breezy UI for $ARCH"
 
-check_command() {
-    if ! command -v "$1" &>/dev/null; then
-        echo "Please install \"$1\" and make sure it's available in your \$PATH"
-        exit 1
-    fi
-}
+BUILD_PATH=build
+UI_BUILD_PATH=$BUILD_PATH/ui
+PACKAGE_DIR=$BUILD_PATH/breezy_ui
+mkdir -p $UI_BUILD_PATH
+mkdir -p $PACKAGE_DIR
 
-check_command "flatpak"
-check_command "flatpak-builder"
+meson setup $UI_BUILD_PATH
+pushd $UI_BUILD_PATH
+meson compile
+popd
 
-# https://stackoverflow.com/a/246128
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+# mimick the XDG directory structure in our archive file so setup can just copy the directories and not individual files
+PACKAGE_DATA_DIR=$PACKAGE_DIR/data
+PACKAGE_BIN_DIR=$PACKAGE_DIR/bin
 
-TMP_DIR=$(mktemp -d --tmpdir=$SCRIPT_DIR/.. -t .breezy-ui-flatpak-XXXXXXXXXX)
-OUT_DIR=$SCRIPT_DIR/../out
-mkdir -p $OUT_DIR
+# these are all subdirectories of XDG_DATA_HOME
+PACKAGE_BREEZY_DIR=$PACKAGE_DATA_DIR/breezydesktop
+PACKAGE_BREEZY_SRC_DIR=$PACKAGE_BREEZY_DIR/breezydesktop
+PACKAGE_ICONS_DIR=$PACKAGE_DATA_DIR/icons/hicolor
+PACKAGE_LOCALE_DIR=$PACKAGE_DATA_DIR/locale
+PACKAGE_APPS_DIR=$PACKAGE_DATA_DIR/applications
+PACKAGE_SCHEMAS_DIR=$PACKAGE_DATA_DIR/glib-2.0/schemas
 
-BUILD_ARTIFACT=$OUT_DIR/com.xronlinux.BreezyDesktop-$ARCH.flatpak
-if [ -e "$BUILD_ARTIFACT" ]; then
-  rm $BUILD_ARTIFACT
-fi
+mkdir -p $PACKAGE_BIN_DIR
+mkdir -p $PACKAGE_BREEZY_SRC_DIR
+mkdir -p $PACKAGE_ICONS_DIR
+mkdir -p $PACKAGE_LOCALE_DIR
+mkdir -p $PACKAGE_APPS_DIR
+mkdir -p $PACKAGE_SCHEMAS_DIR
 
-flatpak-builder --arch $ARCH --disable-rofiles-fuse --disable-cache --force-clean --delete-build-dirs --user $TMP_DIR/build $SCRIPT_DIR/../com.xronlinux.BreezyDesktop.json
-flatpak build-export --arch $ARCH $TMP_DIR/export $TMP_DIR/build
-flatpak build-bundle --arch $ARCH $TMP_DIR/export $BUILD_ARTIFACT com.xronlinux.BreezyDesktop --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+cp src/*.py $PACKAGE_BREEZY_SRC_DIR
+cp -r lib $PACKAGE_BREEZY_SRC_DIR
+cp -L modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_BREEZY_SRC_DIR
+cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_BREEZY_DIR
+cp -r po/mo/* $PACKAGE_LOCALE_DIR
+cp data/com.xronlinux.BreezyDesktop.gschema.xml $PACKAGE_SCHEMAS_DIR
+cp $UI_BUILD_PATH/src/breezydesktop $PACKAGE_BIN_DIR
+cp $UI_BUILD_PATH/data/com.xronlinux.BreezyDesktop.desktop $PACKAGE_APPS_DIR
 
-rm -rf "$TMP_DIR"
+mkdir -p $PACKAGE_ICONS_DIR/64x64/apps
+mkdir -p $PACKAGE_ICONS_DIR/128x128/apps
+mkdir -p $PACKAGE_ICONS_DIR/256x256/apps
+mkdir -p $PACKAGE_ICONS_DIR/1024x1024/apps
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 64 -h 64 -o $PACKAGE_ICONS_DIR/64x64/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 128 -h 128 -o $PACKAGE_ICONS_DIR/128x128/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 256 -h 256 -o $PACKAGE_ICONS_DIR/256x256/apps/com.xronlinux.BreezyDesktop.png
+rsvg-convert data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg -w 1024 -h 1024 -o $PACKAGE_ICONS_DIR/1024x1024/apps/com.xronlinux.BreezyDesktop.png
+
+pushd $BUILD_PATH
+
+tar -zcvf breezyUI-$ARCH.tar.gz breezy_ui
+
+popd
+
+mkdir -p out
+cp $BUILD_PATH/breezyUI-$ARCH.tar.gz out/
+
+rm -rf $BUILD_PATH

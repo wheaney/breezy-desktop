@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-01 13:21-0700\n"
+"POT-Creation-Date: 2024-10-03 21:26-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -31,11 +31,11 @@ msgstr ""
 "Cette fonctionnalité n'est actuellement pas prise en charge par votre "
 "appareil."
 
-#: src/licensedialog.py:57
+#: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
 msgstr "Statut de l'abonnement payant"
 
-#: src/licensedialog.py:63
+#: src/licensedialogcontent.py:71
 msgid "Feature Availability"
 msgstr "Disponibilité des fonctionnalités"
 
@@ -356,21 +356,21 @@ msgstr ""
 "exécuter à nouveau le script de configuration. Signalez ce problème s'il "
 "persiste."
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
-msgid "License Details"
-msgstr "Détails de la licence"
-
-#: src/gtk/license-dialog.ui:27
+#: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
 msgstr "Faire un don"
 
-#: src/gtk/license-dialog.ui:44
+#: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
 msgstr "Demander un jeton d'authentification"
 
-#: src/gtk/license-dialog.ui:52
+#: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
 msgstr "Vérifier le jeton d'authentification"
+
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+msgid "License Details"
+msgstr "Détails de la licence"
 
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
@@ -470,22 +470,22 @@ msgstr "Breezy Desktop"
 msgid "Menu"
 msgstr "Menu"
 
-#: src/gtk/window.ui:35
+#: src/gtk/window.ui:43
 msgid "Some features expire soon"
 msgstr "Certaines fonctionnalités expirent bientôt"
 
-#: src/gtk/window.ui:36 src/gtk/window.ui:43
+#: src/gtk/window.ui:51 src/gtk/window.ui:76
 msgid "View details"
 msgstr "Afficher les détails"
 
-#: src/gtk/window.ui:42
+#: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
 msgstr "Les fonctionnalités de productivité sont désactivées"
 
-#: src/gtk/window.ui:59
+#: src/gtk/window.ui:95
 msgid "Force Reset"
 msgstr "Réinitialiser"
 
-#: src/gtk/window.ui:63
+#: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "À propos de BreezyDesktop"

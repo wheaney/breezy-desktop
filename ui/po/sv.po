@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-01 13:21-0700\n"
+"POT-Creation-Date: 2024-10-03 21:26-0700\n"
 "PO-Revision-Date: 2024-08-16 10:31-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -29,11 +29,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Din enhet stöder inte den här funktionen för tillfället."
 
-#: src/licensedialog.py:57
+#: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
 msgstr "Betalningsstatus"
 
-#: src/licensedialog.py:63
+#: src/licensedialogcontent.py:71
 msgid "Feature Availability"
 msgstr "Funktions tillgänglighet"
 
@@ -349,21 +349,21 @@ msgstr ""
 "Din Breezy GNOME inställning är ogiltig eller ofullständig. Var god kör "
 "inställning skriptet igen. Rapportera detta problem om det fortsätter."
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
-msgid "License Details"
-msgstr "Licensdetaljer"
-
-#: src/gtk/license-dialog.ui:27
+#: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
 msgstr "Donera"
 
-#: src/gtk/license-dialog.ui:44
+#: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
 msgstr "Begär en token"
 
-#: src/gtk/license-dialog.ui:52
+#: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
 msgstr "Verifiera token"
+
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+msgid "License Details"
+msgstr "Licensdetaljer"
 
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
@@ -462,22 +462,22 @@ msgstr "Breezy Desktop"
 msgid "Menu"
 msgstr "Meny"
 
-#: src/gtk/window.ui:35
+#: src/gtk/window.ui:43
 msgid "Some features expire soon"
 msgstr "Vissa funktioner upphör snart"
 
-#: src/gtk/window.ui:36 src/gtk/window.ui:43
+#: src/gtk/window.ui:51 src/gtk/window.ui:76
 msgid "View details"
 msgstr "Se detaljer"
 
-#: src/gtk/window.ui:42
+#: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
 msgstr "Produktivitets funktioner är inaktiverade"
 
-#: src/gtk/window.ui:59
+#: src/gtk/window.ui:95
 msgid "Force Reset"
 msgstr "Tvinga Reset"
 
-#: src/gtk/window.ui:63
+#: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Om BreezyDesktop"

@@ -17,12 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import gettext
-import gi
-import locale
-import logging
 import os
 import sys
+
+lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
+sys.path.insert(0, lib_dir)
+
+import gi
+import logging
 import argparse
 
 from logging.handlers import TimedRotatingFileHandler
@@ -31,15 +33,6 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-po_dir = os.path.join(script_dir, 'po')
-locale_dir = os.environ.get('LOCALE_DIR', '/app/share/locale')
-
-locale.setlocale(locale.LC_ALL, locale.getdefaultlocale())
-locale.bindtextdomain('breezydesktop', locale_dir)
-gettext.bindtextdomain('breezydesktop', locale_dir)
-gettext.textdomain('breezydesktop')
 
 from gi.repository import Adw, Gtk, Gio
 from .licensedialog import LicenseDialog
@@ -74,14 +67,16 @@ XRDriverIPC.set_instance(XRDriverIPC(logger, config_dir))
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
 
-    def __init__(self, skip_verification):
+    def __init__(self, version, skip_verification):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+        self.version = version
+
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
         self.create_action('reset_driver', self.on_reset_driver_action)
-        self._skip_verification = skip_verification
+        self._skip_verification = skip_verification or False
 
         # always do this on start-up since the driver sometimes fails to update the license on boot,
         # prevent showing a license warning unnecessarily
@@ -106,7 +101,7 @@ class BreezydesktopApplication(Adw.Application):
                                 modal=True,
                                 program_name='Breezy Desktop',
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
-                                version='1.0.0',
+                                version=self.version,
                                 authors=['Wayne Heaney'],
                                 copyright='© 2024 Wayne Heaney')
         about.present()
@@ -150,5 +145,5 @@ def main(version):
     parser.add_argument("-sv", "--skip-verification", action="store_true")
     args = parser.parse_args()
 
-    app = BreezydesktopApplication(args.skip_verification)
+    app = BreezydesktopApplication(version, args.skip_verification)
     return app.run(None)

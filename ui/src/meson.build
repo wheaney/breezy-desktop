@@ -34,6 +34,7 @@ breezydesktop_sources = [
   'failedverification.py',
   'license.py',
   'licensedialog.py',
+  'licensedialogcontent.py',
   'licensefeaturerow.py',
   'licensetierrow.py',
   'main.py',
