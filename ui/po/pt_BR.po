@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-01 13:21-0700\n"
+"POT-Creation-Date: 2024-10-03 21:26-0700\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
@@ -30,11 +30,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Este recurso não é atualmente suportado para o seu dispositivo."
 
-#: src/licensedialog.py:57
+#: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
 msgstr "Status do Nível Pago"
 
-#: src/licensedialog.py:63
+#: src/licensedialogcontent.py:71
 msgid "Feature Availability"
 msgstr "Disponibilidade de Recursos"
 
@@ -339,7 +339,8 @@ msgstr "Redimensionamento de Texto"
 
 #: src/gtk/connected-device.ui:397
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr "Redimensionar o texto abaixo de 1.0 simulará uma tela de resolução mais alta"
+msgstr ""
+"Redimensionar o texto abaixo de 1.0 simulará uma tela de resolução mais alta"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -354,21 +355,21 @@ msgstr ""
 "execute novamente o script de configuração. Relate este problema se "
 "persistir."
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
-msgid "License Details"
-msgstr "Detalhes da Licença"
-
-#: src/gtk/license-dialog.ui:27
+#: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
 msgstr "Doar"
 
-#: src/gtk/license-dialog.ui:44
+#: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
 msgstr "Solicitar um token"
 
-#: src/gtk/license-dialog.ui:52
+#: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
 msgstr "Verificar token"
+
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+msgid "License Details"
+msgstr "Detalhes da Licença"
 
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
@@ -466,22 +467,22 @@ msgstr "Breezy Desktop"
 msgid "Menu"
 msgstr "Menu"
 
-#: src/gtk/window.ui:35
+#: src/gtk/window.ui:43
 msgid "Some features expire soon"
 msgstr "Algumas funcionalidades expirarão em breve"
 
-#: src/gtk/window.ui:36 src/gtk/window.ui:43
+#: src/gtk/window.ui:51 src/gtk/window.ui:76
 msgid "View details"
 msgstr "Ver detalhes"
 
-#: src/gtk/window.ui:42
+#: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
 msgstr "As funcionalidades de produtividade estão desabilitadas"
 
-#: src/gtk/window.ui:59
+#: src/gtk/window.ui:95
 msgid "Force Reset"
 msgstr "Forçar redefinição"
 
-#: src/gtk/window.ui:63
+#: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Sobre o BreezyDesktop"

@@ -33,3 +33,6 @@ sed -i "/Exec/c\Exec=$XDG_BIN_HOME/breezydesktop" $XDG_DATA_HOME/applications/co
 glib-compile-schemas $XDG_DATA_HOME/glib-2.0/schemas
 update-desktop-database $XDG_DATA_HOME/applications
 gtk-update-icon-cache
+
+popd > /dev/null
+rm -rf $tmp_dir

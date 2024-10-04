@@ -67,9 +67,11 @@ XRDriverIPC.set_instance(XRDriverIPC(logger, config_dir))
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
 
-    def __init__(self, skip_verification):
+    def __init__(self, version, skip_verification):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+        self.version = version
+
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('license', self.on_license_action)
@@ -99,7 +101,7 @@ class BreezydesktopApplication(Adw.Application):
                                 modal=True,
                                 program_name='Breezy Desktop',
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
-                                version='1.0.0',
+                                version=self.version,
                                 authors=['Wayne Heaney'],
                                 copyright='© 2024 Wayne Heaney')
         about.present()
@@ -143,5 +145,5 @@ def main(version):
     parser.add_argument("-sv", "--skip-verification", action="store_true")
     args = parser.parse_args()
 
-    app = BreezydesktopApplication(args.skip_verification)
+    app = BreezydesktopApplication(version, args.skip_verification)
     return app.run(None)
