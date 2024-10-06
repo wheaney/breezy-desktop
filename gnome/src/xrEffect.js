@@ -324,8 +324,11 @@ export const XREffect = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        this._is_display_distance_at_end = false;
         this._distance_ease_timeline = null;
+        this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
+        this._handle_display_distance_properties_change();
 
         const calibrating = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
         this.calibratingImage = new Clutter.Image();
@@ -336,6 +339,12 @@ export const XREffect = GObject.registerClass({
         this.customBannerImage = new Clutter.Image();
         this.customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
                                         customBanner.width, customBanner.height, customBanner.rowstride);
+    }
+
+    _handle_display_distance_properties_change() {
+        const distance_from_end = Math.abs(this.display_distance - this.toggle_display_distance_end);
+        const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);
+        this._is_display_distance_at_end = distance_from_end < distance_from_start;
     }
 
     _change_distance() {
@@ -351,7 +360,6 @@ export const XREffect = GObject.registerClass({
                 this._distance_ease_timeline.get_progress() * 
                 (toggle_display_distance_target - this._distance_ease_start);
         });
-        this._is_display_distance_at_end = !this._is_display_distance_at_end;
 
         this._distance_ease_timeline.start();
     }
