@@ -6,7 +6,6 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { 
     dataViewEnd,
@@ -134,6 +133,7 @@ function setIntermittentUniformVariables() {
             const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
             const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
+            const texture_actor = this.get_actor();
             if (enabled) {
                 const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
 
@@ -168,11 +168,15 @@ function setIntermittentUniformVariables() {
                         texcoordXLimitsRight[1] = 0.75;
                     }
                 }
+                const monitor_coords_relative = [texture_actor.x - this.target_monitor.x, texture_actor.y - this.target_monitor.y];
+
+                Globals.logger.log(`texture_actor: ${texture_actor.x}, ${texture_actor.y}, ${texture_actor.width}, ${texture_actor.height}`);
+
                 const texcoordVisibleArea = [
-                    this.target_monitor.x / Main.layoutManager.uiGroup.width,
-                    this.target_monitor.y / Main.layoutManager.uiGroup.height,
-                    (this.target_monitor.x + this.target_monitor.width) / Main.layoutManager.uiGroup.width,
-                    (this.target_monitor.y + this.target_monitor.height) / Main.layoutManager.uiGroup.height
+                    monitor_coords_relative[0] / texture_actor.width,
+                    monitor_coords_relative[1] / texture_actor.height,
+                    (monitor_coords_relative[0] + this.target_monitor.width) / texture_actor.width,
+                    (monitor_coords_relative[1] + this.target_monitor.height) / texture_actor.height
                 ]
 
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
@@ -219,8 +223,8 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'sideview_display_size', 1.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
-            Globals.logger.log_debug(`Source resolution ${Main.layoutManager.uiGroup.width}x${Main.layoutManager.uiGroup.height}`);
-            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [Main.layoutManager.uiGroup.width/displayRes[0], Main.layoutManager.uiGroup.height/displayRes[1]]);
+            Globals.logger.log_debug(`Source resolution ${texture_actor.width}x${texture_actor.height}`);
+            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [texture_actor.width/displayRes[0], texture_actor.height/displayRes[1]]);
         } else if (dataView.byteLength !== 0) {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
