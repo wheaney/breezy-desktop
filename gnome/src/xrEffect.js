@@ -68,6 +68,7 @@ const shaderUniformLocations = {
     'fov_widths': null,
     'display_resolution': null,
     'source_to_display_ratio': null,
+    'texcoord_visible_area': null,
     'curved_display': null,
 
     // only used by the reshade integration, but needs to be set to a default value by this effect
@@ -167,6 +168,13 @@ function setIntermittentUniformVariables() {
                         texcoordXLimitsRight[1] = 0.75;
                     }
                 }
+                const texcoordVisibleArea = [
+                    this.target_monitor.x / Main.layoutManager.uiGroup.width,
+                    this.target_monitor.y / Main.layoutManager.uiGroup.height,
+                    (this.target_monitor.x + this.target_monitor.width) / Main.layoutManager.uiGroup.width,
+                    (this.target_monitor.y + this.target_monitor.height) / Main.layoutManager.uiGroup.height
+                ]
+
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
                 const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 
@@ -185,9 +193,10 @@ function setIntermittentUniformVariables() {
                 setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
                 this.set_uniform_float(shaderUniformLocations['fov_half_widths'], 2, fovHalfWidths);
                 this.set_uniform_float(shaderUniformLocations['fov_widths'], 2, fovWidths);
-                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
                 this.set_uniform_float(shaderUniformLocations['texcoord_x_limits'], 2, texcoordXLimits);
                 this.set_uniform_float(shaderUniformLocations['texcoord_x_limits_r'], 2, texcoordXLimitsRight);
+                this.set_uniform_float(shaderUniformLocations['texcoord_visible_area'], 4, texcoordVisibleArea);
+                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
                 this.set_uniform_float(shaderUniformLocations['lens_vector'], 3, lensVector);
                 this.set_uniform_float(shaderUniformLocations['lens_vector_r'], 3, lensVectorRight);
             }
