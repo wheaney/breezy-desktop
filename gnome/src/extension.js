@@ -255,8 +255,9 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
 
+                const textureSourceActor = Main.layoutManager.uiGroup;
                 const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-                this._ui_clone = new Clutter.Clone({ source: Main.layoutManager.uiGroup });
+                this._ui_clone = new Clutter.Clone({ source: textureSourceActor });
                 this._ui_clone.x = -targetMonitor.x;
                 this._ui_clone.y = -targetMonitor.y;
                 overlayContent.add_child(this._ui_clone);
@@ -280,6 +281,10 @@ export default class BreezyDesktopExtension extends Extension {
                 this._xr_effect = new XREffect({
                     target_monitor: targetMonitor,
                     target_framerate: refreshRate,
+                    texture_monitor_position: { 
+                        x: targetMonitor.x - textureSourceActor.x, 
+                        y: targetMonitor.y - textureSourceActor.y
+                    },
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),

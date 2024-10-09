@@ -168,15 +168,14 @@ function setIntermittentUniformVariables() {
                         texcoordXLimitsRight[1] = 0.75;
                     }
                 }
-                const monitor_coords_relative = [texture_actor.x - this.target_monitor.x, texture_actor.y - this.target_monitor.y];
 
                 Globals.logger.log(`texture_actor: ${texture_actor.x}, ${texture_actor.y}, ${texture_actor.width}, ${texture_actor.height}`);
 
                 const texcoordVisibleArea = [
-                    monitor_coords_relative[0] / texture_actor.width,
-                    monitor_coords_relative[1] / texture_actor.height,
-                    (monitor_coords_relative[0] + this.target_monitor.width) / texture_actor.width,
-                    (monitor_coords_relative[1] + this.target_monitor.height) / texture_actor.height
+                    this.texture_monitor_position.x / texture_actor.width,
+                    this.texture_monitor_position.y / texture_actor.height,
+                    (this.texture_monitor_position.x + this.target_monitor.width) / texture_actor.width,
+                    (this.texture_monitor_position.y + this.target_monitor.height) / texture_actor.height
                 ]
 
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
@@ -184,8 +183,8 @@ function setIntermittentUniformVariables() {
 
                 // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
                 // underneath, so we trim three pixels around the entire edge of the texture
-                const trimWidthPercent = 3.0 / this.target_monitor.width;
-                const trimHeightPercent = 3.0 / this.target_monitor.height;
+                const trimWidthPercent = 3.0 / texture_actor.width;
+                const trimHeightPercent = 3.0 / texture_actor.height;
                 
                 // all these values are transferred directly, unmodified from the driver
                 transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
@@ -267,6 +266,12 @@ export const XREffect = GObject.registerClass({
             'Target Framerate', 
             'Target framerate for this effect',
             GObject.ParamFlags.READWRITE, 30, 240, 60
+        ),
+        'texture-monitor-position': GObject.ParamSpec.jsobject(
+            'texture-monitor-position',
+            'Texture Monitor Position',
+            'Coordinates of the monitor relative to the target actor texture',
+            GObject.ParamFlags.READWRITE
         ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
