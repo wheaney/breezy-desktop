@@ -280,7 +280,6 @@ export const MonitorManager = GObject.registerClass({
 
         this._monitorsChangedConnection = null;
         this._displayConfigProxy = null;
-        this._backendManager = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
         this._needsConfigCheck = this.use_optimal_monitor_config;
@@ -292,7 +291,6 @@ export const MonitorManager = GObject.registerClass({
 
     enable() {
         Globals.logger.log_debug('MonitorManager enable');
-        this._backendManager = global.backend.get_monitor_manager();
         newDisplayConfig(this.extension_path, ((proxy, error) => {
             if (error) {
                 return;
@@ -310,7 +308,6 @@ export const MonitorManager = GObject.registerClass({
 
         this._monitorsChangedConnection = null;
         this._displayConfigProxy = null;
-        this._backendManager = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
     }
@@ -402,7 +399,7 @@ export const MonitorManager = GObject.registerClass({
             const monitorProperties = [];
             for (let i = 0; i < result.length; i++) {
                 const [monitorName, connectorName, vendor, product, serial, refreshRate] = result[i];
-                const monitorIndex = this._backendManager.get_monitor_for_connector(connectorName);
+                const monitorIndex = global.backend.get_monitor_manager().get_monitor_for_connector(connectorName);
                 Globals.logger.log_debug(`Found monitor ${monitorName}, vendor ${vendor}, product ${product}, serial ${serial}, connector ${connectorName}, index ${monitorIndex}`);
                 if (monitorIndex >= 0) {
                     monitorProperties[monitorIndex] = {

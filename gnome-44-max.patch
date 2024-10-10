@@ -70,10 +70,10 @@ index 44b3f5f..fa65a4a 100644
      }
  
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index 5f62bfd..d06f91c 100644
+index 29a38f1..0a7e9ae 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
-@@ -1,19 +1,21 @@
+@@ -1,20 +1,22 @@
 -import Clutter from 'gi://Clutter'
 -import Gio from 'gi://Gio';
 -import GLib from 'gi://GLib';
@@ -85,6 +85,7 @@ index 5f62bfd..d06f91c 100644
 -import Globals from './globals.js';
 -import { Logger } from './logger.js';
 -import { MonitorManager } from './monitormanager.js';
+-import { SystemBackground } from './systembackground.js';
 -import { isValidKeepAlive } from './time.js';
 -import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 -
@@ -106,12 +107,13 @@ index 5f62bfd..d06f91c 100644
 +const { CursorManager } = Me.imports.cursormanager;
 +const { Logger } = Me.imports.logger;
 +const { MonitorManager } = Me.imports.monitormanager;
++const { SystemBackground } = Me.imports.systembackground;
 +const { isValidKeepAlive } = Me.imports.time;
 +const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
  
  const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
  const SUPPORTED_MONITOR_PRODUCTS = [
-@@ -29,11 +31,10 @@ const SUPPORTED_MONITOR_PRODUCTS = [
+@@ -30,11 +32,10 @@ const SUPPORTED_MONITOR_PRODUCTS = [
      NESTED_MONITOR_PRODUCT
  ];
  
@@ -127,7 +129,7 @@ index 5f62bfd..d06f91c 100644
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -619,6 +620,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -621,6 +622,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -270,7 +272,7 @@ index 125954e..c888f94 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/monitormanager.js b/gnome-44-max/src/monitormanager.js
-index ca8a6a5..075ba63 100644
+index 6cf5532..580925c 100644
 --- a/gnome-44-max/src/monitormanager.js
 +++ b/gnome-44-max/src/monitormanager.js
 @@ -16,12 +16,15 @@
@@ -324,6 +326,31 @@ index f70c96d..352be40 100644
      const file = Gio.file_new_for_path(path);
      const data = file.load_contents(null);
  
+diff --git a/gnome-44-max/src/systembackground.js b/gnome-44-max/src/systembackground.js
+index 23039b9..350f32d 100644
+--- a/gnome-44-max/src/systembackground.js
++++ b/gnome-44-max/src/systembackground.js
+@@ -1,13 +1,14 @@
+-import Cogl from 'gi://Cogl';
+-import GLib from 'gi://GLib';
+-import GObject from 'gi://GObject';
+-import Meta from 'gi://Meta';
++const Clutter = imports.gi.Clutter;
++const Cogl = imports.gi.Cogl;
++const GLib = imports.gi.GLib;
++const GObject = imports.gi.GObject;
++const Meta = imports.gi.Meta;
+ 
+-const DEFAULT_BACKGROUND_COLOR = new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
++const DEFAULT_BACKGROUND_COLOR = Clutter.Color.from_pixel(0x2e3436ff);
+ 
+ let _systemBackground;
+ 
+-export const SystemBackground = GObject.registerClass({
++var SystemBackground = GObject.registerClass({
+     Signals: {'loaded': {}},
+ }, class SystemBackground extends Meta.BackgroundActor {
+     _init() {
 diff --git a/gnome-44-max/src/time.js b/gnome-44-max/src/time.js
 index 7883b9b..5478d2a 100644
 --- a/gnome-44-max/src/time.js
@@ -345,7 +372,7 @@ index 7883b9b..5478d2a 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/xrEffect.js b/gnome-44-max/src/xrEffect.js
-index 6b1421b..7d36c46 100644
+index 8590e0f..4394f43 100644
 --- a/gnome-44-max/src/xrEffect.js
 +++ b/gnome-44-max/src/xrEffect.js
 @@ -1,13 +1,15 @@
@@ -401,7 +428,7 @@ index 6b1421b..7d36c46 100644
      Properties: {
          'supported-device-detected': GObject.ParamSpec.boolean(
              'supported-device-detected',
-@@ -372,8 +374,13 @@ export const XREffect = GObject.registerClass({
+@@ -380,8 +382,13 @@ export const XREffect = GObject.registerClass({
              if (!this._initialized) {
                  this.set_uniform_float(this.get_uniform_location('screenTexture'), 1, [0]);
  
