@@ -15,20 +15,14 @@ var CursorManager = class CursorManager {
         this._refreshRate = refreshRate;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
-        this._cursorWantedVisible = null;
         this._cursorTracker = null;
-        this._cursorTrackerSetPointerVisible = null;
-        this._cursorTrackerSetPointerVisibleBound = null;
-        this._cursorSprite = null;
-        this._cursorActor = null;
-        this._cursorWatcher = null;
-        this._cursorSeat = null;
+        this._mouseSprite = null;
+        this._cursorRoot = null;
         this._cursorUnfocusInhibited = false;
 
         // Set/destroyed by _startCloningMouse / _stopCloningMouse
         this._cursorWatch = null;
         this._cursorChangedConnection = null;
-        this._cursorVisibilityChangedConnection = null;
         this._redraw_timeline = null;
     }
 
@@ -63,21 +57,31 @@ var CursorManager = class CursorManager {
     _enableCloningMouse() {
         Globals.logger.log_debug('CursorManager _enableCloningMouse');
         this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
-        this._cursorWantedVisible = this._cursorTracker.get_pointer_visible();
-        this._cursorTrackerSetPointerVisible = Meta.CursorTracker.prototype.set_pointer_visible;
-        this._cursorTrackerSetPointerVisibleBound = this._cursorTrackerSetPointerVisible.bind(this._cursorTracker);
-        Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisibleReplacement.bind(this);
 
-        this._cursorTrackerSetPointerVisibleBound(false);
+        this._mouseSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
+        this._mouseSprite.content = new MouseSpriteContent();
 
-        this._cursorSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
-        this._cursorSprite.content = new MouseSpriteContent();
-
-        this._cursorActor = new Clutter.Actor();
-        this._cursorActor.add_child(this._cursorSprite);
-        this._cursorWatcher = PointerWatcher.getPointerWatcher();
-        this._cursorSeat = Clutter.get_default_backend().get_default_seat();
+        this._cursorRoot = new Clutter.Actor();
+        this._cursorRoot.add_child(this._mouseSprite);
     }
+
+    _hideSystemCursor() {
+        const seat = Clutter.get_default_backend().get_default_seat();
+
+        if (!this._cursorUnfocusInhibited) {
+            seat.inhibit_unfocus();
+            this._cursorUnfocusInhibited = true;
+        }
+
+        if (!this._cursorVisibilityChangedId) {
+            this._cursorTracker.set_pointer_visible(false);
+            this._cursorVisibilityChangedId = this._cursorTracker.connect('visibility-changed', (() => {
+                if (this._cursorTracker.get_pointer_visible())
+                    this._cursorTracker.set_pointer_visible(false);
+            }).bind(this));
+        }
+    }
+
 
     // After this:
     // * real cursor enabled, manages its own visibility
@@ -88,34 +92,15 @@ var CursorManager = class CursorManager {
     _disableCloningMouse() {
         Globals.logger.log_debug('CursorManager _disableCloningMouse');
         this._stopCloningMouse();
-        Meta.CursorTracker.prototype.set_pointer_visible = this._cursorTrackerSetPointerVisible;
-        this._cursorTracker.set_pointer_visible(this._cursorWantedVisible);
 
-        if (this._cursorSprite) {
-            this._cursorSprite.content = null;
-            if (this._cursorActor) this._cursorActor.remove_child(this._cursorSprite);
+        if (this._mouseSprite) {
+            this._mouseSprite.content = null;
+            if (this._cursorRoot) this._cursorRoot.remove_child(this._mouseSprite);
         }
 
-        this._cursorWantedVisible = null;
         this._cursorTracker = null;
-        this._cursorTrackerSetPointerVisible = null;
-        this._cursorTrackerSetPointerVisibleBound = null;
-        this._cursorSprite = null;
-        this._cursorActor = null;
-        this._cursorWatcher = null;
-        this._cursorSeat = null;
-    }
-
-    // bound to Meta.CursorTracker.prototype.set_pointer_visible when cloning is "on"
-    // original function available in this._cursorTrackerSetPointerVisibleBound
-    _cursorTrackerSetPointerVisibleReplacement(visible) {
-        Globals.logger.log_debug('CursorManager _cursorTrackerSetPointerVisibleReplacement');
-        this._cursorWantedVisible = visible;
-        if (visible) {
-            this._startCloningMouse();
-        } else {
-            this._stopCloningMouse();
-        }
+        this._mouseSprite = null;
+        this._cursorRoot = null;
     }
 
     // After this:
@@ -124,45 +109,20 @@ var CursorManager = class CursorManager {
     // * clone cursor is visible
     // 
     // add the clone cursor actor, watch for pointer movement and cursor changes, reflect them in the cloned cursor
-    // prereqs: setup in _enableCloningMouse, _cursorWantedVisible is true
+    // prereqs: setup in _enableCloningMouse
     _startCloningMouse() {
         Globals.logger.log_debug('CursorManager _startCloningMouse');
-        this._mainActor.add_child(this._cursorActor);
-        this._cursorChangedConnection = this._cursorTracker.connect('cursor-changed', this._queueSpriteUpdate.bind(this));
-        this._cursorVisibilityChangedConnection = this._cursorTracker.connect('visibility-changed', this._queueVisibilityUpdate.bind(this));
+        this._mainActor.add_child(this._cursorRoot);
 
-        const interval = 1000.0 / this._refreshRate;
-        this._redraw_timeline = Clutter.Timeline.new_for_actor(this._mainActor, interval * 10);
-        this._redraw_timeline.connect('new-frame', (() => {
-            this.handleNewFrame();
-        }).bind(this));
+        this._updateMouseSprite();
+        this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
+        Meta.disable_unredirect_for_display(global.display);
 
-        // Some elements will occasionally appear above the cursor, so we periodically reset the actor stacking.
-        // This could theoretically be fixed "better" by attaching to all events that might affect actor ordering,
-        // but finding a comprehensive list is difficult and not future proof. So this ugly solution helps us
-        // catch everything.
-        this._redraw_timeline.connect('completed', (() => {
-            this._periodicReset();
-        }).bind(this));
+        const interval = 1000.0 / 60;
+        this._cursorWatch = PointerWatcher.getPointerWatcher().addWatch(interval, this._updateMousePosition.bind(this));
+        this._updateMousePosition();
 
-        this._redraw_timeline.set_repeat_count(-1);
-        this._redraw_timeline.start();
-
-        this._cursorWatch = this._cursorWatcher.addWatch(interval, this._queuePositionUpdate.bind(this));
-
-        const [x, y] = global.get_pointer();
-        this._queuePositionUpdate(x, y);
-        this._queueSpriteUpdate();
-
-        if (this._cursorTracker.set_keep_focus_while_hidden) {
-            this._cursorTracker.set_keep_focus_while_hidden(true);
-        }
-
-        if (!this._cursorUnfocusInhibited) {
-            Globals.logger.log_debug('inhibit_unfocus');
-            this._cursorSeat.inhibit_unfocus();
-            this._cursorUnfocusInhibited = true;
-        }
+        this._hideSystemCursor();
     }
 
     // After this:
@@ -178,14 +138,13 @@ var CursorManager = class CursorManager {
             this._cursorWatch = null;
         }
 
+        this._cursorTracker.disconnectObject(this);
+        this._mouseSprite.content.texture = null;
+        Meta.enable_unredirect_for_display(global.display);
+
         if (this._cursorChangedConnection) {
             this._cursorTracker.disconnect(this._cursorChangedConnection);
             this._cursorChangedConnection = null;
-        }
-
-        if (this._cursorVisibilityChangedConnection) {
-            this._cursorTracker.disconnect(this._cursorVisibilityChangedConnection);
-            this._cursorVisibilityChangedConnection = null;
         }
 
         if (this._redraw_timeline) {
@@ -193,80 +152,65 @@ var CursorManager = class CursorManager {
             this._redraw_timeline = null;
         }
 
-        if (this._cursorActor) this._mainActor.remove_child(this._cursorActor);
+        if (this._cursorRoot) this._mainActor.remove_child(this._cursorRoot);
+
+        this._showSystemCursor();
+    }
+
+    _showSystemCursor() {
+        const seat = Clutter.get_default_backend().get_default_seat();
 
         if (this._cursorUnfocusInhibited) {
-            Globals.logger.log_debug('uninhibit_unfocus');
-            this._cursorSeat.uninhibit_unfocus();
+            seat.uninhibit_unfocus();
             this._cursorUnfocusInhibited = false;
         }
-    }
 
-    _queuePositionUpdate(x, y) {
-        this._queued_cursor_position = [x, y];
-    }
+        if (this._cursorVisibilityChangedId) {
+            this._cursorTracker.disconnect(this._cursorVisibilityChangedId);
+            delete this._cursorVisibilityChangedId;
 
-    _queueSpriteUpdate() {
-        this._queued_sprite_update = true;
-    }
-
-    _queueVisibilityUpdate() {
-        this._queued_visibility_update = true;
-        if (this._cursorTrackerSetPointerVisibleBound) this._cursorTrackerSetPointerVisibleBound(false);
-        this._queueSpriteUpdate();
-    }
-
-    // updates the stacking and other attributes that are hard to track and may periodically get out of sync
-    _periodicReset() {
-        this._queue_reset = true;
-        this._queueVisibilityUpdate();
-    }
-
-    handleNewFrame() {
-        let redraw = false;
-        if (this._queued_cursor_position) {
-            const [x, y] = this._queued_cursor_position;
-            this._cursorActor.set_position(x, y);
-            this._queued_cursor_position = null;
-            redraw = true;
+            this._cursorTracker.set_pointer_visible(true);
         }
+    }
 
-        if (this._queued_sprite_update) {
-            const sprite = this._cursorTracker.get_sprite();
-            if (sprite) {
-                this._cursorSprite.content.texture = sprite;
-                this._cursorSprite.show();
-            } else {
-                this._cursorSprite.hide();
-            }
-    
-            const [xHot, yHot] = this._cursorTracker.get_hot();
-            this._cursorSprite.set({
-                translation_x: -xHot,
-                translation_y: -yHot,
-            });
-            this._queued_sprite_update = false;
-            redraw = true;
+    _updateMousePosition(...args) {
+        const [xMouse, yMouse] = args.length ? args : global.get_pointer();
+
+        if (xMouse === this.xMouse && yMouse === this.yMouse)
+            return;
+
+        this.xMouse = xMouse;
+        this.yMouse = yMouse;
+
+        this._cursorRoot.set_position(xMouse, yMouse);
+
+        if (this._mainActor.get_last_child() !== this._cursorRoot)
+            this._mainActor.set_child_above_sibling(this._cursorRoot,  null);
+
+        const seat = Clutter.get_default_backend().get_default_seat();
+        if (!seat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
+            Globals.logger.log_debug('reinhibiting');
+            seat.inhibit_unfocus();
         }
+    }
 
-        if (this._queued_visibility_update) {
-            this._queued_visibility_update = false;
-            redraw = true;
+    _updateMouseSprite() {
+        this._updateSpriteTexture();
+        let [xHot, yHot] = this._cursorTracker.get_hot();
+        this._mouseSprite.set({
+            translation_x: -xHot,
+            translation_y: -yHot,
+        });
+    }
+
+    _updateSpriteTexture() {
+        let sprite = this._cursorTracker.get_sprite();
+
+        if (sprite) {
+            this._mouseSprite.content.texture = sprite;
+            this._mouseSprite.show();
+        } else {
+            this._mouseSprite.hide();
         }
-
-        if (this._queue_reset) {
-            if (this._mainActor.get_last_child() !== this._cursorActor)
-                this._mainActor.set_child_above_sibling(this._cursorActor,  null);
-
-            // some other processes are uninhibiting when they shouldn't, so we need to re-inhibit here
-            if (!this._cursorSeat.is_unfocus_inhibited() && this._cursorUnfocusInhibited) {
-                Globals.logger.log_debug('reinhibiting');
-                this._cursorSeat.inhibit_unfocus();
-            }
-            this._queue_reset = false;
-            redraw = true;
-        }
-
-        return redraw;
     }
 }

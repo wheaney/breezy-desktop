@@ -1,5 +1,4 @@
 const Clutter = imports.gi.Clutter;
-const Cogl = imports.gi.Cogl;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
