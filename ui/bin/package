@@ -37,6 +37,7 @@ mkdir -p $PACKAGE_APPS_DIR
 mkdir -p $PACKAGE_SCHEMAS_DIR
 
 cp src/*.py $PACKAGE_BREEZY_SRC_DIR
+cp -r lib $PACKAGE_BREEZY_SRC_DIR
 cp -L modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_BREEZY_SRC_DIR
 cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_BREEZY_DIR
 cp -r po/mo/* $PACKAGE_LOCALE_DIR

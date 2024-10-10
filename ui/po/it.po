@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-01 13:21-0700\n"
+"POT-Creation-Date: 2024-10-03 21:26-0700\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -27,11 +27,11 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/licensedialog.py:57
+#: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
 msgstr ""
 
-#: src/licensedialog.py:63
+#: src/licensedialogcontent.py:71
 msgid "Feature Availability"
 msgstr ""
 
@@ -331,20 +331,20 @@ msgid ""
 "script. Report this issue if it persists."
 msgstr ""
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:55
-msgid "License Details"
-msgstr ""
-
-#: src/gtk/license-dialog.ui:27
+#: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
 msgstr ""
 
-#: src/gtk/license-dialog.ui:44
+#: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
 msgstr ""
 
-#: src/gtk/license-dialog.ui:52
+#: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
+msgstr ""
+
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+msgid "License Details"
 msgstr ""
 
 #: src/gtk/no-device.ui:13
@@ -421,22 +421,22 @@ msgstr ""
 msgid "Menu"
 msgstr ""
 
-#: src/gtk/window.ui:35
+#: src/gtk/window.ui:43
 msgid "Some features expire soon"
 msgstr ""
 
-#: src/gtk/window.ui:36 src/gtk/window.ui:43
+#: src/gtk/window.ui:51 src/gtk/window.ui:76
 msgid "View details"
 msgstr ""
 
-#: src/gtk/window.ui:42
+#: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
 msgstr ""
 
-#: src/gtk/window.ui:59
+#: src/gtk/window.ui:95
 msgid "Force Reset"
 msgstr ""
 
-#: src/gtk/window.ui:63
+#: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr ""

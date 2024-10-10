@@ -36,10 +36,14 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
     main_content = Gtk.Template.Child()
     license_action_needed_banner = Gtk.Template.Child()
+    license_action_needed_button = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
+    missing_breezy_features_button = Gtk.Template.Child()
 
     def __init__(self, skip_verification, **kwargs):
         super().__init__(**kwargs)
+        
+        self._skip_verification = skip_verification
 
         self.state_manager = StateManager.get_instance()
         self.state_manager.connect('device-update', self._handle_state_update)
@@ -54,8 +58,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.no_extension = NoExtension()
         self.no_license = NoLicense()
 
-        self.license_action_needed_banner.connect('button-clicked', self._on_license_button_clicked)
-        self.missing_breezy_features_banner.connect('button-clicked', self._on_license_button_clicked)
+        self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
+        self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)
 
         self._handle_state_update(self.state_manager, None)
 
@@ -77,14 +81,14 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
         if not self._skip_verification and not verify_installation():
             self.main_content.append(self.failed_verification)
+        elif not ExtensionsManager.get_instance().is_installed():
+            self.main_content.append(self.no_extension)
         elif not self.state_manager.driver_running:
             self.main_content.append(self.no_driver)
         elif not self.state_manager.license_present:
             self.main_content.append(self.no_license)
         elif not state_manager.connected_device_name:
             self.main_content.append(self.no_device)
-        elif not ExtensionsManager.get_instance().is_installed():
-            self.main_content.append(self.no_extension)
         else:
             self.main_content.append(self.connected_device)
             self.connected_device.set_device_name(state_manager.connected_device_name)

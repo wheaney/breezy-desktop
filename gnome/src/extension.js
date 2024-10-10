@@ -14,6 +14,7 @@ const Globals = Me.imports.globals;
 const { CursorManager } = Me.imports.cursormanager;
 const { Logger } = Me.imports.logger;
 const { MonitorManager } = Me.imports.monitormanager;
+const { SystemBackground } = Me.imports.systembackground;
 const { isValidKeepAlive } = Me.imports.time;
 const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
 
@@ -251,23 +252,24 @@ class BreezyDesktopExtension {
                 this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate);
                 this._cursor_manager.enable();
 
-                this._overlay = new St.Bin();
-                this._overlay.opacity = 255;
+                const overlayContent = new Clutter.Actor({clip_to_allocation: true});
+
+                this._overlay = new St.Bin({
+                    child: overlayContent
+                });
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
-                Globals.logger.log_debug(`BreezyDesktopExtension _effect_enable overlay size: \
-                    ${targetMonitor.width}x${targetMonitor.height} at ${targetMonitor.x},${targetMonitor.y}`);
 
-                const overlayContent = new Clutter.Actor({clip_to_allocation: true});
+                global.stage.add_child(this._overlay);
+                Shell.util_set_hidden_from_pick(this._overlay, true);
+
+                this._background = new SystemBackground();
+                overlayContent.add_child(this._background);
+        
                 const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
                 uiClone.x = -targetMonitor.x;
                 uiClone.y = -targetMonitor.y;
                 overlayContent.add_child(uiClone);
-
-                this._overlay.set_child(overlayContent);
-
-                Shell.util_set_hidden_from_pick(this._overlay, true);
-                global.stage.add_child(this._overlay);
 
                 // In GS 45, use of "actor" was renamed to "child".
                 const clutterContainer = Clutter.Container !== undefined;
