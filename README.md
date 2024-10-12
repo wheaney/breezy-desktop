@@ -25,11 +25,13 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 1. If you've previously installed Breezy GNOME using the setup script, you must uninstall it first with `breezy_gnome_uninstall`
 2. `yay -S breezy-desktop-gnome-git`
 3. `systemctl --user enable --now xr-driver.service`
+4. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
 #### All other distros
 
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script: `~/Downloads/breezy_gnome_setup`
+3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
 ### Steam Deck desktop mode
 
