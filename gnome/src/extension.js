@@ -3,13 +3,12 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
-import St from 'gi://St';
 
 import { CursorManager } from './cursormanager.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
 import { MonitorManager } from './monitormanager.js';
-import { SystemBackground } from './systembackground.js';
+import { Overlay } from './overlay.js';
 import { isValidKeepAlive } from './time.js';
 import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
 
@@ -248,27 +247,10 @@ export default class BreezyDesktopExtension extends Extension {
             try {
                 const targetMonitor = this._target_monitor.monitor;
                 const refreshRate = targetMonitor.refreshRate ?? 60;
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate);
+                this._overlay = new Overlay(targetMonitor);
+
+                this._cursor_manager = new CursorManager(this._overlay, refreshRate);
                 this._cursor_manager.enable();
-
-                const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-
-                this._overlay = new St.Bin({
-                    child: overlayContent
-                });
-                this._overlay.set_position(targetMonitor.x, targetMonitor.y);
-                this._overlay.set_size(targetMonitor.width, targetMonitor.height);
-
-                global.stage.add_child(this._overlay);
-                Shell.util_set_hidden_from_pick(this._overlay, true);
-
-                this._background = new SystemBackground();
-                overlayContent.add_child(this._background);
-        
-                const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
-                uiClone.x = -targetMonitor.x;
-                uiClone.y = -targetMonitor.y;
-                overlayContent.add_child(uiClone);
 
                 // In GS 45, use of "actor" was renamed to "child".
                 const clutterContainer = Clutter.Container !== undefined;
@@ -312,7 +294,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
                 this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
-                this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
+                this._overlay.mainActor().add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
@@ -327,7 +309,7 @@ export default class BreezyDesktopExtension extends Extension {
 
     _handle_sibling_update() {
         Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        global.stage.set_child_above_sibling(this._overlay, null);
+        global.stage.set_child_above_sibling(this._overlay.mainActor(), null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -522,14 +504,6 @@ export default class BreezyDesktopExtension extends Extension {
                 global.stage.disconnect(this._actor_removed_connection);
                 this._actor_removed_connection = null;
             }
-            if (this._overlay) {
-                if (this._xr_effect) this._xr_effect.cleanup();
-                this._overlay.remove_effect_by_name('xr-desktop');
-
-                global.stage.remove_child(this._overlay);
-                this._overlay.destroy();
-                this._overlay = null;
-            }
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
                 this._distance_binding = null;
@@ -579,11 +553,16 @@ export default class BreezyDesktopExtension extends Extension {
                     this._xr_effect.disconnect(this._supported_device_detected_connected);
                     this._supported_device_detected_connected = null;
                 }
+                this._xr_effect.cleanup();
                 this._xr_effect = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
                 this._cursor_manager = null;
+            }
+            if (this._overlay) {
+                this._overlay.mainActor().remove_effect_by_name('xr-desktop');
+                this._overlay.destroy();
             }
 
             // this should always be done at the end of this function after the widescreen settings binding is removed,
