@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 21:26-0700\n"
+"POT-Creation-Date: 2024-10-18 11:45-0700\n"
 "PO-Revision-Date: 2024-08-16 10:31-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/connecteddevice.py:16
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -25,7 +25,7 @@ msgstr ""
 "Växlar dina glasögon till side-by-side-läget och dubblerar bredden på "
 "visningen."
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr "Din enhet stöder inte den här funktionen för tillfället."
 
@@ -238,43 +238,53 @@ msgid "Keyboard Shortcuts"
 msgstr "Tangentbordsgenvägar"
 
 #: src/gtk/connected-device.ui:218
-msgid "Re-center display shortcut"
-msgstr "Om-centrering tangentbordsgenväg"
+msgid "XR Effect on/off shortcut"
+msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
-msgstr "Fäst den virtuella skärmen i den nuvarande positionen."
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
+msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296
+#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
 msgstr "Ändra"
 
 #: src/gtk/connected-device.ui:247
+msgid "Re-center display shortcut"
+msgstr "Om-centrering tangentbordsgenväg"
+
+#: src/gtk/connected-device.ui:248
+msgid "Pin the virtual display to the current position."
+msgstr "Fäst den virtuella skärmen i den nuvarande positionen."
+
+#: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
 msgstr "Skärm avstånd genväg"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
 msgstr "Växla snabbt mellan två fördefinierade avstånd."
 
-#: src/gtk/connected-device.ui:276
+#: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
 msgstr "Växla följ läge kort"
 
-#: src/gtk/connected-device.ui:277
+#: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
 msgstr "Växla snabbt följ läge."
 
-#: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
 msgstr "Avancerade inställningar"
 
-#: src/gtk/connected-device.ui:321
+#: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
 msgstr "Hitta optimal konfiguration till skärmen"
 
-#: src/gtk/connected-device.ui:322
+#: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -282,29 +292,29 @@ msgstr ""
 "Ändrar automatisk glasögonens skärmkonfiguration för maximal upplösning och "
 "bästa skälning när den är ansluten."
 
-#: src/gtk/connected-device.ui:332
+#: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
 msgstr "Använd högsta uppdateringsfrekvens"
 
-#: src/gtk/connected-device.ui:333
+#: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "Uppdateringsfrekvens kan påverka prestanda, inaktivera detta för att ställa "
 "in det manuellt."
 
-#: src/gtk/connected-device.ui:343
+#: src/gtk/connected-device.ui:372
 msgid "Always primary display"
 msgstr "Alltid primär skärm"
 
-#: src/gtk/connected-device.ui:344
+#: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "Ställer automatisk glasögon som primär skärm när den är ansluten."
 
-#: src/gtk/connected-device.ui:354
+#: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
 msgstr "Snabb SBS läge växling"
 
-#: src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
@@ -312,11 +322,11 @@ msgstr ""
 "Växlar glasögon till SBS läge omedelbart när den är ansluten, om brevläge är "
 "på. Kan orsaka instabilitet."
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
 msgstr "Rörs förväntning"
 
-#: src/gtk/connected-device.ui:366
+#: src/gtk/connected-device.ui:395
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -325,15 +335,15 @@ msgstr ""
 "Motverkar ingångsfördröjning genom förutsägelse av huvudrörelser.Behåll "
 "standardinställningen om inte skärmen skakar mycket eller rörsig konstigt."
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:413
 msgid "Default"
 msgstr "Standard"
 
-#: src/gtk/connected-device.ui:396
+#: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:397
+#: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="breezydesktop">
 	<schema id="com.xronlinux.BreezyDesktop" path="/com/xronlinux/BreezyDesktop/">
+    <key name="toggle-xr-effect-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>backslash']]]>
+      </default>
+      <summary>Toggle the XR Effect on or off</summary>
+      <description>
+        Shortcut to toggle the XR Effect.
+      </description>
+    </key>
     <key name="recenter-display-shortcut" type="as">
       <default>
         <![CDATA[['<Control><Super>space']]]>

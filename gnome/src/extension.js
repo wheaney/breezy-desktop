@@ -297,6 +297,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay.mainActor().add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
 
+                this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
@@ -466,6 +467,40 @@ export default class BreezyDesktopExtension extends Extension {
         if (!value && this._is_effect_running) {
             Globals.logger.log('Supported device disconnected');
             this._setup();
+        }
+    }
+
+    _toggle_xr_effect() {
+        Globals.logger.log_debug('BreezyDesktopExtension _toggle_xr_effect');
+
+        const bin_home = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
+        const cli_path = GLib.build_filenamev([bin_home, 'xr_driver_cli']);
+
+        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect path: ${cli_path}`);
+
+        let proc = Gio.Subprocess.new(
+            ['bash', '-c', `${cli_path} --external-mode`],
+            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+        );
+
+        let [success, stdout, stderr] = proc.communicate_utf8(null, null);
+        if (!success || !!stderr || !stdout) {
+            Globals.logger.log(`ERROR: Failed to get driver status: ${stderr}`);
+            return;
+        }
+
+        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect external_mode: ${stdout}`);
+        const enabled = stdout.trim() === 'breezy_desktop';
+
+        // use the CLI to change the external mode, avoid using disable/enable, otherwise the driver will 
+        // shut down and recalibrate each time
+        proc = Gio.Subprocess.new(
+            ['bash', '-c', `${cli_path} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
+            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+        );
+        [success, stdout, stderr] = proc.communicate_utf8(null, null);
+        if (!success || !!stderr) {
+            Globals.logger.log(`ERROR: Failed to toggle driver: ${stderr}`);
         }
     }
 
