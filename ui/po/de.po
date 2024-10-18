@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 21:26-0700\n"
+"POT-Creation-Date: 2024-10-18 11:45-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/connecteddevice.py:16
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -25,7 +25,7 @@ msgstr ""
 "Schaltet Ihre Brille in den Side-by-Side-Modus und verdoppelt die Breite des "
 "Displays."
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr "Diese Funktion wird von Ihrem Gerät derzeit nicht unterstützt."
 
@@ -238,43 +238,53 @@ msgid "Keyboard Shortcuts"
 msgstr "Tastenkombinationen"
 
 #: src/gtk/connected-device.ui:218
-msgid "Re-center display shortcut"
-msgstr "Display-Zentrierung-Tastenkombination"
+msgid "XR Effect on/off shortcut"
+msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
-msgstr "Heften Sie das virtuelle Display an die aktuelle Position an."
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
+msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296
+#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
 msgstr "Ändern"
 
 #: src/gtk/connected-device.ui:247
+msgid "Re-center display shortcut"
+msgstr "Display-Zentrierung-Tastenkombination"
+
+#: src/gtk/connected-device.ui:248
+msgid "Pin the virtual display to the current position."
+msgstr "Heften Sie das virtuelle Display an die aktuelle Position an."
+
+#: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
 msgstr "Display-Entfernung-Tastenkombination"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
 msgstr "Schnell zwischen zwei vordefinierten Entfernungen umschalten."
 
-#: src/gtk/connected-device.ui:276
+#: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
 msgstr "Folgemodus-Tastenkombination umschalten"
 
-#: src/gtk/connected-device.ui:277
+#: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
 msgstr "Schnell den Folgemodus umschalten."
 
-#: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
 msgstr "Erweiterte Einstellungen"
 
-#: src/gtk/connected-device.ui:321
+#: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
 msgstr "Optimale Display-Konfiguration finden"
 
-#: src/gtk/connected-device.ui:322
+#: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -282,31 +292,31 @@ msgstr ""
 "Ändern Sie die Display-Konfiguration der Brille automatisch für maximale "
 "Auflösung und beste Skalierung, wenn sie angeschlossen ist."
 
-#: src/gtk/connected-device.ui:332
+#: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
 msgstr "Höchste Bildwiederholrate verwenden"
 
-#: src/gtk/connected-device.ui:333
+#: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "Die Bildwiederholrate kann die Leistung beeinflussen, deaktivieren Sie dies, "
 "um sie manuell festzulegen."
 
-#: src/gtk/connected-device.ui:343
+#: src/gtk/connected-device.ui:372
 msgid "Always primary display"
 msgstr "Immer primäres Display"
 
-#: src/gtk/connected-device.ui:344
+#: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 "Setzen Sie die Brille automatisch als primäres Display ein, wenn sie "
 "angeschlossen ist."
 
-#: src/gtk/connected-device.ui:354
+#: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
 msgstr "Schnelles SBS-Modus-Umschalten"
 
-#: src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
@@ -314,11 +324,11 @@ msgstr ""
 "Schaltet die Brille sofort in den SBS-Modus, wenn sie angeschlossen ist, "
 "wenn der Breitbildmodus aktiviert ist. Kann zu Instabilität führen."
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
 msgstr "Bewegungsvorausschau"
 
-#: src/gtk/connected-device.ui:366
+#: src/gtk/connected-device.ui:395
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -329,15 +339,15 @@ msgstr ""
 "es sei denn, das virtuelle Display hängt hinter Ihren Kopfbewegungen "
 "hinterher, springt vor oder ist sehr wackelig."
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:413
 msgid "Default"
 msgstr "Standard"
 
-#: src/gtk/connected-device.ui:396
+#: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:397
+#: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 

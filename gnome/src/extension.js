@@ -14,6 +14,7 @@ const Globals = Me.imports.globals;
 const { CursorManager } = Me.imports.cursormanager;
 const { Logger } = Me.imports.logger;
 const { MonitorManager } = Me.imports.monitormanager;
+const { Overlay } = Me.imports.overlay;
 const { SystemBackground } = Me.imports.systembackground;
 const { isValidKeepAlive } = Me.imports.time;
 const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
@@ -249,27 +250,10 @@ class BreezyDesktopExtension {
             try {
                 const targetMonitor = this._target_monitor.monitor;
                 const refreshRate = targetMonitor.refreshRate ?? 60;
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, refreshRate);
+                this._overlay = new Overlay(targetMonitor);
+
+                this._cursor_manager = new CursorManager(this._overlay, refreshRate);
                 this._cursor_manager.enable();
-
-                const overlayContent = new Clutter.Actor({clip_to_allocation: true});
-
-                this._overlay = new St.Bin({
-                    child: overlayContent
-                });
-                this._overlay.set_position(targetMonitor.x, targetMonitor.y);
-                this._overlay.set_size(targetMonitor.width, targetMonitor.height);
-
-                global.stage.add_child(this._overlay);
-                Shell.util_set_hidden_from_pick(this._overlay, true);
-
-                this._background = new SystemBackground();
-                overlayContent.add_child(this._background);
-        
-                const uiClone = new Clutter.Clone({ source: Main.layoutManager.uiGroup, clip_to_allocation: true });
-                uiClone.x = -targetMonitor.x;
-                uiClone.y = -targetMonitor.y;
-                overlayContent.add_child(uiClone);
 
                 // In GS 45, use of "actor" was renamed to "child".
                 const clutterContainer = Clutter.Container !== undefined;
@@ -313,9 +297,10 @@ class BreezyDesktopExtension {
                 this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
                 this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
-                this._overlay.add_effect_with_name('xr-desktop', this._xr_effect);
+                this._overlay.mainActor().add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
 
+                this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
@@ -328,7 +313,7 @@ class BreezyDesktopExtension {
 
     _handle_sibling_update() {
         Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        global.stage.set_child_above_sibling(this._overlay, null);
+        global.stage.set_child_above_sibling(this._overlay.mainActor(), null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -488,6 +473,40 @@ class BreezyDesktopExtension {
         }
     }
 
+    _toggle_xr_effect() {
+        Globals.logger.log_debug('BreezyDesktopExtension _toggle_xr_effect');
+
+        const bin_home = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
+        const cli_path = GLib.build_filenamev([bin_home, 'xr_driver_cli']);
+
+        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect path: ${cli_path}`);
+
+        let proc = Gio.Subprocess.new(
+            ['bash', '-c', `${cli_path} --external-mode`],
+            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+        );
+
+        let [success, stdout, stderr] = proc.communicate_utf8(null, null);
+        if (!success || !!stderr || !stdout) {
+            Globals.logger.log(`ERROR: Failed to get driver status: ${stderr}`);
+            return;
+        }
+
+        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect external_mode: ${stdout}`);
+        const enabled = stdout.trim() === 'breezy_desktop';
+
+        // use the CLI to change the external mode, avoid using disable/enable, otherwise the driver will 
+        // shut down and recalibrate each time
+        proc = Gio.Subprocess.new(
+            ['bash', '-c', `${cli_path} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
+            Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+        );
+        [success, stdout, stderr] = proc.communicate_utf8(null, null);
+        if (!success || !!stderr) {
+            Globals.logger.log(`ERROR: Failed to toggle driver: ${stderr}`);
+        }
+    }
+
     _recenter_display() {
         Globals.logger.log_debug('BreezyDesktopExtension _recenter_display');
         this._write_control('recenter_screen', 'true');
@@ -522,14 +541,6 @@ class BreezyDesktopExtension {
             if (this._actor_removed_connection) {
                 global.stage.disconnect(this._actor_removed_connection);
                 this._actor_removed_connection = null;
-            }
-            if (this._overlay) {
-                if (this._xr_effect) this._xr_effect.cleanup();
-                this._overlay.remove_effect_by_name('xr-desktop');
-
-                global.stage.remove_child(this._overlay);
-                this._overlay.destroy();
-                this._overlay = null;
             }
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
@@ -580,11 +591,16 @@ class BreezyDesktopExtension {
                     this._xr_effect.disconnect(this._supported_device_detected_connected);
                     this._supported_device_detected_connected = null;
                 }
+                this._xr_effect.cleanup();
                 this._xr_effect = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
                 this._cursor_manager = null;
+            }
+            if (this._overlay) {
+                this._overlay.mainActor().remove_effect_by_name('xr-desktop');
+                this._overlay.destroy();
             }
 
             // this should always be done at the end of this function after the widescreen settings binding is removed,

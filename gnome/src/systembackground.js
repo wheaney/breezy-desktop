@@ -1,9 +1,10 @@
 const Clutter = imports.gi.Clutter;
+const Cogl = imports.gi.Cogl;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
 
-const DEFAULT_BACKGROUND_COLOR = Clutter.Color.from_pixel(0x2e3436ff);
+const DEFAULT_BACKGROUND_COLOR = Clutter.Color?.from_pixel(0x2e3436ff) || new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
 
 let _systemBackground;
 

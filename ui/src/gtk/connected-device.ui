@@ -215,6 +215,35 @@
                     <property name="title" translatable="yes"><!-- section heading for updating keyboard shortcuts -->Keyboard Shortcuts</property>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes">XR Effect on/off shortcut</property>
+                        <property name="subtitle" translatable="yes">Quickly enable or disable the XR Effect. You may need to enable the effect manually once in order to enable the shortcut.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkShortcutLabel" id="toggle_xr_effect_shortcut_label">
+                                <property name="valign">3</property>
+                                <property name="accelerator"></property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="reassign_toggle_xr_effect_shortcut_button">
+                                <style>
+                                  <class name="row-button"/>
+                                </style>
+                                <property name="name">toggle-xr-effect-shortcut</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="yes">Change</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Re-center display shortcut</property>
                         <property name="subtitle" translatable="yes">Pin the virtual display to the current position.</property>
                         <property name="valign">2</property>

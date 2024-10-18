@@ -35,7 +35,7 @@ index 36ad7ee..41102a0 100644
  }, class MouseSpriteContent extends GObject.Object {
      _init() {
 diff --git a/gnome-44-max/src/cursormanager.js b/gnome-44-max/src/cursormanager.js
-index 44b3f5f..fa65a4a 100644
+index 018b942..870d86e 100644
 --- a/gnome-44-max/src/cursormanager.js
 +++ b/gnome-44-max/src/cursormanager.js
 @@ -1,11 +1,15 @@
@@ -60,15 +60,6 @@ index 44b3f5f..fa65a4a 100644
      constructor(mainActor, refreshRate) {
          this._mainActor = mainActor;
          this._refreshRate = refreshRate;
-@@ -208,7 +212,7 @@ export class CursorManager {
- 
-     _queueVisibilityUpdate() {
-         this._queued_visibility_update = true;
--        this._cursorTrackerSetPointerVisibleBound(false);
-+        if (this._cursorTrackerSetPointerVisibleBound) this._cursorTrackerSetPointerVisibleBound(false);
-         this._queueSpriteUpdate();
-     }
- 
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
 index 29a38f1..0a7e9ae 100644
 --- a/gnome-44-max/src/extension.js
@@ -327,10 +318,11 @@ index f70c96d..352be40 100644
      const data = file.load_contents(null);
  
 diff --git a/gnome-44-max/src/systembackground.js b/gnome-44-max/src/systembackground.js
-index 23039b9..350f32d 100644
+index 32b501e..de43435 100644
 --- a/gnome-44-max/src/systembackground.js
 +++ b/gnome-44-max/src/systembackground.js
-@@ -1,13 +1,14 @@
+@@ -1,13 +1,13 @@
+-import Clutter from 'gi://Clutter';
 -import Cogl from 'gi://Cogl';
 -import GLib from 'gi://GLib';
 -import GObject from 'gi://GObject';
@@ -341,8 +333,7 @@ index 23039b9..350f32d 100644
 +const GObject = imports.gi.GObject;
 +const Meta = imports.gi.Meta;
  
--const DEFAULT_BACKGROUND_COLOR = new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
-+const DEFAULT_BACKGROUND_COLOR = Clutter.Color.from_pixel(0x2e3436ff);
+ const DEFAULT_BACKGROUND_COLOR = Clutter.Color?.from_pixel(0x2e3436ff) || new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
  
  let _systemBackground;
  
