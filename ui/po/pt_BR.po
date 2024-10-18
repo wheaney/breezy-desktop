@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 21:26-0700\n"
+"POT-Creation-Date: 2024-10-18 11:45-0700\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/connecteddevice.py:16
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -26,7 +26,7 @@ msgstr ""
 "Altera o modo dos óculos para lado a lado (SBS) e dobra a largura da tela "
 "(ultrawide)."
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr "Este recurso não é atualmente suportado para o seu dispositivo."
 
@@ -239,43 +239,53 @@ msgid "Keyboard Shortcuts"
 msgstr "Atalhos de teclado"
 
 #: src/gtk/connected-device.ui:218
-msgid "Re-center display shortcut"
-msgstr "Atalho para recentralizar a tela"
+msgid "XR Effect on/off shortcut"
+msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
-msgstr "Traga a tela virtual para onde você está olhando."
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
+msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296
+#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
 msgstr "Alterar"
 
 #: src/gtk/connected-device.ui:247
+msgid "Re-center display shortcut"
+msgstr "Atalho para recentralizar a tela"
+
+#: src/gtk/connected-device.ui:248
+msgid "Pin the virtual display to the current position."
+msgstr "Traga a tela virtual para onde você está olhando."
+
+#: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
 msgstr "Atalho de distância da tela"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
 msgstr "Alterne rapidamente entre as duas distâncias predefinidas."
 
-#: src/gtk/connected-device.ui:276
+#: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
 msgstr "Atalho para alternar o modo de acompanhamento"
 
-#: src/gtk/connected-device.ui:277
+#: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
 msgstr "Alterne rapidamente o modo de acompanhamento."
 
-#: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
 msgstr "Configurações Avançadas"
 
-#: src/gtk/connected-device.ui:321
+#: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
 msgstr "Encontre a configuração de tela ideal"
 
-#: src/gtk/connected-device.ui:322
+#: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -283,30 +293,30 @@ msgstr ""
 "Modifique automaticamente a configuração de exibição dos óculos para máxima "
 "resolução e melhor dimensionamento quando conectado."
 
-#: src/gtk/connected-device.ui:332
+#: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
 msgstr "Use a taxa de atualização mais alta"
 
-#: src/gtk/connected-device.ui:333
+#: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "A taxa de atualização pode afetar o desempenho, desative-a para defini-la "
 "manualmente."
 
-#: src/gtk/connected-device.ui:343
+#: src/gtk/connected-device.ui:372
 msgid "Always primary display"
 msgstr "Sempre tela principal"
 
-#: src/gtk/connected-device.ui:344
+#: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 "Defina automaticamente os óculos como a tela primária quando conectados."
 
-#: src/gtk/connected-device.ui:354
+#: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
 msgstr "Alternância rápida do modo SBS"
 
-#: src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
@@ -314,11 +324,11 @@ msgstr ""
 "Altera os óculos para o modo SBS imediatamente quando conectados, se o modo "
 "ultrawide estiver ativado. Pode causar instabilidade."
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
 msgstr "Antecipação de movimento"
 
-#: src/gtk/connected-device.ui:366
+#: src/gtk/connected-device.ui:395
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -329,15 +339,15 @@ msgstr ""
 "virtual tenha atrasos, avance ou seja muito instável em relação aos "
 "movimentos da cabeça "
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:413
 msgid "Default"
 msgstr "Padrão"
 
-#: src/gtk/connected-device.ui:396
+#: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
 msgstr "Redimensionamento de Texto"
 
-#: src/gtk/connected-device.ui:397
+#: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "Redimensionar o texto abaixo de 1.0 simulará uma tela de resolução mais alta"

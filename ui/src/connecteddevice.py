@@ -6,6 +6,7 @@ from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
 from .xrdriveripc import XRDriverIPC
 import gettext
+import threading
 
 _ = gettext.gettext
 
@@ -30,6 +31,8 @@ class ConnectedDevice(Gtk.Box):
     curved_display_switch = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
+    reassign_toggle_xr_effect_shortcut_button = Gtk.Template.Child()
+    toggle_xr_effect_shortcut_label = Gtk.Template.Child()
     reassign_recenter_display_shortcut_button = Gtk.Template.Child()
     recenter_display_shortcut_label = Gtk.Template.Child()
     reassign_toggle_display_distance_shortcut_button = Gtk.Template.Child()
@@ -49,6 +52,7 @@ class ConnectedDevice(Gtk.Box):
     def __init__(self):
         super(Gtk.Box, self).__init__()
         self.init_template()
+        self.active = True
         self.all_enabled_state_inputs = [
             self.display_distance_scale,
             self.display_size_scale,
@@ -78,6 +82,7 @@ class ConnectedDevice(Gtk.Box):
         self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
 
         bind_shortcut_settings(self.get_parent(), [
+            [self.reassign_toggle_xr_effect_shortcut_button, self.toggle_xr_effect_shortcut_label],
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
             [self.reassign_toggle_display_distance_shortcut_button, self.toggle_display_distance_shortcut_label],
             [self.reassign_toggle_follow_shortcut_button, self.toggle_follow_shortcut_label]
@@ -96,16 +101,15 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
 
-        self.effect_enable_switch.set_active(self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled())
-        self.effect_enable_switch.connect('notify::active', self._refresh_inputs_for_enabled_state)
+        self._refresh_enabled_state();
+        self.effect_enable_switch.connect('notify::active', self._handle_enabled_state)
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
         self._handle_enabled_features(self.state_manager, None)
         self._handle_device_supports_sbs(self.state_manager, None)
-        self._refresh_inputs_for_enabled_state(self.effect_enable_switch, None)
+        self._handle_enabled_state(self.effect_enable_switch, None)
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
-        self.extensions_manager.bind_property('breezy-enabled', self.effect_enable_switch, 'active', GObject.BindingFlags.BIDIRECTIONAL)
 
         self.connect("destroy", self._on_widget_destroy)
 
@@ -122,20 +126,30 @@ class ConnectedDevice(Gtk.Box):
         self.widescreen_mode_switch.set_sensitive(state_manager.get_property('device-supports-sbs'))
         subtitle = self.widescreen_mode_subtitle if state_manager.get_property('device-supports-sbs') else self.widescreen_mode_not_supported_subtitle
         self.widescreen_mode_row.set_subtitle(subtitle)
+        
+    def _refresh_enabled_state(self):
+        enabled = self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled()
+        if enabled != self.effect_enable_switch.get_active():
+            self.effect_enable_switch.set_active(enabled)
+
+        if self.active: threading.Timer(1.0, self._refresh_enabled_state).start()
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
     
-    def _refresh_inputs_for_enabled_state(self, switch, param):
+    def _handle_enabled_state(self, switch, param):
         requesting_enabled = switch.get_active()
-        self.extensions_manager.set_property('breezy-enabled', requesting_enabled)
+        config = self.ipc.retrieve_config(False)
         if requesting_enabled:
-            config = self.ipc.retrieve_config(False)
+            self.extensions_manager.set_property('breezy-enabled', True)
             if not self._is_config_enabled(config):
                 config['disabled'] = False
                 config['output_mode'] = 'external_only'
                 config['external_mode'] = ['breezy_desktop']
                 self.ipc.write_config(config)
+        else:
+            config['external_mode'] = []
+            self.ipc.write_config(config)
 
         for widget in self.all_enabled_state_inputs:
             widget.set_sensitive(requesting_enabled)
@@ -168,12 +182,12 @@ class ConnectedDevice(Gtk.Box):
             reload_display_distance_toggle_button(widget)
     
     def _on_widget_destroy(self, widget):
+        self.active = False
         self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
         self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
         self.settings.unbind('display-size', self.display_size_adjustment, 'value')
         self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
         self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
-        self.extensions_manager.unbind_property('breezy-enabled', self.effect_enable_switch, 'active')
 
 def reload_display_distance_toggle_button(widget):
     distance = SettingsManager.get_instance().settings.get_double(widget.get_name())

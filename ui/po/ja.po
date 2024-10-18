@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 21:26-0700\n"
+"POT-Creation-Date: 2024-10-18 11:45-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -21,13 +21,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/connecteddevice.py:16
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします。"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr "この機能は現在接続されているデバイスではサポートされていません。"
 
@@ -240,43 +240,53 @@ msgid "Keyboard Shortcuts"
 msgstr "キーボードショートカット"
 
 #: src/gtk/connected-device.ui:218
-msgid "Re-center display shortcut"
-msgstr "ディスプレイを中央へ移動"
+msgid "XR Effect on/off shortcut"
+msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
-msgstr "仮想ディスプレイを現在の視点に固定します。"
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
+msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296
+#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
 msgstr "変更"
 
 #: src/gtk/connected-device.ui:247
+msgid "Re-center display shortcut"
+msgstr "ディスプレイを中央へ移動"
+
+#: src/gtk/connected-device.ui:248
+msgid "Pin the virtual display to the current position."
+msgstr "仮想ディスプレイを現在の視点に固定します。"
+
+#: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
 msgstr "ディスプレイ距離の切り替え"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
 msgstr "設定してある2個の距離をすばやく切り替えます。"
 
-#: src/gtk/connected-device.ui:276
+#: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
 msgstr "フォローモードの切り替え"
 
-#: src/gtk/connected-device.ui:277
+#: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
 msgstr "フォローモードのオン／オフをすばやく切り替えます。"
 
-#: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
 msgstr "詳細設定"
 
-#: src/gtk/connected-device.ui:321
+#: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
 msgstr "ディスプレイ設定を最適化する"
 
-#: src/gtk/connected-device.ui:322
+#: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -284,29 +294,29 @@ msgstr ""
 "メガネ接続時、最大解像度と最適なスケーリングのためにディスプレイ設定を自動的"
 "に変更します。"
 
-#: src/gtk/connected-device.ui:332
+#: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
 msgstr "最大のリフレッシュレートを使用する"
 
-#: src/gtk/connected-device.ui:333
+#: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "リフレッシュレートはパフォーマンスに影響を与える可能性があります。手動で設定"
 "する場合は無効にしてください。"
 
-#: src/gtk/connected-device.ui:343
+#: src/gtk/connected-device.ui:372
 msgid "Always primary display"
 msgstr "常にプライマリディスプレイにする"
 
-#: src/gtk/connected-device.ui:344
+#: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "メガネ接続時、自動的にプライマリディスプレイにします。"
 
-#: src/gtk/connected-device.ui:354
+#: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
 msgstr "高速SBSモード切り替え"
 
-#: src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
@@ -314,11 +324,11 @@ msgstr ""
 "ワイドスクリーンモードがオンになっている場合、メガネ接続時にたたちにSBSモード"
 "に切り替えます。不安定になる可能性があります。"
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
 msgstr "動きの先読み"
 
-#: src/gtk/connected-device.ui:366
+#: src/gtk/connected-device.ui:395
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -328,15 +338,15 @@ msgstr ""
 "ます。仮想ディスプレイが頭の動きに遅れたり、先に進んだり、非常に揺れたりする"
 "場合を除き、デフォルトのままで問題ありません。"
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:413
 msgid "Default"
 msgstr "デフォルト"
 
-#: src/gtk/connected-device.ui:396
+#: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
 msgstr "テキストスケーリング"
 
-#: src/gtk/connected-device.ui:397
+#: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "テキストを1.0未満にスケーリングすると、高解像度ディスプレイをシミュレートしま"

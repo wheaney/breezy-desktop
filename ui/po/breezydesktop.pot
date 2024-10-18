@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 21:35-0700\n"
+"POT-Creation-Date: 2024-10-18 11:45-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/connecteddevice.py:16
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
@@ -230,94 +230,104 @@ msgid "Keyboard Shortcuts"
 msgstr ""
 
 #: src/gtk/connected-device.ui:218
-msgid "Re-center display shortcut"
+msgid "XR Effect on/off shortcut"
 msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
 msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296
+#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
 msgid "Change"
 msgstr ""
 
 #: src/gtk/connected-device.ui:247
-msgid "Display distance shortcut"
+msgid "Re-center display shortcut"
 msgstr ""
 
 #: src/gtk/connected-device.ui:248
-msgid "Quickly toggle between two predefined distances."
+msgid "Pin the virtual display to the current position."
 msgstr ""
 
 #: src/gtk/connected-device.ui:276
-msgid "Toggle follow mode shortcut"
+msgid "Display distance shortcut"
 msgstr ""
 
 #: src/gtk/connected-device.ui:277
+msgid "Quickly toggle between two predefined distances."
+msgstr ""
+
+#: src/gtk/connected-device.ui:305
+msgid "Toggle follow mode shortcut"
+msgstr ""
+
+#: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:312 src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
 msgstr ""
 
-#: src/gtk/connected-device.ui:321
+#: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
 msgstr ""
 
-#: src/gtk/connected-device.ui:322
+#: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
 
-#: src/gtk/connected-device.ui:332
+#: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
 msgstr ""
 
-#: src/gtk/connected-device.ui:333
+#: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 
-#: src/gtk/connected-device.ui:343
+#: src/gtk/connected-device.ui:372
 msgid "Always primary display"
 msgstr ""
 
-#: src/gtk/connected-device.ui:344
+#: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 
-#: src/gtk/connected-device.ui:354
+#: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
 msgstr ""
 
-#: src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
 msgstr ""
 
-#: src/gtk/connected-device.ui:366
+#: src/gtk/connected-device.ui:395
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:413
 msgid "Default"
 msgstr ""
 
-#: src/gtk/connected-device.ui:396
+#: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:397
+#: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 
