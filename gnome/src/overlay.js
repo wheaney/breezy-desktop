@@ -1,11 +1,14 @@
-import Clutter from 'gi://Clutter'
-import Shell from 'gi://Shell';
-import St from 'gi://St';
+const Clutter = imports.gi.Clutter;
+const Shell = imports.gi.Shell;
+const St = imports.gi.St;
 
-import { SystemBackground } from './systembackground.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+const Main = imports.ui.main;
 
-export class Overlay {
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const { SystemBackground } = Me.imports.systembackground;
+
+class Overlay {
     constructor(targetMonitor) {
         this._overlayContent = new Clutter.Actor({clip_to_allocation: true});
         this._overlay = new St.Bin({

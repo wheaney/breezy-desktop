@@ -3,7 +3,6 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
-const St = imports.gi.St;
 
 const Main = imports.ui.main;
 
@@ -15,7 +14,6 @@ const { CursorManager } = Me.imports.cursormanager;
 const { Logger } = Me.imports.logger;
 const { MonitorManager } = Me.imports.monitormanager;
 const { Overlay } = Me.imports.overlay;
-const { SystemBackground } = Me.imports.systembackground;
 const { isValidKeepAlive } = Me.imports.time;
 const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
 

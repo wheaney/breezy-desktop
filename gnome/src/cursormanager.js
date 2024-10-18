@@ -143,10 +143,6 @@ var CursorManager = class CursorManager {
             this._cursorWatch = null;
         }
 
-        this._cursorTracker.disconnectObject(this);
-        this._mouseSprite.content.texture = null;
-        Meta.enable_unredirect_for_display(global.display);
-
         if (this._cursorTracker) this._cursorTracker.disconnectObject(this);
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
         Meta.enable_unredirect_for_display(global.display);
