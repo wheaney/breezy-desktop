@@ -323,15 +323,17 @@ index 32b501e..de43435 100644
 +++ b/gnome-44-max/src/systembackground.js
 @@ -1,13 +1,13 @@
 -import Clutter from 'gi://Clutter';
+-import Cogl from 'gi://Cogl';
 -import GLib from 'gi://GLib';
 -import GObject from 'gi://GObject';
 -import Meta from 'gi://Meta';
 +const Clutter = imports.gi.Clutter;
++const Cogl = imports.gi.Cogl;
 +const GLib = imports.gi.GLib;
 +const GObject = imports.gi.GObject;
 +const Meta = imports.gi.Meta;
  
- const DEFAULT_BACKGROUND_COLOR = Clutter.Color.from_pixel(0x2e3436ff);
+ const DEFAULT_BACKGROUND_COLOR = Clutter.Color?.from_pixel(0x2e3436ff) || new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
  
  let _systemBackground;
  
