@@ -8,7 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const { SystemBackground } = Me.imports.systembackground;
 
-class Overlay {
+var Overlay = class {
     constructor(targetMonitor) {
         this._overlayContent = new Clutter.Actor({clip_to_allocation: true});
         this._overlay = new St.Bin({
