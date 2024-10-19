@@ -303,7 +303,7 @@ index 6cf5532..580925c 100644
          'use-optimal-monitor-config': GObject.ParamSpec.boolean(
              'use-optimal-monitor-config',
 diff --git a/gnome-44-max/src/overlay.js b/gnome-44-max/src/overlay.js
-index c42af7c..5139e40 100644
+index c42af7c..1c917dc 100644
 --- a/gnome-44-max/src/overlay.js
 +++ b/gnome-44-max/src/overlay.js
 @@ -1,11 +1,14 @@
@@ -323,7 +323,7 @@ index c42af7c..5139e40 100644
 +const Me = ExtensionUtils.getCurrentExtension();
 +const { SystemBackground } = Me.imports.systembackground;
 +
-+class Overlay {
++var Overlay = class {
      constructor(targetMonitor) {
          this._overlayContent = new Clutter.Actor({clip_to_allocation: true});
          this._overlay = new St.Bin({
