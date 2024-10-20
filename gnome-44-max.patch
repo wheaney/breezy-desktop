@@ -61,7 +61,7 @@ index 52d1341..86d8a76 100644
          this._overlay = overlay;
          this._refreshRate = refreshRate;
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index 7074ceb..257c139 100644
+index c8b390d..22dbe2f 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
 @@ -1,19 +1,21 @@
@@ -366,7 +366,7 @@ index cf7a3bb..cbf0a75 100644
  }, class SystemBackground extends Meta.BackgroundActor {
      _init() {
 diff --git a/gnome-44-max/src/time.js b/gnome-44-max/src/time.js
-index 7883b9b..5478d2a 100644
+index 017994a..3aa97d9 100644
 --- a/gnome-44-max/src/time.js
 +++ b/gnome-44-max/src/time.js
 @@ -1,11 +1,11 @@
@@ -380,9 +380,9 @@ index 7883b9b..5478d2a 100644
      return Math.floor(milliseconds / 1000);
  }
  
--export function isValidKeepAlive(dateSec, strictCheck = false) {
-+function isValidKeepAlive(dateSec, strictCheck = false) {
-     return Math.abs(toSec(Date.now()) - dateSec) <= (strictCheck ? 1 : 5);
+-export function isValidKeepAlive(dateSec) {
++function isValidKeepAlive(dateSec) {
+     return Math.abs(toSec(Date.now()) - dateSec) <= 1;
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/xrEffect.js b/gnome-44-max/src/xrEffect.js
