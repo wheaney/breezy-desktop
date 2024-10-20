@@ -174,11 +174,13 @@ class BreezyDesktopExtension {
         return !needs_sbs_mode_switch && !this._monitor_manager.needsOptimalModeCheck(target_monitor.connector);
     }
 
-    _setup() {
+    // for_disable should be true if we're using this function to disable the
+    // effect without anticipating an immediate re-enable
+    _setup(for_disable = false) {
         Globals.logger.log_debug('BreezyDesktopExtension _setup');
         if (this._is_effect_running) {
             Globals.logger.log('Reset triggered, disabling XR effect');
-            this._effect_disable(true);
+            this._effect_disable(!for_disable);
         }
         const target_monitor = this._find_supported_monitor();
 
@@ -214,9 +216,7 @@ class BreezyDesktopExtension {
             if (Globals.ipc_file.query_exists(null)) {
                 const file_info = Globals.ipc_file.query_info(Gio.FILE_ATTRIBUTE_TIME_MODIFIED, Gio.FileQueryInfoFlags.NONE, null);
                 const file_modified_time = file_info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_TIME_MODIFIED);
-
-                // when the driver is running, the IMU file is updated at least 60x per second, do a strict check
-                return isValidKeepAlive(file_modified_time, true);
+                return isValidKeepAlive(file_modified_time);
             }
         } catch (e) {
             Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
@@ -461,13 +461,13 @@ class BreezyDesktopExtension {
     }
 
     _handle_supported_device_change(effect, _pspec) {
-        const value = effect.supported_device_detected;
-        Globals.logger.log_debug(`BreezyDesktopExtension _handle_supported_device_change ${value}`);
+        const device_connected = effect.supported_device_detected;
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_supported_device_change ${device_connected}`);
 
         // this will disable the effect and begin polling for a ready state again
-        if (!value && this._is_effect_running) {
+        if (!device_connected && this._is_effect_running) {
             Globals.logger.log('Supported device disconnected');
-            this._setup();
+            this._setup(true);
         }
     }
 
