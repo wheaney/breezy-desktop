@@ -13,6 +13,7 @@ check_command "gnome-extensions"
 check_command "glib-compile-schemas"
 check_command "update-desktop-database"
 check_command "gtk-update-icon-cache"
+check_command "python"
 
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
