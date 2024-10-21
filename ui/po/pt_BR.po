@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 11:45-0700\n"
+"POT-Creation-Date: 2024-10-21 12:23-0700\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:20
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -26,7 +26,7 @@ msgstr ""
 "Altera o modo dos óculos para lado a lado (SBS) e dobra a largura da tela "
 "(ultrawide)."
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:21
 msgid "This feature is not currently supported for your device."
 msgstr "Este recurso não é atualmente suportado para o seu dispositivo."
 

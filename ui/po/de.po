@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 11:45-0700\n"
+"POT-Creation-Date: 2024-10-21 12:23-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:20
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -25,7 +25,7 @@ msgstr ""
 "Schaltet Ihre Brille in den Side-by-Side-Modus und verdoppelt die Breite des "
 "Displays."
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:21
 msgid "This feature is not currently supported for your device."
 msgstr "Diese Funktion wird von Ihrem Gerät derzeit nicht unterstützt."
 

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 11:45-0700\n"
+"POT-Creation-Date: 2024-10-21 12:23-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -21,13 +21,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:20
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします。"
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:21
 msgid "This feature is not currently supported for your device."
 msgstr "この機能は現在接続されているデバイスではサポートされていません。"
 
@@ -248,8 +248,8 @@ msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
-"XRエフェクトの有効・無効を切り替えます。"
-"このショートカットを有効にするために手動で1回XRエフェクトを有効にする必要があります。"
+"XRエフェクトの有効・無効を切り替えます。このショートカットを有効にするために"
+"手動で1回XRエフェクトを有効にする必要があります。"
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325

@@ -6,9 +6,12 @@ from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
 from .xrdriveripc import XRDriverIPC
 import gettext
+import logging
 import threading
 
 _ = gettext.gettext
+
+logger = logging.getLogger('breezy_ui')
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/connected-device.ui')
 class ConnectedDevice(Gtk.Box):
@@ -101,6 +104,7 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
 
+        self._refresh_enabled_state_thread = None
         self._refresh_enabled_state();
         self.effect_enable_switch.connect('notify::active', self._handle_enabled_state)
 
@@ -128,11 +132,14 @@ class ConnectedDevice(Gtk.Box):
         self.widescreen_mode_row.set_subtitle(subtitle)
         
     def _refresh_enabled_state(self):
-        enabled = self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled()
-        if enabled != self.effect_enable_switch.get_active():
-            self.effect_enable_switch.set_active(enabled)
+        try:
+            enabled = self._is_config_enabled(self.ipc.retrieve_config()) and self.extensions_manager.is_enabled()
+            if enabled != self.effect_enable_switch.get_active():
+                self.effect_enable_switch.set_active(enabled)
 
-        if self.active: threading.Timer(1.0, self._refresh_enabled_state).start()
+            self._refresh_enabled_state_thread = threading.Timer(1.0, self._refresh_enabled_state).start()
+        except Exception as e:
+            logger.error(f"_refresh_enabled_state {e}")
 
     def _is_config_enabled(self, config):
         return config.get('disabled') == False and 'breezy_desktop' in config.get('external_mode', [])
@@ -182,7 +189,9 @@ class ConnectedDevice(Gtk.Box):
             reload_display_distance_toggle_button(widget)
     
     def _on_widget_destroy(self, widget):
-        self.active = False
+        if self._refresh_enabled_state_thread:
+            self._refresh_enabled_state_thread.cancel()
+
         self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
         self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
         self.settings.unbind('display-size', self.display_size_adjustment, 'value')
