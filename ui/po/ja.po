@@ -241,13 +241,15 @@ msgstr "キーボードショートカット"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "XRエフェクトの切り替え"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
+"XRエフェクトの有効・無効を切り替えます。"
+"このショートカットを有効にするために手動で1回XRエフェクトを有効にする必要があります。"
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
