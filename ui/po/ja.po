@@ -29,7 +29,7 @@ msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします
 
 #: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
-msgstr "この機能は現在接続されているデバイスではサポートされていません。"
+msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -388,27 +388,27 @@ msgstr "デバイスが接続されていません"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr "Breezy DesktopはサポートされているXRデバイスを検出できませんでした。"
+msgstr "Breezy Desktopは対応しているXRデバイスを検出できませんでした。"
 
 #: src/gtk/no-device.ui:23
 #, fuzzy
 msgid "Auto-enable XR effect"
-msgstr "XRエフェクト"
+msgstr "XRエフェクトの自動有効化"
 
 #: src/gtk/no-device.ui:24
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr ""
+msgstr "対応メガネを接続するとBreezy DesktopのXRエフェクトを自動的に開始します。"
 
 #: src/gtk/no-device.ui:34
 #, fuzzy
 msgid "Start in widescreen mode"
-msgstr "ワイドスクリーンモード"
+msgstr "ワイドスクリーンモードで起動"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
+msgstr "ワイドスクリーンモードはすべてのメガネで対応しているわけではありません。"
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
