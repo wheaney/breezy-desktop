@@ -1,7 +1,6 @@
 import sys
 import threading
 from gi.repository import GObject
-from .time import LICENSE_WARN_SECONDS
 from .xrdriveripc import XRDriverIPC
 
 class ConfigManager(GObject.GObject):
@@ -57,7 +56,6 @@ class ConfigManager(GObject.GObject):
         self.breezy_desktop_enabled = value
 
     def do_set_property(self, prop, value):
-        logging.info(f"Setting property {prop.name} to {value}")
         if prop.name == 'breezy-desktop-enabled':
             self._set_breezy_desktop_enabled(value)
 
