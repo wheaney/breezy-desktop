@@ -137,7 +137,8 @@ class ConnectedDevice(Gtk.Box):
             if enabled != self.effect_enable_switch.get_active():
                 self.effect_enable_switch.set_active(enabled)
 
-            self._refresh_enabled_state_thread = threading.Timer(1.0, self._refresh_enabled_state).start()
+            self._refresh_enabled_state_thread = threading.Timer(1.0, self._refresh_enabled_state)
+            self._refresh_enabled_state_thread.start()
         except Exception as e:
             logger.error(f"_refresh_enabled_state {e}")
 

@@ -100,6 +100,9 @@ glib-compile-schemas $XDG_DATA_HOME/glib-2.0/schemas
 update-desktop-database $XDG_DATA_HOME/applications
 gtk-update-icon-cache
 
+# refresh bash session so new commands in the PATH are available
+hash -r
+
 # set up the XR driver using the local binary
 echo "Installing xrDriver"
 echo "BEGIN - xr_driver_setup"
