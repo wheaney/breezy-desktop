@@ -7,13 +7,6 @@ from .xrdriveripc import XRDriverIPC
 # shouldn't need a number larger than a year
 LICENSE_ACTION_NEEDED_MAX = 60 * 60 * 24 * 366
 
-class Logger:
-    def info(self, message):
-        print(message)
-
-    def error(self, message):
-        print(message)
-
 class StateManager(GObject.GObject):
     __gsignals__ = {
         'device-update': (GObject.SIGNAL_RUN_FIRST, None, (str,))
@@ -66,15 +59,11 @@ class StateManager(GObject.GObject):
         self.license_present = False
         self.enabled_features = []
         self.device_supports_sbs = False
-
-        self.start()
-
-    def start(self):
-        self.running = True
+        self._running = True
         self._refresh_state()
 
     def stop(self):
-        self.running = False
+        self._running = False
 
     def _refresh_state(self):
         self.state = self.ipc.retrieve_driver_state()
@@ -109,7 +98,7 @@ class StateManager(GObject.GObject):
             self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
             self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
 
-        if self.running: threading.Timer(1.0, self._refresh_state).start()
+        if self._running: threading.Timer(1.0, self._refresh_state).start()
 
     def do_set_property(self, prop, value):
         if prop.name == 'driver-running':

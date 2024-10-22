@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-21 12:23-0700\n"
+"POT-Creation-Date: 2024-10-22 13:27-0700\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/connecteddevice.py:20
+#: src/connecteddevice.py:17
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -26,7 +26,7 @@ msgstr ""
 "Altera o modo dos óculos para lado a lado (SBS) e dobra a largura da tela "
 "(ultrawide)."
 
-#: src/connecteddevice.py:21
+#: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
 msgstr "Este recurso não é atualmente suportado para o seu dispositivo."
 
@@ -389,6 +389,26 @@ msgstr "Nenhum dispositivo conectado"
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr ""
 "O Breezy Desktop não conseguiu detectar nenhum dispositivo XR suportado."
+
+#: src/gtk/no-device.ui:23
+#, fuzzy
+msgid "Auto-enable XR effect"
+msgstr "Efeito XR"
+
+#: src/gtk/no-device.ui:24
+msgid ""
+"Automatically enable the Breezy Desktop XR effect when supported glasses are "
+"connected."
+msgstr ""
+
+#: src/gtk/no-device.ui:34
+#, fuzzy
+msgid "Start in widescreen mode"
+msgstr "Modo Ultrawide"
+
+#: src/gtk/no-device.ui:35
+msgid "Widescreen mode is not supported for all glasses."
+msgstr ""
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"

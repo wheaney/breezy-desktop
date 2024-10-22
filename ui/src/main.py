@@ -35,6 +35,7 @@ gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Adw, Gtk, Gio, GLib
+from .configmanager import ConfigManager
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow
@@ -144,6 +145,7 @@ class BreezydesktopApplication(Adw.Application):
             win.close()
 
         StateManager.destroy_instance()
+        ConfigManager.destroy_instance()
         self.quit()
 
 
