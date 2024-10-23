@@ -238,13 +238,15 @@ msgstr "Atajos de teclado"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "Atajo encendido/apagado Efecto XR"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
+"Activa o desactiva rápidamente el Efecto XR. Es posible que necesites activar "
+"el efecto manualmente una vez para habilitar el atajo.
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -345,11 +347,11 @@ msgstr "Predeterminado"
 
 #: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
-msgstr ""
+msgstr "Escalado de Texto"
 
 #: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "Escalando el texto por debajo de 1.0 simulará una pantalla de mayor resolución"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -388,24 +390,24 @@ msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop no pudo detectar ningún dispositivo XR compatible."
 
 #: src/gtk/no-device.ui:23
-#, fuzzy
 msgid "Auto-enable XR effect"
-msgstr "Efecto XR"
+msgstr "Auto-activar efecto XR"
 
 #: src/gtk/no-device.ui:24
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
+"Habilita automáticamente el efecto Breezy Desktop XR cuando se conectan gafas "
+"compatibles.
 
 #: src/gtk/no-device.ui:34
-#, fuzzy
 msgid "Start in widescreen mode"
-msgstr "Modo pantalla ancha"
+msgstr "Empezar en modo pantalla ancha"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
+msgstr "El modo pantalla ancha no está soportado en todas las gafas."
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
