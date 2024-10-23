@@ -261,7 +261,7 @@ msgstr "快速地在两个预定的距离之间切换。"
 
 #: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
-msgstr ""
+msgstr "切换跟随模式快捷键"
 
 #: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
