@@ -233,8 +233,10 @@ msgid "XR Effect on/off shortcut"
 msgstr ""
 
 #: src/gtk/connected-device.ui:219
-msgid "Pin the virtual display to the current position."
-msgstr "将虚拟显示固定在当前位置。"
+msgid ""
+"Quickly enable or disable the XR Effect. You may need to enable the effect "
+"manually once in order to enable the shortcut."
+msgstr ""
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -246,8 +248,8 @@ msgid "Re-center display shortcut"
 msgstr ""
 
 #: src/gtk/connected-device.ui:248
-msgid "Quickly toggle between two predefined distances."
-msgstr "快速地在两个预定的距离之间切换。"
+msgid "Pin the virtual display to the current position."
+msgstr "将虚拟显示固定在当前位置。"
 
 #: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
@@ -255,7 +257,7 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
-msgstr ""
+msgstr "快速地在两个预定的距离之间切换。"
 
 #: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
@@ -353,6 +355,10 @@ msgstr "申请令牌"
 msgid "Verify token"
 msgstr "令牌验证"
 
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+msgid "License Details"
+msgstr ""
+
 #: src/gtk/no-device.ui:13
 msgid "No device connected"
 msgstr ""
@@ -360,6 +366,25 @@ msgstr ""
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop 无法检测到任何支援的 XR 设备。"
+
+#: src/gtk/no-device.ui:23
+msgid "Auto-enable XR effect"
+msgstr ""
+
+#: src/gtk/no-device.ui:24
+msgid ""
+
+"Automatically enable the Breezy Desktop XR effect when supported glasses are "
+"connected."
+msgstr ""
+
+#: src/gtk/no-device.ui:34
+msgid "Start in widescreen mode"
+msgstr ""
+
+#: src/gtk/no-device.ui:35
+msgid "Widescreen mode is not supported for all glasses."
+msgstr ""
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
