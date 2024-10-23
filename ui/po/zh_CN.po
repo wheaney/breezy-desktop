@@ -230,13 +230,13 @@ msgstr "键盘快捷键"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "XR效果 开/关 快捷键"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
-msgstr ""
+msgstr "快速将XR效果打开/关闭。 效果可能需要手动开一次才能设成快捷键"
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -327,11 +327,11 @@ msgstr "默认"
 
 #: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
-msgstr ""
+msgstr "字体大小比例"
 
 #: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "字体少于1.0则模拟解析度高的显示"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -371,21 +371,21 @@ msgstr "Breezy Desktop 无法检测到任何支援的 XR 设备。"
 
 #: src/gtk/no-device.ui:23
 msgid "Auto-enable XR effect"
-msgstr ""
+msgstr "自动启动XR效果"
 
 #: src/gtk/no-device.ui:24
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr ""
+msgstr "当支援的设备已连接，将BREEZY DESKTOP XR效果自动启动"
 
 #: src/gtk/no-device.ui:34
 msgid "Start in widescreen mode"
-msgstr ""
+msgstr "使用宽屏模式以启动软件"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
+msgstr "宽屏模式不支援每一个型号的XR眼睛"
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
@@ -465,7 +465,7 @@ msgstr "按下键盘快捷键或 'Backspace' 禁用..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
-msgstr ""
+msgstr "Breezy Desktop"
 
 #: src/gtk/window.ui:23
 msgid "Menu"
