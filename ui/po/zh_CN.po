@@ -373,7 +373,6 @@ msgstr ""
 
 #: src/gtk/no-device.ui:24
 msgid ""
-
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
