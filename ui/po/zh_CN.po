@@ -489,4 +489,4 @@ msgstr "强制重置"
 
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
-msgstr "关于BreezyDesktop"
+msgstr "关于 Breezy Desktop"
