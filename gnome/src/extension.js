@@ -473,13 +473,8 @@ export default class BreezyDesktopExtension extends Extension {
     _toggle_xr_effect() {
         Globals.logger.log_debug('BreezyDesktopExtension _toggle_xr_effect');
 
-        const bin_home = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
-        const cli_path = GLib.build_filenamev([bin_home, 'xr_driver_cli']);
-
-        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect path: ${cli_path}`);
-
         let proc = Gio.Subprocess.new(
-            ['bash', '-c', `${cli_path} --external-mode`],
+            ['bash', '-c', 'xr_driver_cli --external-mode'],
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
         );
 
@@ -495,7 +490,7 @@ export default class BreezyDesktopExtension extends Extension {
         // use the CLI to change the external mode, avoid using disable/enable, otherwise the driver will 
         // shut down and recalibrate each time
         proc = Gio.Subprocess.new(
-            ['bash', '-c', `${cli_path} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
+            ['bash', '-c', `xr_driver_cli --${enabled ? 'disable-external' : 'breezy-desktop'}`],
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
         );
         [success, stdout, stderr] = proc.communicate_utf8(null, null);
