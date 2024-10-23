@@ -24,11 +24,11 @@ msgstr "切换到并排模式，并将显示宽度翻倍。"
 
 #: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
-msgstr "您的设备目前不支持此功能。"
+msgstr "您的设备目前不支援此功能。"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
-msgstr "付费层状态"
+msgstr "订阅等级状态"
 
 #: src/licensedialogcontent.py:71
 msgid "Feature Availability"
@@ -49,7 +49,7 @@ msgstr "已启用"
 #: src/licensefeaturerow.py:24 src/licensetierrow.py:30
 #, python-brace-format
 msgid " ({time_remaining} remaining)"
-msgstr " ({time_remaining} 剩余)"
+msgstr " (剩下 {time_remaining})"
 
 #: src/licensefeaturerow.py:32
 msgid "Side-by-side mode (gaming)"
@@ -57,19 +57,19 @@ msgstr "并排模式（游戏）"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "平滑跟随（游戏）"
+msgstr "平顺跟随（游戏）"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
-msgstr "清爽桌面（生产力）"
+msgstr "Breezy Desktop （生产力）"
 
 #: src/licensetierrow.py:24
 msgid "Active"
-msgstr "激活"
+msgstr "已订阅"
 
 #: src/licensetierrow.py:24
 msgid "Inactive"
-msgstr "未激活"
+msgstr "未订阅"
 
 #: src/licensetierrow.py:41
 #, fuzzy, python-brace-format
@@ -86,7 +86,7 @@ msgstr "升级"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
-msgstr "已付费至下次续订期"
+msgstr "已付费至下个续订期"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
@@ -106,7 +106,7 @@ msgstr " - 每年续订"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
-msgstr "终身访问"
+msgstr "终身会员"
 
 #: src/licensetierrow.py:72
 msgid "Monthly"
@@ -148,7 +148,7 @@ msgstr "已连接"
 
 #: src/gtk/connected-device.ui:31
 msgid "General Settings"
-msgstr "通用设置"
+msgstr "通用设定"
 
 #: src/gtk/connected-device.ui:41
 msgid "Features"
@@ -172,15 +172,15 @@ msgstr "跟随模式"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr "保持虚拟显示屏在视野中心。"
+msgstr "虚拟显示保持在视野中心。"
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
-msgstr "曲线显示屏"
+msgstr "曲面显示"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr "在平板和曲线显示屏之间切换。"
+msgstr "平板和曲面显示模式之间切换。"
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
@@ -194,7 +194,7 @@ msgstr "显示距离"
 msgid ""
 "Closer appears larger, further appears smaller. Controls depth when in "
 "widescreen mode."
-msgstr "距离近看起来大，距离远看起来小。当使用宽屏模式时控制深度。"
+msgstr "距离近看起来大，距离远看起来小。调整使用宽屏模式时的深度。"
 
 #: src/gtk/connected-device.ui:123
 msgid "Display size"
@@ -204,17 +204,17 @@ msgstr "显示大小"
 msgid ""
 "Combine with display distance to achieve a comfortable level of depth and "
 "size."
-msgstr "结合显示距离来实现舒适的深度和大小级别。"
+msgstr "可以跟显示距离一起配合来实现舒适的深度和大小。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "显示切换距离"
+msgstr "显示距离立刻切换"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
 "Use the buttons to capture the current display distance for use with the "
 "keyboard shortcut."
-msgstr "使用按钮捕获当前的显示距离，用于键盘快捷键。"
+msgstr "使用按钮记住当时的显示距离，以设成键盘快捷键。"
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
@@ -222,7 +222,7 @@ msgstr "跟随阈值"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "您可以看多远才能让显示屏跟随。"
+msgstr "示屏进行跟随前可以看得多远。"
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -249,7 +249,7 @@ msgstr "重新居中显示快捷键"
 
 #: src/gtk/connected-device.ui:248
 msgid "Pin the virtual display to the current position."
-msgstr "将虚拟显示屏固定在当前位置。"
+msgstr "将虚拟显示固定在当前位置。"
 
 #: src/gtk/connected-device.ui:276
 msgid "Display distance shortcut"
@@ -257,7 +257,7 @@ msgstr "显示距离快捷键"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
-msgstr ""
+msgstr "快速地在两个预定的距离之间切换。"
 
 #: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
@@ -269,17 +269,17 @@ msgstr "快速切换跟随模式。"
 
 #: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
-msgstr "高级设置"
+msgstr "高级设定"
 
 #: src/gtk/connected-device.ui:350
 msgid "Find optimal display config"
-msgstr "寻找最佳显示配置"
+msgstr "寻找最佳显示设定"
 
 #: src/gtk/connected-device.ui:351
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
-msgstr "当插入时，自动修改眼镜显示配置以获得最大分辨率和最佳缩放。"
+msgstr "连接时，可以自动修改眼镜显示设定以表现出最大解析度和最佳的对比。"
 
 #: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
@@ -287,26 +287,26 @@ msgstr "使用最高刷新率"
 
 #: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "刷新率可能会影响性能，禁用此功能可手动设置。"
+msgstr "刷新率可能会影响性能，禁用此功能即可手动设定。"
 
 #: src/gtk/connected-device.ui:372
 msgid "Always primary display"
-msgstr "始终为主要显示"
+msgstr "每次设置为主要显示"
 
 #: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "当插入时，自动将眼镜设置为主要显示。"
+msgstr "连结时，自动将眼镜设置为主要显示。"
 
 #: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
-msgstr "快速 SBS 模式切换"
+msgstr "快速 并排模式切换"
 
 #: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"当插入时，如果宽屏模式开启，眼镜会立即切换到 SBS 模式。这可能会导致不稳定。"
+"连结时，如果宽屏模式开启，眼镜会立即切换到 并排模式。这可能会导致不稳定。"
 
 #: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
@@ -318,8 +318,8 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"通过预测头追踪位置来抵消输入延迟，预测时间超过渲染时间。除非虚拟显示屏落后于"
-"您的头移动、跳到或非常抖动，否则请使用默认值。"
+"透过预测头追踪位置来抵消输入延迟，预测时间超过渲染时间。"
+"除非虚拟显示屏会落后，提前跳动，或者会抖，请尽量使用预设设定。"
 
 #: src/gtk/connected-device.ui:413
 msgid "Default"
@@ -351,11 +351,11 @@ msgstr "捐赠"
 
 #: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
-msgstr "请求令牌"
+msgstr "申请令牌"
 
 #: src/gtk/license-dialog-content.ui:39
 msgid "Verify token"
-msgstr "验证令牌"
+msgstr "令牌验证"
 
 #: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
 msgid "License Details"
@@ -367,7 +367,7 @@ msgstr "未连接设备"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr "Breezy Desktop 无法检测到任何支持的 XR 设备。"
+msgstr "Breezy Desktop 无法检测到任何支援的 XR 设备。"
 
 #: src/gtk/no-device.ui:23
 msgid "Auto-enable XR effect"
@@ -403,7 +403,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" 如果您通过 AUR 安装，请确保运行推荐的后安装命令：\n"
+" 如果您透过 AUR 安装，请确保运行推荐的后安装命令：\n"
 " systemctl --user enable --now xr-driver.service\n"
 "\n"
 " 否则，请在 GitHub 上提交问题，或在 Discord 的 #troubleshooting 频道中创建新"
