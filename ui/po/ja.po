@@ -391,7 +391,6 @@ msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktopは対応しているXRデバイスを検出できませんでした。"
 
 #: src/gtk/no-device.ui:23
-#, fuzzy
 msgid "Auto-enable XR effect"
 msgstr "XRエフェクトの自動有効化"
 
@@ -402,7 +401,6 @@ msgid ""
 msgstr "対応メガネを接続するとBreezy DesktopのXRエフェクトを自動的に開始します。"
 
 #: src/gtk/no-device.ui:34
-#, fuzzy
 msgid "Start in widescreen mode"
 msgstr "ワイドスクリーンモードで起動"
 
