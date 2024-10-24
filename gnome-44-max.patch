@@ -1,8 +1,8 @@
 diff --git a/gnome-44-max/bin/setup b/gnome-44-max/bin/setup
-index e34efb5..ee5e694 100755
+index bd4c8b5..2cf0a03 100755
 --- a/gnome-44-max/bin/setup
 +++ b/gnome-44-max/bin/setup
-@@ -79,8 +79,10 @@ echo "Copying the manifest file to ${BREEZY_GNOME_DATA_DIR}"
+@@ -84,8 +84,10 @@ echo "Copying the manifest file to ${BREEZY_GNOME_DATA_DIR}"
  mkdir -p $BREEZY_GNOME_DATA_DIR
  cp manifest $BREEZY_GNOME_DATA_DIR
  
@@ -61,7 +61,7 @@ index 52d1341..86d8a76 100644
          this._overlay = overlay;
          this._refreshRate = refreshRate;
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index c8b390d..22dbe2f 100644
+index d8adda3..a24370f 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
 @@ -1,19 +1,21 @@
@@ -102,9 +102,9 @@ index c8b390d..22dbe2f 100644
  
  const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
  const SUPPORTED_MONITOR_PRODUCTS = [
-@@ -29,11 +31,10 @@ const SUPPORTED_MONITOR_PRODUCTS = [
-     NESTED_MONITOR_PRODUCT
- ];
+@@ -33,11 +35,11 @@ const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_h
+ const XDG_CLI_PATH = GLib.build_filenamev([BIN_HOME, 'xr_driver_cli']);
+ const ALT_CLI_PATH = '/usr/bin/xr_driver_cli';
  
 -export default class BreezyDesktopExtension extends Extension {
 -    constructor(metadata, uuid) {
@@ -114,11 +114,12 @@ index c8b390d..22dbe2f 100644
 +class BreezyDesktopExtension {
 +    constructor(extensionPath) {
 +        this.path = extensionPath;
++        
 +        this.settings = ExtensionUtils.getSettings();
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -635,6 +636,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -645,6 +647,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -458,3 +459,24 @@ index 8590e0f..4394f43 100644
                  this.get_pipeline().set_uniform_1i(this.get_uniform_location('calibratingTexture'), 1);
                  this.get_pipeline().set_uniform_1i(this.get_uniform_location('customBannerTexture'), 2);
  
+diff --git a/modules/XRLinuxDriver b/modules/XRLinuxDriver
+index 53002af..91a5d65 160000
+--- a/modules/XRLinuxDriver
++++ b/modules/XRLinuxDriver
+@@ -1 +1 @@
+-Subproject commit 53002afde8406eef7fe309206268ad6dc39e2da6
++Subproject commit 91a5d65c57a63a8003ef4f8a2c36bc519104d54c
+diff --git a/modules/sombrero b/modules/sombrero
+index 76cb6bb..0ddc237 160000
+--- a/modules/sombrero
++++ b/modules/sombrero
+@@ -1 +1 @@
+-Subproject commit 76cb6bb65e90dfe2abf5bd2db8e280ae6e03d5c6
++Subproject commit 0ddc237b5b47208eb9f3f520177920f7ea157dfd
+diff --git a/ui/modules/PyXRLinuxDriverIPC b/ui/modules/PyXRLinuxDriverIPC
+index c3b0dda..e6ec3e3 160000
+--- a/ui/modules/PyXRLinuxDriverIPC
++++ b/ui/modules/PyXRLinuxDriverIPC
+@@ -1 +1 @@
+-Subproject commit c3b0ddab302e11e517b57b621ff334faf03173de
++Subproject commit e6ec3e309e63608552becff694e5f3c9d1e5bcc3
