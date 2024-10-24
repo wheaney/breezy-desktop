@@ -295,18 +295,18 @@ msgstr "每次设置为主要显示"
 
 #: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "连结时，自动将眼镜设置为主要显示。"
+msgstr "连接时，自动将眼镜设置为主要显示。"
 
 #: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
-msgstr "快速 并排模式切换"
+msgstr "快速并排模式切换"
 
 #: src/gtk/connected-device.ui:384
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"连结时，如果宽屏模式开启，眼镜会立即切换到 并排模式。这可能会导致不稳定。"
+"连接时，如果宽屏模式开启，眼镜会立即切换到 并排模式。这可能会导致不稳定。"
 
 #: src/gtk/connected-device.ui:394
 msgid "Movement look-ahead"
@@ -319,7 +319,7 @@ msgid ""
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 "透过预测头追踪位置来抵消输入延迟，预测时间超过渲染时间。"
-"除非虚拟显示屏会落后，提前跳动，或者会抖，请尽量使用预设设定。"
+"除非虚拟显示屏会落后，提前跳动，或者会抖，请尽量使用默认设定。"
 
 #: src/gtk/connected-device.ui:413
 msgid "Default"
@@ -461,7 +461,7 @@ msgstr "分配键盘快捷键"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "按下键盘快捷键或 'Backspace' 禁用..."
+msgstr "按下键盘快捷键或 '退格键' 以禁用..."
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
