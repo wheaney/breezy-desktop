@@ -29,6 +29,7 @@ configure_file(
 breezydesktop_sources = [
   '../modules/PyXRLinuxDriverIPC/xrdriveripc.py',
   '__init__.py',
+  'configmanager.py',
   'connecteddevice.py',
   'extensionsmanager.py',
   'failedverification.py',

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 11:45-0700\n"
+"POT-Creation-Date: 2024-10-22 13:27-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -29,7 +29,7 @@ msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします
 
 #: src/connecteddevice.py:18
 msgid "This feature is not currently supported for your device."
-msgstr "この機能は現在接続されているデバイスではサポートされていません。"
+msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -241,13 +241,15 @@ msgstr "キーボードショートカット"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "XRエフェクトの切り替え"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
+"XRエフェクトの有効・無効を切り替えます。このショートカットを有効にするために"
+"手動で1回XRエフェクトを有効にする必要があります。"
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -386,7 +388,25 @@ msgstr "デバイスが接続されていません"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr "Breezy DesktopはサポートされているXRデバイスを検出できませんでした。"
+msgstr "Breezy Desktopは対応しているXRデバイスを検出できませんでした。"
+
+#: src/gtk/no-device.ui:23
+msgid "Auto-enable XR effect"
+msgstr "XRエフェクトの自動有効化"
+
+#: src/gtk/no-device.ui:24
+msgid ""
+"Automatically enable the Breezy Desktop XR effect when supported glasses are "
+"connected."
+msgstr "対応メガネを接続するとBreezy DesktopのXRエフェクトを自動的に開始します。"
+
+#: src/gtk/no-device.ui:34
+msgid "Start in widescreen mode"
+msgstr "ワイドスクリーンモードで起動"
+
+#: src/gtk/no-device.ui:35
+msgid "Widescreen mode is not supported for all glasses."
+msgstr "ワイドスクリーンモードはすべてのメガネで対応しているわけではありません。"
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"

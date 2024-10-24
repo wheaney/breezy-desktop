@@ -18,7 +18,7 @@
           
           Once you obtain a license, trial or otherwise, you can use Breezy Desktop offline until features expire (or indefinitely, if you've chosen lifetime access).
         </property>
-        <property name="width-request">650</property>
+        <property name="width-request">800</property>
         <property name="height-request">400</property>
       </object>
     </child>

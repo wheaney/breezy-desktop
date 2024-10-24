@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-18 11:45-0700\n"
+"POT-Creation-Date: 2024-10-22 13:27-0700\n"
 "PO-Revision-Date: 2024-08-16 10:26-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -364,6 +364,24 @@ msgstr ""
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
+msgstr ""
+
+#: src/gtk/no-device.ui:23
+msgid "Auto-enable XR effect"
+msgstr ""
+
+#: src/gtk/no-device.ui:24
+msgid ""
+"Automatically enable the Breezy Desktop XR effect when supported glasses are "
+"connected."
+msgstr ""
+
+#: src/gtk/no-device.ui:34
+msgid "Start in widescreen mode"
+msgstr ""
+
+#: src/gtk/no-device.ui:35
+msgid "Widescreen mode is not supported for all glasses."
 msgstr ""
 
 #: src/gtk/no-driver.ui:13

@@ -34,7 +34,7 @@ DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
 rm -rf $DATA_DIR
 
 [ "$for_install" -eq 0 ] && echo "Uninstalling the breezydesktop@xronlinux.com GNOME extension"
-gnome-extensions uninstall breezydesktop@xronlinux.com
+gnome-extensions uninstall breezydesktop@xronlinux.com || true
 
 [ "$for_install" -eq 0 ] && echo "Uninstalling the Breezy Desktop UI application"
 rm -rf $XDG_DATA_HOME/breezydesktop

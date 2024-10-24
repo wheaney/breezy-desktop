@@ -34,7 +34,8 @@ gi.require_version('Adw', '1')
 gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, GLib
+from .configmanager import ConfigManager
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow
@@ -64,12 +65,19 @@ sys.excepthook = excepthook
 
 XRDriverIPC.set_instance(XRDriverIPC(logger, config_dir))
 
+if GLib.MAJOR_VERSION * 100 + GLib.MINOR_VERSION >= 274:
+    APPLICATION_FLAGS = Gio.ApplicationFlags.DEFAULT_FLAGS
+else:
+    # deprecated after Gio version 2.74
+    APPLICATION_FLAGS = Gio.ApplicationFlags.FLAGS_NONE
+
+
 class BreezydesktopApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self, version, skip_verification):
         super().__init__(application_id='com.xronlinux.BreezyDesktop',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+                         flags=APPLICATION_FLAGS)
         self.version = version
 
         self.create_action('quit', self.on_quit_action, ['<primary>q'])
@@ -137,6 +145,7 @@ class BreezydesktopApplication(Adw.Application):
             win.close()
 
         StateManager.destroy_instance()
+        ConfigManager.destroy_instance()
         self.quit()
 
 

@@ -3,16 +3,21 @@
 set -e
 
 check_command() {
-    if ! command -v "$1" &>/dev/null; then
-        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
-        exit 1
-    fi
+    for cmd in "$@"; do
+        if command -v "$cmd" &>/dev/null; then
+            return
+        fi
+    done
+
+    echo "Please install one of the following: ${*}, and make sure it's available in your \$PATH, then rerun the setup."
+    exit 1
 }
 
 check_command "gnome-extensions"
 check_command "glib-compile-schemas"
 check_command "update-desktop-database"
 check_command "gtk-update-icon-cache"
+check_command "python" "python3"
 
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
@@ -96,6 +101,9 @@ sed -i "/Exec/c\Exec=$XDG_BIN_HOME/breezydesktop" $XDG_DATA_HOME/applications/co
 glib-compile-schemas $XDG_DATA_HOME/glib-2.0/schemas
 update-desktop-database $XDG_DATA_HOME/applications
 gtk-update-icon-cache
+
+# refresh bash session so new commands in the PATH are available
+hash -r
 
 # set up the XR driver using the local binary
 echo "Installing xrDriver"

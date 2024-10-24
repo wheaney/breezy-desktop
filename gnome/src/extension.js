@@ -31,9 +31,14 @@ const SUPPORTED_MONITOR_PRODUCTS = [
     NESTED_MONITOR_PRODUCT
 ];
 
+const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
+const XDG_CLI_PATH = GLib.build_filenamev([BIN_HOME, 'xr_driver_cli']);
+const ALT_CLI_PATH = '/usr/bin/xr_driver_cli';
+
 class BreezyDesktopExtension {
     constructor(extensionPath) {
         this.path = extensionPath;
+        
         this.settings = ExtensionUtils.getSettings();
         
         // Set/destroyed by enable/disable
@@ -89,6 +94,15 @@ class BreezyDesktopExtension {
                 this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
             this._headset_as_primary_binding = this.settings.bind('headset-as-primary',
                 this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
+
+            this._cli_file = Gio.file_new_for_path(XDG_CLI_PATH);
+            if (!this._cli_file.query_exists(null)) {
+                this._cli_file = Gio.file_new_for_path(ALT_CLI_PATH);
+                if (!this._cli_file.query_exists(null)) {
+                    this._cli_file = null;
+                    Globals.logger.log('ERROR: BreezyDesktopExtension enable - xr_driver_cli not found');
+                }
+            }
 
             this._setup();
         } catch (e) {
@@ -472,15 +486,12 @@ class BreezyDesktopExtension {
     }
 
     _toggle_xr_effect() {
+        if (!this._cli_file) return;
+
         Globals.logger.log_debug('BreezyDesktopExtension _toggle_xr_effect');
 
-        const bin_home = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
-        const cli_path = GLib.build_filenamev([bin_home, 'xr_driver_cli']);
-
-        Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect path: ${cli_path}`);
-
         let proc = Gio.Subprocess.new(
-            ['bash', '-c', `${cli_path} --external-mode`],
+            ['bash', '-c', `${this._cli_file.get_path()} --external-mode`],
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
         );
 
@@ -496,7 +507,7 @@ class BreezyDesktopExtension {
         // use the CLI to change the external mode, avoid using disable/enable, otherwise the driver will 
         // shut down and recalibrate each time
         proc = Gio.Subprocess.new(
-            ['bash', '-c', `${cli_path} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
+            ['bash', '-c', `${this._cli_file.get_path()} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
         );
         [success, stdout, stderr] = proc.communicate_utf8(null, null);

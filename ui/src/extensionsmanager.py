@@ -24,7 +24,7 @@ class ExtensionsManager(GObject.GObject):
         self.gnome_shell_extensions = self.bus.get("org.gnome.Shell.Extensions")
         self.gnome_shell_extensions.ExtensionStateChanged.connect(self._handle_extension_state_change)
 
-        self.remote_extension_state = None
+        self.remote_extension_state = self.is_enabled()
 
     def _handle_extension_state_change(self, extension_uuid, state):
         if extension_uuid == BREEZY_DESKTOP_UUID:
