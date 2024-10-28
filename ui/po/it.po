@@ -389,7 +389,6 @@ msgstr ""
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
 msgstr "Breezy Desktop non è riuscito a rilevare alcun dispositivo XR supportato."
 
 #: src/gtk/no-driver.ui:13
