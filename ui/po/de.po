@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 13:27-0700\n"
+"POT-Creation-Date: 2024-10-30 09:36-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -75,9 +75,9 @@ msgid "Inactive"
 msgstr "Inaktiv"
 
 #: src/licensetierrow.py:41
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "<b>${amount}</b> USD"
-msgstr "${amount} USD"
+msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
@@ -247,7 +247,8 @@ msgid ""
 "manually once in order to enable the shortcut."
 msgstr ""
 "Schnell den XR-Effekt aktivieren oder deaktivieren. Möglicherweise muss der "
-"Effekt einmalig manuell aktiviert werden, um die Tastenkombination zu aktivieren."
+"Effekt einmalig manuell aktiviert werden, um die Tastenkombination zu "
+"aktivieren."
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -391,7 +392,6 @@ msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop konnte kein unterstütztes XR-Gerät erkennen."
 
 #: src/gtk/no-device.ui:23
-#, fuzzy
 msgid "Auto-enable XR effect"
 msgstr "XR-Effekt automatisch aktivieren"
 
@@ -399,13 +399,13 @@ msgstr "XR-Effekt automatisch aktivieren"
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr "Automatisch den Breezy Desktop XR-Effekt aktivieren, wenn unterstützte "
+msgstr ""
+"Automatisch den Breezy Desktop XR-Effekt aktivieren, wenn unterstützte "
 "Gläser verbunden werden"
 
 #: src/gtk/no-device.ui:34
-#, fuzzy
 msgid "Start in widescreen mode"
-msgstr "Breitbildmodus"
+msgstr "Im Breitbildmodus starten"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
@@ -416,7 +416,6 @@ msgid "No driver running"
 msgstr "Kein Treiber wird ausgeführt"
 
 #: src/gtk/no-driver.ui:14
-#, fuzzy
 msgid ""
 "\n"
 "          If you installed via AUR, make sure you ran the recommended post-"
@@ -476,9 +475,10 @@ msgstr ""
 "Wenn Sie nicht spenden, erhalten Sie eine Testlizenz, damit Sie entscheiden "
 "können, ob Breezy Desktop Ihren Anforderungen entspricht.\n"
 " \n"
-" Sobald Sie eine Lizenz, egal ob eine Test- oder Kauflizenz, erhalten haben, können Sie Breezy Desktop offline "
-"nutzen, auch wenn die Funktionen ablaufen (oder unbegrenzt, wenn Sie sich "
-"für den lebenslangen Zugriff entschieden haben).\n"
+" Sobald Sie eine Lizenz, egal ob eine Test- oder Kauflizenz, erhalten haben, "
+"können Sie Breezy Desktop offline nutzen, auch wenn die Funktionen ablaufen "
+"(oder unbegrenzt, wenn Sie sich für den lebenslangen Zugriff entschieden "
+"haben).\n"
 " "
 
 #: src/gtk/no-license.ui:27
