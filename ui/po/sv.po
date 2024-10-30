@@ -239,13 +239,15 @@ msgstr "Tangentbordsgenvägar"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "XR-Effekt genväg på/av"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
+"Skifta snabbt mellan att slå av eller på XR-Effekt. Du kan behöva slå på den "
+"manuellt en gång för att genvägen ska fungera."
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -319,7 +321,7 @@ msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Växlar glasögon till SBS läge omedelbart när den är ansluten, om brevläge är "
+"Växlar glasögon till SBS läge omedelbart när den är ansluten, om bredbildsläge är "
 "på. Kan orsaka instabilitet."
 
 #: src/gtk/connected-device.ui:394
@@ -341,11 +343,11 @@ msgstr "Standard"
 
 #: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
-msgstr ""
+msgstr "Textskalning"
 
 #: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "Textskalning under 1.0 kommer att simulera en högre skärmupplösning"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -384,24 +386,24 @@ msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop kunde inte upptäcka enheter som stöder XR."
 
 #: src/gtk/no-device.ui:23
-#, fuzzy
 msgid "Auto-enable XR effect"
-msgstr "XR-effekt"
+msgstr "Autoaktivering av XR-effekt"
 
 #: src/gtk/no-device.ui:24
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
+"Aktivera Breezy Desktop XR-effekten automatiskt när glasögon som stöds är "
+"anslutna."
 
 #: src/gtk/no-device.ui:34
-#, fuzzy
 msgid "Start in widescreen mode"
-msgstr "Bredbildsläge"
+msgstr "Starta i bredbildsläge"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
+msgstr "Bredbildsläge stöds inte av alla glasögon."
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
