@@ -81,11 +81,11 @@ msgstr "${amount} USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr " zu erneuern"
+msgstr " zum erneuern"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr " zu aktualisieren"
+msgstr " zum aktualisieren"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
@@ -183,7 +183,7 @@ msgstr "Gebogenes Display"
 
 #: src/gtk/connected-device.ui:78
 msgid "Switch between flat and curved displays."
-msgstr "Umschalten zwischen flachen und gebogenen Displays."
+msgstr "Zwischen flachen und gebogenen Displays wechseln."
 
 #: src/gtk/connected-device.ui:91
 msgid "Adjustments"
@@ -239,13 +239,15 @@ msgstr "Tastenkombinationen"
 
 #: src/gtk/connected-device.ui:218
 msgid "XR Effect on/off shortcut"
-msgstr ""
+msgstr "XR-Effekt an/aus Tastenkombination"
 
 #: src/gtk/connected-device.ui:219
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
+"Schnell den XR-Effekt aktivieren oder deaktivieren. Möglicherweise muss der "
+"Effekt einmalig manuell aktiviert werden, um die Tastenkombination zu aktivieren."
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -266,7 +268,7 @@ msgstr "Display-Entfernung-Tastenkombination"
 
 #: src/gtk/connected-device.ui:277
 msgid "Quickly toggle between two predefined distances."
-msgstr "Schnell zwischen zwei vordefinierten Entfernungen umschalten."
+msgstr "Schnell zwischen zwei vordefinierten Entfernungen wechseln."
 
 #: src/gtk/connected-device.ui:305
 msgid "Toggle follow mode shortcut"
@@ -274,7 +276,7 @@ msgstr "Folgemodus-Tastenkombination umschalten"
 
 #: src/gtk/connected-device.ui:306
 msgid "Quickly toggle follow mode."
-msgstr "Schnell den Folgemodus umschalten."
+msgstr "Schnell den Folgemodus wechseln."
 
 #: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
 msgid "Advanced Settings"
@@ -289,8 +291,8 @@ msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"Ändern Sie die Display-Konfiguration der Brille automatisch für maximale "
-"Auflösung und beste Skalierung, wenn sie angeschlossen ist."
+"Ändern Sie die Display-Konfiguration der Brille automatisch zur maximalen "
+"Auflösung und besten Skalierung, wenn sie angeschlossen ist."
 
 #: src/gtk/connected-device.ui:361
 msgid "Use highest refresh rate"
@@ -309,12 +311,12 @@ msgstr "Immer primäres Display"
 #: src/gtk/connected-device.ui:373
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
-"Setzen Sie die Brille automatisch als primäres Display ein, wenn sie "
+"Setzen Sie die Brille automatisch als primäres Display, wenn sie "
 "angeschlossen ist."
 
 #: src/gtk/connected-device.ui:383
 msgid "Fast SBS mode switching"
-msgstr "Schnelles SBS-Modus-Umschalten"
+msgstr "Schnelles SBS-Modus-Wechseln"
 
 #: src/gtk/connected-device.ui:384
 msgid ""
@@ -345,11 +347,11 @@ msgstr "Standard"
 
 #: src/gtk/connected-device.ui:425
 msgid "Text Scaling"
-msgstr ""
+msgstr "Textskalierung"
 
 #: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr ""
+msgstr "Text unter 1.0 skalieren simuliert ein höher aufgelöstes Display"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -362,7 +364,7 @@ msgid ""
 msgstr ""
 "Ihre Breezy GNOME-Installation ist ungültig oder unvollständig. Führen Sie "
 "das Setup-Skript bitte erneut aus. Melden Sie dieses Problem, falls es "
-"beständig ist."
+"weiterhin besteht."
 
 #: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
@@ -391,13 +393,14 @@ msgstr "Breezy Desktop konnte kein unterstütztes XR-Gerät erkennen."
 #: src/gtk/no-device.ui:23
 #, fuzzy
 msgid "Auto-enable XR effect"
-msgstr "XR-Effekt"
+msgstr "XR-Effekt automatisch aktivieren"
 
 #: src/gtk/no-device.ui:24
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr ""
+msgstr "Automatisch den Breezy Desktop XR-Effekt aktivieren, wenn unterstützte "
+"Gläser verbunden werden"
 
 #: src/gtk/no-device.ui:34
 #, fuzzy
@@ -406,7 +409,7 @@ msgstr "Breitbildmodus"
 
 #: src/gtk/no-device.ui:35
 msgid "Widescreen mode is not supported for all glasses."
-msgstr ""
+msgstr "Breitbildmodus wird nicht für alle Gläsern unterstützt"
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
@@ -425,7 +428,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-" Wenn Sie über AUR installiert haben, stellen Sie sicher, dass Sie den "
+" Wenn Sie über das AUR installiert haben, stellen Sie sicher, dass Sie den "
 "empfohlenen Post-Installationsbefehl ausgeführt haben:\n"
 " systemctl --user enable --now xr-driver.service\n"
 "\n"
@@ -444,7 +447,7 @@ msgid ""
 msgstr ""
 "Wenn Sie die Einrichtung gerade ausgeführt haben, müssen Sie sich "
 "möglicherweise abmelden und wieder anmelden, um sie zu verwenden. "
-"Andernfalls befolgen Sie bitte die Breezy GNOME-Einrichtungsanweisungen."
+"Andernfalls folgen Sie bitte den Breezy GNOME-Einrichtungsanweisungen."
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
@@ -473,7 +476,7 @@ msgstr ""
 "Wenn Sie nicht spenden, erhalten Sie eine Testlizenz, damit Sie entscheiden "
 "können, ob Breezy Desktop Ihren Anforderungen entspricht.\n"
 " \n"
-" Sobald Sie eine Lizenz erhalten haben, können Sie Breezy Desktop offline "
+" Sobald Sie eine Lizenz, egal ob eine Test- oder Kauflizenz, erhalten haben, können Sie Breezy Desktop offline "
 "nutzen, auch wenn die Funktionen ablaufen (oder unbegrenzt, wenn Sie sich "
 "für den lebenslangen Zugriff entschieden haben).\n"
 " "
@@ -489,8 +492,8 @@ msgstr "Tastenkombination zuweisen"
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
 msgstr ""
-"Drücken Sie Ihre Tastenkombination oder die 'Rücktaste', um sie zu "
-"deaktivieren..."
+"Drücken Sie Ihre Tastenkombination oder die 'Rücktaste', um ... zu "
+"deaktivieren"
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
@@ -514,7 +517,7 @@ msgstr "Produktivitätsfunktionen sind deaktiviert"
 
 #: src/gtk/window.ui:95
 msgid "Force Reset"
-msgstr "Erzwingt Zurrücksetzung"
+msgstr "Zurrücksetzung erwzingen"
 
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
