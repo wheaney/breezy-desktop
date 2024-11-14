@@ -28,11 +28,11 @@ msgstr "您的设备目前不支援此功能。"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
-msgstr "订阅等级状态"
+msgstr "订阅状态"
 
 #: src/licensedialogcontent.py:71
 msgid "Feature Availability"
-msgstr "功能可用性"
+msgstr "功能状态"
 
 #: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
 msgid "Disabled"
@@ -57,7 +57,7 @@ msgstr "并排模式（游戏）"
 
 #: src/licensefeaturerow.py:33
 msgid "Smooth Follow (gaming)"
-msgstr "平顺跟随（游戏）"
+msgstr "平滑跟随（游戏）"
 
 #: src/licensefeaturerow.py:34
 msgid "Breezy Desktop (productivity)"
@@ -86,7 +86,7 @@ msgstr "升级"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
-msgstr "已付费至下个续订期"
+msgstr "已支付至下个续订期"
 
 #: src/licensetierrow.py:56
 msgid "Gaming"
@@ -172,7 +172,7 @@ msgstr "跟随模式"
 
 #: src/gtk/connected-device.ui:67
 msgid "Keep the virtual display near the center of your view."
-msgstr "虚拟显示保持在视野中心。"
+msgstr "虚拟显示保持在视野中心附近。"
 
 #: src/gtk/connected-device.ui:77
 msgid "Curved display"
@@ -208,7 +208,7 @@ msgstr "可以跟显示距离一起配合来实现舒适的深度和大小。"
 
 #: src/gtk/connected-device.ui:152
 msgid "Display toggle distances"
-msgstr "显示距离立刻切换"
+msgstr "显示切换距离"
 
 #: src/gtk/connected-device.ui:153
 msgid ""
@@ -218,11 +218,11 @@ msgstr "使用按钮记住当时的显示距离，以设成键盘快捷键。"
 
 #: src/gtk/connected-device.ui:178
 msgid "Follow threshold"
-msgstr "跟随阈值"
+msgstr "跟随触发角度"
 
 #: src/gtk/connected-device.ui:179
 msgid "How far away you can look before the display follows."
-msgstr "示屏进行跟随前可以看得多远。"
+msgstr "在显示内容跟随前您可以看多远。"
 
 #: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
 msgid "Keyboard Shortcuts"
@@ -236,7 +236,7 @@ msgstr "XR效果 开/关 快捷键"
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
-msgstr "快速将XR效果打开/关闭。 效果可能需要手动开一次才能设成快捷键"
+msgstr "快速启用或禁用 XR 效果。您可能需要先手动启用一次该效果，才能设此快捷键"
 
 #: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
 #: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
@@ -287,7 +287,7 @@ msgstr "使用最高刷新率"
 
 #: src/gtk/connected-device.ui:362
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "刷新率可能会影响性能，禁用此功能即可手动设定。"
+msgstr "刷新率可能会影响性能，禁用此功能即可手动设置。"
 
 #: src/gtk/connected-device.ui:372
 msgid "Always primary display"
@@ -318,8 +318,8 @@ msgid ""
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"透过预测头追踪位置来抵消输入延迟，预测时间超过渲染时间。"
-"除非虚拟显示屏会落后，提前跳动，或者会抖，请尽量使用默认设定。"
+"透过预测头部追踪位置，提前于渲染时间进行预测来抵消输入延迟。"
+"除非虚拟显示滞后于头部，提前跳动或非常抖动，请尽量使用默认设置。"
 
 #: src/gtk/connected-device.ui:413
 msgid "Default"
@@ -331,7 +331,7 @@ msgstr "字体大小比例"
 
 #: src/gtk/connected-device.ui:426
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr "字体少于1.0则模拟解析度高的显示"
+msgstr "字体缩放小于1.0，将模拟解析度更高的显示效果"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -412,7 +412,7 @@ msgstr ""
 
 #: src/gtk/no-extension.ui:13
 msgid "Breezy Desktop GNOME extension not ready"
-msgstr "Breezy Desktop GNOME 扩展未准备好"
+msgstr "Breezy Desktop GNOME 扩展尚未启用"
 
 #: src/gtk/no-extension.ui:14
 msgid ""
@@ -457,7 +457,7 @@ msgstr "重新尝试"
 
 #: src/gtk/shortcut-dialog.ui:5
 msgid "Assign Keyboard Shortcut"
-msgstr "分配键盘快捷键"
+msgstr "设置键盘快捷键"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
@@ -481,7 +481,7 @@ msgstr "查看详细信息"
 
 #: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
-msgstr "生产力功能已禁用"
+msgstr "生产模式功能被禁用"
 
 #: src/gtk/window.ui:95
 msgid "Force Reset"
