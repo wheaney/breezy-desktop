@@ -98,13 +98,13 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cli_file = Gio.file_new_for_path(ALT_CLI_PATH);
                 if (!this._cli_file.query_exists(null)) {
                     this._cli_file = null;
-                    Globals.logger.log('ERROR: BreezyDesktopExtension enable - xr_driver_cli not found');
+                    Globals.logger.log('[ERROR] BreezyDesktopExtension enable - xr_driver_cli not found');
                 }
             }
 
             this._setup();
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
         }
     }
 
@@ -133,7 +133,7 @@ export default class BreezyDesktopExtension extends Extension {
                     return GLib.SOURCE_CONTINUE;
                 }
             } catch (e) {
-                Globals.logger.log(`ERROR: BreezyDesktopExtension _poll_for_ready ${e.message}\n${e.stack}`);
+                Globals.logger.log(`[ERROR] BreezyDesktopExtension _poll_for_ready ${e.message}\n${e.stack}`);
                 this._running_poller_id = undefined;
                 return GLib.SOURCE_REMOVE;
             }
@@ -170,7 +170,7 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - No supported monitor found');
             return null;
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
             return null;
         }
     }
@@ -231,7 +231,7 @@ export default class BreezyDesktopExtension extends Extension {
                 return isValidKeepAlive(file_modified_time);
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
         }
 
         return false;
@@ -315,7 +315,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
+                Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
                 this._effect_disable();
             }
         }
@@ -351,11 +351,11 @@ export default class BreezyDesktopExtension extends Extension {
                         bind_to_function
                     );
                 } catch (e) {
-                    Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}\n${e.stack}`);
+                    Globals.logger.log(`[ERROR] BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}\n${e.stack}`);
                 }
             });
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _add_settings_keybinding ${e.message}\n${e.stack}`);
         }
     }
 
@@ -366,7 +366,7 @@ export default class BreezyDesktopExtension extends Extension {
             stream.write(`${key}=${value}`, null);
             stream.close(null);
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
         }
     }
 
@@ -390,7 +390,7 @@ export default class BreezyDesktopExtension extends Extension {
                 }
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _read_state ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _read_state ${e.message}\n${e.stack}`);
         }
         return state;
     }
@@ -495,7 +495,7 @@ export default class BreezyDesktopExtension extends Extension {
 
         let [success, stdout, stderr] = proc.communicate_utf8(null, null);
         if (!success || !!stderr || !stdout) {
-            Globals.logger.log(`ERROR: Failed to get driver status: ${stderr}`);
+            Globals.logger.log(`[ERROR] Failed to get driver status: ${stderr}`);
             return;
         }
 
@@ -510,7 +510,7 @@ export default class BreezyDesktopExtension extends Extension {
         );
         [success, stdout, stderr] = proc.communicate_utf8(null, null);
         if (!success || !!stderr) {
-            Globals.logger.log(`ERROR: Failed to toggle driver: ${stderr}`);
+            Globals.logger.log(`[ERROR] Failed to toggle driver: ${stderr}`);
         }
     }
 
@@ -617,7 +617,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._write_control('sbs_mode', 'disable');
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
         }
     }
 
@@ -640,7 +640,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._monitor_manager = null;
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension disable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension disable ${e.message}\n${e.stack}`);
         }
     }
 }

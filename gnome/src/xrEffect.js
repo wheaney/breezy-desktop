@@ -214,7 +214,7 @@ function setIntermittentUniformVariables() {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
     } catch (e) {
-        Globals.logger.log(`ERROR: xrEffect.js setIntermittentUniformVariables ${e.message}\n${e.stack}`);
+        Globals.logger.log(`[ERROR] xrEffect.js setIntermittentUniformVariables ${e.message}\n${e.stack}`);
     }
 }
 
@@ -419,7 +419,7 @@ export const XREffect = GObject.registerClass({
                         success = true;
                     }
                 } else if (this._dataView.byteLength !== 0) {
-                    Globals.logger.log(`ERROR: Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                    Globals.logger.log(`[ERROR] Invalid dataView.byteLength: ${this._dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
                 }
 
                 if (!success && ++attempts < 3) {
