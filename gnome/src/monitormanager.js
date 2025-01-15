@@ -35,7 +35,7 @@ function getDisplayConfigProxy(extPath) {
                 xml = new TextDecoder().decode(bytes);
             }
         } catch (e) {
-            Globals.logger.log('ERROR: failed to load DisplayConfig interface XML');
+            Globals.logger.log('[ERROR] failed to load DisplayConfig interface XML');
             throw e;
         }
         cachedDisplayConfigProxy = Gio.DBusProxy.makeProxyWrapper(xml);
