@@ -529,7 +529,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._distance_connection = null;
             }
             if (this._data_stream_connection) {
-                this._device_data_stream.unbind(this._data_stream_connection);
+                this._data_stream_connection.unbind();
                 this._data_stream_connection = null;
             }
             if (this._follow_threshold_connection) {
