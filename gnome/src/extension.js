@@ -42,7 +42,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._cursor_manager = null;
         this._device_data_stream = null;
         this._monitor_manager = null;
-        this.overlay_content = null;
+        this._overlay_content = null;
         this._overlay = null;
         this._target_monitor = null;
         this._is_effect_running = false;
@@ -62,6 +62,8 @@ export default class BreezyDesktopExtension extends Extension {
         this._headset_as_primary_binding = null;
         this._actor_added_connection = null;
         this._actor_removed_connection = null;
+        this._data_stream_connection = null;
+        this._stage_redraw_connection = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -243,7 +245,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
 
                 // const textureSourceActor = Main.layoutManager.uiGroup;
-                this.overlay_content = new TestActor({
+                this._overlay_content = new TestActor({
                     monitors: [],
                     fov_degrees: 46.0, 
                     // width: 100, 
@@ -255,7 +257,7 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end')
                 });
 
-                this._overlay.set_child(this.overlay_content);
+                this._overlay.set_child(this._overlay_content);
 
                 Shell.util_set_hidden_from_pick(this._overlay, true);
                 global.stage.add_child(this._overlay);
@@ -279,21 +281,21 @@ export default class BreezyDesktopExtension extends Extension {
 
                 // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
                 // this._supported_device_detected_connection = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
-                this.overlay_content.renderMonitors();
+                this._overlay_content.renderMonitors();
                 this._data_stream_connection = this._device_data_stream.bind_property(
-                    'quaternion',
-                    this.overlay_content, 
-                    'quaternion',
+                    'imu-snapshots',
+                    this._overlay_content, 
+                    'imu-snapshots',
                     GObject.BindingFlags.DEFAULT
                 );
 
-                this._distance_binding = this.settings.bind('display-distance', this.overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
+                this._distance_binding = this.settings.bind('display-distance', this._overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
                 
                 // this._widescreen_mode_settings_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode_from_settings.bind(this))
-                this._start_binding = this.settings.bind('toggle-display-distance-start', this.overlay_content, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
-                this._end_binding = this.settings.bind('toggle-display-distance-end', this.overlay_content, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
+                this._start_binding = this.settings.bind('toggle-display-distance-start', this._overlay_content, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
+                this._end_binding = this.settings.bind('toggle-display-distance-end', this._overlay_content, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
                 // this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
                 // this._display_size_binding = this.settings.bind('display-size', this._xr_effect, 'display-size', Gio.SettingsBindFlags.DEFAULT);
                 // this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
@@ -301,13 +303,13 @@ export default class BreezyDesktopExtension extends Extension {
 
                 Meta.disable_unredirect_for_display(global.display);
                 
-                global.stage.connect('before-paint', (() => {
+                this._stage_redraw_connection = global.stage.connect('before-paint', (() => {
                     this._device_data_stream.refresh_data();
                     this._overlay.queue_redraw();
                 }).bind(this));
 
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
-                this._add_settings_keybinding('toggle-display-distance-shortcut', this.overlay_content._change_distance.bind(this.overlay_content));
+                this._add_settings_keybinding('toggle-display-distance-shortcut', this._overlay_content._change_distance.bind(this._overlay_content));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
                 Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
@@ -504,6 +506,11 @@ export default class BreezyDesktopExtension extends Extension {
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
             Meta.enable_unredirect_for_display(global.display);
+            
+            if (this._stage_redraw_connection) {
+                global.stage.disconnect(this._stage_redraw_connection);
+                this._stage_redraw_connection = null;
+            }
 
             if (this._actor_added_connection) {
                 global.stage.disconnect(this._actor_added_connection);
@@ -514,7 +521,18 @@ export default class BreezyDesktopExtension extends Extension {
                 this._actor_removed_connection = null;
             }
             if (this._overlay) {
-                this.overlay_content = null;
+                if (this._overlay_content) {
+                    // if (this._widescreen_mode_effect_state_connection) {
+                    //     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
+                    //     this._widescreen_mode_effect_state_connection = null;
+                    // }
+                    // if (this._supported_device_detected_connection) {
+                    //     this._xr_effect.disconnect(this._supported_device_detected_connection);
+                    //     this._supported_device_detected_connection = null;
+                    // }
+                    this._overlay_content.destroy();
+                    this._overlay_content = null;
+                }
 
                 global.stage.remove_child(this._overlay);
                 this._overlay.destroy();
@@ -563,17 +581,6 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._disable_anti_aliasing_binding) {
                 this.settings.unbind(this._disable_anti_aliasing_binding);
                 this._disable_anti_aliasing_binding = null;
-            }
-            if (this.overlay_content) {
-                // if (this._widescreen_mode_effect_state_connection) {
-                //     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
-                //     this._widescreen_mode_effect_state_connection = null;
-                // }
-                // if (this._supported_device_detected_connection) {
-                //     this._xr_effect.disconnect(this._supported_device_detected_connection);
-                //     this._supported_device_detected_connection = null;
-                // }
-                this.overlay_content = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();

@@ -67,12 +67,12 @@ export const DeviceDataStream = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             false
         ),
-        'quaternion': GObject.ParamSpec.jsobject(
-            'quaternion',
-            'Quaternion',
-            'Camera orientation quaternion',
+        'imu-snapshots': GObject.ParamSpec.jsobject(
+            'imu-snapshots',
+            'IMU Snapshots',
+            'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
-        ),
+        )
     }
 }, class DeviceDataStream extends GObject.Object {
     constructor(params = {}) {
@@ -140,11 +140,9 @@ export const DeviceDataStream = GObject.registerClass({
                             if (checkParityByte(dataView)) {
                                 this._device_data.imuData = imuData;
                                 this._device_data.imuDateMs = imuDateMs;
-                                this.quaternion = {
-                                    x: imuData[0],
-                                    y: imuData[1],
-                                    z: imuData[2],
-                                    w: imuData[3]
+                                this.imu_snapshots = {
+                                    imu_data: imuData,
+                                    timestamp_ms: imuDateMs
                                 };
                                 success = true;
                             }
