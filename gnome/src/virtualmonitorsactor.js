@@ -235,7 +235,7 @@ function lookAheadMS(imuDateMs, override) {
     return override + dataAge;
 }
 
-export const TestActorEffect = GObject.registerClass({
+export const VirtualMonitorEffect = GObject.registerClass({
     Properties: {
         'monitor-index': GObject.ParamSpec.int(
             'monitor-index',
@@ -298,35 +298,90 @@ export const TestActorEffect = GObject.registerClass({
             'Distance of the display from the camera',
             GObject.ParamFlags.READWRITE,
             0.0, 
-            10000.0, 
+            2.5, 
+            1.0
+        ),
+        'display-distance-z': GObject.ParamSpec.double(
+            'display-distance-z',
+            'Display Distance z-position',
+            'Distance of the display from the camera in the z-axis',
+            GObject.ParamFlags.READWRITE,
+            0.0,
+            10000.0,
             2900.0
         ),
-        'toggle-display-distance-start': GObject.ParamSpec.double(
-            'toggle-display-distance-start',
-            'Display distance start',
-            'Start distance when using the "change distance" shortcut.',
+        'display-distance-default': GObject.ParamSpec.double(
+            'display-distance-default',
+            'Display distance default',
+            'Distance to use when not explicitly set, or when reset',
             GObject.ParamFlags.READWRITE, 
             0.2, 
             2.5, 
-            1.05
-        ),
-        'toggle-display-distance-end': GObject.ParamSpec.double(
-            'toggle-display-distance-end',
-            'Display distance end',
-            'End distance when using the "change distance" shortcut.',
-            GObject.ParamFlags.READWRITE, 
-            0.2, 
-            2.5, 
-            1.05
+            1.0
         ),
         'actor-to-display-ratios': GObject.ParamSpec.jsobject(
             'actor-to-display-ratios',
             'Actor to Display Ratios',
             'Ratios to convert actor coordinates to display coordinates',
             GObject.ParamFlags.READWRITE
+        ),
+        'monitor-actor': GObject.ParamSpec.object(
+            'monitor-actor',
+            'Monitor Actor',
+            'The actor that represents the monitor',
+            GObject.ParamFlags.READWRITE,
+            Clutter.Actor.$gtype
+        ),
+        'is-closest': GObject.ParamSpec.boolean(
+            'is-closest',
+            'Is Closest',
+            'Whether this monitor is the closest to the camera',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
-}, class TestActorEffect extends Shell.GLSLEffect {
+}, class VirtualMonitorEffect extends Shell.GLSLEffect {
+    constructor(params = {}) {
+        super(params);
+
+        this._current_display_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
+
+        this.connect('notify::display-distance', this._update_display_distance.bind(this));
+        this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
+    }
+
+    _is_focused() {
+        return this.focused_monitor_index === this.monitor_index;
+    }
+
+    _update_display_distance() {
+        const desired_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
+        if (this._distance_ease_timeline?.is_playing()) {
+            // we're already easing towards the desired distance, do nothing
+            if (this._distance_ease_target === desired_distance) return;
+
+            this._distance_ease_timeline.stop();
+        }
+
+        const mid_distance = (this.display_distance_default + desired_distance) / 2;
+        
+        this._distance_ease_start = this._current_display_distance;
+        this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 250);
+
+        this._distance_ease_target = desired_distance;
+        this._distance_ease_timeline.connect('new-frame', (() => {
+            this._current_display_distance = this._distance_ease_start + 
+                this._distance_ease_timeline.get_progress() * 
+                (this._distance_ease_target - this._distance_ease_start);
+            this.is_closest = this._current_display_distance < mid_distance;
+        }).bind(this));
+
+        this._distance_ease_timeline.start();
+
+        this.monitor_actor.set_z_position(this.monitor_index);
+        this.monitor_actor.queue_redraw();
+    }
+
     perspective(fovDiagonalRadians, aspect, near, far) {
         // compute horizontal fov given diagonal fov and aspect ratio
         const h = Math.sqrt(aspect * aspect + 1);
@@ -350,7 +405,7 @@ export const TestActorEffect = GObject.registerClass({
             uniform mat4 u_imu_data;
             uniform float u_look_ahead_ms;
             uniform mat4 u_projection_matrix;
-            uniform float u_display_north_offset;
+            uniform float u_display_distance;
             uniform float u_rotation_x_radians;
             uniform float u_rotation_y_radians;
             uniform float u_aspect_ratio;
@@ -360,7 +415,7 @@ export const TestActorEffect = GObject.registerClass({
 
             // constants that help me adjust CoGL vector positions so their components are at the ratios intended, for proper rotation
             float cogl_position_width = 51.7;   // no idea...
-            float cogl_z_factor = 2.5;          // no idea...
+            float cogl_z_factor = 34.66;        // no idea...
 
             float vectorLength(vec3 v) {
                 return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -475,7 +530,7 @@ export const TestActorEffect = GObject.registerClass({
             float position_width_adjustment_count = u_actor_to_display_ratios.x - 1.0;
             float position_height_adjustment_count = u_actor_to_display_ratios.y - 1.0;
 
-            world_pos.z /= cogl_z_factor;
+            world_pos.z = - u_display_distance / cogl_z_factor;
 
             // if the perspective includes more than just our actor, move vertices towards the center of the perspective so they'll be properly rotated
             world_pos.x += position_width_adjustment_count * cogl_position_width;
@@ -491,6 +546,7 @@ export const TestActorEffect = GObject.registerClass({
             world_pos.y /= u_actor_to_display_ratios.y;
 
             world_pos = u_projection_matrix * world_pos;
+            world_pos /= u_display_distance;
 
             // if the perspective includes more than just our actor, move the vertices back to just the area we can see.
             // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
@@ -523,7 +579,8 @@ export const TestActorEffect = GObject.registerClass({
         }
 
         this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, 0)]);
-        this.set_uniform_float(this.get_uniform_location("u_display_north_offset"), 1, [this.display_distance]);
+        // Globals.logger.log(`\t\t\tDisplay distance: ${this._current_display_distance * this.display_distance_z}`);
+        this.set_uniform_float(this.get_uniform_location("u_display_distance"), 1, [this._current_display_distance * this.display_distance_z]);
         this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
 
         this.get_pipeline().set_layer_filters(
@@ -536,7 +593,7 @@ export const TestActorEffect = GObject.registerClass({
     }
 });
 
-export const TestActor = GObject.registerClass({
+export const VirtualMonitorsActor = GObject.registerClass({
     Properties: {
         'monitors': GObject.ParamSpec.jsobject(
             'monitors',
@@ -580,7 +637,7 @@ export const TestActor = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             0.2, 
             2.5,
-            1.0
+            1.05
         ),
         'toggle-display-distance-start': GObject.ParamSpec.double(
             'toggle-display-distance-start',
@@ -601,7 +658,7 @@ export const TestActor = GObject.registerClass({
             1.05
         ),
     }
-}, class TestActor extends Clutter.Actor {
+}, class VirtualMonitorsActor extends Clutter.Actor {
     renderMonitors() {
         this._monitorPlacements = monitorsToPlacements(
             {
@@ -642,7 +699,8 @@ export const TestActor = GObject.registerClass({
             const containerActor = new Clutter.Actor({
                 x:  -noRotationVector[1],
                 y:  -noRotationVector[2],
-                'z-position': -noRotationVector[0],
+                // ideally we would do this, but it causes blur, so we instead set the distance in the shader
+                // 'z-position': -noRotationVector[0],
                 width: monitor.width,
                 height: monitor.height, 
                 reactive: false,
@@ -659,20 +717,28 @@ export const TestActor = GObject.registerClass({
 
             // Add the monitor actor to the scene
             containerActor.add_child(monitorClone);
-            const effect = new TestActorEffect({
+            const effect = new VirtualMonitorEffect({
                 imu_snapshots: this.imu_snapshots,
                 fov_degrees: this.fov_degrees,
                 monitor_index: index,
-                display_distance: noRotationVector[0],
+                display_distance_z: noRotationVector[0],
+                display_distance: this.display_distance,
+                display_distance_default: Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end),
                 monitor_wrapping_scheme: 'horizontal',
                 monitor_wrapping_rotation_radians: this._monitorPlacements[index].rotationAngleRadians,
-                actor_to_display_ratios: actorToDisplayRatios
+                actor_to_display_ratios: actorToDisplayRatios,
+                monitor_actor: containerActor
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
             this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
-            // this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
+            this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
+
+            // in addition to rendering distance property in the shader, the parent actor determines overlap based on child ordering
+            effect.connect('notify::is-closest', ((actor, _pspec) => {
+                if (actor.is_closest) this.set_child_above_sibling(containerActor, null);
+            }).bind(this));
         }).bind(this));
 
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
@@ -683,19 +749,28 @@ export const TestActor = GObject.registerClass({
                 );
 
                 // only switch if the closest monitor is greater than the previous closest by 25%
-                if (this.closestMonitorIndex === undefined || this.closestMonitorIndex !== closestMonitorIndex) {
+                if (closestMonitorIndex !== -1 && (this.focused_monitor_index === undefined || this.focused_monitor_index !== closestMonitorIndex)) {
                     Globals.logger.log(`Switching to monitor ${closestMonitorIndex}`);
-                    this.closestMonitorIndex = closestMonitorIndex;
+                    this.focused_monitor_index = closestMonitorIndex;
                 }
             }
 
             return GLib.SOURCE_CONTINUE;
         }).bind(this));
 
+        this._redraw_timeline = Clutter.Timeline.new_for_actor(this, 1000);
+        this._redraw_timeline.connect('new-frame', (() => {
+            Globals.data_stream.refresh_data();
+            this.imu_snapshots = Globals.data_stream.imu_snapshots;
+            this.queue_redraw();
+        }).bind(this));
+        this._redraw_timeline.set_repeat_count(-1);
+        this._redraw_timeline.start();
+
         this._distance_ease_timeline = null;
-        // this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
-        // this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
-        // this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
         this._handle_display_distance_properties_change();
     }
     
@@ -706,19 +781,15 @@ export const TestActor = GObject.registerClass({
     }
 
     _change_distance() {
-        if (this._distance_ease_timeline?.is_playing()) this._distance_ease_timeline.stop();
-
-        this._distance_ease_start = this.display_distance;
-        this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this, 250);
-
-        const toggle_display_distance_target = this._is_display_distance_at_end ? 
+        this.display_distance = this._is_display_distance_at_end ? 
             this.toggle_display_distance_start : this.toggle_display_distance_end;
-        this._distance_ease_timeline.connect('new-frame', () => {
-            this.display_distance = this._distance_ease_start + 
-                this._distance_ease_timeline.get_progress() * 
-                (toggle_display_distance_target - this._distance_ease_start);
-        });
+    }
 
-        this._distance_ease_timeline.start();
+    destroy() {
+        if (this._redraw_timeline) {
+            this._redraw_timeline.stop();
+            this._redraw_timeline = null;
+        }
+        super.destroy();
     }
 });
