@@ -325,13 +325,6 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Ratios to convert actor coordinates to display coordinates',
             GObject.ParamFlags.READWRITE
         ),
-        'monitor-actor': GObject.ParamSpec.object(
-            'monitor-actor',
-            'Monitor Actor',
-            'The actor that represents the monitor',
-            GObject.ParamFlags.READWRITE,
-            Clutter.Actor.$gtype
-        ),
         'is-closest': GObject.ParamSpec.boolean(
             'is-closest',
             'Is Closest',
@@ -365,21 +358,35 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
         const mid_distance = (this.display_distance_default + desired_distance) / 2;
         
+        // if we're the focused display, we'll double the timeline and wait for the first half to let other 
+        // displays ease out first
+        this._distance_ease_focus = this._is_focused();
+        const timeline_ms = this._distance_ease_focus ? 500 : 150;
+
         this._distance_ease_start = this._current_display_distance;
-        this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), 250);
+        this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), timeline_ms);
 
         this._distance_ease_target = desired_distance;
         this._distance_ease_timeline.connect('new-frame', (() => {
+            let progress = this._distance_ease_timeline.get_progress();
+            if (this._distance_ease_focus) {
+                // if we're the focused display, wait for the first half of the timeline to pass
+                if (progress < 0.5) return;
+
+                // treat the second half of the timeline as its own full progression
+                progress = (progress - 0.5) * 2;
+
+                // put this display in front as it starts to easy in
+                this.is_closest = true;
+            } else {
+                this.is_closest = false;
+            }
+
             this._current_display_distance = this._distance_ease_start + 
-                this._distance_ease_timeline.get_progress() * 
-                (this._distance_ease_target - this._distance_ease_start);
-            this.is_closest = this._current_display_distance < mid_distance;
+                progress * (this._distance_ease_target - this._distance_ease_start);
         }).bind(this));
 
         this._distance_ease_timeline.start();
-
-        this.monitor_actor.set_z_position(this.monitor_index);
-        this.monitor_actor.queue_redraw();
     }
 
     perspective(fovDiagonalRadians, aspect, near, far) {
@@ -408,14 +415,14 @@ export const VirtualMonitorEffect = GObject.registerClass({
             uniform float u_display_distance;
             uniform float u_rotation_x_radians;
             uniform float u_rotation_y_radians;
-            uniform float u_aspect_ratio;
+            uniform vec2 u_display_resolution;
 
             // for some reason the vector positions are relative to the width and height of the uiGroup actor
             uniform vec2 u_actor_to_display_ratios;
 
             // constants that help me adjust CoGL vector positions so their components are at the ratios intended, for proper rotation
-            float cogl_position_width = 51.7;   // no idea...
-            float cogl_z_factor = 34.66;        // no idea...
+            float cogl_position_width_factor = 29.09;   // no idea...
+            float cogl_z_factor = 55.41;                // no idea...
 
             float vectorLength(vec3 v) {
                 return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -525,33 +532,34 @@ export const VirtualMonitorEffect = GObject.registerClass({
         const main = `
             vec4 world_pos = cogl_position_in;
             vec4 look_ahead_quaternion = nwuToESU(imuDataToLookAheadQuaternion(u_imu_data, u_look_ahead_ms));
+            float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-            float cogl_position_height = cogl_position_width / u_aspect_ratio;
+            float cogl_position_width = cogl_position_width_factor * aspect_ratio;
+            float cogl_position_height = cogl_position_width / aspect_ratio;
             float position_width_adjustment_count = u_actor_to_display_ratios.x - 1.0;
             float position_height_adjustment_count = u_actor_to_display_ratios.y - 1.0;
 
-            world_pos.z = - u_display_distance / cogl_z_factor;
+            world_pos.z = - u_display_distance * cogl_z_factor / u_display_resolution.x;
 
             // if the perspective includes more than just our actor, move vertices towards the center of the perspective so they'll be properly rotated
             world_pos.x += position_width_adjustment_count * cogl_position_width;
             world_pos.y += position_height_adjustment_count * cogl_position_height;
 
-            world_pos.z *= u_aspect_ratio;
+            world_pos.z *= aspect_ratio;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
             world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
             world_pos = applyQuaternionToVector(world_pos, quatConjugate(look_ahead_quaternion));
-            world_pos.z /= u_aspect_ratio;
+            world_pos.z /= aspect_ratio;
 
             world_pos.x /= u_actor_to_display_ratios.x;
             world_pos.y /= u_actor_to_display_ratios.y;
 
             world_pos = u_projection_matrix * world_pos;
-            world_pos /= u_display_distance;
 
             // if the perspective includes more than just our actor, move the vertices back to just the area we can see.
             // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
-            world_pos.x -= 0.5 * position_width_adjustment_count * world_pos.w;
-            world_pos.y -= 0.5 * position_height_adjustment_count * world_pos.w;
+            world_pos.x -= (position_width_adjustment_count / u_actor_to_display_ratios.x) * world_pos.w;
+            world_pos.y -= (position_height_adjustment_count / u_actor_to_display_ratios.y) * world_pos.w;
 
             cogl_position_out = world_pos;
 
@@ -573,7 +581,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
             this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [this.monitor_wrapping_scheme === 'vertical' ? this.monitor_wrapping_rotation_radians : 0.0]);
             this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [this.monitor_wrapping_scheme === 'horizontal' ? this.monitor_wrapping_rotation_radians : 0.0]);
-            this.set_uniform_float(this.get_uniform_location("u_aspect_ratio"), 1, [aspect]);
+            this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.get_actor().width, this.get_actor().height]);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
             this._initialized = true;
         }
@@ -726,8 +734,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 display_distance_default: Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end),
                 monitor_wrapping_scheme: 'horizontal',
                 monitor_wrapping_rotation_radians: this._monitorPlacements[index].rotationAngleRadians,
-                actor_to_display_ratios: actorToDisplayRatios,
-                monitor_actor: containerActor
+                actor_to_display_ratios: actorToDisplayRatios
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
@@ -735,7 +742,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
             this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
 
-            // in addition to rendering distance property in the shader, the parent actor determines overlap based on child ordering
+            // in addition to rendering distance properly in the shader, the parent actor determines overlap based on child ordering
             effect.connect('notify::is-closest', ((actor, _pspec) => {
                 if (actor.is_closest) this.set_child_above_sibling(containerActor, null);
             }).bind(this));
