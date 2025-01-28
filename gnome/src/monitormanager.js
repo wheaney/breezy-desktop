@@ -58,6 +58,7 @@ function getMonitorConfig(displayConfigProxy, callback) {
         if (error) {
             callback(null, `GetResourcesRemote failed: ${error}`);
         } else {
+            Globals.logger.log_debug(`monitormanager.js getMonitorConfig GetResources result: ${JSON.stringify(result)}`);
             const monitors = [];
             for (let i = 0; i < result[2].length; i++) {
                 const output = result[2][i];

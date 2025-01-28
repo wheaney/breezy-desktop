@@ -132,21 +132,22 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.widthPixels / 2 / Math.sin(fovHorizontalRadians / 2);
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovHorizontalRadians / 2 });
-        monitorDetailsList.forEach(monitorDetails => {
+        monitorDetailsList.sort((a, b) => a.x - b.x).forEach(monitorDetails => {
             const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.x, monitorDetails.width);
+            const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2))
 
             monitorPlacements.push({
                 topLeftNoRotate: [
-                    centerRadius,
+                    monitorCenterRadius,
                     fovDetails.widthPixels / 2,
                     -(monitorDetails.y - fovDetails.heightPixels / 2)
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
-                    centerRadius * Math.cos(monitorWrapDetails.center),
+                    monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
                     // west is opposite where radius is the hypotenuse, using monitorWrapDetails.center as the radians
-                    -centerRadius * Math.sin(monitorWrapDetails.center),
+                    -monitorCenterRadius * Math.sin(monitorWrapDetails.center),
 
                     // up is flat when wrapping horizontally
                     -(monitorDetails.y + monitorDetails.height / 2 - fovDetails.heightPixels / 2)
@@ -161,24 +162,25 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.heightPixels / 2 / Math.sin(fovVerticalRadians / 2);
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovVerticalRadians / 2 });
-        monitorDetailsList.forEach(monitorDetails => {
+        monitorDetailsList.sort((a, b) => a.y - b.y).forEach(monitorDetails => {
             const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.y, monitorDetails.height);
+            const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2))  ;
 
             monitorPlacements.push({
                 topLeftNoRotate: [
-                    centerRadius,
+                    monitorCenterRadius,
                     -(monitorDetails.x - fovDetails.widthPixels / 2),
                     fovDetails.heightPixels / 2
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
-                    centerRadius * Math.cos(monitorWrapDetails.center),
+                    monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
                     // west is flat when wrapping vertically
                     -(monitorDetails.x + monitorDetails.width / 2 - fovDetails.widthPixels / 2),
 
                     // up is opposite where radius is the hypotenuse, using monitorWrapDetails.center as the radians
-                    -centerRadius * Math.sin(monitorWrapDetails.center)
+                    -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
                 ],
                 rotationAngleRadians: -monitorWrapDetails.center
             });
@@ -201,6 +203,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             });
         });
     }
+    Globals.logger.log_debug(`\t\t\tCached monitor wrap: ${JSON.stringify(cachedMonitorWrap)}`);
 
     return monitorPlacements;
 }
@@ -421,8 +424,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             uniform vec2 u_actor_to_display_ratios;
 
             // constants that help me adjust CoGL vector positions so their components are at the ratios intended, for proper rotation
-            float cogl_position_width_factor = 29.09;   // no idea...
-            float cogl_z_factor = 55.41;                // no idea...
+            float cogl_position_mystery_factor = 29.09;   // no idea...
 
             float vectorLength(vec3 v) {
                 return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -534,12 +536,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             vec4 look_ahead_quaternion = nwuToESU(imuDataToLookAheadQuaternion(u_imu_data, u_look_ahead_ms));
             float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-            float cogl_position_width = cogl_position_width_factor * aspect_ratio;
+            float cogl_position_width = cogl_position_mystery_factor * aspect_ratio;
             float cogl_position_height = cogl_position_width / aspect_ratio;
             float position_width_adjustment_count = u_actor_to_display_ratios.x - 1.0;
             float position_height_adjustment_count = u_actor_to_display_ratios.y - 1.0;
 
-            world_pos.z = - u_display_distance * cogl_z_factor / u_display_resolution.x;
+            world_pos.z = - u_display_distance * cogl_position_mystery_factor * 2 / u_display_resolution.x;
 
             // if the perspective includes more than just our actor, move vertices towards the center of the perspective so they'll be properly rotated
             world_pos.x += position_width_adjustment_count * cogl_position_width;
@@ -689,13 +691,18 @@ export const VirtualMonitorsActor = GObject.registerClass({
             const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
             return [vector[0] / length, vector[1] / length, vector[2] / length];
         });
+        const monitors = Main.layoutManager.monitors;
+        const minMonitorX = Math.min(...monitors.map(monitor => monitor.x));
+        const maxMonitorX = Math.max(...monitors.map(monitor => monitor.x + monitor.width));
+        const minMonitorY = Math.min(...monitors.map(monitor => monitor.y));
+        const maxMonitorY = Math.max(...monitors.map(monitor => monitor.y + monitor.height));
 
         const actorToDisplayRatios = [
-            Main.layoutManager.uiGroup.width / this.width, 
-            Main.layoutManager.uiGroup.height / this.height
+            (maxMonitorX - minMonitorX) / this.width, 
+            (maxMonitorY - minMonitorY) / this.height
         ];
         
-        Main.layoutManager.monitors.forEach(((monitor, index) => {
+        monitors.forEach(((monitor, index) => {
             // if (index === 0) return;
             Globals.logger.log(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
             
