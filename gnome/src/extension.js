@@ -248,9 +248,8 @@ export default class BreezyDesktopExtension extends Extension {
                 Globals.data_stream.refresh_data();
                 this._overlay_content = new VirtualMonitorsActor({
                     monitors: [],
-                    fov_degrees: 46.0, 
-                    width: targetMonitor.width, 
-                    height: targetMonitor.height,
+                    fov_degrees: 46.0,
+                    target_monitor: targetMonitor,
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),

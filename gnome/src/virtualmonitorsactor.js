@@ -132,15 +132,15 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.widthPixels / 2 / Math.sin(fovHorizontalRadians / 2);
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovHorizontalRadians / 2 });
-        monitorDetailsList.sort((a, b) => a.x - b.x).forEach(monitorDetails => {
+        monitorDetailsList.forEach(monitorDetails => {
             const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.x, monitorDetails.width);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2))
 
             monitorPlacements.push({
                 topLeftNoRotate: [
                     monitorCenterRadius,
-                    fovDetails.widthPixels / 2,
-                    -(monitorDetails.y - fovDetails.heightPixels / 2)
+                    0,
+                    -monitorDetails.y
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
@@ -162,15 +162,15 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.heightPixels / 2 / Math.sin(fovVerticalRadians / 2);
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovVerticalRadians / 2 });
-        monitorDetailsList.sort((a, b) => a.y - b.y).forEach(monitorDetails => {
+        monitorDetailsList.forEach(monitorDetails => {
             const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.y, monitorDetails.height);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2))  ;
 
             monitorPlacements.push({
                 topLeftNoRotate: [
                     monitorCenterRadius,
-                    -(monitorDetails.x - fovDetails.widthPixels / 2),
-                    fovDetails.heightPixels / 2
+                    -monitorDetails.x,
+                    0
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
@@ -191,8 +191,8 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             monitorPlacements.push({
                 topLeftNoRotate: [
                     centerRadius,
-                    -(monitorDetails.x - fovDetails.widthPixels / 2),
-                    -(monitorDetails.y - fovDetails.heightPixels / 2)
+                    -monitorDetails.x,
+                    -monitorDetails.y
                 ],
                 center: [
                     centerRadius,
@@ -304,14 +304,11 @@ export const VirtualMonitorEffect = GObject.registerClass({
             2.5, 
             1.0
         ),
-        'display-distance-z': GObject.ParamSpec.double(
-            'display-distance-z',
-            'Display Distance z-position',
-            'Distance of the display from the camera in the z-axis',
-            GObject.ParamFlags.READWRITE,
-            0.0,
-            10000.0,
-            2900.0
+        'display-position': GObject.ParamSpec.jsobject(
+            'display-position',
+            'Display Position',
+            'Position of the display in COGL (ESU) coordinates',
+            GObject.ParamFlags.READWRITE
         ),
         'display-distance-default': GObject.ParamSpec.double(
             'display-distance-default',
@@ -326,6 +323,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'actor-to-display-ratios',
             'Actor to Display Ratios',
             'Ratios to convert actor coordinates to display coordinates',
+            GObject.ParamFlags.READWRITE
+        ),
+        'actor-to-display-offsets': GObject.ParamSpec.jsobject(
+            'actor-to-display-offsets',
+            'Actor to Display Offsets',
+            'Offsets to convert actor coordinates to display coordinates',
             GObject.ParamFlags.READWRITE
         ),
         'is-closest': GObject.ParamSpec.boolean(
@@ -415,16 +418,17 @@ export const VirtualMonitorEffect = GObject.registerClass({
             uniform mat4 u_imu_data;
             uniform float u_look_ahead_ms;
             uniform mat4 u_projection_matrix;
-            uniform float u_display_distance;
+            uniform vec3 u_display_position;
             uniform float u_rotation_x_radians;
             uniform float u_rotation_y_radians;
             uniform vec2 u_display_resolution;
 
-            // for some reason the vector positions are relative to the width and height of the uiGroup actor
+            // vector positions are relative to the width and height of the entire stage
             uniform vec2 u_actor_to_display_ratios;
+            uniform vec2 u_actor_to_display_offsets;
 
-            // constants that help me adjust CoGL vector positions so their components are at the ratios intended, for proper rotation
-            float cogl_position_mystery_factor = 29.09;   // no idea...
+            // discovered through trial and error, no idea the significance
+            float cogl_position_mystery_factor = 29.09;
 
             float vectorLength(vec3 v) {
                 return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -538,14 +542,14 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
             float cogl_position_width = cogl_position_mystery_factor * aspect_ratio;
             float cogl_position_height = cogl_position_width / aspect_ratio;
-            float position_width_adjustment_count = u_actor_to_display_ratios.x - 1.0;
-            float position_height_adjustment_count = u_actor_to_display_ratios.y - 1.0;
 
-            world_pos.z = - u_display_distance * cogl_position_mystery_factor * 2 / u_display_resolution.x;
+            world_pos.x -= u_display_position.x * cogl_position_width * 2 / u_display_resolution.x;
+            world_pos.y -= u_display_position.y * cogl_position_height * 2 / u_display_resolution.y;
+            world_pos.z = u_display_position.z * cogl_position_mystery_factor * 2 / u_display_resolution.x;
 
             // if the perspective includes more than just our actor, move vertices towards the center of the perspective so they'll be properly rotated
-            world_pos.x += position_width_adjustment_count * cogl_position_width;
-            world_pos.y += position_height_adjustment_count * cogl_position_height;
+            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width;
+            world_pos.y += u_actor_to_display_offsets.y * cogl_position_height;
 
             world_pos.z *= aspect_ratio;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
@@ -560,8 +564,8 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
             // if the perspective includes more than just our actor, move the vertices back to just the area we can see.
             // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
-            world_pos.x -= (position_width_adjustment_count / u_actor_to_display_ratios.x) * world_pos.w;
-            world_pos.y -= (position_height_adjustment_count / u_actor_to_display_ratios.y) * world_pos.w;
+            world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
+            world_pos.y -= (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
 
             cogl_position_out = world_pos;
 
@@ -585,12 +589,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [this.monitor_wrapping_scheme === 'horizontal' ? this.monitor_wrapping_rotation_radians : 0.0]);
             this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.get_actor().width, this.get_actor().height]);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
+            this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
             this._initialized = true;
         }
 
         this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, 0)]);
-        // Globals.logger.log(`\t\t\tDisplay distance: ${this._current_display_distance * this.display_distance_z}`);
-        this.set_uniform_float(this.get_uniform_location("u_display_distance"), 1, [this._current_display_distance * this.display_distance_z]);
+        this.set_uniform_float(this.get_uniform_location("u_display_position"), 3, [this.display_position[0], this.display_position[1], this._current_display_distance * this.display_position[2]]);
         this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
 
         this.get_pipeline().set_layer_filters(
@@ -609,6 +613,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'monitors',
             'Monitors',
             'Array of monitor indexes',
+            GObject.ParamFlags.READWRITE
+        ),
+        'target-monitor': GObject.ParamSpec.jsobject(
+            'target-monitor',
+            'Target Monitor',
+            'Details about the monitor being used as a viewport',
             GObject.ParamFlags.READWRITE
         ),
         'imu-snapshots': GObject.ParamSpec.jsobject(
@@ -669,6 +679,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
         ),
     }
 }, class VirtualMonitorsActor extends Clutter.Actor {
+    constructor(params = {}) {
+        super(params);
+
+        this.width = this.target_monitor.width;
+        this.height = this.target_monitor.height;
+    }
+
     renderMonitors() {
         this._monitorPlacements = monitorsToPlacements(
             {
@@ -697,10 +714,22 @@ export const VirtualMonitorsActor = GObject.registerClass({
         const minMonitorY = Math.min(...monitors.map(monitor => monitor.y));
         const maxMonitorY = Math.max(...monitors.map(monitor => monitor.y + monitor.height));
 
+        const displayWidth = maxMonitorX - minMonitorX;
+        const displayHeight = maxMonitorY - minMonitorY;
         const actorToDisplayRatios = [
-            (maxMonitorX - minMonitorX) / this.width, 
-            (maxMonitorY - minMonitorY) / this.height
+            displayWidth / this.width, 
+            displayHeight / this.height
         ];
+
+        // how far this viewport actor's center is from the center of the whole stage
+        const actorMidX = this.target_monitor.x + this.width / 2;
+        const actorMidY = this.target_monitor.y + this.height / 2;
+        const actorToDisplayOffsets = [
+            (displayWidth / 2 - (actorMidX - minMonitorX)) * 2 / this.width,
+            (displayHeight / 2 - (actorMidY - minMonitorY)) * 2 / this.height
+        ];
+
+        Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
         monitors.forEach(((monitor, index) => {
             // if (index === 0) return;
@@ -712,12 +741,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
             // actor coordinates are east-up-south
             const containerActor = new Clutter.Actor({
-                x:  -noRotationVector[1],
-                y:  -noRotationVector[2],
-                // ideally we would do this, but it causes blur, so we instead set the distance in the shader
-                // 'z-position': -noRotationVector[0],
-                width: monitor.width,
-                height: monitor.height, 
+                width: this.width,
+                height: this.height, 
                 reactive: false,
             });
 
@@ -725,8 +750,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
             const monitorClone = new Clutter.Clone({
                 source: Main.layoutManager.uiGroup, 
                 reactive: false,
-                x: -containerActor.x - monitor.x,
-                y: -containerActor.y - monitor.y
+                x: -monitor.x,
+                y: -monitor.y
             });
             monitorClone.set_clip(monitor.x, monitor.y, monitor.width, monitor.height);
 
@@ -736,12 +761,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 imu_snapshots: this.imu_snapshots,
                 fov_degrees: this.fov_degrees,
                 monitor_index: index,
-                display_distance_z: noRotationVector[0],
+                display_position: [-noRotationVector[1], -noRotationVector[2], -noRotationVector[0]],
                 display_distance: this.display_distance,
                 display_distance_default: Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end),
                 monitor_wrapping_scheme: 'horizontal',
                 monitor_wrapping_rotation_radians: this._monitorPlacements[index].rotationAngleRadians,
-                actor_to_display_ratios: actorToDisplayRatios
+                actor_to_display_ratios: actorToDisplayRatios,
+                actor_to_display_offsets: actorToDisplayOffsets
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
