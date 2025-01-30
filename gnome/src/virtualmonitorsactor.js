@@ -543,26 +543,26 @@ export const VirtualMonitorEffect = GObject.registerClass({
             float cogl_position_width = cogl_position_mystery_factor * aspect_ratio;
             float cogl_position_height = cogl_position_width / aspect_ratio;
 
-            world_pos.x -= u_display_position.x * cogl_position_width * 2 / u_display_resolution.x;
-            world_pos.y -= u_display_position.y * cogl_position_height * 2 / u_display_resolution.y;
+            world_pos.x -= u_display_position.x * cogl_position_width * 2 / u_display_resolution.x / u_actor_to_display_ratios.y;
+            world_pos.y -= u_display_position.y * cogl_position_height * 2 / u_display_resolution.y / u_actor_to_display_ratios.y;
             world_pos.z = u_display_position.z * cogl_position_mystery_factor * 2 / u_display_resolution.x;
 
-            // if the perspective includes more than just our actor, move vertices towards the center of the perspective so they'll be properly rotated
-            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width;
-            world_pos.y += u_actor_to_display_offsets.y * cogl_position_height;
+            // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
+            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / u_actor_to_display_ratios.y;
+            world_pos.y += u_actor_to_display_offsets.y * cogl_position_height / u_actor_to_display_ratios.y;
 
-            world_pos.z *= aspect_ratio;
+            world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
             world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
             world_pos = applyQuaternionToVector(world_pos, quatConjugate(look_ahead_quaternion));
-            world_pos.z /= aspect_ratio;
+            world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
-            world_pos.x /= u_actor_to_display_ratios.x;
-            world_pos.y /= u_actor_to_display_ratios.y;
+            world_pos.x /= u_actor_to_display_ratios.x / u_actor_to_display_ratios.y;
+            // world_pos.y /= u_actor_to_display_ratios.y;
 
             world_pos = u_projection_matrix * world_pos;
 
-            // if the perspective includes more than just our actor, move the vertices back to just the area we can see.
+            // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
             // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
             world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
             world_pos.y -= (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
