@@ -139,7 +139,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             monitorPlacements.push({
                 topLeftNoRotate: [
                     monitorCenterRadius,
-                    0,
+                    -(monitorDetails.width - fovDetails.widthPixels) / 2,
                     -monitorDetails.y
                 ],
                 center: [
@@ -170,7 +170,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                 topLeftNoRotate: [
                     monitorCenterRadius,
                     -monitorDetails.x,
-                    0
+                    -(monitorDetails.height - fovDetails.heightPixels) / 2
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
