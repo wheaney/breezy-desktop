@@ -549,7 +549,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
             // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
             world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / u_actor_to_display_ratios.y;
-            world_pos.y += u_actor_to_display_offsets.y * cogl_position_height / u_actor_to_display_ratios.y;
+            world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / u_actor_to_display_ratios.y;
 
             world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
@@ -558,14 +558,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
             world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
             world_pos.x /= u_actor_to_display_ratios.x / u_actor_to_display_ratios.y;
-            // world_pos.y /= u_actor_to_display_ratios.y;
 
             world_pos = u_projection_matrix * world_pos;
 
             // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
             // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
             world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
-            world_pos.y -= (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
+            world_pos.y += (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
 
             cogl_position_out = world_pos;
 
