@@ -428,7 +428,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             uniform vec2 u_actor_to_display_offsets;
 
             // discovered through trial and error, no idea the significance
-            float cogl_position_mystery_factor = 29.09;
+            float cogl_position_mystery_factor = 29.09 * 2;
 
             float vectorLength(vec3 v) {
                 return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -540,16 +540,16 @@ export const VirtualMonitorEffect = GObject.registerClass({
             vec4 look_ahead_quaternion = nwuToESU(imuDataToLookAheadQuaternion(u_imu_data, u_look_ahead_ms));
             float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-            float cogl_position_width = cogl_position_mystery_factor * aspect_ratio;
+            float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
             float cogl_position_height = cogl_position_width / aspect_ratio;
 
-            world_pos.x -= u_display_position.x * cogl_position_width * 2 / u_display_resolution.x / u_actor_to_display_ratios.y;
-            world_pos.y -= u_display_position.y * cogl_position_height * 2 / u_display_resolution.y / u_actor_to_display_ratios.y;
-            world_pos.z = u_display_position.z * cogl_position_mystery_factor * 2 / u_display_resolution.x;
+            world_pos.x -= u_display_position.x * cogl_position_width / u_display_resolution.x;
+            world_pos.y -= u_display_position.y * cogl_position_height/ u_display_resolution.y;
+            world_pos.z = u_display_position.z * cogl_position_mystery_factor / u_display_resolution.x;
 
             // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
-            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / u_actor_to_display_ratios.y;
-            world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / u_actor_to_display_ratios.y;
+            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / 2;
+            world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / 2;
 
             world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
@@ -557,7 +557,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             world_pos = applyQuaternionToVector(world_pos, quatConjugate(look_ahead_quaternion));
             world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
-            world_pos.x /= u_actor_to_display_ratios.x / u_actor_to_display_ratios.y;
+            world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
 
             world_pos = u_projection_matrix * world_pos;
 
@@ -676,6 +676,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
             2.5, 
             1.05
         ),
+        'target-framerate': GObject.ParamSpec.double(
+            'target-framerate',
+            'Target Framerate',
+            'Target framerate for the virtual monitors',
+            GObject.ParamFlags.READWRITE,
+            1.0, 120.0, 60.0
+        )
     }
 }, class VirtualMonitorsActor extends Clutter.Actor {
     constructor(params = {}) {
@@ -683,6 +690,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
         this.width = this.target_monitor.width;
         this.height = this.target_monitor.height;
+        this._frametime_ms = Math.floor(1000 / (this.target_framerate ?? 60.0));
     }
 
     renderMonitors() {
@@ -799,9 +807,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
         this._redraw_timeline = Clutter.Timeline.new_for_actor(this, 1000);
         this._redraw_timeline.connect('new-frame', (() => {
+            // let's try to cap the forced redraw rate
+            if (this._last_redraw !== undefined && Date.now() - this._last_redraw < this._frametime_ms) return;
+
             Globals.data_stream.refresh_data();
             this.imu_snapshots = Globals.data_stream.imu_snapshots;
             this.queue_redraw();
+            this._last_redraw = Date.now();
         }).bind(this));
         this._redraw_timeline.set_repeat_count(-1);
         this._redraw_timeline.start();
