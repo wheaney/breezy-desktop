@@ -430,86 +430,8 @@ export const VirtualMonitorEffect = GObject.registerClass({
             // discovered through trial and error, no idea the significance
             float cogl_position_mystery_factor = 29.09 * 2;
 
-            float vectorLength(vec3 v) {
-                return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-            }
-
-            float quaternionLength(vec4 q) {
-                return sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
-            }
-
-            vec4 quatMul(vec4 q1, vec4 q2) {
-                return vec4(
-                    q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,  // x
-                    q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,  // y
-                    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,  // z
-                    q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z   // w
-                );
-            }
-
             vec4 quatConjugate(vec4 q) {
                 return vec4(-q.xyz, q.w);
-            }
-
-            vec4 quatExp(vec4 q) {
-                float vLength = vectorLength(q.xyz);
-                float expW = exp(q.w);
-                
-                if (vLength < 0.000001) {
-                    return vec4(0.0, 0.0, 0.0, expW);
-                }
-                
-                float scale = expW * sin(vLength) / vLength;
-                return vec4(q.xyz * scale, expW * cos(vLength));
-            }
-
-            vec4 quatLog(vec4 q) {
-                float qLength = quaternionLength(q);
-                float vLength = vectorLength(q.xyz);
-                
-                if (vLength < 0.000001) {
-                    return vec4(0.0, 0.0, 0.0, log(qLength));
-                }
-                
-                float scale = acos(clamp(q.w / qLength, -1.0, 1.0)) / vLength;
-                return vec4(q.xyz * scale, log(qLength));
-            }
-
-            vec4 computeQuaternionVelocity(vec4 q1, vec4 q2, float milliseconds) {
-                // Normalize input quaternions
-                q1 = normalize(q1);
-                q2 = normalize(q2);
-                
-                // Compute difference quaternion (q2 * q1^-1)
-                vec4 diffQ = quatMul(q2, quatConjugate(q1));
-                
-                // Ensure we take the shortest path
-                if (diffQ.w < 0.0) {
-                    diffQ = -diffQ;
-                }
-                
-                // Take the log and scale by time
-                return quatLog(diffQ) / milliseconds;
-            }
-
-            vec4 extrapolateRotation(vec4 initialQuat, vec4 velocity, float deltaTimeMs) {
-                // Scale velocity by time
-                vec4 scaledVelocity = velocity * deltaTimeMs;
-                
-                // Compute the exponential
-                vec4 deltaRotation = quatExp(scaledVelocity);
-                
-                // Apply to initial quaternion
-                return normalize(quatMul(deltaRotation, initialQuat));
-            }
-
-            vec4 imuDataToLookAheadQuaternion(mat4 imuData, float lookAheadMS) {
-                // last row of matrix contains imu timestamps, subtract the second column from the first
-                float imuDeltaTime = imuData[3][0] - imuData[3][1];
-
-                // rotation per ms
-                vec4 velocity = computeQuaternionVelocity(imuData[0], imuData[1], imuDeltaTime);
-                return extrapolateRotation(imuData[0], velocity, lookAheadMS);
             }
 
             vec4 applyQuaternionToVector(vec4 v, vec4 q) {
@@ -533,11 +455,22 @@ export const VirtualMonitorEffect = GObject.registerClass({
             vec4 nwuToESU(vec4 v) {
                 return vec4(-v.y, v.z, -v.x, v.w);
             }
+                
+            // returns the rate of change between the two vectors, in same time units as delta_time
+            // e.g. if delta_time is in ms, then the rate of change is "per ms"
+            vec3 rateOfChange(vec3 v1, vec3 v2, float delta_time) {
+                return (v1-v2) / delta_time;
+            }
+
+            // attempt to figure out where the current position should be based on previous position and velocity.
+            // velocity and time values should use the same time units (secs, ms, etc...)
+            vec3 applyLookAhead(vec3 position, vec3 velocity, float t) {
+                return position + velocity * t;
+            }
         `;
 
         const main = `
             vec4 world_pos = cogl_position_in;
-            vec4 look_ahead_quaternion = nwuToESU(imuDataToLookAheadQuaternion(u_imu_data, u_look_ahead_ms));
             float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
             float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
@@ -554,7 +487,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
             world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
             world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
-            world_pos = applyQuaternionToVector(world_pos, quatConjugate(look_ahead_quaternion));
+
+            vec3 rotated_vector_t0 = applyQuaternionToVector(world_pos, nwuToESU(quatConjugate(u_imu_data[0]))).xyz;
+            vec3 rotated_vector_t1 = applyQuaternionToVector(world_pos, nwuToESU(quatConjugate(u_imu_data[1]))).xyz;
+            float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
+            vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
+            world_pos = vec4(applyLookAhead(rotated_vector_t0, velocity_t0, u_look_ahead_ms), world_pos.w);
             world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
             world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
