@@ -53,10 +53,10 @@ function checkParityByte(dataView) {
 
 export const DeviceDataStream = GObject.registerClass({
     Properties: {
-        'supported-device-connected': GObject.ParamSpec.boolean(
-            'supported-device-connected',
-            'Supported device connected',
-            'Whether a supported device is connected',
+        'breezy-desktop-running': GObject.ParamSpec.boolean(
+            'breezy-desktop-running',
+            'Breezy Desktop running',
+            'Whether Breezy Desktop mode is enabled in xr_driver and supported glasses are connected',
             GObject.ParamFlags.READWRITE,
             false
         ),
@@ -77,7 +77,7 @@ export const DeviceDataStream = GObject.registerClass({
 }, class DeviceDataStream extends GObject.Object {
     constructor(params = {}) {
         super(params);
-        this.supported_device_connected = false;
+        this.breezy_desktop_running = false;
         this._ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
         this._running = false;
         this._device_data = null;
@@ -92,7 +92,7 @@ export const DeviceDataStream = GObject.registerClass({
         this._running = false;
     }
 
-    // polling is just intended to keep supported_device_connected current, anything needing up-to-date imu data should 
+    // polling is just intended to keep breezy_desktop_running current, anything needing up-to-date imu data should 
     // trigger a refresh with the default flag
     _poll() {
         if (this._running) {
@@ -101,13 +101,13 @@ export const DeviceDataStream = GObject.registerClass({
         }
     }
 
-    // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update supported_device_connected if it 
+    // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update breezy_desktop_running if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
         if (this._ipc_file.query_exists(null) && (
             !this._device_data?.imuData || 
             !keepalive_only || 
-            getEpochSec() - this._device_data.imuDateMs > KEEPALIVE_REFRESH_INTERVAL_SEC
+            getEpochSec() - toSec(this._device_data?.imuDateMs ?? 0) > KEEPALIVE_REFRESH_INTERVAL_SEC
         )) {
             let data = this._ipc_file.load_contents(null);
             if (data[0]) {
@@ -165,11 +165,12 @@ export const DeviceDataStream = GObject.registerClass({
 
                     if (success) {
                         // update the supported device connected property if the state changes, trigger "notify::" events
-                        if (this.supported_device_connected !== validKeepalive) this.supported_device_connected = validKeepalive;
+                        const breezy_desktop_running = enabled && validKeepalive;
+                        if (this.breezy_desktop_running !== breezy_desktop_running) this.breezy_desktop_running = breezy_desktop_running;
                     }
                 }
             } else {
-                this.supported_device_connected = false;
+                this.breezy_desktop_running = false;
             }
         }
     }

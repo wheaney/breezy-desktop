@@ -51,40 +51,6 @@
                       </object>
                     </child>
                     <child>
-                      <object class="AdwActionRow" id="widescreen_mode_row">
-                        <property name="title" translatable="yes"><!-- feature switch -->Widescreen mode</property>
-                        <property name="valign">2</property>
-                        <child>
-                          <object class="GtkSwitch" id="widescreen_mode_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- feature switch -->Follow mode</property>
-                        <property name="subtitle" translatable="yes">Keep the virtual display near the center of your view.</property>
-                        <child>
-                          <object class="GtkSwitch" id="follow_mode_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- feature switch -->Curved display</property>
-                        <property name="subtitle" translatable="yes">Switch between flat and curved displays.</property>
-                        <property name="valign">2</property>
-                        <child>
-                          <object class="GtkSwitch" id="curved_display_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Virtual monitors</property>
                         <property name="valign">2</property>
@@ -182,30 +148,6 @@
                                 <property name="valign">3</property>
                               </object>
                             </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Follow threshold</property>
-                        <property name="subtitle" translatable="yes">How far away you can look before the display follows.</property>
-                        <child>
-                          <object class="GtkScale" id="follow_threshold_scale">
-                            <property name="valign">3</property>
-                            <property name="draw-value">true</property>
-                            <property name="value-pos">0</property>
-                            <property name="digits">0</property>
-                            <property name="width-request">350</property>
-                            <property name="has-origin">false</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="follow_threshold_adjustment">
-                                <property name="lower">1</property>
-                                <property name="upper">45</property>
-                                <property name="step-increment">1</property>
-                                <property name="value">15</property>
-                              </object>
-                            </property>
                           </object>
                         </child>
                       </object>

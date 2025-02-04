@@ -52,7 +52,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._follow_threshold_connection = null;
         this._widescreen_mode_settings_connection = null;
         this._widescreen_mode_effect_state_connection = null;
-        this._supported_device_detected_connection = null;
+        this._breezy_desktop_running_connection = null;
         this._start_binding = null;
         this._end_binding = null;
         this._curved_display_binding = null;
@@ -128,18 +128,18 @@ export default class BreezyDesktopExtension extends Extension {
                     return GLib.SOURCE_REMOVE;
                 }
 
-                if (Globals.data_stream.supported_device_connected && target_monitor) {
+                if (Globals.data_stream.breezy_desktop_running && target_monitor) {
                     // Don't enable the effect yet if monitor updates are needed.
                     // _setup will be triggered again since a !ready result means it will trigger monitor changes,
                     // so we can remove this timeout_add no matter what.
                     if (this._target_monitor_ready(target_monitor)) {
-                        Globals.logger.log('Glasses detected, supported monitor connected. Enabling XR effect.');
+                        Globals.logger.log('Breezy enabled, supported monitor connected. Enabling XR effect.');
                         this._effect_enable();
                     }
                     this._running_poller_id = undefined;
                     return GLib.SOURCE_REMOVE;
                 } else {
-                    Globals.logger.log_debug(`BreezyDesktopExtension _poll_for_ready - device connected: ${Globals.data_stream.supported_device_connected}, target_monitor: ${!!target_monitor}`);
+                    Globals.logger.log_debug(`BreezyDesktopExtension _poll_for_ready - device connected: ${Globals.data_stream.breezy_desktop_running}, target_monitor: ${!!target_monitor}`);
                     return GLib.SOURCE_CONTINUE;
                 }
             } catch (e) {
@@ -233,17 +233,17 @@ export default class BreezyDesktopExtension extends Extension {
         if (target_monitor && this._running_poller_id === undefined) {
             this._target_monitor = target_monitor;
 
-            if (Globals.data_stream.supported_device_connected) {
+            if (Globals.data_stream.breezy_desktop_running) {
                 // Don't enable the effect yet if monitor updates are needed.
                 // _setup will be triggered again since a !ready result means it will trigger monitor changes
                 if (this._target_monitor_ready(target_monitor)) {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
                 } else {
-                    Globals.logger.log_debug('BreezyDesktopExtension _setup - glasses detected but async monitor action needed');
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - breezy desktop enabled but async monitor action needed');
                 }
             } else {
-                Globals.logger.log_debug('BreezyDesktopExtension _setup - glasses not detected, starting poller');
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - breezy desktop not enabled, starting poller');
                 this._poll_for_ready();
             }
         } else {
@@ -323,7 +323,7 @@ export default class BreezyDesktopExtension extends Extension {
                 //     this._update_widescreen_mode_from_settings(this.settings);
 
                 // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
-                // this._supported_device_detected_connection = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
+                this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', this._handle_breezy_desktop_running_change.bind(this));
                 this._overlay_content.renderMonitors();
 
                 this._distance_binding = this.settings.bind('display-distance', this._overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
@@ -505,13 +505,13 @@ export default class BreezyDesktopExtension extends Extension {
         this._setup();
     }
 
-    _handle_supported_device_change(effect, _pspec) {
-        const device_connected = effect.supported_device_detected;
-        Globals.logger.log_debug(`BreezyDesktopExtension _handle_supported_device_change ${device_connected}`);
+    _handle_breezy_desktop_running_change(effect, _pspec) {
+        const breezy_desktop_running = effect.breezy_desktop_running;
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_breezy_desktop_running_change ${breezy_desktop_running}`);
 
         // this will disable the effect and begin polling for a ready state again
-        if (!device_connected && this._is_effect_running) {
-            Globals.logger.log('Supported device disconnected');
+        if (!breezy_desktop_running && this._is_effect_running) {
+            Globals.logger.log('Breezy desktop disabled');
             this._setup(true);
         }
     }
@@ -632,21 +632,21 @@ export default class BreezyDesktopExtension extends Extension {
                 this._disable_anti_aliasing_binding = null;
             }
             if (this._overlay) {
+                global.stage.remove_child(this._overlay);
+                this._overlay.destroy();
+                this._overlay = null;
                 if (this._overlay_content) {
                     // if (this._widescreen_mode_effect_state_connection) {
                     //     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
                     //     this._widescreen_mode_effect_state_connection = null;
                     // }
-                    // if (this._supported_device_detected_connection) {
-                    //     this._xr_effect.disconnect(this._supported_device_detected_connection);
-                    //     this._supported_device_detected_connection = null;
-                    // }
+                    if (this._breezy_desktop_running_connection) {
+                        Globals.data_stream.disconnect(this._breezy_desktop_running_connection);
+                        this._breezy_desktop_running_connection = null;
+                    }
                     this._overlay_content.destroy();
                     this._overlay_content = null;
                 }
-                global.stage.remove_child(this._overlay);
-                this._overlay.destroy();
-                this._overlay = null;
 
             }
             if (this._cursor_manager) {
@@ -668,9 +668,9 @@ export default class BreezyDesktopExtension extends Extension {
     disable() {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension disable');
-            Globals.data_stream.stop();
 
             this._effect_disable();
+            Globals.data_stream.stop();
             this._target_monitor = null;
 
             if (this._monitor_manager) {

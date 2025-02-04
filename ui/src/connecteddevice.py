@@ -26,12 +26,12 @@ class ConnectedDevice(Gtk.Box):
     display_distance_adjustment = Gtk.Template.Child()
     display_size_scale = Gtk.Template.Child()
     display_size_adjustment = Gtk.Template.Child()
-    follow_threshold_scale = Gtk.Template.Child()
-    follow_threshold_adjustment = Gtk.Template.Child()
-    follow_mode_switch = Gtk.Template.Child()
-    widescreen_mode_switch = Gtk.Template.Child()
-    widescreen_mode_row = Gtk.Template.Child()
-    curved_display_switch = Gtk.Template.Child()
+    # follow_threshold_scale = Gtk.Template.Child()
+    # follow_threshold_adjustment = Gtk.Template.Child()
+    # follow_mode_switch = Gtk.Template.Child()
+    # widescreen_mode_switch = Gtk.Template.Child()
+    # widescreen_mode_row = Gtk.Template.Child()
+    # curved_display_switch = Gtk.Template.Child()
     add_virtual_display_button = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
@@ -60,9 +60,9 @@ class ConnectedDevice(Gtk.Box):
         self.all_enabled_state_inputs = [
             self.display_distance_scale,
             self.display_size_scale,
-            self.follow_mode_switch,
-            self.follow_threshold_scale,
-            self.curved_display_switch,
+            # self.follow_mode_switch,
+            # self.follow_threshold_scale,
+            # self.curved_display_switch,
             # self.add_virtual_display_button,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
@@ -76,9 +76,9 @@ class ConnectedDevice(Gtk.Box):
 
         self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -100,12 +100,12 @@ class ConnectedDevice(Gtk.Box):
         self.add_virtual_display_button.connect('clicked', self.on_add_virtual_display)
 
         self.state_manager = StateManager.get_instance()
-        self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
+        # self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
         self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
         self.state_manager.connect('notify::device-supports-sbs', self._handle_device_supports_sbs)
 
-        self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
-        self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
+        # self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
+        # self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
 
         self.config_manager = ConfigManager.get_instance()
@@ -131,9 +131,9 @@ class ConnectedDevice(Gtk.Box):
     def _handle_device_supports_sbs(self, state_manager, val):
         if not state_manager.get_property('device-supports-sbs'):
             self.settings.set_boolean('widescreen-mode', False)
-        self.widescreen_mode_switch.set_sensitive(state_manager.get_property('device-supports-sbs'))
-        subtitle = self.widescreen_mode_subtitle if state_manager.get_property('device-supports-sbs') else self.widescreen_mode_not_supported_subtitle
-        self.widescreen_mode_row.set_subtitle(subtitle)
+        # self.widescreen_mode_switch.set_sensitive(state_manager.get_property('device-supports-sbs'))
+        # subtitle = self.widescreen_mode_subtitle if state_manager.get_property('device-supports-sbs') else self.widescreen_mode_not_supported_subtitle
+        # self.widescreen_mode_row.set_subtitle(subtitle)
 
     def _handle_enabled_config(self, object, val):
         enabled = self.config_manager.get_property('breezy-desktop-enabled') and self.extensions_manager.get_property('breezy-enabled')
@@ -152,8 +152,8 @@ class ConnectedDevice(Gtk.Box):
         for widget in self.all_enabled_state_inputs:
             widget.set_sensitive(requesting_enabled)
         
-        if requesting_enabled: 
-            self._refresh_follow_mode(self.follow_mode_switch, None)
+        # if requesting_enabled: 
+        #     self._refresh_follow_mode(self.follow_mode_switch, None)
 
     def _refresh_follow_mode(self, switch, param):
         self.follow_threshold_scale.set_sensitive(switch.get_active())
@@ -186,11 +186,11 @@ class ConnectedDevice(Gtk.Box):
         logger.info("Virtual display ready")
     
     def _on_widget_destroy(self, widget):
-        self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
+        # self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
         self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
         self.settings.unbind('display-size', self.display_size_adjustment, 'value')
         self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
-        self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
+        # self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
 
 def reload_display_distance_toggle_button(widget):
     distance = SettingsManager.get_instance().settings.get_double(widget.get_name())
