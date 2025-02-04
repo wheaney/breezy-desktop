@@ -629,6 +629,10 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this.width = this.target_monitor.width;
         this.height = this.target_monitor.height;
         this._frametime_ms = Math.floor(1000 / (this.target_framerate ?? 60.0));
+        this._all_monitors = [
+            this.target_monitor,
+            ...this.monitors
+        ];
     }
 
     renderMonitors() {
@@ -638,7 +642,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 widthPixels: this.width,
                 heightPixels: this.height
             },
-            Main.layoutManager.monitors.map(monitor => ({
+            this._all_monitors.map(monitor => ({
                 x: monitor.x,
                 y: monitor.y,
                 width: monitor.width,
@@ -653,14 +657,14 @@ export const VirtualMonitorsActor = GObject.registerClass({
             const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
             return [vector[0] / length, vector[1] / length, vector[2] / length];
         });
-        const monitors = Main.layoutManager.monitors;
+        const monitors = this._all_monitors;
         const minMonitorX = Math.min(...monitors.map(monitor => monitor.x));
         const maxMonitorX = Math.max(...monitors.map(monitor => monitor.x + monitor.width));
         const minMonitorY = Math.min(...monitors.map(monitor => monitor.y));
         const maxMonitorY = Math.max(...monitors.map(monitor => monitor.y + monitor.height));
 
-        const displayWidth = maxMonitorX - minMonitorX;
-        const displayHeight = maxMonitorY - minMonitorY;
+        const displayWidth = global.stage.width;
+        const displayHeight = global.stage.height;
         const actorToDisplayRatios = [
             displayWidth / this.width, 
             displayHeight / this.height
@@ -670,8 +674,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
         const actorMidX = this.target_monitor.x + this.width / 2;
         const actorMidY = this.target_monitor.y + this.height / 2;
         const actorToDisplayOffsets = [
-            (displayWidth / 2 - (actorMidX - minMonitorX)) * 2 / this.width,
-            (displayHeight / 2 - (actorMidY - minMonitorY)) * 2 / this.height
+            (displayWidth / 2 - (actorMidX - global.stage.x)) * 2 / this.width,
+            (displayHeight / 2 - (actorMidY - global.stage.y)) * 2 / this.height
         ];
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);

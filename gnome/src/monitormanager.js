@@ -54,34 +54,28 @@ export function newDisplayConfig(extPath, callback) {
 }
 
 function getMonitorConfig(displayConfigProxy, callback) {
-    displayConfigProxy.GetResourcesRemote((result, error) => {
+    displayConfigProxy.GetCurrentStateRemote((result, error) => {
         if (error) {
-            callback(null, `GetResourcesRemote failed: ${error}`);
+            callback(null, `GetCurrentState failed: ${error}`);
         } else {
-            Globals.logger.log_debug(`monitormanager.js getMonitorConfig GetResources result: ${JSON.stringify(result)}`);
-            const monitors = [];
-            for (let i = 0; i < result[2].length; i++) {
-                const output = result[2][i];
-                if (output.length <= 7) {
-                    callback(null, 'Cannot get DisplayConfig: No properties on output #' + i);
-                    return;
-                }
-                const props = output[7];
-                const displayName = props['display-name'].get_string()[0];
-                const connectorName = output[4];
-                if (!displayName || displayName == '') {
-                    const displayName = 'Monitor on output ' + connectorName;
-                }
-                const vendor = props['vendor'].get_string()[0];
-                const product = props['product'].get_string()[0];
-                const serial = props['serial'].get_string()[0];
+            Globals.logger.log_debug(`monitormanager.js getMonitorConfig GetCurrentState result: ${JSON.stringify(result)}`);
+            
+            const allMonitors = [];
+            const [serial, monitors, logicalMonitors, properties] = result;
+            for (let monitor of monitors) {
+                const [details, modes, monProperties] = monitor;
+                const [connector, vendor, product, monitorSerial] = details;
+                const displayName = monProperties['display-name'].get_string()[0];
 
-                // grab refresh rate from the modes array
-                const refreshRate = result[3][i][4];
-
-                monitors.push([displayName, connectorName, vendor, product, serial, refreshRate]);
+                for (let mode of modes) {
+                    const [modeId, width, height, refreshRate, preferredScale, supportedScales, modeProperites] = mode;
+                    const isCurrent = !!modeProperites['is-current'];
+                    if (isCurrent) {
+                        allMonitors.push([displayName, connector, vendor, product, serial, refreshRate]);
+                    }
+                }
             }
-            callback(monitors, null);
+            callback(allMonitors, null);
         }
     });
 }
@@ -289,6 +283,7 @@ export const MonitorManager = GObject.registerClass({
         // help prevent certain actions from taking place multiple times in the event of rapid monitor updates
         this._asyncRequestsInFlight = 0;
         this._configCheckRequestsCount = 0;
+        this._enabled = false;
     }
 
     enable() {
@@ -303,12 +298,14 @@ export const MonitorManager = GObject.registerClass({
         }).bind(this));
 
         this._monitorsChangedConnection = Main.layoutManager.connect('monitors-changed', this._on_monitors_change.bind(this));
+        this._enabled = true;
     }
 
     disable() {
         Globals.logger.log_debug('MonitorManager disable');
         Main.layoutManager.disconnect(this._monitorsChangedConnection);
 
+        this._enabled = false;
         this._monitorsChangedConnection = null;
         this._displayConfigProxy = null;
         this._backendManager = null;
@@ -384,6 +381,8 @@ export const MonitorManager = GObject.registerClass({
     }
 
     _on_monitors_change() {
+        if (!this._enabled) return;
+
         Globals.logger.log_debug('MonitorManager _on_monitors_change');
         if (this._displayConfigProxy == null) {
             return;

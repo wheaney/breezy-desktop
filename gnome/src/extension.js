@@ -17,6 +17,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
+const VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
 const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
     'nreal air',
@@ -137,7 +138,29 @@ export default class BreezyDesktopExtension extends Extension {
         }).bind(this));
     }
 
+    _find_virtual_monitors() {
+        try {
+            Globals.logger.log_debug('BreezyDesktopExtension _find_virtual_monitors');
+            const virtual_monitors = this._monitor_manager.getMonitorPropertiesList()?.filter(
+                monitor => monitor && monitor.product === VIRTUAL_MONITOR_PRODUCT);
+            if (virtual_monitors.length > 0) {
+                Globals.logger.log(`Found ${virtual_monitors.length} virtual monitors`);
+                return virtual_monitors.map(monitor => {
+                    return this._monitor_manager.getMonitors()[monitor.index];
+                });
+            }
+
+            Globals.logger.log_debug('BreezyDesktopExtension _find_virtual_monitors - No virtual monitors found');
+        } catch (e) {
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _find_virtual_monitors ${e.message}\n${e.stack}`)
+        }
+
+        return [];
+    }
+
     _find_supported_monitor() {
+        if (!this._monitor_manager.getMonitorPropertiesList()) return null;
+
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
             const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
@@ -149,7 +172,8 @@ export default class BreezyDesktopExtension extends Extension {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
                     refreshRate: target_monitor.refreshRate,
-                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT
+                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT,
+                    is_virtual: target_monitor.product === VIRTUAL_MONITOR_PRODUCT
                 };
             }
 
@@ -247,7 +271,7 @@ export default class BreezyDesktopExtension extends Extension {
                 // const textureSourceActor = Main.layoutManager.uiGroup;
                 Globals.data_stream.refresh_data();
                 this._overlay_content = new VirtualMonitorsActor({
-                    monitors: [],
+                    monitors: this._find_virtual_monitors(),
                     fov_degrees: 46.0,
                     target_monitor: targetMonitor,
                     display_distance: this.settings.get_double('display-distance'),
