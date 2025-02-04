@@ -1,16 +1,15 @@
 import Clutter from 'gi://Clutter'
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
+import St from 'gi://St';
 
 import { CursorManager } from './cursormanager.js';
 import { DeviceDataStream } from './devicedatastream.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
 import { MonitorManager } from './monitormanager.js';
-import { Overlay } from './overlay.js';
 import { VirtualMonitorsActor } from './virtualmonitorsactor.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -278,11 +277,33 @@ export default class BreezyDesktopExtension extends Extension {
 
             try {
                 const targetMonitor = this._target_monitor.monitor;
+                const virtualMonitors = this._find_virtual_monitors();
                 const refreshRate = targetMonitor.refreshRate ?? 60;
-                this._overlay = new Overlay(targetMonitor);
 
-                this._cursor_manager = new CursorManager(this._overlay, refreshRate);
+                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, [targetMonitor, ...virtualMonitors], refreshRate);
                 this._cursor_manager.enable();
+
+                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', reactive: false, clip_to_allocation: true });
+                this._overlay.opacity = 255;
+                this._overlay.set_position(targetMonitor.x, targetMonitor.y);
+                this._overlay.set_size(targetMonitor.width, targetMonitor.height);
+
+                // const textureSourceActor = Main.layoutManager.uiGroup;
+                Globals.data_stream.refresh_data();
+                this._overlay_content = new VirtualMonitorsActor({
+                    monitors: virtualMonitors,
+                    fov_degrees: 46.0,
+                    target_monitor: targetMonitor,
+                    display_distance: this.settings.get_double('display-distance'),
+                    toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
+                    toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
+                    imu_snapshots: Globals.data_stream.imu_snapshots
+                });
+
+                this._overlay.set_child(this._overlay_content);
+
+                Shell.util_set_hidden_from_pick(this._overlay, true);
+                global.stage.add_child(this._overlay);
 
                 // In GS 45, use of "actor" was renamed to "child".
                 const clutterContainer = Clutter.Container !== undefined;
@@ -318,7 +339,6 @@ export default class BreezyDesktopExtension extends Extension {
                 // this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
                 // this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
-                this._overlay.mainActor().add_effect_with_name('xr-desktop', this._xr_effect);
                 Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
@@ -335,7 +355,8 @@ export default class BreezyDesktopExtension extends Extension {
 
     _handle_sibling_update() {
         Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        global.stage.set_child_above_sibling(this._overlay.mainActor(), null);
+        this._cursor_manager.moveAboveSiblings();
+        global.stage.set_child_above_sibling(this._overlay, null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -628,25 +649,9 @@ export default class BreezyDesktopExtension extends Extension {
                 this._overlay = null;
 
             }
-            if (this._xr_effect) {
-                if (this._widescreen_mode_effect_state_connection) {
-                    this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
-                    this._widescreen_mode_effect_state_connection = null;
-                }
-                if (this._supported_device_detected_connected) {
-                    this._xr_effect.disconnect(this._supported_device_detected_connected);
-                    this._supported_device_detected_connected = null;
-                }
-                this._xr_effect.cleanup();
-                this._xr_effect = null;
-            }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
                 this._cursor_manager = null;
-            }
-            if (this._overlay) {
-                this._overlay.mainActor().remove_effect_by_name('xr-desktop');
-                this._overlay.destroy();
             }
 
             // this should always be done at the end of this function after the widescreen settings binding is removed,

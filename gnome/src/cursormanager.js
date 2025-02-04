@@ -4,11 +4,11 @@ import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.j
 import { MouseSpriteContent } from './cursor.js';
 import Globals from './globals.js';
 
-
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
-    constructor(overlay, refreshRate) {
-        this._overlay = overlay;
+    constructor(mainActor, targetMonitors, refreshRate) {
+        this._mainActor = mainActor;
+        this._targetMonitors = targetMonitors;
         this._refreshRate = refreshRate;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
@@ -42,6 +42,10 @@ export class CursorManager {
     stopCloning() {
         Globals.logger.log_debug('CursorManager stopCloning');
         this._stopCloningMouse();
+    }
+
+    moveAboveSiblings() {
+        if (this._cursorRoot) this._mainActor.set_child_above_sibling(this._cursorRoot, null);
     }
 
     // After this:
@@ -111,7 +115,7 @@ export class CursorManager {
     // prereqs: setup in _enableCloningMouse
     _startCloningMouse() {
         Globals.logger.log_debug('CursorManager _startCloningMouse');
-        this._overlay.mainActor().add_child(this._cursorRoot);
+        this._mainActor.add_child(this._cursorRoot);
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
@@ -124,7 +128,8 @@ export class CursorManager {
         this._updateMousePosition();
 
         const [xMouse, yMouse] = global.get_pointer();
-        if (this._overlay.isWithinBounds(xMouse, yMouse)) this._hideSystemCursor();
+
+        if (this._targetMonitors.some(monitor => this._isWithinMonitorBounds(xMouse, yMouse, monitor))) this._hideSystemCursor();
     }
 
     // After this:
@@ -144,7 +149,7 @@ export class CursorManager {
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
         Meta.enable_unredirect_for_display(global.display);
         
-        if (this._cursorRoot) this._overlay.mainActor().remove_child(this._cursorRoot);
+        if (this._cursorRoot) this._mainActor.remove_child(this._cursorRoot);
         if (!this._systemCursorShown) this._showSystemCursor();
     }
 
@@ -168,21 +173,20 @@ export class CursorManager {
 
     _updateMousePosition(...args) {
         const [xMouse, yMouse] = args.length ? args : global.get_pointer();
-        const inBounds = this._overlay.isWithinBounds(xMouse, yMouse);
-        const [xRel, yRel] = this._overlay.getRelativePosition(xMouse, yMouse);
+        const inBounds = this._targetMonitors.some(monitor => this._isWithinMonitorBounds(xMouse, yMouse, monitor));
 
-        if (xRel === this.xMouse && yRel === this.yMouse)
+        if (xMouse === this.xMouse && yMouse === this.yMouse)
             return;
 
         if (inBounds) {
             if (this._systemCursorShown) this._hideSystemCursor();
-            this._cursorRoot.set_position(xRel, yRel);
+            this._cursorRoot.set_position(xMouse, yMouse);
         } else if (!this._systemCursorShown && !inBounds) {
             this._showSystemCursor();
         }
 
-        this.xMouse = xRel;
-        this.yMouse = yRel;
+        this.xMouse = xMouse;
+        this.yMouse = yMouse;
 
         const seat = Clutter.get_default_backend().get_default_seat();
         if (this._cursorUnfocusInhibited && !seat.is_unfocus_inhibited()) {
@@ -209,5 +213,10 @@ export class CursorManager {
         } else {
             this._mouseSprite.hide();
         }
+    }
+
+    _isWithinMonitorBounds(x, y, monitor) {
+        return x >= monitor.x && x < monitor.x + monitor.width &&
+               y >= monitor.y && y < monitor.y + monitor.height;
     }
 }

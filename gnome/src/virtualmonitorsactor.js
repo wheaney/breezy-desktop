@@ -657,30 +657,22 @@ export const VirtualMonitorsActor = GObject.registerClass({
             const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
             return [vector[0] / length, vector[1] / length, vector[2] / length];
         });
-        const monitors = this._all_monitors;
-        const minMonitorX = Math.min(...monitors.map(monitor => monitor.x));
-        const maxMonitorX = Math.max(...monitors.map(monitor => monitor.x + monitor.width));
-        const minMonitorY = Math.min(...monitors.map(monitor => monitor.y));
-        const maxMonitorY = Math.max(...monitors.map(monitor => monitor.y + monitor.height));
-
-        const displayWidth = global.stage.width;
-        const displayHeight = global.stage.height;
         const actorToDisplayRatios = [
-            displayWidth / this.width, 
-            displayHeight / this.height
+            global.stage.width / this.width, 
+            global.stage.height / this.height
         ];
 
         // how far this viewport actor's center is from the center of the whole stage
         const actorMidX = this.target_monitor.x + this.width / 2;
         const actorMidY = this.target_monitor.y + this.height / 2;
         const actorToDisplayOffsets = [
-            (displayWidth / 2 - (actorMidX - global.stage.x)) * 2 / this.width,
-            (displayHeight / 2 - (actorMidY - global.stage.y)) * 2 / this.height
+            (global.stage.width / 2 - (actorMidX - global.stage.x)) * 2 / this.width,
+            (global.stage.height / 2 - (actorMidY - global.stage.y)) * 2 / this.height
         ];
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
-        monitors.forEach(((monitor, index) => {
+        this._all_monitors.forEach(((monitor, index) => {
             // if (index === 0) return;
             Globals.logger.log(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
             
