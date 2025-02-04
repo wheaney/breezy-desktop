@@ -47,6 +47,7 @@ breezydesktop_sources = [
   'shortcutdialog.py',
   'statemanager.py',
   'time.py',
+  'virtualdisplay.py',
   'verify.py',
   'window.py'
 ]

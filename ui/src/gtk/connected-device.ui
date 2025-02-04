@@ -84,6 +84,19 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Virtual monitors</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkButton" id="add_virtual_display_button">
+                            <property name="name">add-virtual-display</property>
+                            <property name="valign">3</property>
+                            <property name="label" translatable="yes">Add</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>

@@ -67,6 +67,7 @@ const shaderUniformLocations = {
     'fov_widths': null,
     'display_resolution': null,
     'source_to_display_ratio': null,
+    'texcoord_visible_area': null,
     'curved_display': null,
 
     // only used by the reshade integration, but needs to be set to a default value by this effect
@@ -132,6 +133,7 @@ function setIntermittentUniformVariables() {
             const displayRes = dataViewUint32Array(dataView, DISPLAY_RES);
             const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
+            const texture_actor = this.get_actor();
             if (enabled) {
                 const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
 
@@ -166,13 +168,23 @@ function setIntermittentUniformVariables() {
                         texcoordXLimitsRight[1] = 0.75;
                     }
                 }
+
+                Globals.logger.log(`texture_actor: ${texture_actor.x}, ${texture_actor.y}, ${texture_actor.width}, ${texture_actor.height}`);
+
+                const texcoordVisibleArea = [
+                    this.texture_monitor_position.x / texture_actor.width,
+                    this.texture_monitor_position.y / texture_actor.height,
+                    (this.texture_monitor_position.x + this.target_monitor.width) / texture_actor.width,
+                    (this.texture_monitor_position.y + this.target_monitor.height) / texture_actor.height
+                ]
+
                 const lensVector = [lensDistanceRatio, lensFromCenter, 0.0];
                 const lensVectorRight = [lensDistanceRatio, -lensFromCenter, 0.0];
 
                 // our overlay doesn't quite cover the full screen texture, which allows us to see some of the real desktop
                 // underneath, so we trim three pixels around the entire edge of the texture
-                const trimWidthPercent = 3.0 / this.target_monitor.width;
-                const trimHeightPercent = 3.0 / this.target_monitor.height;
+                const trimWidthPercent = 3.0 / texture_actor.width;
+                const trimHeightPercent = 3.0 / texture_actor.height;
                 
                 // all these values are transferred directly, unmodified from the driver
                 transferUniformFloat(this, 'look_ahead_cfg', dataView, LOOK_AHEAD_CFG);
@@ -184,9 +196,10 @@ function setIntermittentUniformVariables() {
                 setSingleFloat(this, 'half_fov_y_rads', halfFovYRads);
                 this.set_uniform_float(shaderUniformLocations['fov_half_widths'], 2, fovHalfWidths);
                 this.set_uniform_float(shaderUniformLocations['fov_widths'], 2, fovWidths);
-                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
                 this.set_uniform_float(shaderUniformLocations['texcoord_x_limits'], 2, texcoordXLimits);
                 this.set_uniform_float(shaderUniformLocations['texcoord_x_limits_r'], 2, texcoordXLimitsRight);
+                this.set_uniform_float(shaderUniformLocations['texcoord_visible_area'], 4, texcoordVisibleArea);
+                setSingleFloat(this, 'curved_display', this.curved_display ? 1.0 : 0.0);
                 this.set_uniform_float(shaderUniformLocations['lens_vector'], 3, lensVector);
                 this.set_uniform_float(shaderUniformLocations['lens_vector_r'], 3, lensVectorRight);
             }
@@ -209,7 +222,8 @@ function setIntermittentUniformVariables() {
             setSingleFloat(this, 'sideview_display_size', 1.0);
 
             this.set_uniform_float(shaderUniformLocations['display_resolution'], 2, displayRes);
-            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [this.target_monitor.width/displayRes[0], this.target_monitor.height/displayRes[1]]);
+            Globals.logger.log_debug(`Source resolution ${texture_actor.width}x${texture_actor.height}`);
+            this.set_uniform_float(shaderUniformLocations['source_to_display_ratio'], 2, [texture_actor.width/displayRes[0], texture_actor.height/displayRes[1]]);
         } else if (dataView.byteLength !== 0) {
             throw new Error(`Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`);
         }
@@ -252,6 +266,12 @@ export const XREffect = GObject.registerClass({
             'Target Framerate', 
             'Target framerate for this effect',
             GObject.ParamFlags.READWRITE, 30, 240, 60
+        ),
+        'texture-monitor-position': GObject.ParamSpec.jsobject(
+            'texture-monitor-position',
+            'Texture Monitor Position',
+            'Coordinates of the monitor relative to the target actor texture',
+            GObject.ParamFlags.READWRITE
         ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
