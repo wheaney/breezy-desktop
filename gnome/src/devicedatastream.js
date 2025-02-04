@@ -104,7 +104,11 @@ export const DeviceDataStream = GObject.registerClass({
     // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update supported_device_connected if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
-        if (!this._device_data?.imuData || !keepalive_only || getEpochSec() - this._device_data.imuDateMs > KEEPALIVE_REFRESH_INTERVAL_SEC) {
+        if (this._ipc_file.query_exists(null) && (
+            !this._device_data?.imuData || 
+            !keepalive_only || 
+            getEpochSec() - this._device_data.imuDateMs > KEEPALIVE_REFRESH_INTERVAL_SEC
+        )) {
             let data = this._ipc_file.load_contents(null);
             if (data[0]) {
                 let buffer = new Uint8Array(data[1]).buffer;

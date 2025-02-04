@@ -133,7 +133,7 @@ export default class BreezyDesktopExtension extends Extension {
                     // _setup will be triggered again since a !ready result means it will trigger monitor changes,
                     // so we can remove this timeout_add no matter what.
                     if (this._target_monitor_ready(target_monitor)) {
-                        Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
+                        Globals.logger.log('Glasses detected, supported monitor connected. Enabling XR effect.');
                         this._effect_enable();
                     }
                     this._running_poller_id = undefined;
@@ -240,10 +240,10 @@ export default class BreezyDesktopExtension extends Extension {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
                 } else {
-                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but async monitor action needed');
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - glasses detected but async monitor action needed');
                 }
             } else {
-                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver not running, starting poller');
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - glasses not detected, starting poller');
                 this._poll_for_ready();
             }
         } else {
