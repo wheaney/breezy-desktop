@@ -91,6 +91,33 @@
         The size of the display
       </description>
     </key>
+    <key name="viewport-offset-x" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Viewport offset x</summary>
+      <description>
+        How far to offset the viewport from the target monitor in the x direction
+      </description>
+    </key>
+    <key name="viewport-offset-y" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Viewport offset y</summary>
+      <description>
+        How far to offset the viewport from the target monitor in the y direction
+      </description>
+    </key>
+    <key name="monitor-wrapping-scheme" type="s">
+      <default>
+        "automatic"
+      </default>
+      <summary>Monitor wrapping scheme</summary>
+      <description>
+        How the monitors are wrapped around the viewport
+      </description>
+    </key>
     <key name="curved-display" type="b">
       <default>
         false

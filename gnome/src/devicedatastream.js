@@ -80,7 +80,7 @@ export const DeviceDataStream = GObject.registerClass({
         this.breezy_desktop_running = false;
         this._ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
         this._running = false;
-        this._device_data = null;
+        this.device_data = null;
     }
 
     start() {
@@ -105,9 +105,9 @@ export const DeviceDataStream = GObject.registerClass({
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
         if (this._ipc_file.query_exists(null) && (
-            !this._device_data?.imuData || 
+            !this.device_data?.imuData || 
             !keepalive_only || 
-            getEpochSec() - toSec(this._device_data?.imuDateMs ?? 0) > KEEPALIVE_REFRESH_INTERVAL_SEC
+            getEpochSec() - toSec(this.device_data?.imuDateMs ?? 0) > KEEPALIVE_REFRESH_INTERVAL_SEC
         )) {
             let data = this._ipc_file.load_contents(null);
             if (data[0]) {
@@ -125,8 +125,8 @@ export const DeviceDataStream = GObject.registerClass({
                     // update the widescreen property if the state changes while still enabled, trigger "notify::" events
                     if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
 
-                    if (!this._device_data) {
-                        this._device_data = {
+                    if (!this.device_data) {
+                        this.device_data = {
                             version,
                             enabled,
                             imuResetState,
@@ -142,8 +142,8 @@ export const DeviceDataStream = GObject.registerClass({
                     while (!success && attempts < 3) {
                         if (dataView.byteLength === DATA_VIEW_LENGTH) {
                             if (checkParityByte(dataView)) {
-                                this._device_data.imuData = imuData;
-                                this._device_data.imuDateMs = imuDateMs;
+                                this.device_data.imuData = imuData;
+                                this.device_data.imuDateMs = imuDateMs;
                                 this.imu_snapshots = {
                                     imu_data: imuData,
                                     timestamp_ms: imuDateMs

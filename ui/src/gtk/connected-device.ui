@@ -152,6 +152,30 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- dropdown menu -->Multi-monitor wrapping</property>
+                        <property name="subtitle" translatable="yes">When displaying multiple monitors, choose how they should wrap around you</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="width-request">150</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkComboBoxText" id="monitor_wrapping_scheme_menu">
+                                <items>
+                                  <item translatable="yes" id="automatic">Automatic</item>
+                                  <item translatable="yes" id="horizontal">Horizontal</item>
+                                  <item translatable="yes" id="vertical">Vertical</item>
+                                  <item translatable="yes" id="none">None</item>
+                                </items>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

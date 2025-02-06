@@ -48,6 +48,9 @@ export default class BreezyDesktopExtension extends Extension {
         this._target_monitor = null;
         this._is_effect_running = false;
         this._distance_binding = null;
+        this._monitor_wrapping_scheme_binding = null;
+        this._viewport_offset_x_binding = null;
+        this._viewport_offset_y_binding = null;
         this._distance_connection = null;
         this._follow_threshold_connection = null;
         this._widescreen_mode_settings_connection = null;
@@ -139,7 +142,7 @@ export default class BreezyDesktopExtension extends Extension {
                     this._running_poller_id = undefined;
                     return GLib.SOURCE_REMOVE;
                 } else {
-                    Globals.logger.log_debug(`BreezyDesktopExtension _poll_for_ready - device connected: ${Globals.data_stream.breezy_desktop_running}, target_monitor: ${!!target_monitor}`);
+                    Globals.logger.log_debug(`BreezyDesktopExtension _poll_for_ready - breezy enabled: ${Globals.data_stream.breezy_desktop_running}, target_monitor: ${!!target_monitor}`);
                     return GLib.SOURCE_CONTINUE;
                 }
             } catch (e) {
@@ -175,28 +178,27 @@ export default class BreezyDesktopExtension extends Extension {
 
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
-            const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+            let target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
                 monitor => monitor && (SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
                            this.settings.get_string('custom-monitor-product') === monitor.product));
+            let is_dummy = target_monitor?.product === NESTED_MONITOR_PRODUCT;
+
+            if (target_monitor === undefined && this.settings.get_boolean('developer-mode')) {
+                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
+                // find the first of the physical monitors
+                target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+                    monitor => monitor && monitor.product !== VIRTUAL_MONITOR_PRODUCT);
+                is_dummy = true;
+            }
+
             if (target_monitor !== undefined) {
                 Globals.logger.log(`Identified supported monitor: ${target_monitor.product} on ${target_monitor.connector}`);
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
                     refreshRate: target_monitor.refreshRate,
-                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT,
+                    is_dummy: is_dummy,
                     is_virtual: target_monitor.product === VIRTUAL_MONITOR_PRODUCT
-                };
-            }
-
-            if (this.settings.get_boolean('developer-mode')) {
-                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
-                // allow testing XR devices with just USB, no video needed
-                return {
-                    monitor: this._monitor_manager.getMonitors()[0],
-                    connector: 'dummy',
-                    refreshRate: 60,
-                    is_dummy: true
                 };
             }
 
@@ -292,7 +294,9 @@ export default class BreezyDesktopExtension extends Extension {
                 Globals.data_stream.refresh_data();
                 this._overlay_content = new VirtualMonitorsActor({
                     monitors: virtualMonitors,
-                    fov_degrees: 46.0,
+                    monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
+                    viewport_offset_x: this.settings.get_double('viewport-offset-x'),
+                    viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     target_monitor: targetMonitor,
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
@@ -326,6 +330,9 @@ export default class BreezyDesktopExtension extends Extension {
                 this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', this._handle_breezy_desktop_running_change.bind(this));
                 this._overlay_content.renderMonitors();
 
+                this._monitor_wrapping_scheme_binding = this.settings.bind('monitor-wrapping-scheme', this._overlay_content, 'monitor-wrapping-scheme', Gio.SettingsBindFlags.DEFAULT);
+                this._viewport_offset_x_binding = this.settings.bind('viewport-offset-x', this._overlay_content, 'viewport-offset-x', Gio.SettingsBindFlags.DEFAULT);
+                this._viewport_offset_y_binding = this.settings.bind('viewport-offset-y', this._overlay_content, 'viewport-offset-y', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_binding = this.settings.bind('display-distance', this._overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
@@ -590,6 +597,18 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
                 this._distance_binding = null;
+            }
+            if (this._viewport_offset_x_binding) {
+                this.settings.unbind(this._viewport_offset_x_binding);
+                this._viewport_offset_x_binding = null;
+            }
+            if (this._viewport_offset_y_binding) {
+                this.settings.unbind(this._viewport_offset_y_binding);
+                this._viewport_offset_y_binding = null;
+            }
+            if (this._monitor_wrapping_scheme_binding) {
+                this.settings.unbind(this._monitor_wrapping_scheme_binding);
+                this._monitor_wrapping_scheme_binding = null;
             }
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
