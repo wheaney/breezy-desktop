@@ -51,6 +51,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._monitor_wrapping_scheme_binding = null;
         this._viewport_offset_x_binding = null;
         this._viewport_offset_y_binding = null;
+        this._monitor_spacing_binding = null;
         this._distance_connection = null;
         this._follow_threshold_connection = null;
         this._widescreen_mode_settings_connection = null;
@@ -333,6 +334,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._monitor_wrapping_scheme_binding = this.settings.bind('monitor-wrapping-scheme', this._overlay_content, 'monitor-wrapping-scheme', Gio.SettingsBindFlags.DEFAULT);
                 this._viewport_offset_x_binding = this.settings.bind('viewport-offset-x', this._overlay_content, 'viewport-offset-x', Gio.SettingsBindFlags.DEFAULT);
                 this._viewport_offset_y_binding = this.settings.bind('viewport-offset-y', this._overlay_content, 'viewport-offset-y', Gio.SettingsBindFlags.DEFAULT);
+                this._monitor_spacing_binding = this.settings.bind('monitor-spacing', this._overlay_content, 'monitor-spacing', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_binding = this.settings.bind('display-distance', this._overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
@@ -597,6 +599,10 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_binding) {
                 this.settings.unbind(this._distance_binding);
                 this._distance_binding = null;
+            }
+            if (this._monitor_spacing_binding) {
+                this.settings.unbind(this._monitor_spacing_binding);
+                this._monitor_spacing_binding = null;
             }
             if (this._viewport_offset_x_binding) {
                 this.settings.unbind(this._viewport_offset_x_binding);

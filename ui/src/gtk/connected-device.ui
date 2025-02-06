@@ -155,7 +155,7 @@
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- dropdown menu -->Multi-monitor wrapping</property>
-                        <property name="subtitle" translatable="yes">When displaying multiple monitors, choose how they should wrap around you</property>
+                        <property name="subtitle" translatable="yes">When there are multiple monitors, choose how they should wrap around you.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -172,6 +172,97 @@
                                 </items>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Multi-monitor spacing</property>
+                        <property name="subtitle" translatable="yes">Put empty space between monitors, when there are multiple.</property>
+                        <child>
+                          <object class="GtkScale" id="monitor_spacing_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="monitor_spacing_adjustment">
+                                <property name="lower">0.0</property>
+                                <property name="upper">0.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.0" position="bottom"></mark>
+                              <mark value="0.25" position="bottom"></mark>
+                              <mark value="0.5" position="bottom"></mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Viewport horizontal offset</property>
+                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport to the left or right.</property>
+                        <child>
+                          <object class="GtkScale" id="viewport_offset_x_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">1</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="viewport_offset_x_adjustment">
+                                <property name="lower">-2.5</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.1</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-2.0" position="bottom"></mark>
+                              <mark value="-1.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom"></mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom"></mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Viewport vertical offset</property>
+                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport up or down.</property>
+                        <child>
+                          <object class="GtkScale" id="viewport_offset_y_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">1</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="viewport_offset_y_adjustment">
+                                <property name="lower">-2.5</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.1</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-2.0" position="bottom"></mark>
+                              <mark value="-1.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom"></mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom"></mark>
+                            </marks>
                           </object>
                         </child>
                       </object>

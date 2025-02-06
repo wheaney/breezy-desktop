@@ -52,6 +52,12 @@ class ConnectedDevice(Gtk.Box):
     text_scaling_scale = Gtk.Template.Child()
     text_scaling_adjustment = Gtk.Template.Child()
     monitor_wrapping_scheme_menu = Gtk.Template.Child()
+    monitor_spacing_scale = Gtk.Template.Child()
+    monitor_spacing_adjustment = Gtk.Template.Child()
+    viewport_offset_x_scale = Gtk.Template.Child()
+    viewport_offset_x_adjustment = Gtk.Template.Child()
+    viewport_offset_y_scale = Gtk.Template.Child()
+    viewport_offset_y_adjustment = Gtk.Template.Child()
 
 
     def __init__(self):
@@ -68,7 +74,10 @@ class ConnectedDevice(Gtk.Box):
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
             self.movement_look_ahead_scale,
-            self.monitor_wrapping_scheme_menu
+            self.monitor_wrapping_scheme_menu,
+            self.monitor_spacing_scale,
+            self.viewport_offset_x_scale,
+            self.viewport_offset_y_scale
         ]
 
         self.settings = SettingsManager.get_instance().settings
@@ -86,10 +95,13 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('monitor-spacing', self.monitor_spacing_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('viewport-offset-x', self.viewport_offset_x_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('viewport-offset-y', self.viewport_offset_y_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::monitor-wrapping-scheme', self._handle_monitor_wrapping_scheme_setting_changed)
         self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.monitor_wrapping_scheme_menu.connect('changed', self._handle_monitor_wrapping_scheme_menu_changed)
-        self._handle_monitor_wrapping_scheme_setting_changed()
+        self._handle_monitor_wrapping_scheme_setting_changed(self.settings, self.settings.get_string('monitor-wrapping-scheme'))
 
         bind_shortcut_settings(self.get_parent(), [
             [self.reassign_toggle_xr_effect_shortcut_button, self.toggle_xr_effect_shortcut_label],
@@ -126,9 +138,8 @@ class ConnectedDevice(Gtk.Box):
 
         self.connect("destroy", self._on_widget_destroy)
 
-    def _handle_monitor_wrapping_scheme_setting_changed(self):
-        current_scheme = self.settings.get_string('monitor-wrapping-scheme')
-        self.monitor_wrapping_scheme_menu.set_active_id(current_scheme)
+    def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
+        self.monitor_wrapping_scheme_menu.set_active_id(val)
 
     def _handle_monitor_wrapping_scheme_menu_changed(self, widget):
         self.settings.set_string('monitor-wrapping-scheme', widget.get_active_id())

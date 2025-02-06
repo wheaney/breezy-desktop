@@ -118,6 +118,15 @@
         How the monitors are wrapped around the viewport
       </description>
     </key>
+    <key name="monitor-spacing" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Monitor spacing</summary>
+      <description>
+        How far apart the monitors are visually (not logically)
+      </description>
+    </key>
     <key name="curved-display" type="b">
       <default>
         false

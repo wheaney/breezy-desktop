@@ -68,7 +68,7 @@ function degreesToRadians(degrees) {
 /***
  * @returns {Object} - containing `start`, `center`, and `end` radians for rotating the given monitor
  */
-function monitorWrap(cachedMonitorWrap, radiusPixels, monitorBeginPixel, monitorLengthPixels) {
+function monitorWrap(cachedMonitorWrap, radiusPixels, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels) {
     let closestWrap = cachedMonitorWrap.reduce((previous, current) => {
         return (!previous || Math.abs(current.pixel - monitorBeginPixel) < Math.abs(previous.pixel - monitorBeginPixel)) ? current : previous;
     }, undefined);
@@ -84,8 +84,9 @@ function monitorWrap(cachedMonitorWrap, radiusPixels, monitorBeginPixel, monitor
         cachedMonitorWrap.push(closestWrap);
     }
 
+    const spacingRadians = monitorBeginPixel === 0 ? 0 : Math.asin(monitorSpacingPixels / 2 / radiusPixels);
     const monitorHalfRadians = Math.asin(monitorLengthPixels / 2 / radiusPixels);
-    const centerRadians = closestWrap.radians + monitorHalfRadians;
+    const centerRadians = closestWrap.radians + spacingRadians + monitorHalfRadians;
     const endRadians = centerRadians + monitorHalfRadians;
 
     // since we're computing the end values for this monitor, cache them too in case they line up with a future monitor
@@ -107,7 +108,7 @@ function monitorWrap(cachedMonitorWrap, radiusPixels, monitorBeginPixel, monitor
  * @returns {Object[]} - contains NWU vectors pointing to `topLeftNoRotate` and `center` of each monitor 
  *                       and a `rotation` angle for the given wrapping scheme
  */
-function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingScheme) {
+function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingScheme, monitorSpacing) {
     const aspect = fovDetails.widthPixels / fovDetails.heightPixels;
     const fovVerticalRadians = degreesToRadians(fovDetails.fovDegrees / Math.sqrt(1 + aspect * aspect));
 
@@ -126,7 +127,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovHorizontalRadians / 2 });
         monitorDetailsList.forEach(monitorDetails => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.x, monitorDetails.width);
+            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorSpacing * fovDetails.widthPixels, monitorDetails.x, monitorDetails.width);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2))
 
             monitorPlacements.push({
@@ -145,7 +146,10 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     // up is flat when wrapping horizontally
                     -(monitorDetails.y + monitorDetails.height / 2 - fovDetails.heightPixels / 2)
                 ],
-                rotationAngleRadians: -monitorWrapDetails.center
+                rotationAngleRadians: {
+                    x: 0,
+                    y: -monitorWrapDetails.center
+                }
             });
         });
     } else if (monitorWrappingScheme === 'vertical') {
@@ -156,14 +160,14 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
 
         cachedMonitorWrap.push({ pixel: 0, radians: -fovVerticalRadians / 2 });
         monitorDetailsList.forEach(monitorDetails => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorDetails.y, monitorDetails.height);
+            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorSpacing * fovDetails.heightPixels, monitorDetails.y, monitorDetails.height);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2))  ;
 
             monitorPlacements.push({
                 topLeftNoRotate: [
                     monitorCenterRadius,
-                    -monitorDetails.x,
-                    -(monitorDetails.height - fovDetails.heightPixels) / 2
+                    monitorDetails.x,
+                    (monitorDetails.height - fovDetails.heightPixels) / 2
                 ],
                 center: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
@@ -175,7 +179,10 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     // up is opposite where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
                 ],
-                rotationAngleRadians: -monitorWrapDetails.center
+                rotationAngleRadians: {
+                    x: -monitorWrapDetails.center,
+                    y: 0
+                }
             });
         });
     } else {
@@ -184,7 +191,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             monitorPlacements.push({
                 topLeftNoRotate: [
                     centerRadius,
-                    -monitorDetails.x,
+                    monitorDetails.x,
                     -monitorDetails.y
                 ],
                 center: [
@@ -192,7 +199,10 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     -(monitorDetails.x + monitorDetails.width / 2 - fovDetails.widthPixels / 2),
                     -(monitorDetails.y + monitorDetails.height / 2 - fovDetails.heightPixels / 2)
                 ],
-                rotationAngleRadians: 0
+                rotationAngleRadians: {
+                    x: 0,
+                    y: 0
+                }
             });
         });
     }
@@ -265,13 +275,6 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Height of the viewport',
             GObject.ParamFlags.READWRITE,
             1, 10000, 1080
-        ),
-        'monitor-wrapping-scheme': GObject.ParamSpec.string(
-            'monitor-wrapping-scheme',
-            'Monitor Wrapping Scheme',
-            'How the monitors are wrapped around the viewport',
-            GObject.ParamFlags.READWRITE,
-            'horizontal', ['horizontal', 'vertical', 'none']
         ),
         'focused-monitor-index': GObject.ParamSpec.int(
             'focused-monitor-index',
@@ -391,10 +394,8 @@ export const VirtualMonitorEffect = GObject.registerClass({
             [-noRotationVector[1], -noRotationVector[2], this._current_display_distance * -noRotationVector[0]]);
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
-        this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, 
-            [this.monitor_wrapping_scheme === 'vertical' ? rotation_radians : 0.0]);
-        this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, 
-            [this.monitor_wrapping_scheme === 'horizontal' ? rotation_radians : 0.0]);
+        this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [rotation_radians.x]);
+        this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y]);
     }
 
     perspective(fovDiagonalRadians, aspect, near, far) {
@@ -559,6 +560,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             'horizontal', ['horizontal', 'vertical', 'none']
         ),
+        'monitor-spacing': GObject.ParamSpec.double(
+            'monitor-spacing',
+            'Monitor Spacing',
+            'Visual spacing between monitors',
+            GObject.ParamFlags.READWRITE,
+            0.0, 1.0, 0.0
+        ),
         'target-monitor': GObject.ParamSpec.jsobject(
             'target-monitor',
             'Target Monitor',
@@ -700,14 +708,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 monitor_placements: this.monitor_placements,
                 display_distance: this.display_distance,
                 display_distance_default: Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end),
-                monitor_wrapping_scheme: this.monitor_wrapping_scheme,
                 actor_to_display_ratios: actorToDisplayRatios,
                 actor_to_display_offsets: actorToDisplayOffsets
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
             this.bind_property('monitor-placements', effect, 'monitor-placements', GObject.BindingFlags.DEFAULT);
-            this.bind_property('monitor-wrapping-scheme', effect, 'monitor-wrapping-scheme', GObject.BindingFlags.DEFAULT);
             this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
             this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
@@ -751,13 +757,30 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
         this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
         this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::monitor-wrapping-scheme', this._update_monitor_placements.bind(this));
+        this.connect('notify::monitor-spacing', this._update_monitor_placements.bind(this));
         this.connect('notify::viewport-offset-x', this._update_monitor_placements.bind(this));
         this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
         this._handle_display_distance_properties_change();
     }
 
     _update_monitor_placements() {
-        Globals.logger.log_debug(`\t\t\tUpdating monitor placements ${this.viewport_offset_x}, ${this.viewport_offset_y} ${Globals.data_stream.device_data.displayFov}`);
+        // collect minimum and maximum x and y values of monitors
+        let actualWrapScheme = this.monitor_wrapping_scheme;
+        if (actualWrapScheme === 'automatic') {
+            const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
+            const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
+            const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
+            const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
+
+            // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
+            if ((maxX - minX) / this.width >= (maxY - minY) / this.height) {
+                actualWrapScheme = 'horizontal';
+            } else {
+                actualWrapScheme = 'vertical';
+            }
+        }
+
         this.monitor_placements = monitorsToPlacements(
             {
                 fovDegrees: Globals.data_stream.device_data.displayFov,
@@ -772,7 +795,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 width: monitor.width,
                 height: monitor.height
             })),
-            this.monitor_wrapping_scheme
+            actualWrapScheme,
+            this.monitor_spacing
         );
 
         // normalize the center vectors
