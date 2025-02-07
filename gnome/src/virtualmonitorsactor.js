@@ -110,7 +110,8 @@ function monitorWrap(cachedMonitorWrap, radiusPixels, monitorSpacingPixels, moni
  */
 function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingScheme, monitorSpacing) {
     const aspect = fovDetails.widthPixels / fovDetails.heightPixels;
-    const fovVerticalRadians = degreesToRadians(fovDetails.fovDegrees / Math.sqrt(1 + aspect * aspect));
+    const fovVerticalRadiansInitial = degreesToRadians(fovDetails.fovDegrees / Math.sqrt(1 + aspect * aspect));
+    const fovVerticalRadians = Math.atan(Math.tan(fovVerticalRadiansInitial) / fovDetails.distanceAdjustment);
 
     // distance needed for the FOV-sized monitor to fill up the screen
     const centerRadius = fovDetails.heightPixels / 2 / Math.sin(fovVerticalRadians / 2);
@@ -391,7 +392,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
         // convert to CoGL's east-down-south coordinates and apply display distance
         this.set_uniform_float(this.get_uniform_location("u_display_position"), 3, 
-            [-noRotationVector[1], -noRotationVector[2], this._current_display_distance * -noRotationVector[0]]);
+            [-noRotationVector[1], -noRotationVector[2], this._current_display_distance / this.display_distance_default * -noRotationVector[0]]);
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
         this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [rotation_radians.x]);
@@ -707,16 +708,24 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 monitor_index: index,
                 monitor_placements: this.monitor_placements,
                 display_distance: this.display_distance,
-                display_distance_default: Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end),
+                display_distance_default: this._display_distance_default(),
                 actor_to_display_ratios: actorToDisplayRatios,
                 actor_to_display_offsets: actorToDisplayOffsets
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
+
+            // TODO - track actors and clean this up
             this.bind_property('monitor-placements', effect, 'monitor-placements', GObject.BindingFlags.DEFAULT);
             this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
             this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
+
+            const updateEffectDistanceDefault = (() => {
+                effect.display_distance_default = this._display_distance_default();
+            }).bind(this);
+            this.connect('notify::toggle-display-distance-start', updateEffectDistanceDefault);
+            this.connect('notify::toggle-display-distance-end', updateEffectDistanceDefault);
 
             // in addition to rendering distance properly in the shader, the parent actor determines overlap based on child ordering
             effect.connect('notify::is-closest', ((actor, _pspec) => {
@@ -764,6 +773,10 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this._handle_display_distance_properties_change();
     }
 
+    _display_distance_default() {
+        return Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end);
+    }
+
     _update_monitor_placements() {
         // collect minimum and maximum x and y values of monitors
         let actualWrapScheme = this.monitor_wrapping_scheme;
@@ -785,7 +798,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
             {
                 fovDegrees: Globals.data_stream.device_data.displayFov,
                 widthPixels: this.width,
-                heightPixels: this.height
+                heightPixels: this.height,
+                distanceAdjustment: this._display_distance_default()
             },
 
             // shift all monitors so they center around the target monitor, then adjusted by the offsets
@@ -811,6 +825,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
         const distance_from_end = Math.abs(this.display_distance - this.toggle_display_distance_end);
         const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);
         this._is_display_distance_at_end = distance_from_end < distance_from_start;
+        this._update_monitor_placements();
     }
 
     _change_distance() {
