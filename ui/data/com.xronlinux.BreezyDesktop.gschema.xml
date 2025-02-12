@@ -208,6 +208,15 @@
         Log debug messages
       </description>
     </key>
+    <key name="debug-no-device" type="b">
+      <default>
+        false
+      </default>
+      <summary>Debug no device</summary>
+      <description>
+        Debug no device
+      </description>
+    </key>
     <key name="custom-monitor-product" type="s">
       <default>
         ""

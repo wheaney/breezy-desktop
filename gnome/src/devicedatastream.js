@@ -51,6 +51,28 @@ function checkParityByte(dataView) {
     return parityByte === parity;
 }
 
+const COUNTER_MAX = 150;
+function nextDebugIMUQuaternion(counter) {
+    const angle = counter / COUNTER_MAX * 2 * Math.PI;
+    const yaw = 10 * Math.PI / 180 * Math.cos(angle);
+    const roll = 0;
+    const pitch = 10 * Math.PI / 180 * Math.sin(angle);
+
+    const cy = Math.cos(yaw * 0.5);
+    const sy = Math.sin(yaw * 0.5);
+    const cp = Math.cos(pitch * 0.5);
+    const sp = Math.sin(pitch * 0.5);
+    const cr = Math.cos(roll * 0.5);
+    const sr = Math.sin(roll * 0.5);
+
+    const w = cr * cp * cy + sr * sp * sy;
+    const x = sr * cp * cy - cr * sp * sy;
+    const y = cr * sp * cy + sr * cp * sy;
+    const z = cr * cp * sy - sr * sp * cy;
+
+    return [x, y, z, w];
+}
+
 export const DeviceDataStream = GObject.registerClass({
     Properties: {
         'breezy-desktop-running': GObject.ParamSpec.boolean(
@@ -72,6 +94,13 @@ export const DeviceDataStream = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'debug-no-device': GObject.ParamSpec.boolean(
+            'debug-no-device',
+            'Debug without device',
+            'Debug mode that allows for testing with moving IMU values without a device connected',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class DeviceDataStream extends GObject.Object {
@@ -90,6 +119,7 @@ export const DeviceDataStream = GObject.registerClass({
 
     stop() {
         this._running = false;
+        this.device_data = null;
     }
 
     // polling is just intended to keep breezy_desktop_running current, anything needing up-to-date imu data should 
@@ -104,6 +134,47 @@ export const DeviceDataStream = GObject.registerClass({
     // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update breezy_desktop_running if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
+        if (this.debug_no_device) {
+            this.was_debug_no_device = true;
+            if (!this.device_data) {
+                this.device_data = {
+                    version: 1.0,
+                    enabled: true,
+                    imuResetState: false,
+                    displayRes: [1920.0, 1080.0],
+                    sbsEnabled: false,
+                    displayFov: 46.0,
+                    lookAheadCfg: [0.0, 0.0, 0.0, 0.0]
+                }
+            }
+
+            if (!keepalive_only) {
+                this._counter = ((this._counter ?? -1)+1)%COUNTER_MAX;
+
+                const imuDataFirst = nextDebugIMUQuaternion(this._counter);
+                const imuData = [
+                    ...imuDataFirst,
+                    ...imuDataFirst,
+                    ...imuDataFirst,
+                    2.0, 1.0, 0.0, 0.0
+                ]
+                const imuDateMs = Date.now();
+                this.device_data.imuData = imuData;
+                this.device_data.imuDateMs = imuDateMs;
+                this.imu_snapshots = {
+                    imu_data: imuData,
+                    timestamp_ms: imuDateMs
+                };
+            }
+            this.breezy_desktop_running = true;
+            return;
+        } else if (this.was_debug_no_device) {
+            this.was_debug_no_device = false;
+            this.device_data = null;
+            this.breezy_desktop_running = false;
+            this.imu_snapshots = null;
+        }
+
         if (this._ipc_file.query_exists(null) && (
             !this.device_data?.imuData || 
             !keepalive_only || 
@@ -114,9 +185,9 @@ export const DeviceDataStream = GObject.registerClass({
                 let buffer = new Uint8Array(data[1]).buffer;
                 let dataView = new DataView(buffer);
                 if (dataView.byteLength === DATA_VIEW_LENGTH) {
-                    const imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
+                    let imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
                     const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
-                    const imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                    let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
                     const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
@@ -132,9 +203,16 @@ export const DeviceDataStream = GObject.registerClass({
                             imuResetState,
                             displayRes: dataViewUint32Array(dataView, DISPLAY_RES),
                             sbsEnabled,
-                            displayFov: dataViewFloat(dataView, DISPLAY_FOV),
+                            displayFov: 44.0, // dataViewFloat(dataView, DISPLAY_FOV),
                             lookAheadCfg: dataViewFloatArray(dataView, LOOK_AHEAD_CFG),
                         };
+                    } else if (keepalive_only) {
+                        this.device_data = {
+                            ...this.device_data,
+                            imuResetState,
+                            enabled,
+                            sbsEnabled
+                        }
                     }
 
                     let success = keepalive_only;
@@ -159,6 +237,8 @@ export const DeviceDataStream = GObject.registerClass({
                             if (data[0]) {
                                 buffer = new Uint8Array(data[1]).buffer;
                                 dataView = new DataView(buffer);
+                                imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
+                                imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
                             }
                         }
                     }

@@ -79,7 +79,10 @@ export default class BreezyDesktopExtension extends Extension {
         }
 
         if (!Globals.data_stream) {
-            Globals.data_stream = new DeviceDataStream();
+            Globals.data_stream = new DeviceDataStream({
+                debug_no_device: this.settings.get_boolean('debug-no-device')
+            });
+            this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
         }
     }
 
@@ -286,6 +289,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, [targetMonitor, ...virtualMonitors], refreshRate);
                 this._cursor_manager.enable();
 
+                // use rgba(255, 4, 144, 1) for chroma key background
                 this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', reactive: false, clip_to_allocation: true });
                 this._overlay.opacity = 255;
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
