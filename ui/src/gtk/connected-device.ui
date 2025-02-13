@@ -185,21 +185,23 @@
                             <property name="valign">3</property>
                             <property name="draw-value">true</property>
                             <property name="value-pos">0</property>
-                            <property name="digits">2</property>
+                            <property name="digits">0</property>
                             <property name="width-request">350</property>
                             <property name="has-origin">false</property>
                             <property name="adjustment">
                               <object class="GtkAdjustment" id="monitor_spacing_adjustment">
-                                <property name="lower">0.0</property>
-                                <property name="upper">0.5</property>
-                                <property name="step-increment">0.01</property>
-                                <property name="value">0.0</property>
+                                <property name="lower">0</property>
+                                <property name="upper">100</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">0</property>
                               </object>
                             </property>
                             <marks>
-                              <mark value="0.0" position="bottom"></mark>
-                              <mark value="0.25" position="bottom"></mark>
-                              <mark value="0.5" position="bottom"></mark>
+                              <mark value="0" position="bottom"></mark>
+                              <mark value="25" position="bottom"></mark>
+                              <mark value="50" position="bottom"></mark>
+                              <mark value="75" position="bottom"></mark>
+                              <mark value="100" position="bottom"></mark>
                             </marks>
                           </object>
                         </child>

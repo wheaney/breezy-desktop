@@ -73,24 +73,26 @@ function monitorWrap(cachedMonitorWrap, radiusPixels, monitorSpacingPixels, moni
         return (!previous || Math.abs(current.pixel - monitorBeginPixel) < Math.abs(previous.pixel - monitorBeginPixel)) ? current : previous;
     }, undefined);
 
+    const spacingRadians = Math.asin(monitorSpacingPixels / 2 / radiusPixels) * 2;
     if (closestWrap.pixel !== monitorBeginPixel) {
         // there's a gap between the cached wrap value and this one
         const gapPixels = monitorBeginPixel - closestWrap.pixel;
         const gapHalfRadians = Math.asin(gapPixels / 2 / radiusPixels);
         const gapRadians = gapHalfRadians * 2;
 
+        const appliedSpacingRadians = Math.trunc(gapPixels / monitorLengthPixels) * spacingRadians;
+
         // update the closestWrap value and cache it
-        closestWrap = { pixel: monitorBeginPixel, radians: closestWrap.radians + gapRadians };
+        closestWrap = { pixel: monitorBeginPixel, radians: closestWrap.radians + gapRadians + appliedSpacingRadians };
         cachedMonitorWrap.push(closestWrap);
     }
 
-    const spacingRadians = monitorBeginPixel === 0 ? 0 : Math.asin(monitorSpacingPixels / 2 / radiusPixels);
     const monitorHalfRadians = Math.asin(monitorLengthPixels / 2 / radiusPixels);
-    const centerRadians = closestWrap.radians + spacingRadians + monitorHalfRadians;
+    const centerRadians = closestWrap.radians + monitorHalfRadians;
     const endRadians = centerRadians + monitorHalfRadians;
 
     // since we're computing the end values for this monitor, cache them too in case they line up with a future monitor
-    cachedMonitorWrap.push({ pixel: monitorBeginPixel + monitorLengthPixels, radians: endRadians });
+    cachedMonitorWrap.push({ pixel: monitorBeginPixel + monitorLengthPixels, radians: endRadians + spacingRadians });
     return {
         begin: closestWrap.radians,
         center: centerRadians,
@@ -609,12 +611,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             'horizontal', ['horizontal', 'vertical', 'none']
         ),
-        'monitor-spacing': GObject.ParamSpec.double(
+        'monitor-spacing': GObject.ParamSpec.int(
             'monitor-spacing',
             'Monitor Spacing',
             'Visual spacing between monitors',
             GObject.ParamFlags.READWRITE,
-            0.0, 1.0, 0.0
+            0, 100, 0
         ),
         'target-monitor': GObject.ParamSpec.jsobject(
             'target-monitor',
@@ -858,7 +860,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 height: monitor.height
             })),
             actualWrapScheme,
-            this.monitor_spacing
+            this.monitor_spacing / 1000.0
         );
 
         // normalize the center vectors

@@ -118,9 +118,9 @@
         How the monitors are wrapped around the viewport
       </description>
     </key>
-    <key name="monitor-spacing" type="d">
+    <key name="monitor-spacing" type="i">
       <default>
-        0.0
+        0
       </default>
       <summary>Monitor spacing</summary>
       <description>
