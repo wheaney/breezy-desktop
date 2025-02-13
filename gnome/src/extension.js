@@ -68,7 +68,6 @@ export default class BreezyDesktopExtension extends Extension {
         this._actor_added_connection = null;
         this._actor_removed_connection = null;
         this._data_stream_connection = null;
-        this._stage_redraw_connection = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -368,7 +367,6 @@ export default class BreezyDesktopExtension extends Extension {
 
     _handle_sibling_update() {
         Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        this._cursor_manager.moveAboveSiblings();
         global.stage.set_child_above_sibling(this._overlay, null);
     }
 
@@ -586,18 +584,13 @@ export default class BreezyDesktopExtension extends Extension {
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
             Meta.enable_unredirect_for_display(global.display);
-            
-            if (this._stage_redraw_connection) {
-                global.stage.disconnect(this._stage_redraw_connection);
-                this._stage_redraw_connection = null;
-            }
 
             if (this._actor_added_connection) {
-                global.stage.disconnect(this._actor_added_connection);
+                Main.layoutManager.uiGroup.disconnect(this._actor_added_connection);
                 this._actor_added_connection = null;
             }
             if (this._actor_removed_connection) {
-                global.stage.disconnect(this._actor_removed_connection);
+                Main.layoutManager.uiGroup.disconnect(this._actor_removed_connection);
                 this._actor_removed_connection = null;
             }
             if (this._distance_binding) {

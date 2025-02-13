@@ -134,41 +134,7 @@ export const DeviceDataStream = GObject.registerClass({
     // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update breezy_desktop_running if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
-        if (this.debug_no_device) {
-            this.was_debug_no_device = true;
-            if (!this.device_data) {
-                this.device_data = {
-                    version: 1.0,
-                    enabled: true,
-                    imuResetState: false,
-                    displayRes: [1920.0, 1080.0],
-                    sbsEnabled: false,
-                    displayFov: 46.0,
-                    lookAheadCfg: [0.0, 0.0, 0.0, 0.0]
-                }
-            }
-
-            if (!keepalive_only) {
-                this._counter = ((this._counter ?? -1)+1)%COUNTER_MAX;
-
-                const imuDataFirst = nextDebugIMUQuaternion(this._counter);
-                const imuData = [
-                    ...imuDataFirst,
-                    ...imuDataFirst,
-                    ...imuDataFirst,
-                    2.0, 1.0, 0.0, 0.0
-                ]
-                const imuDateMs = Date.now();
-                this.device_data.imuData = imuData;
-                this.device_data.imuDateMs = imuDateMs;
-                this.imu_snapshots = {
-                    imu_data: imuData,
-                    timestamp_ms: imuDateMs
-                };
-            }
-            this.breezy_desktop_running = true;
-            return;
-        } else if (this.was_debug_no_device) {
+        if (!this.debug_no_device && this.was_debug_no_device) {
             this.was_debug_no_device = false;
             this.device_data = null;
             this.breezy_desktop_running = false;
@@ -252,6 +218,40 @@ export const DeviceDataStream = GObject.registerClass({
             } else {
                 this.breezy_desktop_running = false;
             }
+        } else if (this.debug_no_device) {
+            this.was_debug_no_device = true;
+            if (!this.device_data) {
+                this.device_data = {
+                    version: 1.0,
+                    enabled: true,
+                    imuResetState: false,
+                    displayRes: [1920.0, 1080.0],
+                    sbsEnabled: false,
+                    displayFov: 46.0,
+                    lookAheadCfg: [0.0, 0.0, 0.0, 0.0]
+                }
+            }
+
+            if (!keepalive_only) {
+                this._counter = ((this._counter ?? -1)+1)%COUNTER_MAX;
+
+                const imuDataFirst = nextDebugIMUQuaternion(this._counter);
+                const imuData = [
+                    ...imuDataFirst,
+                    ...imuDataFirst,
+                    ...imuDataFirst,
+                    2.0, 1.0, 0.0, 0.0
+                ]
+                const imuDateMs = Date.now();
+                this.device_data.imuData = imuData;
+                this.device_data.imuDateMs = imuDateMs;
+                this.imu_snapshots = {
+                    imu_data: imuData,
+                    timestamp_ms: imuDateMs
+                };
+            }
+            this.breezy_desktop_running = true;
+            return;
         }
     }
 });

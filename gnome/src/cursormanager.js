@@ -44,10 +44,6 @@ export class CursorManager {
         this._stopCloningMouse();
     }
 
-    moveAboveSiblings() {
-        if (this._cursorRoot) this._mainActor.set_child_above_sibling(this._cursorRoot, null);
-    }
-
     // After this:
     // * real cursor is disabled
     // * cloning is "on" 
@@ -179,6 +175,9 @@ export class CursorManager {
             return;
 
         if (inBounds) {
+            if (this._cursorRoot && this._mainActor.get_last_child() !== this._cursorRoot)
+                this._mainActor.set_child_above_sibling(this._cursorRoot,  null);
+
             if (this._systemCursorShown) this._hideSystemCursor();
             this._cursorRoot.set_position(xMouse, yMouse);
         } else if (!this._systemCursorShown && !inBounds) {

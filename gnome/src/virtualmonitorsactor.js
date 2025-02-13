@@ -68,33 +68,60 @@ function degreesToRadians(degrees) {
 /***
  * @returns {Object} - containing `begin`, `center`, and `end` radians for rotating the given monitor
  */
-function monitorWrap(cachedMonitorWrap, radiusPixels, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels) {
-    let closestWrap = cachedMonitorWrap.reduce((previous, current) => {
-        return (!previous || Math.abs(current.pixel - monitorBeginPixel) < Math.abs(previous.pixel - monitorBeginPixel)) ? current : previous;
-    }, undefined);
+function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels) {
+    let closestWrapPixel = monitorBeginPixel;
+    let closestWrap = cachedMonitorRadians[monitorBeginPixel];
+    if (closestWrap === undefined) {
+        closestWrapPixel = Object.keys(cachedMonitorRadians).reduce((previousPixel, currentPixel) => {
+            if (previousPixel === undefined) return currentPixel;
+
+            const currentDelta = currentPixel - monitorBeginPixel;
+            const previousDelta = previousPixel - monitorBeginPixel;
+
+            // always prefer an exact monitor width match
+            if (previousDelta % monitorLengthPixels !== 0) {
+                if (currentDelta % monitorLengthPixels === 0) return currentPixel;
+
+                // prefer placing a monitor to the right or below, even if there's a closer placement to the left or above
+                if (previousDelta < 0 && currentDelta > 0) return currentPixel;
+
+                // otherwise, just prefer the closest one
+                if (Math.abs(currentDelta) < Math.abs(previousDelta)) return currentPixel;
+            }
+            
+            return previousPixel;
+        }, undefined);
+        closestWrap = cachedMonitorRadians[closestWrapPixel];
+    }
 
     const spacingRadians = Math.asin(monitorSpacingPixels / 2 / radiusPixels) * 2;
-    if (closestWrap.pixel !== monitorBeginPixel) {
+    if (closestWrapPixel !== monitorBeginPixel) {
         // there's a gap between the cached wrap value and this one
-        const gapPixels = monitorBeginPixel - closestWrap.pixel;
+        const gapPixels = monitorBeginPixel - closestWrapPixel;
         const gapHalfRadians = Math.asin(gapPixels / 2 / radiusPixels);
         const gapRadians = gapHalfRadians * 2;
 
-        const appliedSpacingRadians = Math.trunc(gapPixels / monitorLengthPixels) * spacingRadians;
+        // use Math.floor so if it's negative (this monitor is to the left of or above the closest) it will always
+        // compenstate for the spacing that's needed at the right/bottom
+        const appliedSpacingRadians = Math.floor(gapPixels / monitorLengthPixels) * spacingRadians;
 
         // update the closestWrap value and cache it
-        closestWrap = { pixel: monitorBeginPixel, radians: closestWrap.radians + gapRadians + appliedSpacingRadians };
-        cachedMonitorWrap.push(closestWrap);
+        closestWrap = closestWrap + gapRadians + appliedSpacingRadians;
+        closestWrapPixel = monitorBeginPixel;
+        cachedMonitorRadians[closestWrapPixel] = closestWrap;
     }
 
     const monitorHalfRadians = Math.asin(monitorLengthPixels / 2 / radiusPixels);
-    const centerRadians = closestWrap.radians + monitorHalfRadians;
+    const centerRadians = closestWrap + monitorHalfRadians;
     const endRadians = centerRadians + monitorHalfRadians;
 
     // since we're computing the end values for this monitor, cache them too in case they line up with a future monitor
-    cachedMonitorWrap.push({ pixel: monitorBeginPixel + monitorLengthPixels, radians: endRadians + spacingRadians });
+    const nextMonitorPixel = monitorBeginPixel + monitorLengthPixels;
+    if (cachedMonitorRadians[nextMonitorPixel] === undefined)
+        cachedMonitorRadians[nextMonitorPixel] = endRadians + spacingRadians;
+    
     return {
-        begin: closestWrap.radians,
+        begin: closestWrap,
         center: centerRadians,
         end: endRadians
     }
@@ -119,7 +146,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
     const centerRadius = fovDetails.heightPixels / 2 / Math.sin(fovVerticalRadians / 2);
 
     const monitorPlacements = [];
-    const cachedMonitorWrap = [];
+    const cachedMonitorRadians = {};
 
     if (monitorWrappingScheme === 'horizontal') {
         // monitors wrap around us horizontally
@@ -129,9 +156,9 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.widthPixels / 2 / Math.sin(fovHorizontalRadians / 2);
         const monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
 
-        cachedMonitorWrap.push({ pixel: 0, radians: -fovHorizontalRadians / 2 });
+        cachedMonitorRadians[0] = -fovHorizontalRadians / 2;
         monitorDetailsList.forEach(monitorDetails => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorSpacingPixels, monitorDetails.x, monitorDetails.width);
+            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, edgeRadius, monitorSpacingPixels, monitorDetails.x, monitorDetails.width);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2));
             const upTopPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
             const upCenterPixels = upTopPixels + monitorDetails.height / 2 - fovDetails.heightPixels / 2;
@@ -178,9 +205,9 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const edgeRadius = fovDetails.heightPixels / 2 / Math.sin(fovVerticalRadians / 2);
         const monitorSpacingPixels = monitorSpacing * fovDetails.heightPixels;
 
-        cachedMonitorWrap.push({ pixel: 0, radians: -fovVerticalRadians / 2 });
+        cachedMonitorRadians[0] = -fovVerticalRadians / 2;
         monitorDetailsList.forEach(monitorDetails => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorWrap, edgeRadius, monitorSpacingPixels, monitorDetails.y, monitorDetails.height);
+            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, edgeRadius, monitorSpacingPixels, monitorDetails.y, monitorDetails.height);
             const monitorCenterRadius = Math.sqrt(Math.pow(edgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2));
             const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
             const westCenterPixels = westPixels + monitorDetails.width / 2 - fovDetails.widthPixels / 2;
@@ -252,7 +279,6 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             });
         });
     }
-    Globals.logger.log_debug(`\t\t\tCached monitor wrap: ${JSON.stringify(cachedMonitorWrap)}`);
 
     return monitorPlacements;
 }
