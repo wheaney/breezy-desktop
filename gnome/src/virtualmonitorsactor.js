@@ -397,6 +397,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Whether this monitor is the closest to the camera',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'disable-anti-aliasing': GObject.ParamSpec.boolean(
+            'disable-anti-aliasing',
+            'Disable anti-aliasing',
+            'Disable anti-aliasing for the effect',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class VirtualMonitorEffect extends Shell.GLSLEffect {
@@ -612,11 +619,15 @@ export const VirtualMonitorEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, 5)]);
         this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
 
-        this.get_pipeline().set_layer_filters(
-            0,
-            Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
-            Cogl.PipelineFilter.LINEAR
-        );
+
+        if (!this.disable_anti_aliasing) {
+            // improves sampling quality for smooth text and edges
+            this.get_pipeline().set_layer_filters(
+                0,
+                Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
+                Cogl.PipelineFilter.LINEAR
+            );
+        }
 
         super.vfunc_paint_target(node, paintContext);
     }
@@ -719,12 +730,28 @@ export const VirtualMonitorsActor = GObject.registerClass({
             2.5, 
             1.05
         ),
-        'target-framerate': GObject.ParamSpec.double(
-            'target-framerate',
-            'Target Framerate',
-            'Target framerate for the virtual monitors',
+        'framerate-cap': GObject.ParamSpec.double(
+            'framerate-cap',
+            'Framerate Cap',
+            'Maximum framerate to render at',
             GObject.ParamFlags.READWRITE,
-            1.0, 120.0, 60.0
+            1.0, 240.0, 60.0
+        ),
+        'look-ahead-override': GObject.ParamSpec.int(
+            'look-ahead-override',
+            'Look ahead override',
+            'Override the look ahead value',
+            GObject.ParamFlags.READWRITE,
+            -1,
+            45,
+            -1
+        ),
+        'disable-anti-aliasing': GObject.ParamSpec.boolean(
+            'disable-anti-aliasing',
+            'Disable anti-aliasing',
+            'Disable anti-aliasing for the effect',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class VirtualMonitorsActor extends Clutter.Actor {
@@ -733,7 +760,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
         this.width = this.target_monitor.width;
         this.height = this.target_monitor.height;
-        this._frametime_ms = Math.floor(1000 / (this.target_framerate ?? 60.0));
+        this._cap_frametime_ms = Math.floor(1000 / this.framerate_cap);
 
         this._all_monitors = [
             this.target_monitor,
@@ -796,6 +823,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
             this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
+            this.bind_property('disable-anti-aliasing', effect, 'disable-anti-aliasing', GObject.BindingFlags.DEFAULT);
 
             const updateEffectDistanceDefault = (() => {
                 effect.display_distance_default = this._display_distance_default();
@@ -828,7 +856,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this._redraw_timeline = Clutter.Timeline.new_for_actor(this, 1000);
         this._redraw_timeline.connect('new-frame', (() => {
             // let's try to cap the forced redraw rate
-            if (this._last_redraw !== undefined && Date.now() - this._last_redraw < this._frametime_ms) return;
+            if (this._last_redraw !== undefined && Date.now() - this._last_redraw < this._cap_frametime_ms) return;
 
             Globals.data_stream.refresh_data();
             this.imu_snapshots = Globals.data_stream.imu_snapshots;

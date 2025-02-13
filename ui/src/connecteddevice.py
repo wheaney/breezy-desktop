@@ -32,7 +32,8 @@ class ConnectedDevice(Gtk.Box):
     # widescreen_mode_switch = Gtk.Template.Child()
     # widescreen_mode_row = Gtk.Template.Child()
     # curved_display_switch = Gtk.Template.Child()
-    add_virtual_display_button = Gtk.Template.Child()
+    add_virtual_display_button_1080p = Gtk.Template.Child()
+    add_virtual_display_button_1440p = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
     reassign_toggle_xr_effect_shortcut_button = Gtk.Template.Child()
@@ -70,7 +71,8 @@ class ConnectedDevice(Gtk.Box):
             # self.follow_mode_switch,
             # self.follow_threshold_scale,
             # self.curved_display_switch,
-            # self.add_virtual_display_button,
+            self.add_virtual_display_button_1080p,
+            self.add_virtual_display_button_1440p,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
             self.movement_look_ahead_scale,
@@ -114,7 +116,8 @@ class ConnectedDevice(Gtk.Box):
             self.set_toggle_display_distance_start_button, 
             self.set_toggle_display_distance_end_button
         ])
-        self.add_virtual_display_button.connect('clicked', self.on_add_virtual_display)
+        self.add_virtual_display_button_1080p.connect('clicked', lambda *args: self.on_add_virtual_display(1920, 1080))
+        self.add_virtual_display_button_1440p.connect('clicked', lambda *args: self.on_add_virtual_display(2560, 1440))
 
         self.state_manager = StateManager.get_instance()
         # self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
@@ -202,8 +205,8 @@ class ConnectedDevice(Gtk.Box):
             widget.connect('clicked', lambda *args, widget=widget: on_set_display_distance_toggle(widget))
             reload_display_distance_toggle_button(widget)
 
-    def on_add_virtual_display(self, widget):
-        VirtualMonitor(1920, 1080, self.on_virtual_display_ready).create()
+    def on_add_virtual_display(self, width, height):
+        VirtualMonitor(width, height, self.on_virtual_display_ready).create()
 
     def on_virtual_display_ready(self):
         logger.info("Virtual display ready")
