@@ -51,7 +51,7 @@ function checkParityByte(dataView) {
     return parityByte === parity;
 }
 
-const COUNTER_MAX = 150;
+const COUNTER_MAX = 300;
 function nextDebugIMUQuaternion(counter) {
     const angle = counter / COUNTER_MAX * 2 * Math.PI;
     const yaw = 10 * Math.PI / 180 * Math.cos(angle);
@@ -106,7 +106,13 @@ export const DeviceDataStream = GObject.registerClass({
 }, class DeviceDataStream extends GObject.Object {
     constructor(params = {}) {
         super(params);
+
+        // this may be set true if debug_no_device is set, so it doesn't mean a device is actually connected
         this.breezy_desktop_running = false;
+
+        // use this property to set whether breezy is being operated by a real device
+        this.breezy_desktop_actually_running = false;
+
         this._ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
         this._running = false;
         this.device_data = null;
@@ -138,6 +144,7 @@ export const DeviceDataStream = GObject.registerClass({
             this.was_debug_no_device = false;
             this.device_data = null;
             this.breezy_desktop_running = false;
+            this.breezy_desktop_actually_running = false;
             this.imu_snapshots = null;
         }
 
@@ -211,16 +218,18 @@ export const DeviceDataStream = GObject.registerClass({
 
                     if (success) {
                         // update the supported device connected property if the state changes, trigger "notify::" events
-                        const breezy_desktop_running = enabled && validKeepalive;
-                        if (this.breezy_desktop_running !== breezy_desktop_running) this.breezy_desktop_running = breezy_desktop_running;
+                        this.breezy_desktop_actually_running = enabled && validKeepalive;
+                        if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) this.breezy_desktop_running = this.breezy_desktop_actually_running;
                     }
                 }
             } else {
                 this.breezy_desktop_running = false;
+                this.breezy_desktop_actually_running = false;
             }
-        } else if (this.debug_no_device) {
-            this.was_debug_no_device = true;
-            if (!this.device_data) {
+        }
+        
+        if (this.debug_no_device && !this.breezy_desktop_actually_running) {
+            if (!this.device_data || !this.was_debug_no_device) {
                 this.device_data = {
                     version: 1.0,
                     enabled: true,
@@ -231,6 +240,7 @@ export const DeviceDataStream = GObject.registerClass({
                     lookAheadCfg: [0.0, 0.0, 0.0, 0.0]
                 }
             }
+            this.was_debug_no_device = true;
 
             if (!keepalive_only) {
                 this._counter = ((this._counter ?? -1)+1)%COUNTER_MAX;

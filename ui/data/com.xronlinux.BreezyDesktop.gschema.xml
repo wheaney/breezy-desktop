@@ -226,9 +226,9 @@
         Custom monitor product
       </description>
     </key>
-    <key name="framerate-cap" type="i">
+    <key name="framerate-cap" type="d">
       <default>
-        0
+        60.0
       </default>
       <summary>Framerate cap</summary>
       <description>

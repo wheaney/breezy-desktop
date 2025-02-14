@@ -306,6 +306,7 @@ export default class BreezyDesktopExtension extends Extension {
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
+                    framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots
                 });
 
