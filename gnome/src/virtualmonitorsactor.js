@@ -303,14 +303,11 @@ function monitorVectorToRotationAngle(vector, monitorWrappingScheme) {
 }
 
 // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
-function lookAheadMS(imuDateMs, override) {
+function lookAheadMS(imuDateMs, lookAheadCfg, override) {
     // how stale the imu data is
     const dataAge = Date.now() - imuDateMs;
 
-    // if (override === -1)
-    //     return lookAheadCfg[0] + dataAge;
-
-    return override + dataAge;
+    return (override === -1 ? lookAheadCfg[0] : override) + dataAge;
 }
 
 export const VirtualMonitorEffect = GObject.registerClass({
@@ -404,7 +401,16 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Disable anti-aliasing for the effect',
             GObject.ParamFlags.READWRITE,
             false
-        )
+        ),
+        'look-ahead-override': GObject.ParamSpec.int(
+            'look-ahead-override',
+            'Look ahead override',
+            'Override the look ahead value',
+            GObject.ParamFlags.READWRITE,
+            -1,
+            45,
+            -1
+        ),
     }
 }, class VirtualMonitorEffect extends Shell.GLSLEffect {
     constructor(params = {}) {
@@ -482,14 +488,9 @@ export const VirtualMonitorEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y]);
     }
 
-    perspective(fovDiagonalRadians, aspect, near, far) {
-        // compute horizontal fov given diagonal fov and aspect ratio
-        const h = Math.sqrt(aspect * aspect + 1);
-
-        const fovRadians = fovDiagonalRadians / h * aspect;
-        console.log(`fovRadians: ${fovRadians}`);
-
-        const f = 1.0 / Math.tan(fovRadians / 2.0);
+    perspective(fovVerticalRadians, aspect, near, far) {
+        const fovHorizontalRadians = fovVerticalRadians * aspect;
+        const f = 1.0 / Math.tan(fovHorizontalRadians / 2.0);
         const range = far - near;
     
         return [
@@ -504,7 +505,9 @@ export const VirtualMonitorEffect = GObject.registerClass({
         const declarations = `
             uniform mat4 u_imu_data;
             uniform float u_look_ahead_ms;
+            uniform vec4 u_look_ahead_cfg;
             uniform mat4 u_projection_matrix;
+            uniform float u_fov_vertical_radians;
             uniform vec3 u_display_position;
             uniform float u_rotation_x_radians;
             uniform float u_rotation_y_radians;
@@ -516,6 +519,8 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
             // discovered through trial and error, no idea the significance
             float cogl_position_mystery_factor = 29.09 * 2;
+            
+            float look_ahead_ms_cap = 45.0;
 
             vec4 quatConjugate(vec4 q) {
                 return vec4(-q.xyz, q.w);
@@ -551,8 +556,15 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
             // attempt to figure out where the current position should be based on previous position and velocity.
             // velocity and time values should use the same time units (secs, ms, etc...)
-            vec3 applyLookAhead(vec3 position, vec3 velocity, float t) {
-                return position + velocity * t;
+            vec3 applyLookAhead(vec3 position, vec3 velocity, float look_ahead_ms) {
+                return position + velocity * look_ahead_ms;
+            }
+
+            // project the vector onto a flat surface, return it's vertical position relative to the vertical fov, where 0.0 is 
+            // the top and 1.0 is the bottom. vectors that project outside the vertical range of the display will have values 
+            // outside this range.
+            float vectorToScanline(float fovVerticalRadians, vec3 v) {
+                return 1.0 - (-v.y / (tan(fovVerticalRadians / 2.0) * v.z) + 1.0) / 2.0;
             }
         `;
 
@@ -564,7 +576,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             float cogl_position_height = cogl_position_width / aspect_ratio;
 
             world_pos.x -= u_display_position.x * cogl_position_width / u_display_resolution.x;
-            world_pos.y -= u_display_position.y * cogl_position_height/ u_display_resolution.y;
+            world_pos.y -= u_display_position.y * cogl_position_height / u_display_resolution.y;
             world_pos.z = u_display_position.z * cogl_position_mystery_factor / u_display_resolution.x;
 
             // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
@@ -579,7 +591,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             vec3 rotated_vector_t1 = applyQuaternionToVector(world_pos, nwuToESU(quatConjugate(u_imu_data[1]))).xyz;
             float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
             vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
-            world_pos = vec4(applyLookAhead(rotated_vector_t0, velocity_t0, u_look_ahead_ms), world_pos.w);
+
+            // compute the capped look ahead with scanline adjustments
+            float look_ahead_scanline_ms = vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
+            float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
+
+            world_pos = vec4(applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms), world_pos.w);
             world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
             world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
@@ -602,21 +619,26 @@ export const VirtualMonitorEffect = GObject.registerClass({
     vfunc_paint_target(node, paintContext) {
         if (!this._initialized) {
             const aspect = this.get_actor().width / this.get_actor().height;
+            const fovDiagonalRadians = Globals.data_stream.device_data.displayFov * Math.PI / 180.0;
+            const diagToVertRatio = Math.sqrt(aspect * aspect + 1);
+            const fovVerticalRadians = fovDiagonalRadians / diagToVertRatio;
             const projection_matrix = this.perspective(
-                Globals.data_stream.device_data.displayFov * Math.PI / 180.0,
+                fovVerticalRadians,
                 aspect,
                 0.0001,
                 1000.0
             );
             this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
+            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovVerticalRadians]);
             this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.get_actor().width, this.get_actor().height]);
+            this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
             this._update_display_position_uniforms();
             this._initialized = true;
         }
 
-        this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, 5)]);
+        this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
         this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
 
 
@@ -823,6 +845,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
             this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
             this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
+            this.bind_property('look-ahead-override', effect, 'look-ahead-override', GObject.BindingFlags.DEFAULT);
             this.bind_property('disable-anti-aliasing', effect, 'disable-anti-aliasing', GObject.BindingFlags.DEFAULT);
 
             const updateEffectDistanceDefault = (() => {
