@@ -564,7 +564,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             // the top and 1.0 is the bottom. vectors that project outside the vertical range of the display will have values 
             // outside this range, but capped
             float vectorToScanline(float fovVerticalRadians, vec3 v) {
-                return clamp(1.0 - (-v.y / (tan(fovVerticalRadians / 2.0) * v.z) + 1.0) / 2.0, -0.5, 1.5);
+                return clamp(1.0 - (-v.y / (tan(fovVerticalRadians / 2.0) * v.z) + 1.0) / 2.0, -1.5, 2.5);
             }
         `;
 
