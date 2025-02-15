@@ -176,8 +176,9 @@ export const DeviceDataStream = GObject.registerClass({
                             imuResetState,
                             displayRes: dataViewUint32Array(dataView, DISPLAY_RES),
                             sbsEnabled,
-                            displayFov: 44.0, // dataViewFloat(dataView, DISPLAY_FOV),
+                            displayFov: dataViewFloat(dataView, DISPLAY_FOV),
                             lookAheadCfg: dataViewFloatArray(dataView, LOOK_AHEAD_CFG),
+                            lensDistanceRatio: dataViewFloat(dataView, LENS_DISTANCE_RATIO)
                         };
                     } else if (keepalive_only) {
                         this.device_data = {
@@ -216,14 +217,11 @@ export const DeviceDataStream = GObject.registerClass({
                         }
                     }
 
-                    if (success) {
-                        // update the supported device connected property if the state changes, trigger "notify::" events
-                        this.breezy_desktop_actually_running = enabled && validKeepalive;
-                        if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) this.breezy_desktop_running = this.breezy_desktop_actually_running;
-                    }
+                    this.breezy_desktop_actually_running = success && enabled && validKeepalive;
+                } else {
+                    this.breezy_desktop_actually_running = false;
                 }
             } else {
-                this.breezy_desktop_running = false;
                 this.breezy_desktop_actually_running = false;
             }
         }
@@ -237,7 +235,8 @@ export const DeviceDataStream = GObject.registerClass({
                     displayRes: [1920.0, 1080.0],
                     sbsEnabled: false,
                     displayFov: 46.0,
-                    lookAheadCfg: [0.0, 0.0, 0.0, 0.0]
+                    lookAheadCfg: [0.0, 0.0, 0.0, 0.0],
+                    lensDistanceRatio: 0.05
                 }
             }
             this.was_debug_no_device = true;
@@ -261,7 +260,9 @@ export const DeviceDataStream = GObject.registerClass({
                 };
             }
             this.breezy_desktop_running = true;
-            return;
+        } else if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) {
+            // update the breezy_desktop_running property if the state changes to trigger "notify::" events
+            this.breezy_desktop_running = this.breezy_desktop_actually_running;
         }
     }
 });
