@@ -114,35 +114,6 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Display size</property>
-                        <property name="subtitle" translatable="yes">Combine with display distance to achieve a comfortable level of depth and size.</property>
-                        <child>
-                          <object class="GtkScale" id="display_size_scale">
-                            <property name="valign">3</property>
-                            <property name="draw-value">true</property>
-                            <property name="value-pos">0</property>
-                            <property name="digits">2</property>
-                            <property name="width-request">350</property>
-                            <property name="has-origin">false</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="display_size_adjustment">
-                                <property name="lower">0.2</property>
-                                <property name="upper">2.5</property>
-                                <property name="step-increment">0.01</property>
-                                <property name="value">1.0</property>
-                              </object>
-                            </property>
-                            <marks>
-                              <mark value="0.2" position="bottom"></mark>
-                              <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.5" position="bottom"></mark>
-                            </marks>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Display toggle distances</property>
                         <property name="subtitle" translatable="yes">Use the buttons to capture the current display distance for use with the keyboard shortcut.</property>
                         <property name="valign">2</property>

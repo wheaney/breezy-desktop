@@ -24,8 +24,8 @@ class ConnectedDevice(Gtk.Box):
     effect_enable_switch = Gtk.Template.Child()
     display_distance_scale = Gtk.Template.Child()
     display_distance_adjustment = Gtk.Template.Child()
-    display_size_scale = Gtk.Template.Child()
-    display_size_adjustment = Gtk.Template.Child()
+    # display_size_scale = Gtk.Template.Child()
+    # display_size_adjustment = Gtk.Template.Child()
     # follow_threshold_scale = Gtk.Template.Child()
     # follow_threshold_adjustment = Gtk.Template.Child()
     # follow_mode_switch = Gtk.Template.Child()
@@ -67,7 +67,7 @@ class ConnectedDevice(Gtk.Box):
         self.active = True
         self.all_enabled_state_inputs = [
             self.display_distance_scale,
-            self.display_size_scale,
+            # self.display_size_scale,
             # self.follow_mode_switch,
             # self.follow_threshold_scale,
             # self.curved_display_switch,
@@ -88,7 +88,7 @@ class ConnectedDevice(Gtk.Box):
         self.extensions_manager = ExtensionsManager.get_instance()
 
         self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -214,8 +214,8 @@ class ConnectedDevice(Gtk.Box):
     def _on_widget_destroy(self, widget):
         # self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
         self.settings.unbind('display-distance', self.display_distance_adjustment, 'value')
-        self.settings.unbind('display-size', self.display_size_adjustment, 'value')
-        self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
+        # self.settings.unbind('display-size', self.display_size_adjustment, 'value')
+        # self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
         # self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
 
 def reload_display_distance_toggle_button(widget):
