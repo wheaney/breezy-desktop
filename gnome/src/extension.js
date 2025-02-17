@@ -48,6 +48,8 @@ export default class BreezyDesktopExtension extends Extension {
         this._target_monitor = null;
         this._is_effect_running = false;
         this._distance_binding = null;
+        this._show_banner_binding = null;
+        this._custom_banner_enabled_binding = null;
         this._monitor_wrapping_scheme_binding = null;
         this._viewport_offset_x_binding = null;
         this._viewport_offset_y_binding = null;
@@ -268,7 +270,9 @@ export default class BreezyDesktopExtension extends Extension {
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                     framerate_cap: this.settings.get_double('framerate-cap'),
-                    imu_snapshots: Globals.data_stream.imu_snapshots
+                    imu_snapshots: Globals.data_stream.imu_snapshots,
+                    show_banner: Globals.data_stream.show_banner,
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
                 });
 
                 this._overlay.set_child(this._overlay_content);
@@ -295,6 +299,9 @@ export default class BreezyDesktopExtension extends Extension {
 
                 // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
                 this._overlay_content.renderMonitors();
+
+                this._show_banner_binding = Globals.data_stream.bind_property('show-banner', this._overlay_content, 'show-banner', Gio.SettingsBindFlags.DEFAULT);
+                this._custom_banner_enabled_binding = Globals.data_stream.bind_property('custom-banner-enabled', this._overlay_content, 'custom-banner-enabled', Gio.SettingsBindFlags.DEFAULT);
 
                 this._monitor_wrapping_scheme_binding = this.settings.bind('monitor-wrapping-scheme', this._overlay_content, 'monitor-wrapping-scheme', Gio.SettingsBindFlags.DEFAULT);
                 this._viewport_offset_x_binding = this.settings.bind('viewport-offset-x', this._overlay_content, 'viewport-offset-x', Gio.SettingsBindFlags.DEFAULT);
@@ -566,6 +573,14 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._monitor_wrapping_scheme_binding) {
                 this.settings.unbind(this._monitor_wrapping_scheme_binding);
                 this._monitor_wrapping_scheme_binding = null;
+            }
+            if (this._show_banner_binding) {
+                this._show_banner_binding.unbind();
+                this._show_banner_binding = null;
+            }
+            if (this._custom_banner_enabled_binding) {
+                this._custom_banner_enabled_binding.unbind();
+                this._custom_banner_enabled_binding = null;
             }
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);

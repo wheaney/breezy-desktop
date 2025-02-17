@@ -95,6 +95,20 @@ export const DeviceDataStream = GObject.registerClass({
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
         ),
+        'show-banner': GObject.ParamSpec.boolean(
+            'show-banner',
+            'Show banner',
+            'Whether the banner should be displayed',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'custom-banner-enabled': GObject.ParamSpec.boolean(
+            'custom-banner-enabled',
+            'Custom banner enabled',
+            'Whether the custom banner should be displayed',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'debug-no-device': GObject.ParamSpec.boolean(
             'debug-no-device',
             'Debug without device',
@@ -162,12 +176,15 @@ export const DeviceDataStream = GObject.registerClass({
                     const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
                     let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
                     const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+                    const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
-                    // update the widescreen property if the state changes while still enabled, trigger "notify::" events
+                    // trigger "notify::" events for properties we want to check on every cycle
                     if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
+                    if (this.show_banner !== imuResetState) this.show_banner = imuResetState;
+                    if (this.custom_banner_enabled !== customBannerEnabled) this.custom_banner_enabled = customBannerEnabled;
 
                     if (!this.device_data) {
                         this.device_data = {

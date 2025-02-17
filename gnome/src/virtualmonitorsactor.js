@@ -1,7 +1,9 @@
 import Clutter from 'gi://Clutter'
 import Cogl from 'gi://Cogl';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -369,6 +371,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
             2.5, 
             1.0
         ),
+        'show-banner': GObject.ParamSpec.boolean(
+            'show-banner',
+            'Show banner',
+            'Whether the banner should be displayed',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'lens-vector': GObject.ParamSpec.jsobject(
             'lens-vector',
             'Lens Vector',
@@ -421,6 +430,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
         this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
         this.connect('notify::monitor-placements', this._update_display_position_uniforms.bind(this));
         this.connect('notify::monitor-wrapping-scheme', this._update_display_position_uniforms.bind(this));
+        this.connect('notify::show-banner', this._handle_banner_update.bind(this));
     }
 
     _is_focused() {
@@ -487,6 +497,10 @@ export const VirtualMonitorEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y]);
     }
 
+    _handle_banner_update() {
+        this.set_uniform_float(this.get_uniform_location("u_show_banner"), 1, [this.show_banner ? 1.0 : 0.0]);
+    }
+
     perspective(fovVerticalRadians, aspect, near, far) {
         const fovHorizontalRadians = fovVerticalRadians * aspect;
         const f = 1.0 / Math.tan(fovHorizontalRadians / 2.0);
@@ -502,6 +516,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
     vfunc_build_pipeline() {
         const declarations = `
+            uniform bool u_show_banner;
             uniform mat4 u_imu_data;
             uniform float u_look_ahead_ms;
             uniform vec4 u_look_ahead_cfg;
@@ -569,53 +584,59 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
         const main = `
             vec4 world_pos = cogl_position_in;
-            float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-            float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
-            float cogl_position_height = cogl_position_width / aspect_ratio;
+            if (!u_show_banner) {
+                float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-            vec3 pos_factors = vec3(cogl_position_width / u_display_resolution.x, cogl_position_height / u_display_resolution.y, cogl_position_mystery_factor / u_display_resolution.x);
-            world_pos.x -= u_display_position.x * pos_factors.x;
-            world_pos.y -= u_display_position.y * pos_factors.y;
-            world_pos.z = u_display_position.z * pos_factors.z;
+                float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
+                float cogl_position_height = cogl_position_width / aspect_ratio;
 
-            // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
-            world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / 2;
-            world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / 2;
+                vec3 pos_factors = vec3(cogl_position_width / u_display_resolution.x, cogl_position_height / u_display_resolution.y, cogl_position_mystery_factor / u_display_resolution.x);
+                world_pos.x -= u_display_position.x * pos_factors.x;
+                world_pos.y -= u_display_position.y * pos_factors.y;
+                world_pos.z = u_display_position.z * pos_factors.z;
 
-            world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
-            world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
-            world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
+                // if the perspective includes more than just our viewport actor, move vertices towards the center of the perspective so they'll be properly rotated
+                world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / 2;
+                world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / 2;
 
-            vec4 quat_t0 = nwuToESU(quatConjugate(u_imu_data[0]));
-            vec3 adjusted_lens_vector = u_lens_vector * pos_factors;
-            vec3 complete_vector = world_pos.xyz + adjusted_lens_vector;
-            vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
-            vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_imu_data[1])));
-            float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
-            vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
+                world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
+                world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
+                world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
 
-            // compute the capped look ahead with scanline adjustments
-            float look_ahead_scanline_ms = vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
-            float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
+                vec4 quat_t0 = nwuToESU(quatConjugate(u_imu_data[0]));
+                vec3 adjusted_lens_vector = u_lens_vector * pos_factors;
+                vec3 complete_vector = world_pos.xyz + adjusted_lens_vector;
+                vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
+                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_imu_data[1])));
+                float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
+                vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
 
-            vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
+                // compute the capped look ahead with scanline adjustments
+                float look_ahead_scanline_ms = vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
+                float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
 
-            vec3 rotated_lens_vector = applyQuaternionToVector(adjusted_lens_vector, quat_t0);
-            world_pos = vec4(look_ahead_vector - rotated_lens_vector, world_pos.w);
-            world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
+                vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
 
-            world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
+                vec3 rotated_lens_vector = applyQuaternionToVector(adjusted_lens_vector, quat_t0);
+                world_pos = vec4(look_ahead_vector - rotated_lens_vector, world_pos.w);
 
-            world_pos = u_projection_matrix * world_pos;
+                world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
-            // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
-            // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
-            world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
-            world_pos.y += (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
+                world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
+
+                world_pos = u_projection_matrix * world_pos;
+
+                // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
+                // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
+                world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
+                world_pos.y += (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
+            } else {
+                world_pos = cogl_modelview_matrix * world_pos;
+                world_pos = cogl_projection_matrix * world_pos;
+            }
 
             cogl_position_out = world_pos;
-
             cogl_tex_coord_out[0] = cogl_tex_coord_in;
         `
 
@@ -642,12 +663,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
             this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.lens_vector);
             this._update_display_position_uniforms();
+            this._handle_banner_update();
             this._initialized = true;
         }
 
         this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
         this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
-
 
         if (!this.disable_anti_aliasing) {
             // improves sampling quality for smooth text and edges
@@ -715,6 +736,20 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'show-banner': GObject.ParamSpec.boolean(
+            'show-banner',
+            'Show banner',
+            'Whether the banner should be displayed',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'custom-banner-enabled': GObject.ParamSpec.boolean(
+            'custom-banner-enabled',
+            'Custom banner enabled',
+            'Whether the custom banner should be displayed',
+            GObject.ParamFlags.READWRITE,
+            false
         ),
         'focused-monitor-index': GObject.ParamSpec.int(
             'focused-monitor-index',
@@ -804,6 +839,34 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.target_monitor,
             ...this.monitors
         ]
+
+        const bannerTextureClippingRect = new Mtk.Rectangle({
+            x: 0,
+            y: 0,
+            width: 800,
+            height: 200
+        });
+
+        const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
+        const calibratingImage = new Clutter.Image();
+        calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                  calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
+        this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), bannerTextureClippingRect);
+
+        const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
+        const customBannerImage = new Clutter.Image();
+        customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                   customBanner.width, customBanner.height, customBanner.rowstride);
+        this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), bannerTextureClippingRect);
+
+        this.bannerActor = new Clutter.Actor({
+            width: calibratingBanner.width,
+            height: calibratingBanner.height,
+            reactive: false
+        });
+        this.bannerActor.set_position((this.width - this.bannerActor.width) / 2, this.height * 0.75 - this.bannerActor.height / 2);
+        this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
+        this.bannerActor.hide();
     }
 
     renderMonitors() {
@@ -845,6 +908,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             // Add the monitor actor to the scene
             containerActor.add_child(monitorClone);
             const effect = new VirtualMonitorEffect({
+                focused_monitor_index: 0,
                 imu_snapshots: this.imu_snapshots,
                 monitor_index: index,
                 monitor_placements: this.monitor_placements,
@@ -852,10 +916,14 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 display_distance_default: this._display_distance_default(),
                 actor_to_display_ratios: actorToDisplayRatios,
                 actor_to_display_offsets: actorToDisplayOffsets,
-                lens_vector: this.lens_vector
+                lens_vector: this.lens_vector,
+                show_banner: this.show_banner
             });
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
+
+            // do this so the primary monitor is always on top at first, before the focused monitor logic comes into play
+            this.set_child_below_sibling(containerActor, null);
 
             // TODO - track actors and clean this up
             this.bind_property('monitor-placements', effect, 'monitor-placements', GObject.BindingFlags.DEFAULT);
@@ -865,6 +933,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.bind_property('lens-vector', effect, 'lens-vector', GObject.BindingFlags.DEFAULT);
             this.bind_property('look-ahead-override', effect, 'look-ahead-override', GObject.BindingFlags.DEFAULT);
             this.bind_property('disable-anti-aliasing', effect, 'disable-anti-aliasing', GObject.BindingFlags.DEFAULT);
+            this.bind_property('show-banner', effect, 'show-banner', GObject.BindingFlags.DEFAULT);
 
             const updateEffectDistanceDefault = (() => {
                 effect.display_distance_default = this._display_distance_default();
@@ -874,19 +943,30 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
             // in addition to rendering distance properly in the shader, the parent actor determines overlap based on child ordering
             effect.connect('notify::is-closest', ((actor, _pspec) => {
-                if (actor.is_closest) this.set_child_above_sibling(containerActor, null);
+                if (actor.is_closest) {
+                    this.set_child_above_sibling(containerActor, null);
+                    if (this.show_banner) this.set_child_above_sibling(this.bannerActor, null);
+                }
             }).bind(this));
         }).bind(this));
 
+        this.add_child(this.bannerActor);
+        if (this.show_banner) {
+            this.set_child_above_sibling(this.bannerActor, null);
+            this.bannerActor.show();
+        }
+
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
-            if (this.imu_snapshots) {
+            if (this.show_banner) {
+                this.focused_monitor_index = 0;
+            } else if (this.imu_snapshots) {
                 const closestMonitorIndex = findClosestVector(
                     this.imu_snapshots.imu_data.splice(0, 4),
                     this._monitorsAsNormalizedVectors, this.closestMonitorIndex
                 );
 
                 if (closestMonitorIndex !== -1 && (this.focused_monitor_index === undefined || this.focused_monitor_index !== closestMonitorIndex)) {
-                    Globals.logger.log(`Switching to monitor ${closestMonitorIndex}`);
+                    Globals.logger.log_debug(`Switching to monitor ${closestMonitorIndex}`);
                     this.focused_monitor_index = closestMonitorIndex;
                 }
             }
@@ -915,6 +995,8 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this.connect('notify::monitor-spacing', this._update_monitor_placements.bind(this));
         this.connect('notify::viewport-offset-x', this._update_monitor_placements.bind(this));
         this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
+        this.connect('notify::show-banner', this._handle_banner_update.bind(this));
+        this.connect('notify::custom-banner-enabled', this._handle_banner_update.bind(this));
         this._handle_display_distance_properties_change();
     }
 
@@ -983,6 +1065,15 @@ export const VirtualMonitorsActor = GObject.registerClass({
         const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);
         this._is_display_distance_at_end = distance_from_end < distance_from_start;
         this._update_monitor_placements();
+    }
+
+    _handle_banner_update() {
+        if (this.show_banner) {
+            this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
+            this.bannerActor.show();
+        } else {
+            this.bannerActor.hide();
+        }
     }
 
     _change_distance() {
