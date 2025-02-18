@@ -69,10 +69,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
 
     const keepCurrent = currentFocusedIndex !== -1 && currentFocusedDistance < UNFOCUS_THRESHOLD;
     if (!keepCurrent) {
-        if (closestDistance < FOCUS_THRESHOLD) {
-            Globals.logger.log_debug(`\t\t\t\tFocused monitor: ${closestIndex}`);
-            return closestIndex;
-        }
+        if (closestDistance < FOCUS_THRESHOLD) return closestIndex;
 
         // neither the current nor the closest will take focus, unfocus all displays
         return -1;
@@ -888,17 +885,26 @@ export const VirtualMonitorsActor = GObject.registerClass({
     }
 
     renderMonitors() {
+        // collect bindings and connections to clean up on dispose
+        this._property_bindings = [];
+        this._property_connections = [];
+        this._monitor_actors = [];
+
+        const notifyToFunction = ((property, fn) => {
+            this._property_connections.push(this.connect(`notify::${property}`, fn.bind(this)));
+        }).bind(this);
+
         this._distance_ease_timeline = null;
-        this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::monitor-wrapping-scheme', this._update_monitor_placements.bind(this));
-        this.connect('notify::monitor-spacing', this._update_monitor_placements.bind(this));
-        this.connect('notify::viewport-offset-x', this._update_monitor_placements.bind(this));
-        this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
-        this.connect('notify::show-banner', this._handle_banner_update.bind(this));
-        this.connect('notify::custom-banner-enabled', this._handle_banner_update.bind(this));
-        this.connect('notify::framerate-cap', this._handle_frame_rate_cap_change.bind(this));
+        notifyToFunction('toggle-display-distance-start', this._handle_display_distance_properties_change);
+        notifyToFunction('toggle-display-distance-end', this._handle_display_distance_properties_change);
+        notifyToFunction('display-distance', this._handle_display_distance_properties_change);
+        notifyToFunction('monitor-wrapping-scheme', this._update_monitor_placements);
+        notifyToFunction('monitor-spacing', this._update_monitor_placements);
+        notifyToFunction('viewport-offset-x', this._update_monitor_placements);
+        notifyToFunction('viewport-offset-y', this._update_monitor_placements);
+        notifyToFunction('show-banner', this._handle_banner_update);
+        notifyToFunction('custom-banner-enabled', this._handle_banner_update);
+        notifyToFunction('framerate-cap', this._handle_frame_rate_cap_change);
         this._update_monitor_placements();
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
@@ -918,9 +924,6 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
-        this._property_bindings = [];
-        this._property_connections = [];
-        this._monitor_actors = [];
         this._all_monitors.forEach(((monitor, index) => {
             Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
@@ -999,7 +1002,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.bannerActor.show();
         }
 
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
             if (this._is_disposed) return GLib.SOURCE_REMOVE;
 
             if (this.show_banner) {

@@ -140,6 +140,7 @@ export const DeviceDataStream = GObject.registerClass({
     stop() {
         this._running = false;
         this.device_data = null;
+        this.imu_snapshots = null;
     }
 
     // polling is just intended to keep breezy_desktop_running current, anything needing up-to-date imu data should 
@@ -282,6 +283,10 @@ export const DeviceDataStream = GObject.registerClass({
         } else if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) {
             // update the breezy_desktop_running property if the state changes to trigger "notify::" events
             this.breezy_desktop_running = this.breezy_desktop_actually_running;
+            if (!this.breezy_desktop_running) {
+                this.device_data = null;
+                this.imu_snapshots = null;
+            }
         }
     }
 });
