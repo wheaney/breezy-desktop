@@ -275,6 +275,8 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         });
     }
 
+    Globals.logger.log_debug(`\t\t\tMonitor placements: ${JSON.stringify(monitorPlacements)}, cached values: ${JSON.stringify(cachedMonitorRadians)}`);
+
     return monitorPlacements;
 }
 
@@ -685,10 +687,16 @@ export const VirtualMonitorEffect = GObject.registerClass({
 
 export const VirtualMonitorsActor = GObject.registerClass({
     Properties: {
-        'monitors': GObject.ParamSpec.jsobject(
-            'monitors',
-            'Monitors',
-            'Array of monitor indexes',
+        'target-monitor': GObject.ParamSpec.jsobject(
+            'target-monitor',
+            'Target Monitor',
+            'Details about the monitor being used as a viewport',
+            GObject.ParamFlags.READWRITE
+        ),
+        'virtual-monitors': GObject.ParamSpec.jsobject(
+            'virtual-monitors',
+            'Virtual Monitors',
+            'Array of monitor indexes for just the virtual monitors',
             GObject.ParamFlags.READWRITE
         ),
         'monitor-wrapping-scheme': GObject.ParamSpec.string(
@@ -704,12 +712,6 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'Visual spacing between monitors',
             GObject.ParamFlags.READWRITE,
             0, 100, 0
-        ),
-        'target-monitor': GObject.ParamSpec.jsobject(
-            'target-monitor',
-            'Target Monitor',
-            'Details about the monitor being used as a viewport',
-            GObject.ParamFlags.READWRITE
         ),
         'viewport-offset-x': GObject.ParamSpec.double(
             'viewport-offset-x',
@@ -805,7 +807,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'Framerate Cap',
             'Maximum framerate to render at',
             GObject.ParamFlags.READWRITE,
-            1.0, 240.0, 60.0
+            0.0, 240.0, 0.0
         ),
         'look-ahead-override': GObject.ParamSpec.int(
             'look-ahead-override',
@@ -828,16 +830,9 @@ export const VirtualMonitorsActor = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        this.width = this.target_monitor.width;
-        this.height = this.target_monitor.height;
-
-        // add a margin to the cap time so we don't cut off frames that come in close
-        const frametime_margin = 0.75;
-        this._cap_frametime_ms = Math.floor(1000 * frametime_margin / this.framerate_cap);
-
         this._all_monitors = [
             this.target_monitor,
-            ...this.monitors
+            ...this.virtual_monitors
         ]
 
         const bannerTextureClippingRect = new Mtk.Rectangle({
@@ -870,7 +865,20 @@ export const VirtualMonitorsActor = GObject.registerClass({
     }
 
     renderMonitors() {
+        this._distance_ease_timeline = null;
+        this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
+        this.connect('notify::monitor-wrapping-scheme', this._update_monitor_placements.bind(this));
+        this.connect('notify::monitor-spacing', this._update_monitor_placements.bind(this));
+        this.connect('notify::viewport-offset-x', this._update_monitor_placements.bind(this));
+        this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
+        this.connect('notify::show-banner', this._handle_banner_update.bind(this));
+        this.connect('notify::custom-banner-enabled', this._handle_banner_update.bind(this));
+        this.connect('notify::frame-rate-cap', this._handle_frame_rate_cap_change.bind(this));
         this._update_monitor_placements();
+        this._handle_display_distance_properties_change();
+        this._handle_frame_rate_cap_change();
 
         const actorToDisplayRatios = [
             global.stage.width / this.width, 
@@ -986,18 +994,6 @@ export const VirtualMonitorsActor = GObject.registerClass({
         }).bind(this));
         this._redraw_timeline.set_repeat_count(-1);
         this._redraw_timeline.start();
-
-        this._distance_ease_timeline = null;
-        this.connect('notify::toggle-display-distance-start', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::toggle-display-distance-end', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::display-distance', this._handle_display_distance_properties_change.bind(this));
-        this.connect('notify::monitor-wrapping-scheme', this._update_monitor_placements.bind(this));
-        this.connect('notify::monitor-spacing', this._update_monitor_placements.bind(this));
-        this.connect('notify::viewport-offset-x', this._update_monitor_placements.bind(this));
-        this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
-        this.connect('notify::show-banner', this._handle_banner_update.bind(this));
-        this.connect('notify::custom-banner-enabled', this._handle_banner_update.bind(this));
-        this._handle_display_distance_properties_change();
     }
 
     _display_distance_default() {
@@ -1074,6 +1070,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
         } else {
             this.bannerActor.hide();
         }
+    }
+
+    _handle_frame_rate_cap_change() {
+        // add a margin to the cap time so we don't cut off frames that come in close
+        const frametime_margin = 0.75;
+        this._cap_frametime_ms = this.framerate_cap === 0 ? 0.0 : Math.floor(1000 * frametime_margin / this.framerate_cap);
     }
 
     _change_distance() {

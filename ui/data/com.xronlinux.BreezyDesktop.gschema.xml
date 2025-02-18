@@ -228,7 +228,7 @@
     </key>
     <key name="framerate-cap" type="d">
       <default>
-        60.0
+        0.0
       </default>
       <summary>Framerate cap</summary>
       <description>

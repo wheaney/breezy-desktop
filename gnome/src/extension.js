@@ -261,8 +261,11 @@ export default class BreezyDesktopExtension extends Extension {
                 // const textureSourceActor = Main.layoutManager.uiGroup;
                 Globals.data_stream.refresh_data();
                 this._overlay_content = new VirtualMonitorsActor({
-                    monitors: virtualMonitors,
+                    width: targetMonitor.width,
+                    height: targetMonitor.height,
+                    virtual_monitors: virtualMonitors,
                     monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
+                    monitor_spacing: this.settings.get_double('monitor-spacing'),
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     target_monitor: targetMonitor,
@@ -272,7 +275,8 @@ export default class BreezyDesktopExtension extends Extension {
                     framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots,
                     show_banner: Globals.data_stream.show_banner,
-                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled,
+                    reactive: false,
                 });
 
                 this._overlay.set_child(this._overlay_content);
