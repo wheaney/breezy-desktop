@@ -265,7 +265,7 @@ export default class BreezyDesktopExtension extends Extension {
                     height: targetMonitor.height,
                     virtual_monitors: virtualMonitors,
                     monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
-                    monitor_spacing: this.settings.get_double('monitor-spacing'),
+                    monitor_spacing: this.settings.get_int('monitor-spacing'),
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     target_monitor: targetMonitor,
@@ -280,6 +280,7 @@ export default class BreezyDesktopExtension extends Extension {
                 });
 
                 this._overlay.set_child(this._overlay_content);
+                this._overlay_content.renderMonitors();
 
                 Shell.util_set_hidden_from_pick(this._overlay, true);
                 global.stage.add_child(this._overlay);
@@ -302,7 +303,6 @@ export default class BreezyDesktopExtension extends Extension {
                 //     this._update_widescreen_mode_from_settings(this.settings);
 
                 // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
-                this._overlay_content.renderMonitors();
 
                 this._show_banner_binding = Globals.data_stream.bind_property('show-banner', this._overlay_content, 'show-banner', Gio.SettingsBindFlags.DEFAULT);
                 this._custom_banner_enabled_binding = Globals.data_stream.bind_property('custom-banner-enabled', this._overlay_content, 'custom-banner-enabled', Gio.SettingsBindFlags.DEFAULT);
@@ -631,18 +631,15 @@ export default class BreezyDesktopExtension extends Extension {
                 this._framerate_cap_binding = null;
             }
             if (this._overlay) {
-                global.stage.remove_child(this._overlay);
-                this._overlay.destroy();
-                this._overlay = null;
                 if (this._overlay_content) {
-                    // if (this._widescreen_mode_effect_state_connection) {
-                    //     this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
-                    //     this._widescreen_mode_effect_state_connection = null;
-                    // }
+                    this._overlay.remove_child(this._overlay_content);
                     this._overlay_content.destroy();
                     this._overlay_content = null;
                 }
 
+                global.stage.remove_child(this._overlay);
+                this._overlay.destroy();
+                this._overlay = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();

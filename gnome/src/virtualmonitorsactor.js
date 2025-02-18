@@ -22,45 +22,63 @@ function applyQuaternionToVector(vector, quaternion) {
     ];
 }
 
+// if nothing is in focus, take it as soon as it crosses into the monitor's bounds
+const FOCUS_THRESHOLD = 0.95 / 2.0;
+
+// if we leave the monitor with some margin, unfocus even if no other monitor is in focus
+const UNFOCUS_THRESHOLD = 1.25 / 2.0;
+
 /**
  * Find the vector in the array that's closest to the quaternion rotation
  * 
  * @param {number[]} quaternion - Reference quaternion [x, y, z, w]
- * @param {number[][]} vectors - Array of vectors [x, y, z] to search from
+ * @param {number[][]} monitorVectors - Array of monitor vectors [x, y, z] to search from
+ * @param {number} currentFocusedIndex - Index of the currently focused monitor
+ * @param {number} focusedMonitorDistance - Distance to the focused monitor, < 1.0 if zoomed in
+ * @param {Object} fovDetails - Contains reference widthPixels, heightPixels, horizontal and vertical radians, and pixel distance to the center of the screen
+ * @param {Object[]} monitorsDetails - Contains x, y, width, height (coordinates from top-left) for each monitor
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
-function findClosestVector(quaternion, vectors, previousClosestIndex) {
-
+function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, fovDetails, monitorsDetails) {
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);
 
     let closestIndex = -1;
     let closestDistance = Infinity;
-    let previousDistance = Infinity;
+    let currentFocusedDistance = Infinity;
 
     // find the vector closest to the rotated look vector
-    vectors.forEach((vector, index) => {
+    monitorVectors.forEach((vector, index) => {
         const distance = Math.acos(
             Math.min(1.0, Math.max(-1.0, vector[0] * rotatedLookVector[0] + vector[1] * rotatedLookVector[1] + vector[2] * rotatedLookVector[2]))
         );
 
-        if (previousClosestIndex === index) {
-            previousDistance = distance;
+        const distancePixels = fovDetails.fullScreenDistance * Math.tan(distance);
+        const monitorDiagonalPixels = Math.sqrt(Math.pow(monitorsDetails[index].width, 2) + Math.pow(monitorsDetails[index].height, 2));
+        const distanceToMonitorSize = distancePixels / monitorDiagonalPixels;
+
+        if (currentFocusedIndex === index) {
+            currentFocusedDistance = distanceToMonitorSize * focusedMonitorDistance;
         }
 
-        // Globals.logger.log(`\t\t\tMonitor ${index} distance: ${distance}`);
-        if (distance < closestDistance) {
+        if (distanceToMonitorSize < closestDistance) {
             closestIndex = index;
-            closestDistance = distance;
+            closestDistance = distanceToMonitorSize;
         }
     });
 
-    // only switch if the closest monitor is greater than the previous closest by 25%
-    if (previousClosestIndex !== undefined && closestIndex !== previousClosestIndex && closestDistance * 1.25 > previousDistance) {
-        return previousClosestIndex;
+    const keepCurrent = currentFocusedIndex !== -1 && currentFocusedDistance < UNFOCUS_THRESHOLD;
+    if (!keepCurrent) {
+        if (closestDistance < FOCUS_THRESHOLD) {
+            Globals.logger.log_debug(`\t\t\t\tFocused monitor: ${closestIndex}`);
+            return closestIndex;
+        }
+
+        // neither the current nor the closest will take focus, unfocus all displays
+        return -1;
     }
 
-    return closestIndex;
+    return currentFocusedIndex;
 }
 
 function degreesToRadians(degrees) {
@@ -143,6 +161,8 @@ function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, m
 function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingScheme, monitorSpacing) {
     const monitorPlacements = [];
     const cachedMonitorRadians = {};
+
+    Globals.logger.log_debug(`\t\t\tFOV Details: ${JSON.stringify(fovDetails)}, Monitor Wrapping Scheme: ${monitorWrappingScheme}`);
 
     if (monitorWrappingScheme === 'horizontal') {
         // monitors wrap around us horizontally
@@ -347,7 +367,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Focused Monitor Index',
             'Index of the monitor that is currently focused',
             GObject.ParamFlags.READWRITE,
-            0, 100, 0
+            -1, 100, -1
         ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
@@ -696,7 +716,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
         'virtual-monitors': GObject.ParamSpec.jsobject(
             'virtual-monitors',
             'Virtual Monitors',
-            'Array of monitor indexes for just the virtual monitors',
+            'Details about the virtual monitors',
             GObject.ParamFlags.READWRITE
         ),
         'monitor-wrapping-scheme': GObject.ParamSpec.string(
@@ -709,7 +729,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
         'monitor-spacing': GObject.ParamSpec.int(
             'monitor-spacing',
             'Monitor Spacing',
-            'Visual spacing between monitors',
+            'Visual spacing between monitors, units are 0.001 of the viewport width',
             GObject.ParamFlags.READWRITE,
             0, 100, 0
         ),
@@ -758,7 +778,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'Focused Monitor Index',
             'Index of the monitor that is currently focused',
             GObject.ParamFlags.READWRITE,
-            0, 100, 0
+            -1, 100, -1
         ),
         'display-size': GObject.ParamSpec.double(
             'display-size',
@@ -859,7 +879,10 @@ export const VirtualMonitorsActor = GObject.registerClass({
             height: calibratingBanner.height,
             reactive: false
         });
-        this.bannerActor.set_position((this.width - this.bannerActor.width) / 2, this.height * 0.75 - this.bannerActor.height / 2);
+        this.bannerActor.set_position(
+            (this.target_monitor.width - this.bannerActor.width) / 2, 
+            this.target_monitor.height * 0.75 - this.bannerActor.height / 2
+        );
         this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
         this.bannerActor.hide();
     }
@@ -875,32 +898,35 @@ export const VirtualMonitorsActor = GObject.registerClass({
         this.connect('notify::viewport-offset-y', this._update_monitor_placements.bind(this));
         this.connect('notify::show-banner', this._handle_banner_update.bind(this));
         this.connect('notify::custom-banner-enabled', this._handle_banner_update.bind(this));
-        this.connect('notify::frame-rate-cap', this._handle_frame_rate_cap_change.bind(this));
+        this.connect('notify::framerate-cap', this._handle_frame_rate_cap_change.bind(this));
         this._update_monitor_placements();
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
 
         const actorToDisplayRatios = [
-            global.stage.width / this.width, 
-            global.stage.height / this.height
+            global.stage.width / this.target_monitor.width, 
+            global.stage.height / this.target_monitor.height
         ];
 
         // how far this viewport actor's center is from the center of the whole stage
-        const actorMidX = this.target_monitor.x + this.width / 2;
-        const actorMidY = this.target_monitor.y + this.height / 2;
+        const actorMidX = this.target_monitor.x + this.target_monitor.width / 2;
+        const actorMidY = this.target_monitor.y + this.target_monitor.height / 2;
         const actorToDisplayOffsets = [
-            (global.stage.width / 2 - (actorMidX - global.stage.x)) * 2 / this.width,
-            (global.stage.height / 2 - (actorMidY - global.stage.y)) * 2 / this.height
+            (global.stage.width / 2 - (actorMidX - global.stage.x)) * 2 / this.target_monitor.width,
+            (global.stage.height / 2 - (actorMidY - global.stage.y)) * 2 / this.target_monitor.height
         ];
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
+        this._property_bindings = [];
+        this._property_connections = [];
+        this._monitor_actors = [];
         this._all_monitors.forEach(((monitor, index) => {
-            Globals.logger.log(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
+            Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
             const containerActor = new Clutter.Actor({
-                width: this.width,
-                height: this.height, 
+                width: this.target_monitor.width,
+                height: this.target_monitor.height, 
                 reactive: false,
             });
 
@@ -916,7 +942,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             // Add the monitor actor to the scene
             containerActor.add_child(monitorClone);
             const effect = new VirtualMonitorEffect({
-                focused_monitor_index: 0,
+                focused_monitor_index: this.focused_monitor_index,
                 imu_snapshots: this.imu_snapshots,
                 monitor_index: index,
                 monitor_placements: this.monitor_placements,
@@ -930,28 +956,37 @@ export const VirtualMonitorsActor = GObject.registerClass({
             containerActor.add_effect_with_name('viewport-effect', effect);
             this.add_child(containerActor);
 
+            this._monitor_actors.push({
+                containerActor,
+                monitorClone,
+                effect
+            });
+
             // do this so the primary monitor is always on top at first, before the focused monitor logic comes into play
             this.set_child_below_sibling(containerActor, null);
 
-            // TODO - track actors and clean this up
-            this.bind_property('monitor-placements', effect, 'monitor-placements', GObject.BindingFlags.DEFAULT);
-            this.bind_property('imu-snapshots', effect, 'imu-snapshots', GObject.BindingFlags.DEFAULT);
-            this.bind_property('focused-monitor-index', effect, 'focused-monitor-index', GObject.BindingFlags.DEFAULT);
-            this.bind_property('display-distance', effect, 'display-distance', GObject.BindingFlags.DEFAULT);
-            this.bind_property('lens-vector', effect, 'lens-vector', GObject.BindingFlags.DEFAULT);
-            this.bind_property('look-ahead-override', effect, 'look-ahead-override', GObject.BindingFlags.DEFAULT);
-            this.bind_property('disable-anti-aliasing', effect, 'disable-anti-aliasing', GObject.BindingFlags.DEFAULT);
-            this.bind_property('show-banner', effect, 'show-banner', GObject.BindingFlags.DEFAULT);
+            [
+                'monitor-placements',
+                'imu-snapshots',
+                'focused-monitor-index',
+                'display-distance',
+                'lens-vector',
+                'look-ahead-override',
+                'disable-anti-aliasing',
+                'show-banner'
+            ].forEach((property => {
+                this._property_bindings.push(this.bind_property(property, effect, property, GObject.BindingFlags.DEFAULT));
+            }));
 
             const updateEffectDistanceDefault = (() => {
                 effect.display_distance_default = this._display_distance_default();
             }).bind(this);
-            this.connect('notify::toggle-display-distance-start', updateEffectDistanceDefault);
-            this.connect('notify::toggle-display-distance-end', updateEffectDistanceDefault);
+            this._property_connections.push(this.connect('notify::toggle-display-distance-start', updateEffectDistanceDefault));
+            this._property_connections.push(this.connect('notify::toggle-display-distance-end', updateEffectDistanceDefault));
 
             // in addition to rendering distance properly in the shader, the parent actor determines overlap based on child ordering
             effect.connect('notify::is-closest', ((actor, _pspec) => {
-                if (actor.is_closest) {
+                if (!this._is_disposed && actor.is_closest) {
                     this.set_child_above_sibling(containerActor, null);
                     if (this.show_banner) this.set_child_above_sibling(this.bannerActor, null);
                 }
@@ -965,27 +1000,35 @@ export const VirtualMonitorsActor = GObject.registerClass({
         }
 
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, (() => {
+            if (this._is_disposed) return GLib.SOURCE_REMOVE;
+
             if (this.show_banner) {
-                this.focused_monitor_index = 0;
+                this.focused_monitor_index = -1;
             } else if (this.imu_snapshots) {
-                const closestMonitorIndex = findClosestVector(
+                const focusedMonitorIndex = findFocusedMonitor(
                     this.imu_snapshots.imu_data.splice(0, 4),
-                    this._monitorsAsNormalizedVectors, this.closestMonitorIndex
+                    this._monitorsAsNormalizedVectors, 
+                    this.focused_monitor_index,
+                    this.display_distance / this._display_distance_default(),
+                    this._fov_details(),
+                    this._all_monitors
                 );
 
-                if (closestMonitorIndex !== -1 && (this.focused_monitor_index === undefined || this.focused_monitor_index !== closestMonitorIndex)) {
-                    Globals.logger.log_debug(`Switching to monitor ${closestMonitorIndex}`);
-                    this.focused_monitor_index = closestMonitorIndex;
+                if (this.focused_monitor_index !== focusedMonitorIndex) {
+                    if (this.focused_monitor_index !== -1)
+                        Globals.logger.log_debug(`Switching to monitor ${focusedMonitorIndex}`);
+                    
+                    this.focused_monitor_index = focusedMonitorIndex;
                 }
             }
 
             return GLib.SOURCE_CONTINUE;
         }).bind(this));
 
-        this._redraw_timeline = Clutter.Timeline.new_for_actor(this, 1000);
+        this._redraw_timeline = Clutter.Timeline.new_for_actor(global.stage, 1000);
         this._redraw_timeline.connect('new-frame', (() => {
             // let's try to cap the forced redraw rate
-            if (this._last_redraw !== undefined && Date.now() - this._last_redraw < this._cap_frametime_ms) return;
+            if (this._is_disposed || this._last_redraw !== undefined && Date.now() - this._last_redraw < this._cap_frametime_ms) return;
 
             Globals.data_stream.refresh_data();
             this.imu_snapshots = Globals.data_stream.imu_snapshots;
@@ -1000,6 +1043,23 @@ export const VirtualMonitorsActor = GObject.registerClass({
         return Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end);
     }
 
+    _fov_details() {
+        const aspect = this.target_monitor.width / this.target_monitor.height;
+        const fovVerticalRadiansInitial = degreesToRadians(Globals.data_stream.device_data.displayFov / Math.sqrt(1 + aspect * aspect));
+        const fovVerticalRadians = Math.atan(Math.tan(fovVerticalRadiansInitial) / this._display_distance_default());
+
+        // distance needed for the FOV-sized monitor to fill up the screen
+        const fullScreenDistance = this.target_monitor.height / 2 / Math.sin(fovVerticalRadians / 2);
+
+        return {
+            widthPixels: this.target_monitor.width,
+            heightPixels: this.target_monitor.height,
+            verticalRadians: fovVerticalRadians,
+            horizontalRadians: fovVerticalRadians * aspect,
+            fullScreenDistance
+        };
+    }
+
     _update_monitor_placements() {
         // collect minimum and maximum x and y values of monitors
         let actualWrapScheme = this.monitor_wrapping_scheme;
@@ -1010,32 +1070,21 @@ export const VirtualMonitorsActor = GObject.registerClass({
             const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
 
             // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
-            if ((maxX - minX) / this.width >= (maxY - minY) / this.height) {
+            if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
                 actualWrapScheme = 'horizontal';
             } else {
                 actualWrapScheme = 'vertical';
             }
         }
-
-        const aspect = this.width / this.height;
-        const fovVerticalRadiansInitial = degreesToRadians(Globals.data_stream.device_data.displayFov / Math.sqrt(1 + aspect * aspect));
-        const fovVerticalRadians = Math.atan(Math.tan(fovVerticalRadiansInitial) / this._display_distance_default());
-
-        // distance needed for the FOV-sized monitor to fill up the screen
-        const fullScreenDistance = this.height / 2 / Math.sin(fovVerticalRadians / 2);
+        
+        const fovDetails = this._fov_details();
 
         // full screen distance + lens distance
-        const completeScreenDistance = fullScreenDistance / (1.0 - Globals.data_stream.device_data.lensDistanceRatio);
-        
+        const completeScreenDistance = fovDetails.fullScreenDistance / (1.0 - Globals.data_stream.device_data.lensDistanceRatio);
+
         this.lens_vector = [0.0, 0.0, -Globals.data_stream.device_data.lensDistanceRatio * completeScreenDistance];
         this.monitor_placements = monitorsToPlacements(
-            {
-                widthPixels: this.width,
-                heightPixels: this.height,
-                verticalRadians: fovVerticalRadians,
-                horizontalRadians: fovVerticalRadians * aspect,
-                fullScreenDistance
-            },
+            fovDetails,
 
             // shift all monitors so they center around the target monitor, then adjusted by the offsets
             this._all_monitors.map(monitor => ({
@@ -1083,11 +1132,25 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this.toggle_display_distance_start : this.toggle_display_distance_end;
     }
 
-    destroy() {
+    vfunc_dispose() {
+        Globals.logger.log_debug(`Disposing VirtualMonitorsActor`);
+        this._is_disposed = true;
+
         if (this._redraw_timeline) {
             this._redraw_timeline.stop();
             this._redraw_timeline = null;
         }
-        super.destroy();
+
+        this._monitor_actors.forEach(({ containerActor, monitorClone, effect }) => {
+            containerActor.remove_effect(effect);
+            containerActor.remove_child(monitorClone);
+            this.remove_child(containerActor);
+        });
+        this._monitor_actors = [];
+
+        this._property_bindings.forEach(binding => binding.unbind());
+        this._property_bindings = [];
+
+        this._property_connections.forEach(connection => this.disconnect(connection));
     }
 });

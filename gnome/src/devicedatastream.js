@@ -156,10 +156,12 @@ export const DeviceDataStream = GObject.registerClass({
     refresh_data(keepalive_only = false) {
         if (!this.debug_no_device && this.was_debug_no_device) {
             this.was_debug_no_device = false;
-            this.device_data = null;
-            this.breezy_desktop_running = false;
-            this.breezy_desktop_actually_running = false;
-            this.imu_snapshots = null;
+            if (!this.breezy_desktop_actually_running) {
+                this.device_data = null;
+                this.breezy_desktop_running = false;
+                this.breezy_desktop_actually_running = false;
+                this.imu_snapshots = null;
+            }
         }
 
         if (this._ipc_file.query_exists(null) && (
