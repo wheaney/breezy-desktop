@@ -929,14 +929,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
             const containerActor = new Clutter.Actor({
                 width: this.target_monitor.width,
-                height: this.target_monitor.height, 
-                reactive: false,
+                height: this.target_monitor.height
             });
 
             // Create a clone of the stage content for this monitor
             const monitorClone = new Clutter.Clone({
-                source: Main.layoutManager.uiGroup, 
-                reactive: false,
+                source: Main.layoutManager.uiGroup,
                 x: -monitor.x,
                 y: -monitor.y
             });

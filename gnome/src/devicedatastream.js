@@ -177,11 +177,11 @@ export const DeviceDataStream = GObject.registerClass({
                 if (dataView.byteLength === DATA_VIEW_LENGTH) {
                     let imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
                     const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
-                    let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-                    const imuResetState = validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
-                    const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+                    let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                    const imuResetState = enabled && validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+                    const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
                     // trigger "notify::" events for properties we want to check on every cycle

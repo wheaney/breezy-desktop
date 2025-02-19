@@ -49,6 +49,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._is_effect_running = false;
         this._distance_binding = null;
         this._show_banner_binding = null;
+        this._show_banner_connection = null;
         this._custom_banner_enabled_binding = null;
         this._monitor_wrapping_scheme_binding = null;
         this._viewport_offset_x_binding = null;
@@ -253,7 +254,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._cursor_manager.enable();
 
                 // use rgba(255, 4, 144, 1) for chroma key background
-                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', reactive: false, clip_to_allocation: true });
+                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', clip_to_allocation: true });
                 this._overlay.opacity = 255;
                 this._overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._overlay.set_size(targetMonitor.width, targetMonitor.height);
@@ -275,8 +276,7 @@ export default class BreezyDesktopExtension extends Extension {
                     framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots,
                     show_banner: Globals.data_stream.show_banner,
-                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled,
-                    reactive: false,
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
                 });
 
                 this._overlay.set_child(this._overlay_content);
@@ -305,6 +305,11 @@ export default class BreezyDesktopExtension extends Extension {
                 // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
 
                 this._show_banner_binding = Globals.data_stream.bind_property('show-banner', this._overlay_content, 'show-banner', Gio.SettingsBindFlags.DEFAULT);
+                this._show_banner_connection = Globals.data_stream.connect('notify::show-banner', this._handle_show_banner_update.bind(this));
+                this._was_show_banner = Globals.data_stream.show_banner;
+                Globals.logger.log_debug(`BreezyDesktopExtension _effect_enable - show_banner: ${this._was_show_banner}`);
+                if (!this._was_show_banner) this._recenter_display();
+
                 this._custom_banner_enabled_binding = Globals.data_stream.bind_property('custom-banner-enabled', this._overlay_content, 'custom-banner-enabled', Gio.SettingsBindFlags.DEFAULT);
 
                 this._monitor_wrapping_scheme_binding = this.settings.bind('monitor-wrapping-scheme', this._overlay_content, 'monitor-wrapping-scheme', Gio.SettingsBindFlags.DEFAULT);
@@ -378,10 +383,15 @@ export default class BreezyDesktopExtension extends Extension {
 
     _write_control(key, value) {
         try {
-            const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
-            const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-            stream.write(`${key}=${value}`, null);
-            stream.close(null);
+            Globals.logger.log_debug(`BreezyDesktopExtension _write_control ${key} ${value}`);
+            let proc = Gio.Subprocess.new(
+                ['bash', '-c', `echo "${key}=${value}" > /dev/shm/xr_driver_control`],
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+            );
+
+            let [success, stdout, stderr] = proc.communicate_utf8(null, null);
+            if (!success || !!stderr)
+                throw new Error(`Failed to write control: ${stderr}`);
         } catch (e) {
             Globals.logger.log(`[ERROR] BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
         }
@@ -489,13 +499,20 @@ export default class BreezyDesktopExtension extends Extension {
         this._setup();
     }
 
-    _handle_breezy_desktop_running_change(effect, _pspec) {
-        Globals.logger.log_debug(`BreezyDesktopExtension _handle_breezy_desktop_running_change ${effect.breezy_desktop_running}`);
+    _handle_breezy_desktop_running_change(datastream, _pspec) {
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_breezy_desktop_running_change ${datastream.breezy_desktop_running}`);
 
-        if (effect.breezy_desktop_running !== this._is_effect_running) {
-            if (!effect.breezy_desktop_running) Globals.logger.log('Breezy desktop disabled');
-            this._setup(!effect.breezy_desktop_running);
+        if (datastream.breezy_desktop_running !== this._is_effect_running) {
+            if (!datastream.breezy_desktop_running) Globals.logger.log('Breezy desktop disabled');
+            this._setup(!datastream.breezy_desktop_running);
         }
+    }
+
+    _handle_show_banner_update(datastream, _pspec) {
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_show_banner_update ${datastream.show_banner}`);
+        if (this._was_show_banner && !datastream.show_banner) this._recenter_display();
+
+        this._was_show_banner = datastream.show_banner;
     }
 
     _toggle_xr_effect() {
@@ -581,6 +598,10 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._show_banner_binding) {
                 this._show_banner_binding.unbind();
                 this._show_banner_binding = null;
+            }
+            if (this._show_banner_connection) {
+                Globals.data_stream.disconnect(this._show_banner_connection);
+                this._show_banner_connection = null;
             }
             if (this._custom_banner_enabled_binding) {
                 this._custom_banner_enabled_binding.unbind();
