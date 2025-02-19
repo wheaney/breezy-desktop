@@ -26,7 +26,7 @@ function applyQuaternionToVector(vector, quaternion) {
 const FOCUS_THRESHOLD = 0.95 / 2.0;
 
 // if we leave the monitor with some margin, unfocus even if no other monitor is in focus
-const UNFOCUS_THRESHOLD = 1.25 / 2.0;
+const UNFOCUS_THRESHOLD = 1.1 / 2.0;
 
 /**
  * Find the vector in the array that's closest to the quaternion rotation
