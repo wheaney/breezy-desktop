@@ -307,7 +307,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._show_banner_binding = Globals.data_stream.bind_property('show-banner', this._overlay_content, 'show-banner', Gio.SettingsBindFlags.DEFAULT);
                 this._show_banner_connection = Globals.data_stream.connect('notify::show-banner', this._handle_show_banner_update.bind(this));
                 this._was_show_banner = Globals.data_stream.show_banner;
-                Globals.logger.log_debug(`BreezyDesktopExtension _effect_enable - show_banner: ${this._was_show_banner}`);
                 if (!this._was_show_banner) this._recenter_display();
 
                 this._custom_banner_enabled_binding = Globals.data_stream.bind_property('custom-banner-enabled', this._overlay_content, 'custom-banner-enabled', Gio.SettingsBindFlags.DEFAULT);

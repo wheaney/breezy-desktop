@@ -43,6 +43,13 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
     def __init__(self, skip_verification, **kwargs):
         super().__init__(**kwargs)
+
+        self.connected_device = ConnectedDevice()
+        self.failed_verification = FailedVerification()
+        self.no_device = NoDevice()
+        self.no_driver = NoDriver()
+        self.no_extension = NoExtension()
+        self.no_license = NoLicense()
         
         self._skip_verification = skip_verification
 
@@ -53,13 +60,6 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.state_manager.connect('notify::license-present', self._handle_state_update)
         self.state_manager.connect('notify::enabled-features-list', self._handle_state_update)
         self.settings.connect('changed::debug-no-device', self._handle_settings_update)
-
-        self.connected_device = ConnectedDevice()
-        self.failed_verification = FailedVerification()
-        self.no_device = NoDevice()
-        self.no_driver = NoDriver()
-        self.no_extension = NoExtension()
-        self.no_license = NoLicense()
 
         self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
         self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)

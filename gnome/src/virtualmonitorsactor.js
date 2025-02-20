@@ -468,7 +468,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
         // if we're the focused display, we'll double the timeline and wait for the first half to let other 
         // displays ease out first
         this._distance_ease_focus = this._is_focused();
-        const timeline_ms = this._distance_ease_focus ? 500 : 150;
+        const ease_out_timeline_ms = 150;
+        const pause_ms = 50;
+        const ease_in_timeline_ms = 500; // includes ease out and pause
+        const ease_in_begin_pct = (ease_out_timeline_ms + pause_ms) / ease_in_timeline_ms;
+        const timeline_ms = this._distance_ease_focus ? 
+            ease_in_timeline_ms : 
+            ease_out_timeline_ms;
 
         this._distance_ease_start = this._current_display_distance;
         this._distance_ease_timeline = Clutter.Timeline.new_for_actor(this.get_actor(), timeline_ms);
@@ -478,10 +484,10 @@ export const VirtualMonitorEffect = GObject.registerClass({
             let progress = this._distance_ease_timeline.get_progress();
             if (this._distance_ease_focus) {
                 // if we're the focused display, wait for the first half of the timeline to pass
-                if (progress < 0.5) return;
+                if (progress < ease_in_begin_pct) return;
 
                 // treat the second half of the timeline as its own full progression
-                progress = (progress - 0.5) * 2;
+                progress = (progress - ease_in_begin_pct) / (1 - ease_in_begin_pct);
 
                 // put this display in front as it starts to easy in
                 this.is_closest = true;
@@ -489,8 +495,8 @@ export const VirtualMonitorEffect = GObject.registerClass({
                 this.is_closest = false;
             }
 
-            this._current_display_distance = this._distance_ease_start + 
-                progress * (this._distance_ease_target - this._distance_ease_start);
+            this._current_display_distance = this._distance_ease_start +
+                (1 - Math.cos(progress * Math.PI)) / 2 * (this._distance_ease_target - this._distance_ease_start);
             this._update_display_position_uniforms();
         }).bind(this));
 

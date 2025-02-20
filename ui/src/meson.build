@@ -26,6 +26,15 @@ configure_file(
   install_mode: 'r-xr-xr-x'
 )
 
+configure_file(
+  input: 'virtualdisplay.in',
+  output: 'virtualdisplay',
+  configuration: conf,
+  install: true,
+  install_dir: get_option('bindir'),
+  install_mode: 'r-xr-xr-x'
+)
+
 breezydesktop_sources = [
   '../modules/PyXRLinuxDriverIPC/xrdriveripc.py',
   '__init__.py',
@@ -48,6 +57,7 @@ breezydesktop_sources = [
   'statemanager.py',
   'time.py',
   'virtualdisplay.py',
+  'virtualdisplaymanager.py',
   'verify.py',
   'window.py'
 ]

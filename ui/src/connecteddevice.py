@@ -5,7 +5,7 @@ from .license import BREEZY_GNOME_FEATURES
 from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
-from .virtualdisplay import VirtualMonitor
+from .virtualdisplaymanager import VirtualDisplayManager
 from .xrdriveripc import XRDriverIPC
 import gettext
 import logging
@@ -60,7 +60,6 @@ class ConnectedDevice(Gtk.Box):
     viewport_offset_y_scale = Gtk.Template.Child()
     viewport_offset_y_adjustment = Gtk.Template.Child()
 
-
     def __init__(self):
         super(Gtk.Box, self).__init__()
         self.init_template()
@@ -85,6 +84,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings = SettingsManager.get_instance().settings
         self.desktop_settings = SettingsManager.get_instance().desktop_settings
         self.ipc = XRDriverIPC.get_instance()
+        self.virtual_display_manager = VirtualDisplayManager.get_instance()
         self.extensions_manager = ExtensionsManager.get_instance()
 
         self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
@@ -138,6 +138,9 @@ class ConnectedDevice(Gtk.Box):
         self._handle_enabled_config(None, None)
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
         self.extensions_manager.connect('notify::breezy-enabled', self._handle_enabled_config)
+
+        self.virtual_display_manager.connect('notify::displays', self._on_virtual_displays_update)
+        self._on_virtual_displays_update(self.virtual_display_manager, None)
 
         self.connect("destroy", self._on_widget_destroy)
 
@@ -206,10 +209,11 @@ class ConnectedDevice(Gtk.Box):
             reload_display_distance_toggle_button(widget)
 
     def on_add_virtual_display(self, width, height):
-        VirtualMonitor(width, height, self.on_virtual_display_ready).create()
+        logger.info(f"Adding virtual display {width}x{height}")
+        self.virtual_display_manager.create_virtual_display(width, height, 60)
 
-    def on_virtual_display_ready(self):
-        logger.info("Virtual display ready")
+    def _on_virtual_displays_update(self, virtual_display_manager, val):
+        logger.info(f"Found {len(virtual_display_manager.displays)} virtual displays")
     
     def _on_widget_destroy(self, widget):
         # self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
