@@ -63,3 +63,4 @@ breezydesktop_sources = [
 ]
 
 install_data(breezydesktop_sources, install_dir: moduledir)
+install_subdir('../lib', install_dir: moduledir)

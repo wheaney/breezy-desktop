@@ -45,10 +45,9 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-import argparse
 import sys
+import argparse
 import signal
-import pydbus
 import time
 
 VERSION = '@VERSION@'
