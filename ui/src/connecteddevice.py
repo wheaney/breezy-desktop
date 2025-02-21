@@ -1,4 +1,4 @@
-from gi.repository import Gio, Gtk, GObject
+from gi.repository import Gio, GLib, Gtk, GObject
 from .configmanager import ConfigManager
 from .extensionsmanager import ExtensionsManager
 from .license import BREEZY_GNOME_FEATURES
@@ -6,6 +6,7 @@ from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
 from .virtualdisplaymanager import VirtualDisplayManager
+from .virtualdisplayrow import VirtualDisplayRow
 from .xrdriveripc import XRDriverIPC
 import gettext
 import logging
@@ -32,8 +33,10 @@ class ConnectedDevice(Gtk.Box):
     # widescreen_mode_switch = Gtk.Template.Child()
     # widescreen_mode_row = Gtk.Template.Child()
     # curved_display_switch = Gtk.Template.Child()
-    add_virtual_display_button_1080p = Gtk.Template.Child()
-    add_virtual_display_button_1440p = Gtk.Template.Child()
+    top_features_group = Gtk.Template.Child()
+    add_virtual_display_menu = Gtk.Template.Child()
+    add_virtual_display_button = Gtk.Template.Child()
+    launch_display_settings_button = Gtk.Template.Child()
     set_toggle_display_distance_start_button = Gtk.Template.Child()
     set_toggle_display_distance_end_button = Gtk.Template.Child()
     reassign_toggle_xr_effect_shortcut_button = Gtk.Template.Child()
@@ -70,8 +73,8 @@ class ConnectedDevice(Gtk.Box):
             # self.follow_mode_switch,
             # self.follow_threshold_scale,
             # self.curved_display_switch,
-            self.add_virtual_display_button_1080p,
-            self.add_virtual_display_button_1440p,
+            self.add_virtual_display_menu,
+            self.add_virtual_display_button,
             self.set_toggle_display_distance_start_button,
             self.set_toggle_display_distance_end_button,
             self.movement_look_ahead_scale,
@@ -116,8 +119,9 @@ class ConnectedDevice(Gtk.Box):
             self.set_toggle_display_distance_start_button, 
             self.set_toggle_display_distance_end_button
         ])
-        self.add_virtual_display_button_1080p.connect('clicked', lambda *args: self.on_add_virtual_display(1920, 1080))
-        self.add_virtual_display_button_1440p.connect('clicked', lambda *args: self.on_add_virtual_display(2560, 1440))
+        self.add_virtual_display_menu.set_active_id('1080p')
+        self.add_virtual_display_button.connect('clicked', self.on_add_virtual_display)
+        self.launch_display_settings_button.connect('clicked', self._launch_display_settings)
 
         self.state_manager = StateManager.get_instance()
         # self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
@@ -133,6 +137,7 @@ class ConnectedDevice(Gtk.Box):
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
+        self._handle_switch_enabled_state(self.effect_enable_switch, None)
         self._handle_enabled_features(self.state_manager, None)
         self._handle_device_supports_sbs(self.state_manager, None)
         self._handle_enabled_config(None, None)
@@ -143,6 +148,16 @@ class ConnectedDevice(Gtk.Box):
         self._on_virtual_displays_update(self.virtual_display_manager, None)
 
         self.connect("destroy", self._on_widget_destroy)
+
+        self.virtual_displays_by_pid = {}
+
+        self._settings_displays_app_info = None
+
+        # use Gio.AppInfo.get_all() and find the one where appinfo.get_id() == 'gnome-display-panel.desktop'
+        for appinfo in Gio.AppInfo.get_all():
+            if appinfo.get_id() == 'gnome-display-panel.desktop':
+                self._settings_displays_app_info = appinfo
+                break
 
     def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
         self.monitor_wrapping_scheme_menu.set_active_id(val)
@@ -208,12 +223,41 @@ class ConnectedDevice(Gtk.Box):
             widget.connect('clicked', lambda *args, widget=widget: on_set_display_distance_toggle(widget))
             reload_display_distance_toggle_button(widget)
 
-    def on_add_virtual_display(self, width, height):
-        logger.info(f"Adding virtual display {width}x{height}")
+    def on_add_virtual_display(self, *args):
+        resolution = self.add_virtual_display_menu.get_active_id()
+        logger.info(f"Adding virtual display {resolution}")
+
+        width = 1920
+        height = 1080
+        if resolution == '1440p':
+            width = 2560
+            height = 1440
+
         self.virtual_display_manager.create_virtual_display(width, height, 60)
 
     def _on_virtual_displays_update(self, virtual_display_manager, val):
-        logger.info(f"Found {len(virtual_display_manager.displays)} virtual displays")
+        GLib.idle_add(self._on_virtual_displays_update_gui, virtual_display_manager)
+
+    def _on_virtual_displays_update_gui(self, virtual_display_manager):
+        self.launch_display_settings_button.set_visible(
+            self._settings_displays_app_info is not None and len(virtual_display_manager.displays) > 0
+        )
+
+        for pid, child in self.virtual_displays_by_pid.items():
+            self.top_features_group.remove(child)
+
+        new_displays_by_pid = {}
+        for display in virtual_display_manager.displays:
+            child = self.virtual_displays_by_pid.get(
+                display['pid'], 
+                VirtualDisplayRow(display['pid'], display['width'], display['height'], 60))
+            self.top_features_group.add(child)
+            new_displays_by_pid[display['pid']] = child
+        
+        self.virtual_displays_by_pid = new_displays_by_pid
+
+    def _launch_display_settings(self, *args):
+        self._settings_displays_app_info.launch()
     
     def _on_widget_destroy(self, widget):
         # self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')

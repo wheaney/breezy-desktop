@@ -37,7 +37,7 @@
                 <property name="margin-end">20</property>
                 <property name="spacing">20</property>
                 <child>
-                  <object class="AdwPreferencesGroup">
+                  <object class="AdwPreferencesGroup" id="top_features_group">
                     <property name="title" translatable="yes"><!-- section heading for switches that enable certain features -->Features</property>
                     <child>
                       <object class="AdwActionRow">
@@ -54,26 +54,45 @@
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Virtual monitors</property>
                         <property name="valign">2</property>
-                                                <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
                             <property name="spacing">30</property>
                             <property name="width-request">150</property>
                             <property name="margin-start">30</property>
                             <child>
-                              <object class="GtkButton" id="add_virtual_display_button_1080p">
-                                <property name="name">add-virtual-display</property>
+                              <object class="GtkButton" id="launch_display_settings_button">
+                                <property name="visible">0</property>
+                                <property name="name">launch-display-settings</property>
                                 <property name="valign">3</property>
-                                <property name="label" translatable="yes">Add 1080p</property>
+                                <property name="label" translatable="yes">Rearrange displays</property>
                               </object>
                             </child>
                             <child>
-                              <object class="GtkButton" id="add_virtual_display_button_1440p">
-                                <property name="name">add-virtual-display</property>
-                                <property name="valign">3</property>
-                                <property name="label" translatable="yes">Add 1440p</property>
+                              <object class="GtkBox">
+                                <property name="valign">center</property>
+                                <style>
+                                  <class name="flat"/>
+                                </style>
+                                <child>
+                                  <object class="GtkComboBoxText" id="add_virtual_display_menu">
+                                    <items>
+                                      <item translatable="yes" id="1080p">1080p</item>
+                                      <item translatable="yes" id="1440p">1440p</item>
+                                    </items>
+                                  </object>
+                                </child>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                        <child type="suffix">
+                          <object class="GtkButton" id="add_virtual_display_button">
+                            <property name="name">add-virtual-display</property>
+                            <property name="icon-name">list-add-symbolic</property>
+                            <property name="valign">center</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -148,6 +167,10 @@
                             <property name="spacing">30</property>
                             <property name="width-request">150</property>
                             <property name="margin-start">30</property>
+                            <property name="valign">center</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
                             <child>
                               <object class="GtkComboBoxText" id="monitor_wrapping_scheme_menu">
                                 <items>

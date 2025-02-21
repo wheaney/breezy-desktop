@@ -10,6 +10,7 @@
     <file preprocess="xml-stripblanks">gtk/no-extension.ui</file>
     <file preprocess="xml-stripblanks">gtk/no-license.ui</file>
     <file preprocess="xml-stripblanks">gtk/shortcut-dialog.ui</file>
+    <file preprocess="xml-stripblanks">gtk/virtual-display-row.ui</file>
     <file preprocess="xml-stripblanks">gtk/window.ui</file>
   </gresource>
 </gresources>

@@ -45,20 +45,20 @@ class VirtualDisplayManager(GObject.GObject):
             if (os.waitpid(pid, os.WNOHANG) == (pid, 0)):
                 return True
         except ChildProcessError:
-            return True
+            # process isn't tied to the current process, it's not dead if it's still open
+            return False
 
         return False
 
     def _prune_dead_display_processes(self):
-        self.set_property('displays', [disp for disp in self.displays if not self._process_dead(disp['pid'])])
-        self._save_processes()
+        new_displays = [disp for disp in self.displays if not self._process_dead(disp['pid'])]
+        if new_displays != self.displays:
+            self.set_property('displays', new_displays)
+            self._save_processes()
 
         return GLib.SOURCE_CONTINUE
     
-    def create_virtual_display(self, width, height, framerate) -> int:
-        self._create_virtual_display(width, height, framerate)
-
-    def _create_virtual_display(self, width, height, framerate):
+    def create_virtual_display(self, width, height, framerate):
         try:
             process = subprocess.Popen(
                 [f"{bindir}/virtualdisplay", "--width", str(width), "--height", str(height), "--framerate", str(framerate)],
