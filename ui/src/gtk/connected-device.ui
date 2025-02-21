@@ -52,7 +52,7 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Virtual monitors</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Virtual displays</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -123,9 +123,9 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="0.2" position="bottom"></mark>
-                              <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.5" position="bottom"></mark>
+                              <mark value="0.2" position="bottom">0.2</mark>
+                              <mark value="1.0" position="bottom">1.0</mark>
+                              <mark value="2.5" position="bottom">2.5</mark>
                             </marks>
                           </object>
                         </child>
@@ -159,8 +159,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- dropdown menu -->Multi-monitor wrapping</property>
-                        <property name="subtitle" translatable="yes">When there are multiple monitors, choose how they should wrap around you.</property>
+                        <property name="title" translatable="yes"><!-- dropdown menu -->Display angling</property>
+                        <property name="subtitle" translatable="yes">When there are multiple displays, choose how they should angle towards you.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -175,9 +175,9 @@
                               <object class="GtkComboBoxText" id="monitor_wrapping_scheme_menu">
                                 <items>
                                   <item translatable="yes" id="automatic">Automatic</item>
-                                  <item translatable="yes" id="horizontal">Horizontal</item>
-                                  <item translatable="yes" id="vertical">Vertical</item>
-                                  <item translatable="yes" id="none">None</item>
+                                  <item translatable="yes" id="horizontal">Side-angled</item>
+                                  <item translatable="yes" id="vertical">Top-angled</item>
+                                  <item translatable="yes" id="none">Flat</item>
                                 </items>
                               </object>
                             </child>
@@ -187,8 +187,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Multi-monitor spacing</property>
-                        <property name="subtitle" translatable="yes">Put empty space between monitors, when there are multiple.</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display spacing</property>
+                        <property name="subtitle" translatable="yes">Put empty space between displays, when there are multiple.</property>
                         <child>
                           <object class="GtkScale" id="monitor_spacing_scale">
                             <property name="valign">3</property>
@@ -206,11 +206,11 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="0" position="bottom"></mark>
+                              <mark value="0" position="bottom">0</mark>
                               <mark value="25" position="bottom"></mark>
-                              <mark value="50" position="bottom"></mark>
+                              <mark value="50" position="bottom">50</mark>
                               <mark value="75" position="bottom"></mark>
-                              <mark value="100" position="bottom"></mark>
+                              <mark value="100" position="bottom">100</mark>
                             </marks>
                           </object>
                         </child>
@@ -223,7 +223,6 @@
                         <child>
                           <object class="GtkScale" id="viewport_offset_x_scale">
                             <property name="valign">3</property>
-                            <property name="draw-value">true</property>
                             <property name="value-pos">0</property>
                             <property name="digits">1</property>
                             <property name="width-request">350</property>
@@ -237,11 +236,11 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="-2.0" position="bottom"></mark>
+                              <mark value="-2.0" position="bottom">left</mark>
                               <mark value="-1.0" position="bottom"></mark>
-                              <mark value="0.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom">center</mark>
                               <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom">right</mark>
                             </marks>
                           </object>
                         </child>
@@ -254,7 +253,6 @@
                         <child>
                           <object class="GtkScale" id="viewport_offset_y_scale">
                             <property name="valign">3</property>
-                            <property name="draw-value">true</property>
                             <property name="value-pos">0</property>
                             <property name="digits">1</property>
                             <property name="width-request">350</property>
@@ -268,11 +266,11 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="-2.0" position="bottom"></mark>
+                              <mark value="-2.0" position="bottom">down</mark>
                               <mark value="-1.0" position="bottom"></mark>
-                              <mark value="0.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom">center</mark>
                               <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom">up</mark>
                             </marks>
                           </object>
                         </child>

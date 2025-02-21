@@ -153,7 +153,6 @@ class ConnectedDevice(Gtk.Box):
 
         self._settings_displays_app_info = None
 
-        # use Gio.AppInfo.get_all() and find the one where appinfo.get_id() == 'gnome-display-panel.desktop'
         for appinfo in Gio.AppInfo.get_all():
             if appinfo.get_id() == 'gnome-display-panel.desktop':
                 self._settings_displays_app_info = appinfo
@@ -185,6 +184,9 @@ class ConnectedDevice(Gtk.Box):
             self.effect_enable_switch.set_active(enabled)
     
     def _handle_switch_enabled_state(self, switch, param):
+        GLib.idle_add(self._handle_switch_enabled_state_gui, switch, param)
+
+    def _handle_switch_enabled_state_gui(self, switch, param):
         requesting_enabled = switch.get_active()
 
         # never turn off the extension, disabling the effect is done via configs only
@@ -239,9 +241,13 @@ class ConnectedDevice(Gtk.Box):
         GLib.idle_add(self._on_virtual_displays_update_gui, virtual_display_manager)
 
     def _on_virtual_displays_update_gui(self, virtual_display_manager):
+        effect_enabled = self.effect_enable_switch.get_active()
+        virtual_displays_present = len(virtual_display_manager.displays) > 0
         self.launch_display_settings_button.set_visible(
-            self._settings_displays_app_info is not None and len(virtual_display_manager.displays) > 0
+            self._settings_displays_app_info is not None and virtual_displays_present
         )
+        self.monitor_wrapping_scheme_menu.set_sensitive(effect_enabled and virtual_displays_present)
+        self.monitor_spacing_scale.set_sensitive(effect_enabled and virtual_displays_present)
 
         for pid, child in self.virtual_displays_by_pid.items():
             self.top_features_group.remove(child)

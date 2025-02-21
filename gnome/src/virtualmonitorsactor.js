@@ -1096,7 +1096,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             // shift all monitors so they center around the target monitor, then adjusted by the offsets
             this._all_monitors.map(monitor => ({
                 x: monitor.x - this.target_monitor.x - this.viewport_offset_x * this.target_monitor.width,
-                y: monitor.y - this.target_monitor.y - this.viewport_offset_y * this.target_monitor.height,
+                y: monitor.y - this.target_monitor.y + this.viewport_offset_y * this.target_monitor.height,
                 width: monitor.width,
                 height: monitor.height
             })),

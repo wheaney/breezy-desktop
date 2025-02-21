@@ -176,68 +176,74 @@ export const DeviceDataStream = GObject.registerClass({
                 let dataView = new DataView(buffer);
                 if (dataView.byteLength === DATA_VIEW_LENGTH) {
                     let imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
-                    const validKeepalive = isValidKeepAlive(toSec(imuDateMs));
+                    const displayFov = dataViewFloat(dataView, DISPLAY_FOV);
+                    const validKeepAlive = isValidKeepAlive(toSec(imuDateMs));
+                    const validData = validKeepAlive && displayFov !== 0.0;
                     const version = dataViewUint8(dataView, VERSION);
-                    const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validKeepalive;
+                    const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
                     let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-                    const imuResetState = enabled && validKeepalive && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+                    const imuResetState = enabled && validData && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
+
+                    if (validKeepAlive && !validData) Globals.logger.log('[ERROR] Received invalid device data');
 
                     // trigger "notify::" events for properties we want to check on every cycle
                     if (enabled && this.widescreen_mode_state !== sbsEnabled) this.widescreen_mode_state = sbsEnabled;
                     if (this.show_banner !== imuResetState) this.show_banner = imuResetState;
                     if (this.custom_banner_enabled !== customBannerEnabled) this.custom_banner_enabled = customBannerEnabled;
 
-                    if (!this.device_data) {
-                        this.device_data = {
-                            version,
-                            enabled,
-                            imuResetState,
-                            displayRes: dataViewUint32Array(dataView, DISPLAY_RES),
-                            sbsEnabled,
-                            displayFov: dataViewFloat(dataView, DISPLAY_FOV),
-                            lookAheadCfg: dataViewFloatArray(dataView, LOOK_AHEAD_CFG),
-                            lensDistanceRatio: dataViewFloat(dataView, LENS_DISTANCE_RATIO)
-                        };
-                    } else if (keepalive_only) {
-                        this.device_data = {
-                            ...this.device_data,
-                            imuResetState,
-                            enabled,
-                            sbsEnabled
-                        }
-                    }
-
                     let success = keepalive_only;
-                    let attempts = 0;
-                    while (!success && attempts < 3) {
-                        if (dataView.byteLength === DATA_VIEW_LENGTH) {
-                            if (checkParityByte(dataView)) {
-                                this.device_data.imuData = imuData;
-                                this.device_data.imuDateMs = imuDateMs;
-                                this.imu_snapshots = {
-                                    imu_data: imuData,
-                                    timestamp_ms: imuDateMs
-                                };
-                                success = true;
+                    if (validData) {
+                        if (!this.device_data) {
+                            this.device_data = {
+                                version,
+                                enabled,
+                                imuResetState,
+                                displayRes: dataViewUint32Array(dataView, DISPLAY_RES),
+                                sbsEnabled,
+                                displayFov,
+                                lookAheadCfg: dataViewFloatArray(dataView, LOOK_AHEAD_CFG),
+                                lensDistanceRatio: dataViewFloat(dataView, LENS_DISTANCE_RATIO)
+                            };
+                        } else if (keepalive_only) {
+                            this.device_data = {
+                                ...this.device_data,
+                                imuResetState,
+                                enabled,
+                                sbsEnabled
                             }
-                        } else if (dataView.byteLength !== 0) {
-                            Globals.logger.log(`[ERROR] Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
                         }
-        
-                        if (!success && ++attempts < 3) {
-                            data = this._ipc_file.load_contents(null);
-                            if (data[0]) {
-                                buffer = new Uint8Array(data[1]).buffer;
-                                dataView = new DataView(buffer);
-                                imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
-                                imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+
+                        let attempts = 0;
+                        while (!success && attempts < 3) {
+                            if (dataView.byteLength === DATA_VIEW_LENGTH) {
+                                if (checkParityByte(dataView)) {
+                                    this.device_data.imuData = imuData;
+                                    this.device_data.imuDateMs = imuDateMs;
+                                    this.imu_snapshots = {
+                                        imu_data: imuData,
+                                        timestamp_ms: imuDateMs
+                                    };
+                                    success = true;
+                                }
+                            } else if (dataView.byteLength !== 0) {
+                                Globals.logger.log(`[ERROR] Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
+                            }
+            
+                            if (!success && ++attempts < 3) {
+                                data = this._ipc_file.load_contents(null);
+                                if (data[0]) {
+                                    buffer = new Uint8Array(data[1]).buffer;
+                                    dataView = new DataView(buffer);
+                                    imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
+                                    imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                                }
                             }
                         }
                     }
 
-                    this.breezy_desktop_actually_running = success && enabled && validKeepalive;
+                    this.breezy_desktop_actually_running = success && enabled && validData;
                 } else {
                     this.breezy_desktop_actually_running = false;
                 }
