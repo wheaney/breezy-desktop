@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 11:02-0800\n"
+"POT-Creation-Date: 2025-02-23 13:06-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -48,6 +48,16 @@ msgstr "ディスプレイ距離"
 #: src/connecteddevice.py:134
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
+
+#: src/connecteddevice.py:261
+#, fuzzy
+msgid "Focused display"
+msgstr "ディスプレイ距離"
+
+#: src/connecteddevice.py:267
+#, fuzzy
+msgid "All displays"
+msgstr "曲面ディスプレイ"
 
 #: src/displaydistancedialogcontent.py:41
 msgid "closer"

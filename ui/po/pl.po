@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 11:02-0800\n"
+"POT-Creation-Date: 2025-02-23 13:06-0800\n"
 "PO-Revision-Date: 2024-08-16 10:26-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -42,6 +42,14 @@ msgstr ""
 
 #: src/connecteddevice.py:134
 msgid "Use a farther value so the displays are zoomed out when you look away."
+msgstr ""
+
+#: src/connecteddevice.py:261
+msgid "Focused display"
+msgstr ""
+
+#: src/connecteddevice.py:267
+msgid "All displays"
 msgstr ""
 
 #: src/displaydistancedialogcontent.py:41

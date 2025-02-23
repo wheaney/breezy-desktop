@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 11:02-0800\n"
+"POT-Creation-Date: 2025-02-23 13:06-0800\n"
 "PO-Revision-Date: 2024-08-17 10:08-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -45,6 +45,16 @@ msgstr "Відстань дисплея"
 #: src/connecteddevice.py:134
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
+
+#: src/connecteddevice.py:261
+#, fuzzy
+msgid "Focused display"
+msgstr "Відстань дисплея"
+
+#: src/connecteddevice.py:267
+#, fuzzy
+msgid "All displays"
+msgstr "Викривлений дисплей"
 
 #: src/displaydistancedialogcontent.py:41
 msgid "closer"

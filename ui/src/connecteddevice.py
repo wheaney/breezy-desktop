@@ -258,13 +258,16 @@ class ConnectedDevice(Gtk.Box):
             self.display_zoom_on_focus_switch.set_active(should_zoom_on_focus_be_enabled)
 
     def _set_focused_display_distance(self, distance):
-        self.focused_display_distance_label.set_markup(f"Focused display: <b>{distance}</b>")
+        self.focused_display_distance_label.set_markup(f"{_("Focused display")}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-start', distance)
 
+        self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-end'))
+
     def _set_all_displays_distance(self, distance):
-        self.all_displays_distance_label.set_markup(f"All displays: <b>{distance}</b>")
+        self.all_displays_distance_label.set_markup(f"{_("All displays")}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-end', distance)
         self.display_zoom_on_focus_switch.set_active(False)
+        self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-start'))
 
     def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit):
         dialog = DisplayDistanceDialog(settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit)
