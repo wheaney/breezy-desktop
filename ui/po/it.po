@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 13:27-0700\n"
+"POT-Creation-Date: 2025-02-22 21:43-0800\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -17,16 +17,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:22
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
-"Passa i tuoi occhiali in modalità side-by-side e raddoppia la larghezza del display."
+"Passa i tuoi occhiali in modalità side-by-side e raddoppia la larghezza del "
+"display."
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:23
 msgid "This feature is not currently supported for your device."
 msgstr "Questa funzione non è attualmente supportata sul tuo dispositivo."
+
+#: src/connecteddevice.py:125
+#, fuzzy
+msgid "Set Focused Display Distance"
+msgstr "Distanza del display"
+
+#: src/connecteddevice.py:131
+#, fuzzy
+msgid "Set All Displays Distance"
+msgstr "Distanza del display"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -36,7 +47,7 @@ msgstr "Stato del livello a pagamento"
 msgid "Feature Availability"
 msgstr "Disponibilità delle funzionalità"
 
-#: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
+#: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
 msgid "Disabled"
 msgstr "Disabilitato"
 
@@ -165,178 +176,231 @@ msgid "Enables the Breezy Desktop XR effect."
 msgstr "Abilita l'effetto XR di Breezy Desktop."
 
 #: src/gtk/connected-device.ui:55
-msgid "Widescreen mode"
-msgstr "Modalità widescreen"
+msgid "Zoom on focus mode"
+msgstr ""
 
-#: src/gtk/connected-device.ui:66
-msgid "Follow mode"
-msgstr "Modalità di inseguimento"
+#: src/gtk/connected-device.ui:56
+msgid ""
+"Automatically move a display closer when you look at it.\n"
+"Set your preferred focused and unfocused distances in the Adjustments "
+"section.\n"
+"                        "
+msgstr ""
 
-#: src/gtk/connected-device.ui:67
-msgid "Keep the virtual display near the center of your view."
-msgstr "Mantieni il display virtuale vicino al centro del tuo campo visivo."
-
-#: src/gtk/connected-device.ui:77
-msgid "Curved display"
+#: src/gtk/connected-device.ui:69
+#, fuzzy
+msgid "Virtual displays"
 msgstr "Display curvo"
 
-#: src/gtk/connected-device.ui:78
-msgid "Switch between flat and curved displays."
-msgstr "Passa da display piatti a curvi."
+#: src/gtk/connected-device.ui:81
+#, fuzzy
+msgid "Rearrange displays"
+msgstr "Display curvo"
 
-#: src/gtk/connected-device.ui:91
+#: src/gtk/connected-device.ui:93
+msgid "1080p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:94
+msgid "1440p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:118
 msgid "Adjustments"
 msgstr "Regolazioni"
 
-#: src/gtk/connected-device.ui:94
-msgid "Display distance"
+#: src/gtk/connected-device.ui:121
+#, fuzzy
+msgid "Display distances"
 msgstr "Distanza del display"
 
-#: src/gtk/connected-device.ui:95
-msgid ""
-"Closer appears larger, further appears smaller. Controls depth when in "
-"widescreen mode."
+#: src/gtk/connected-device.ui:122
+msgid "Set how close you want displays to appear."
 msgstr ""
-"Più vicino appare più grande, più lontano appare più piccolo. Controlla la profondità quando sei in modalità widescreen."
 
-#: src/gtk/connected-device.ui:123
-msgid "Display size"
+#: src/gtk/connected-device.ui:177
+#, fuzzy
+msgid "Display angling"
 msgstr "Dimensione del display"
 
-#: src/gtk/connected-device.ui:124
-msgid ""
-"Combine with display distance to achieve a comfortable level of depth and "
-"size."
-msgstr ""
-"Da combinare con la distanza del display per ottenere un livello confortevole di profondità e dimensione."
-
-#: src/gtk/connected-device.ui:152
-msgid "Display toggle distances"
-msgstr "Distanze di attivazione del cambio display"
-
-#: src/gtk/connected-device.ui:153
-msgid ""
-"Use the buttons to capture the current display distance for use with the "
-"keyboard shortcut."
-msgstr ""
-"Usa i pulsanti per acquisire la distanza attuale del display da utilizzare con la scorciatoia da tastiera."
-
 #: src/gtk/connected-device.ui:178
-msgid "Follow threshold"
-msgstr "Soglia di inseguimento"
+msgid ""
+"When there are multiple displays, choose how they should angle towards you."
+msgstr ""
 
-#: src/gtk/connected-device.ui:179
-msgid "How far away you can look before the display follows."
-msgstr "Quanto lontano puoi guardare prima che il display ti segua."
+#: src/gtk/connected-device.ui:192
+msgid "Automatic"
+msgstr ""
 
-#: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
+#: src/gtk/connected-device.ui:193
+msgid "Side-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:194
+msgid "Top-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:195
+msgid "Flat"
+msgstr ""
+
+#: src/gtk/connected-device.ui:205
+#, fuzzy
+msgid "Display spacing"
+msgstr "Dimensione del display"
+
+#: src/gtk/connected-device.ui:206
+msgid "Put empty space between displays, when there are multiple."
+msgstr ""
+
+#: src/gtk/connected-device.ui:236
+msgid "Viewport horizontal offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:237
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport to the left or right."
+msgstr ""
+
+#: src/gtk/connected-device.ui:266
+msgid "Viewport vertical offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:267
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport up or down."
+msgstr ""
+
+#: src/gtk/connected-device.ui:303 src/gtk/connected-device.ui:309
 msgid "Keyboard Shortcuts"
 msgstr "Scorciatoie da tastiera"
 
-#: src/gtk/connected-device.ui:218
+#: src/gtk/connected-device.ui:312
 msgid "XR Effect on/off shortcut"
 msgstr "Scorciatoia per on/off dell'effetto XR"
 
-#: src/gtk/connected-device.ui:219
+#: src/gtk/connected-device.ui:313
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
-msgstr "Abilitazione/disabilitazione rapida dell'effetto XR. Può essere necessario abilitare l'effetto manualmente almeno una volta per abilitare la scorciatoia da tastiera."
+msgstr ""
+"Abilitazione/disabilitazione rapida dell'effetto XR. Può essere necessario "
+"abilitare l'effetto manualmente almeno una volta per abilitare la "
+"scorciatoia da tastiera."
 
-#: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
+#: src/gtk/connected-device.ui:332 src/gtk/connected-device.ui:361
+#: src/gtk/connected-device.ui:390 src/gtk/connected-device.ui:419
 msgid "Change"
 msgstr "Cambia"
 
-#: src/gtk/connected-device.ui:247
+#: src/gtk/connected-device.ui:341
 msgid "Re-center display shortcut"
 msgstr "Scorciatoia per ricentrare il display"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:342
 msgid "Pin the virtual display to the current position."
 msgstr "Fissa il display virtuale alla posizione attuale."
 
-#: src/gtk/connected-device.ui:276
-msgid "Display distance shortcut"
-msgstr "Scorciatoia per la distanza del display"
+#: src/gtk/connected-device.ui:370
+#, fuzzy
+msgid "Toggle zoom on focus shortcut"
+msgstr "Scorciatoia per attivare/disattivare la modalità di inseguimento"
 
-#: src/gtk/connected-device.ui:277
-msgid "Quickly toggle between two predefined distances."
-msgstr "Scambio rapido tra due distanze predefinite."
+#: src/gtk/connected-device.ui:371
+#, fuzzy
+msgid "Quickly toggle zoom on focus mode."
+msgstr "Attivazione/disattivazione rapida della modalità di inseguimento."
 
-#: src/gtk/connected-device.ui:305
+#: src/gtk/connected-device.ui:399
 msgid "Toggle follow mode shortcut"
 msgstr "Scorciatoia per attivare/disattivare la modalità di inseguimento"
 
-#: src/gtk/connected-device.ui:306
+#: src/gtk/connected-device.ui:400
 msgid "Quickly toggle follow mode."
 msgstr "Attivazione/disattivazione rapida della modalità di inseguimento."
 
-#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
+#: src/gtk/connected-device.ui:435 src/gtk/connected-device.ui:441
 msgid "Advanced Settings"
 msgstr "Impostazioni avanzate"
 
-#: src/gtk/connected-device.ui:350
+#: src/gtk/connected-device.ui:444
 msgid "Find optimal display config"
 msgstr "Trova la configurazione ottimale del display"
 
-#: src/gtk/connected-device.ui:351
+#: src/gtk/connected-device.ui:445
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"Modifica automaticamente la configurazione del display degli occhiali per ottenere la massima risoluzione e la migliore scalabilità quando collegati."
+"Modifica automaticamente la configurazione del display degli occhiali per "
+"ottenere la massima risoluzione e la migliore scalabilità quando collegati."
 
-#: src/gtk/connected-device.ui:361
+#: src/gtk/connected-device.ui:455
 msgid "Use highest refresh rate"
 msgstr "Usa la frequenza di aggiornamento più elevata"
 
-#: src/gtk/connected-device.ui:362
+#: src/gtk/connected-device.ui:456
 msgid "Refresh rate may affect performance, disable this to set it manually."
-msgstr "La frequenza di aggiornamento potrebbe influire sulle prestazioni, disabilitala per impostarla manualmente."
+msgstr ""
+"La frequenza di aggiornamento potrebbe influire sulle prestazioni, "
+"disabilitala per impostarla manualmente."
 
-#: src/gtk/connected-device.ui:372
+#: src/gtk/connected-device.ui:466
 msgid "Always primary display"
 msgstr "Imposta sempre come display primario"
 
-#: src/gtk/connected-device.ui:373
+#: src/gtk/connected-device.ui:467
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "Imposta automaticamente gli occhiali come display primario quando sono collegati."
+msgstr ""
+"Imposta automaticamente gli occhiali come display primario quando sono "
+"collegati."
 
-#: src/gtk/connected-device.ui:383
+#: src/gtk/connected-device.ui:477
 msgid "Fast SBS mode switching"
 msgstr "Passaggio rapido alla modalità SBS"
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:478
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
 msgstr ""
-"Passa immediatamente gli occhiali alla modalità SBS quando vengono collegati, se la modalità widescreen è attiva. Potrebbe causare instabilità."
+"Passa immediatamente gli occhiali alla modalità SBS quando vengono "
+"collegati, se la modalità widescreen è attiva. Potrebbe causare instabilità."
 
-#: src/gtk/connected-device.ui:394
+#: src/gtk/connected-device.ui:488
 msgid "Movement look-ahead"
 msgstr "Anticipo del movimento"
 
-#: src/gtk/connected-device.ui:395
+#: src/gtk/connected-device.ui:489
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Compensa il ritardo di input prevedendo la posizione del tracciamento della testa prima del tempo di rendering. Rimani con il valore predefinito a meno che il display virtuale non rimanga indietro rispetto ai tuoi movimenti, non salti in avanti o sia molto tremolante."
+"Compensa il ritardo di input prevedendo la posizione del tracciamento della "
+"testa prima del tempo di rendering. Rimani con il valore predefinito a meno "
+"che il display virtuale non rimanga indietro rispetto ai tuoi movimenti, non "
+"salti in avanti o sia molto tremolante."
 
-#: src/gtk/connected-device.ui:413
+#: src/gtk/connected-device.ui:507
 msgid "Default"
 msgstr "Predefinito"
 
-#: src/gtk/connected-device.ui:425
+#: src/gtk/connected-device.ui:519
 msgid "Text Scaling"
 msgstr "Ridimensionamento del testo"
 
-#: src/gtk/connected-device.ui:426
+#: src/gtk/connected-device.ui:520
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr "Ridimensionando il testo sotto a 1.0 si simula una maggiore risoluzione del display"
+msgstr ""
+"Ridimensionando il testo sotto a 1.0 si simula una maggiore risoluzione del "
+"display"
+
+#: src/gtk/display-distance-dialog.ui:9
+msgid "Done"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -347,7 +411,9 @@ msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
-"La tua configurazione di Breezy GNOME non è valida o è incompleta. Ripeti l'esecuzione dello script di configurazione. Segnala questo problema se persiste."
+"La tua configurazione di Breezy GNOME non è valida o è incompleta. Ripeti "
+"l'esecuzione dello script di configurazione. Segnala questo problema se "
+"persiste."
 
 #: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
@@ -381,15 +447,9 @@ msgstr "Abilitazione automatica effetto XR"
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr "Abilita automaticamente l'effetto XR di Breezy Desktop quando vengono connessi degli occhiali supportati"
-
-#: src/gtk/no-device.ui:34
-msgid "Start in widescreen mode"
-msgstr "Si attiva in modalità widescreen"
-
-#: src/gtk/no-device.ui:35
-msgid "Widescreen mode is not supported for all glasses."
-msgstr "Breezy Desktop non è riuscito a rilevare alcun dispositivo XR supportato."
+msgstr ""
+"Abilita automaticamente l'effetto XR di Breezy Desktop quando vengono "
+"connessi degli occhiali supportati"
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
@@ -407,10 +467,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Se hai installato tramite AUR, assicurati di aver eseguito il comando di post-installazione consigliato:\n"
+"          Se hai installato tramite AUR, assicurati di aver eseguito il "
+"comando di post-installazione consigliato:\n"
 "          systemctl --user enable --now xr-driver.service\n"
 "\n"
-"          In caso contrario, segnala il problema su GitHub o crea un nuovo thread nel canale #troubleshooting su Discord.\n"
+"          In caso contrario, segnala il problema su GitHub o crea un nuovo "
+"thread nel canale #troubleshooting su Discord.\n"
 "        "
 
 #: src/gtk/no-extension.ui:13
@@ -422,7 +484,9 @@ msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"Se hai appena eseguito la configurazione, potrebbe essere necessario disconnettersi e riconnettersi per utilizzarla. In caso contrario, segui le istruzioni di configurazione di Breezy GNOME."
+"Se hai appena eseguito la configurazione, potrebbe essere necessario "
+"disconnettersi e riconnettersi per utilizzarla. In caso contrario, segui le "
+"istruzioni di configurazione di Breezy GNOME."
 
 #: src/gtk/no-license.ui:13
 msgid "No license file was found"
@@ -444,11 +508,16 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          La prima volta che utilizzi Breezy Desktop, è necessaria una connessione Internet per recuperare la licenza del tuo dispositivo.\n"
+"          La prima volta che utilizzi Breezy Desktop, è necessaria una "
+"connessione Internet per recuperare la licenza del tuo dispositivo.\n"
 "          \n"
-"          Non preoccuparti, non è obbligatorio donare adesso. Se non lo hai già fatto, ti verrà fornita una licenza di prova in modo da poter decidere se Breezy Desktop soddisfa le tue esigenze.\n"
+"          Non preoccuparti, non è obbligatorio donare adesso. Se non lo hai "
+"già fatto, ti verrà fornita una licenza di prova in modo da poter decidere "
+"se Breezy Desktop soddisfa le tue esigenze.\n"
 "          \n"
-"          Una volta ottenuta una licenza, di prova o altra, puoi utilizzare Breezy Desktop offline fino alla scadenza delle funzionalità (o a tempo indeterminato, se hai scelto l'accesso perpetuo).\n"
+"          Una volta ottenuta una licenza, di prova o altra, puoi utilizzare "
+"Breezy Desktop offline fino alla scadenza delle funzionalità (o a tempo "
+"indeterminato, se hai scelto l'accesso perpetuo).\n"
 "        "
 
 #: src/gtk/no-license.ui:27
@@ -490,3 +559,62 @@ msgstr "Reset forzato"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Informazioni su BreezyDesktop"
+
+#, fuzzy
+#~ msgid "Set Unfocused Displays Distance"
+#~ msgstr "Distanza del display"
+
+#~ msgid "Widescreen mode"
+#~ msgstr "Modalità widescreen"
+
+#~ msgid "Follow mode"
+#~ msgstr "Modalità di inseguimento"
+
+#~ msgid "Keep the virtual display near the center of your view."
+#~ msgstr "Mantieni il display virtuale vicino al centro del tuo campo visivo."
+
+#~ msgid "Switch between flat and curved displays."
+#~ msgstr "Passa da display piatti a curvi."
+
+#~ msgid ""
+#~ "Closer appears larger, further appears smaller. Controls depth when in "
+#~ "widescreen mode."
+#~ msgstr ""
+#~ "Più vicino appare più grande, più lontano appare più piccolo. Controlla "
+#~ "la profondità quando sei in modalità widescreen."
+
+#~ msgid ""
+#~ "Combine with display distance to achieve a comfortable level of depth and "
+#~ "size."
+#~ msgstr ""
+#~ "Da combinare con la distanza del display per ottenere un livello "
+#~ "confortevole di profondità e dimensione."
+
+#~ msgid "Display toggle distances"
+#~ msgstr "Distanze di attivazione del cambio display"
+
+#~ msgid ""
+#~ "Use the buttons to capture the current display distance for use with the "
+#~ "keyboard shortcut."
+#~ msgstr ""
+#~ "Usa i pulsanti per acquisire la distanza attuale del display da "
+#~ "utilizzare con la scorciatoia da tastiera."
+
+#~ msgid "Follow threshold"
+#~ msgstr "Soglia di inseguimento"
+
+#~ msgid "How far away you can look before the display follows."
+#~ msgstr "Quanto lontano puoi guardare prima che il display ti segua."
+
+#~ msgid "Display distance shortcut"
+#~ msgstr "Scorciatoia per la distanza del display"
+
+#~ msgid "Quickly toggle between two predefined distances."
+#~ msgstr "Scambio rapido tra due distanze predefinite."
+
+#~ msgid "Start in widescreen mode"
+#~ msgstr "Si attiva in modalità widescreen"
+
+#~ msgid "Widescreen mode is not supported for all glasses."
+#~ msgstr ""
+#~ "Breezy Desktop non è riuscito a rilevare alcun dispositivo XR supportato."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 13:27-0700\n"
+"POT-Creation-Date: 2025-02-22 21:43-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -17,16 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:22
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
 "Cambia tus gafas al modo lado a lado y duplica el ancho de la pantalla."
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:23
 msgid "This feature is not currently supported for your device."
 msgstr "Esta función no es compatible con tu dispositivo en este momento."
+
+#: src/connecteddevice.py:125
+#, fuzzy
+msgid "Set Focused Display Distance"
+msgstr "Distancia de la pantalla"
+
+#: src/connecteddevice.py:131
+#, fuzzy
+msgid "Set All Displays Distance"
+msgstr "Distancia de la pantalla"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -36,7 +46,7 @@ msgstr "Estado del Nivel de Membresía Pagada"
 msgid "Feature Availability"
 msgstr "Disponibilidad de Características"
 
-#: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
+#: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
 msgid "Disabled"
 msgstr "Deshabilitado"
 
@@ -165,127 +175,159 @@ msgid "Enables the Breezy Desktop XR effect."
 msgstr "Habilita el efecto XR de Breezy Desktop."
 
 #: src/gtk/connected-device.ui:55
-msgid "Widescreen mode"
-msgstr "Modo pantalla ancha"
+msgid "Zoom on focus mode"
+msgstr ""
 
-#: src/gtk/connected-device.ui:66
-msgid "Follow mode"
-msgstr "Modo de seguimiento"
+#: src/gtk/connected-device.ui:56
+msgid ""
+"Automatically move a display closer when you look at it.\n"
+"Set your preferred focused and unfocused distances in the Adjustments "
+"section.\n"
+"                        "
+msgstr ""
 
-#: src/gtk/connected-device.ui:67
-msgid "Keep the virtual display near the center of your view."
-msgstr "Mantenga la pantalla virtual cerca del centro de su vista."
-
-#: src/gtk/connected-device.ui:77
-msgid "Curved display"
+#: src/gtk/connected-device.ui:69
+#, fuzzy
+msgid "Virtual displays"
 msgstr "Pantalla curvada"
 
-#: src/gtk/connected-device.ui:78
-msgid "Switch between flat and curved displays."
-msgstr "Cambiar entre pantallas planas y curvadas."
+#: src/gtk/connected-device.ui:81
+#, fuzzy
+msgid "Rearrange displays"
+msgstr "Pantalla curvada"
 
-#: src/gtk/connected-device.ui:91
+#: src/gtk/connected-device.ui:93
+msgid "1080p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:94
+msgid "1440p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:118
 msgid "Adjustments"
 msgstr "Ajustes"
 
-#: src/gtk/connected-device.ui:94
-msgid "Display distance"
+#: src/gtk/connected-device.ui:121
+#, fuzzy
+msgid "Display distances"
 msgstr "Distancia de la pantalla"
 
-#: src/gtk/connected-device.ui:95
-msgid ""
-"Closer appears larger, further appears smaller. Controls depth when in "
-"widescreen mode."
+#: src/gtk/connected-device.ui:122
+msgid "Set how close you want displays to appear."
 msgstr ""
-"Más cerca parece más grande, más lejos parece más pequeño. Controla la "
-"profundidad cuando está en modo de pantalla ancha."
 
-#: src/gtk/connected-device.ui:123
-msgid "Display size"
+#: src/gtk/connected-device.ui:177
+#, fuzzy
+msgid "Display angling"
 msgstr "Tamaño de la pantalla"
 
-#: src/gtk/connected-device.ui:124
-msgid ""
-"Combine with display distance to achieve a comfortable level of depth and "
-"size."
-msgstr ""
-"Combínalo con la distancia de la pantalla para lograr un nivel cómodo de "
-"profundidad y tamaño."
-
-#: src/gtk/connected-device.ui:152
-msgid "Display toggle distances"
-msgstr "Distancias de alternancia de pantalla"
-
-#: src/gtk/connected-device.ui:153
-msgid ""
-"Use the buttons to capture the current display distance for use with the "
-"keyboard shortcut."
-msgstr ""
-"Utilice los botones para capturar la distancia actual de la pantalla para su "
-"uso con el método abreviado de teclado."
-
 #: src/gtk/connected-device.ui:178
-msgid "Follow threshold"
-msgstr "Umbral de seguimiento"
+msgid ""
+"When there are multiple displays, choose how they should angle towards you."
+msgstr ""
 
-#: src/gtk/connected-device.ui:179
-msgid "How far away you can look before the display follows."
-msgstr "Hasta qué punto puedes mirar antes de que la pantalla siga."
+#: src/gtk/connected-device.ui:192
+msgid "Automatic"
+msgstr ""
 
-#: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
+#: src/gtk/connected-device.ui:193
+msgid "Side-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:194
+msgid "Top-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:195
+msgid "Flat"
+msgstr ""
+
+#: src/gtk/connected-device.ui:205
+#, fuzzy
+msgid "Display spacing"
+msgstr "Tamaño de la pantalla"
+
+#: src/gtk/connected-device.ui:206
+msgid "Put empty space between displays, when there are multiple."
+msgstr ""
+
+#: src/gtk/connected-device.ui:236
+msgid "Viewport horizontal offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:237
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport to the left or right."
+msgstr ""
+
+#: src/gtk/connected-device.ui:266
+msgid "Viewport vertical offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:267
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport up or down."
+msgstr ""
+
+#: src/gtk/connected-device.ui:303 src/gtk/connected-device.ui:309
 msgid "Keyboard Shortcuts"
 msgstr "Atajos de teclado"
 
-#: src/gtk/connected-device.ui:218
+#: src/gtk/connected-device.ui:312
 msgid "XR Effect on/off shortcut"
 msgstr "Atajo encendido/apagado Efecto XR"
 
-#: src/gtk/connected-device.ui:219
+#: src/gtk/connected-device.ui:313
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
-"Activa o desactiva rápidamente el Efecto XR. Es posible que necesites activar "
-"el efecto manualmente una vez para habilitar el atajo."
+"Activa o desactiva rápidamente el Efecto XR. Es posible que necesites "
+"activar el efecto manualmente una vez para habilitar el atajo."
 
-#: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
+#: src/gtk/connected-device.ui:332 src/gtk/connected-device.ui:361
+#: src/gtk/connected-device.ui:390 src/gtk/connected-device.ui:419
 msgid "Change"
 msgstr "Cambiar"
 
-#: src/gtk/connected-device.ui:247
+#: src/gtk/connected-device.ui:341
 msgid "Re-center display shortcut"
 msgstr "Atajo para recentrar la pantalla"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:342
 msgid "Pin the virtual display to the current position."
 msgstr "Fije la pantalla virtual en la posición actual."
 
-#: src/gtk/connected-device.ui:276
-msgid "Display distance shortcut"
-msgstr "Atajo de distancia de pantalla"
+#: src/gtk/connected-device.ui:370
+#, fuzzy
+msgid "Toggle zoom on focus shortcut"
+msgstr "Atajo para alternar el modo de seguimiento"
 
-#: src/gtk/connected-device.ui:277
-msgid "Quickly toggle between two predefined distances."
-msgstr "Cambiar rápidamente entre dos distancias predefinidas."
+#: src/gtk/connected-device.ui:371
+#, fuzzy
+msgid "Quickly toggle zoom on focus mode."
+msgstr "Activar el modo de seguimiento."
 
-#: src/gtk/connected-device.ui:305
+#: src/gtk/connected-device.ui:399
 msgid "Toggle follow mode shortcut"
 msgstr "Atajo para alternar el modo de seguimiento"
 
-#: src/gtk/connected-device.ui:306
+#: src/gtk/connected-device.ui:400
 msgid "Quickly toggle follow mode."
 msgstr "Activar el modo de seguimiento."
 
-#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
+#: src/gtk/connected-device.ui:435 src/gtk/connected-device.ui:441
 msgid "Advanced Settings"
 msgstr "Configuración Avanzada"
 
-#: src/gtk/connected-device.ui:350
+#: src/gtk/connected-device.ui:444
 msgid "Find optimal display config"
 msgstr "Encuentre la configuración de pantalla óptima"
 
-#: src/gtk/connected-device.ui:351
+#: src/gtk/connected-device.ui:445
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -294,30 +336,30 @@ msgstr ""
 "obtener la máxima resolución y la mejor escalabilidad cuando estén "
 "enchufadas."
 
-#: src/gtk/connected-device.ui:361
+#: src/gtk/connected-device.ui:455
 msgid "Use highest refresh rate"
 msgstr "Utilizar la frecuencia de actualización más alta"
 
-#: src/gtk/connected-device.ui:362
+#: src/gtk/connected-device.ui:456
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "La frecuencia de actualización puede afectar el rendimiento, deshabilite "
 "esto para configurarlo manualmente."
 
-#: src/gtk/connected-device.ui:372
+#: src/gtk/connected-device.ui:466
 msgid "Always primary display"
 msgstr "Siempre como pantalla principal"
 
-#: src/gtk/connected-device.ui:373
+#: src/gtk/connected-device.ui:467
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 "Automáticamente configurar las gafas como pantalla principal al enchufarse."
 
-#: src/gtk/connected-device.ui:383
+#: src/gtk/connected-device.ui:477
 msgid "Fast SBS mode switching"
 msgstr "Cambio rápido de modo SBS"
 
-#: src/gtk/connected-device.ui:384
+#: src/gtk/connected-device.ui:478
 msgid ""
 "Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
 "is on. May cause instability."
@@ -326,11 +368,11 @@ msgstr ""
 "enchufan, si el modo de pantalla ancha está activado. Puede causar "
 "inestabilidad."
 
-#: src/gtk/connected-device.ui:394
+#: src/gtk/connected-device.ui:488
 msgid "Movement look-ahead"
 msgstr "Anticipación de movimiento"
 
-#: src/gtk/connected-device.ui:395
+#: src/gtk/connected-device.ui:489
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -341,17 +383,23 @@ msgstr ""
 "predeterminado a menos que la pantalla virtual se retrase detrás de los "
 "movimientos de la cabeza, se adelante o sea muy inestable."
 
-#: src/gtk/connected-device.ui:413
+#: src/gtk/connected-device.ui:507
 msgid "Default"
 msgstr "Predeterminado"
 
-#: src/gtk/connected-device.ui:425
+#: src/gtk/connected-device.ui:519
 msgid "Text Scaling"
 msgstr "Escalado de Texto"
 
-#: src/gtk/connected-device.ui:426
+#: src/gtk/connected-device.ui:520
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr "Escalando el texto por debajo de 1.0 simulará una pantalla de mayor resolución"
+msgstr ""
+"Escalando el texto por debajo de 1.0 simulará una pantalla de mayor "
+"resolución"
+
+#: src/gtk/display-distance-dialog.ui:9
+msgid "Done"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -398,16 +446,8 @@ msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
-"Habilita automáticamente el efecto Breezy Desktop XR cuando se conectan gafas "
-"compatibles."
-
-#: src/gtk/no-device.ui:34
-msgid "Start in widescreen mode"
-msgstr "Empezar en modo pantalla ancha"
-
-#: src/gtk/no-device.ui:35
-msgid "Widescreen mode is not supported for all glasses."
-msgstr "El modo pantalla ancha no está soportado en todas las gafas."
+"Habilita automáticamente el efecto Breezy Desktop XR cuando se conectan "
+"gafas compatibles."
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
@@ -518,3 +558,61 @@ msgstr "Reinicio forzoso"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Acerca de BreezyDesktop"
+
+#, fuzzy
+#~ msgid "Set Unfocused Displays Distance"
+#~ msgstr "Distancia de la pantalla"
+
+#~ msgid "Widescreen mode"
+#~ msgstr "Modo pantalla ancha"
+
+#~ msgid "Follow mode"
+#~ msgstr "Modo de seguimiento"
+
+#~ msgid "Keep the virtual display near the center of your view."
+#~ msgstr "Mantenga la pantalla virtual cerca del centro de su vista."
+
+#~ msgid "Switch between flat and curved displays."
+#~ msgstr "Cambiar entre pantallas planas y curvadas."
+
+#~ msgid ""
+#~ "Closer appears larger, further appears smaller. Controls depth when in "
+#~ "widescreen mode."
+#~ msgstr ""
+#~ "Más cerca parece más grande, más lejos parece más pequeño. Controla la "
+#~ "profundidad cuando está en modo de pantalla ancha."
+
+#~ msgid ""
+#~ "Combine with display distance to achieve a comfortable level of depth and "
+#~ "size."
+#~ msgstr ""
+#~ "Combínalo con la distancia de la pantalla para lograr un nivel cómodo de "
+#~ "profundidad y tamaño."
+
+#~ msgid "Display toggle distances"
+#~ msgstr "Distancias de alternancia de pantalla"
+
+#~ msgid ""
+#~ "Use the buttons to capture the current display distance for use with the "
+#~ "keyboard shortcut."
+#~ msgstr ""
+#~ "Utilice los botones para capturar la distancia actual de la pantalla para "
+#~ "su uso con el método abreviado de teclado."
+
+#~ msgid "Follow threshold"
+#~ msgstr "Umbral de seguimiento"
+
+#~ msgid "How far away you can look before the display follows."
+#~ msgstr "Hasta qué punto puedes mirar antes de que la pantalla siga."
+
+#~ msgid "Display distance shortcut"
+#~ msgstr "Atajo de distancia de pantalla"
+
+#~ msgid "Quickly toggle between two predefined distances."
+#~ msgstr "Cambiar rápidamente entre dos distancias predefinidas."
+
+#~ msgid "Start in widescreen mode"
+#~ msgstr "Empezar en modo pantalla ancha"
+
+#~ msgid "Widescreen mode is not supported for all glasses."
+#~ msgstr "El modo pantalla ancha no está soportado en todas las gafas."

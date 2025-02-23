@@ -36,9 +36,6 @@ class ShortcutDialog(Gtk.Dialog):
                 keycode,
                 state
             )
-            label = Gtk.accelerator_get_label(keyval, state)
-
-            # hacky way to store the label, causes warnings from the WM
             SettingsManager.get_instance().settings.set_strv(self.settings_key, [binding])
 
             self.close()

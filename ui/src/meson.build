@@ -41,6 +41,8 @@ breezydesktop_sources = [
   'configmanager.py',
   'connecteddevice.py',
   'extensionsmanager.py',
+  'displaydistancedialog.py',
+  'displaydistancedialogcontent.py',
   'failedverification.py',
   'license.py',
   'licensedialog.py',

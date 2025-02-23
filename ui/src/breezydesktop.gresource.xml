@@ -2,6 +2,8 @@
 <gresources>
   <gresource prefix="/com/xronlinux/BreezyDesktop">
     <file preprocess="xml-stripblanks">gtk/connected-device.ui</file>
+    <file preprocess="xml-stripblanks">gtk/display-distance-dialog.ui</file>
+    <file preprocess="xml-stripblanks">gtk/display-distance-dialog-content.ui</file>
     <file preprocess="xml-stripblanks">gtk/failed-verification.ui</file>
     <file preprocess="xml-stripblanks">gtk/license-dialog.ui</file>
     <file preprocess="xml-stripblanks">gtk/license-dialog-content.ui</file>
