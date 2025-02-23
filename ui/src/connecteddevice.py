@@ -122,13 +122,17 @@ class ConnectedDevice(Gtk.Box):
             self._on_display_distance_preset_change_button_clicked,
             'toggle-display-distance-start',
             self._on_set_focused_display_distance, 
-            _('Set Focused Display Distance')
+            _('Set Focused Display Distance'),
+            _('Use a closer value so the display zooms in when you look at it.'),
+            0.2, 1.0
         )
         self.change_all_displays_distance_button.connect('clicked', 
             self._on_display_distance_preset_change_button_clicked,
             'toggle-display-distance-end',
             self._on_set_all_displays_distance,
-            _('Set All Displays Distance')
+            _('Set All Displays Distance'),
+            _('Use a farther value so the displays are zoomed out when you look away.'),
+            1.0, 2.5
         )
         self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
         self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
@@ -262,8 +266,8 @@ class ConnectedDevice(Gtk.Box):
         self.settings.set_double('toggle-display-distance-end', distance)
         self.display_zoom_on_focus_switch.set_active(False)
 
-    def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title):
-        dialog = DisplayDistanceDialog(settings_key, on_save_callback, title)
+    def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit):
+        dialog = DisplayDistanceDialog(settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit)
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
         dialog.present()
             

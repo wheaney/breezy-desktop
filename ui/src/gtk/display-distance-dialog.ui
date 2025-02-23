@@ -5,13 +5,21 @@
     <property name="modal">1</property>
     <property name="use-header-bar">1</property>
     <child type="action">
+      <object class="GtkButton" id="show_full_scale_button">
+        <property name="label" translatable="yes">Show full range</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+      </object>
+    </child>
+    <child type="action">
       <object class="GtkButton" id="save_button">
         <property name="label" translatable="yes">Done</property>
         <property name="margin-top">10</property>
         <property name="margin-bottom">10</property>
         <property name="margin-start">10</property>
         <property name="margin-end">10</property>
-        <signal name="clicked" handler="on_save_button_clicked" swapped="no"/>
       </object>
     </child>
   </template>

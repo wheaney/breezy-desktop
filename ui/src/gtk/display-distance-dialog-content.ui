@@ -2,9 +2,18 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="DisplayDistanceDialogContent" parent="GtkBox">
+    <property name="orientation">vertical</property>
     <property name="valign">3</property>
     <child>
-      <object class="GtkScale">
+      <object class="GtkLabel" id="display_distance_subtitle">
+        <property name="wrap">true</property>
+        <property name="margin-top">20</property>
+        <property name="margin-start">20</property>
+        <property name="margin-end">20</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScale" id="display_distance_scale">
         <property name="valign">3</property>
         <property name="margin-top">20</property>
         <property name="margin-start">20</property>
@@ -22,11 +31,6 @@
             <property name="value">1.05</property>
           </object>
         </property>
-        <marks>
-          <mark value="0.2" position="bottom">closer</mark>
-          <mark value="1.0" position="bottom">fullscreen</mark>
-          <mark value="2.5" position="bottom">farther</mark>
-        </marks>
       </object>
     </child>
   </template>

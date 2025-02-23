@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-22 21:43-0800\n"
+"POT-Creation-Date: 2025-02-23 11:02-0800\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -34,10 +34,30 @@ msgstr "Questa funzione non è attualmente supportata sul tuo dispositivo."
 msgid "Set Focused Display Distance"
 msgstr "Distanza del display"
 
-#: src/connecteddevice.py:131
+#: src/connecteddevice.py:126
+msgid "Use a closer value so the display zooms in when you look at it."
+msgstr ""
+
+#: src/connecteddevice.py:133
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Distanza del display"
+
+#: src/connecteddevice.py:134
+msgid "Use a farther value so the displays are zoomed out when you look away."
+msgstr ""
+
+#: src/displaydistancedialogcontent.py:41
+msgid "closer"
+msgstr ""
+
+#: src/displaydistancedialogcontent.py:45
+msgid "fullscreen"
+msgstr ""
+
+#: src/displaydistancedialogcontent.py:48
+msgid "farther"
+msgstr ""
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -399,6 +419,10 @@ msgstr ""
 "display"
 
 #: src/gtk/display-distance-dialog.ui:9
+msgid "Show full range"
+msgstr ""
+
+#: src/gtk/display-distance-dialog.ui:18
 msgid "Done"
 msgstr ""
 
