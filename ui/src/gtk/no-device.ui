@@ -29,18 +29,6 @@
             </child>
           </object>
         </child>
-        <child>
-          <object class="AdwActionRow" id="widescreen_mode_row">
-            <property name="title" translatable="yes"><!-- feature switch -->Start in widescreen mode</property>
-            <property name="subtitle" translatable="yes">Widescreen mode is not supported for all glasses.</property>
-            <property name="valign">2</property>
-            <child>
-              <object class="GtkSwitch" id="widescreen_mode_switch">
-                <property name="valign">3</property>
-              </object>
-            </child>
-          </object>
-        </child>
       </object>
     </child>
   </template>

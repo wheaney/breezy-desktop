@@ -10,7 +10,7 @@ class NoDevice(Gtk.Box):
     __gtype_name__ = "NoDevice"
 
     effect_enable_switch = Gtk.Template.Child()
-    widescreen_mode_switch = Gtk.Template.Child()
+    # widescreen_mode_switch = Gtk.Template.Child()
 
     def __init__(self):
         super(Gtk.Box, self).__init__()
@@ -23,7 +23,7 @@ class NoDevice(Gtk.Box):
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
 
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
-        self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         self._handle_enabled_config(self.config_manager, None)
 
@@ -41,5 +41,5 @@ class NoDevice(Gtk.Box):
 
         self.config_manager.set_property('breezy-desktop-enabled', requesting_enabled)
     
-    def _on_widget_destroy(self, widget):
-        self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
+    # def _on_widget_destroy(self, widget):
+        # self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')

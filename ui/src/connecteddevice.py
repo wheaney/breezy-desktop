@@ -23,6 +23,7 @@ class ConnectedDevice(Gtk.Box):
 
     device_label = Gtk.Template.Child()
     effect_enable_switch = Gtk.Template.Child()
+    display_zoom_on_focus_switch = Gtk.Template.Child()
     display_distance_scale = Gtk.Template.Child()
     display_distance_adjustment = Gtk.Template.Child()
     # display_size_scale = Gtk.Template.Child()
@@ -37,8 +38,11 @@ class ConnectedDevice(Gtk.Box):
     add_virtual_display_menu = Gtk.Template.Child()
     add_virtual_display_button = Gtk.Template.Child()
     launch_display_settings_button = Gtk.Template.Child()
-    set_toggle_display_distance_start_button = Gtk.Template.Child()
-    set_toggle_display_distance_end_button = Gtk.Template.Child()
+    all_displays_distance_label = Gtk.Template.Child()
+    set_all_displays_distance_button = Gtk.Template.Child()
+    focused_display_distance_label = Gtk.Template.Child()
+    set_focused_display_distance_button = Gtk.Template.Child()
+    display_distance_presets_description = Gtk.Template.Child()
     reassign_toggle_xr_effect_shortcut_button = Gtk.Template.Child()
     toggle_xr_effect_shortcut_label = Gtk.Template.Child()
     reassign_recenter_display_shortcut_button = Gtk.Template.Child()
@@ -68,6 +72,7 @@ class ConnectedDevice(Gtk.Box):
         self.init_template()
         self.active = True
         self.all_enabled_state_inputs = [
+            self.display_zoom_on_focus_switch,
             self.display_distance_scale,
             # self.display_size_scale,
             # self.follow_mode_switch,
@@ -75,8 +80,8 @@ class ConnectedDevice(Gtk.Box):
             # self.curved_display_switch,
             self.add_virtual_display_menu,
             self.add_virtual_display_button,
-            self.set_toggle_display_distance_start_button,
-            self.set_toggle_display_distance_end_button,
+            self.set_all_displays_distance_button,
+            self.set_focused_display_distance_button,
             self.movement_look_ahead_scale,
             self.monitor_wrapping_scheme_menu,
             self.monitor_spacing_scale,
@@ -105,6 +110,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('viewport-offset-y', self.viewport_offset_y_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::monitor-wrapping-scheme', self._handle_monitor_wrapping_scheme_setting_changed)
         self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.display_zoom_on_focus_switch.connect('notify::active', self._handle_zoom_on_focus_switch_changed)
         self.monitor_wrapping_scheme_menu.connect('changed', self._handle_monitor_wrapping_scheme_menu_changed)
         self._handle_monitor_wrapping_scheme_setting_changed(self.settings, self.settings.get_string('monitor-wrapping-scheme'))
 
@@ -115,12 +121,15 @@ class ConnectedDevice(Gtk.Box):
             [self.reassign_toggle_follow_shortcut_button, self.toggle_follow_shortcut_label]
         ])
 
-        self.bind_set_distance_toggle([
-            self.set_toggle_display_distance_start_button, 
-            self.set_toggle_display_distance_end_button
-        ])
+        self.set_all_displays_distance_button.connect('clicked', self._on_set_all_displays_distance)
+        self.set_focused_display_distance_button.connect('clicked', self.on_set_focused_display_distance)
+        self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
+        self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
+        self.display_distance_adjustment.connect('value-changed', self._on_display_distance_update)
+        self._on_display_distance_update(self.display_distance_adjustment)
+
         self.add_virtual_display_menu.set_active_id('1080p')
-        self.add_virtual_display_button.connect('clicked', self.on_add_virtual_display)
+        self.add_virtual_display_button.connect('clicked', self._on_add_virtual_display)
         self.launch_display_settings_button.connect('clicked', self._launch_display_settings)
 
         self.state_manager = StateManager.get_instance()
@@ -147,6 +156,9 @@ class ConnectedDevice(Gtk.Box):
         self.virtual_display_manager.connect('notify::displays', self._on_virtual_displays_update)
         self._on_virtual_displays_update(self.virtual_display_manager, None)
 
+        self.display_distance_presets_description.set_markup(
+            _("<span size=\"small\">These presets are used unless manually overridden by the slider above.</span>"))
+
         self.connect("destroy", self._on_widget_destroy)
 
         self.virtual_displays_by_pid = {}
@@ -157,6 +169,16 @@ class ConnectedDevice(Gtk.Box):
             if appinfo.get_id() == 'gnome-display-panel.desktop':
                 self._settings_displays_app_info = appinfo
                 break
+    
+    def _handle_zoom_on_focus_switch_changed(self, widget, param):
+        display_distance = self.settings.get_double('display-distance')
+        toggle_display_distance_end = self.settings.get_double('toggle-display-distance-end')
+        toggle_display_distance_start = self.settings.get_double('toggle-display-distance-start')
+        is_zoom_on_focus_already_enabled = display_distance < toggle_display_distance_end
+        if widget.get_active() and not is_zoom_on_focus_already_enabled:
+            self.settings.set_double('display-distance', toggle_display_distance_start)
+        elif not widget.get_active() and is_zoom_on_focus_already_enabled:
+            self.settings.set_double('display-distance', toggle_display_distance_end)
 
     def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
         self.monitor_wrapping_scheme_menu.set_active_id(val)
@@ -219,13 +241,51 @@ class ConnectedDevice(Gtk.Box):
 
     def set_device_name(self, name):
         self.device_label.set_markup(f"<b>{name}</b>")
-            
-    def bind_set_distance_toggle(self, widgets):
-        for widget in widgets:
-            widget.connect('clicked', lambda *args, widget=widget: on_set_display_distance_toggle(widget))
-            reload_display_distance_toggle_button(widget)
 
-    def on_add_virtual_display(self, *args):
+    def _on_display_distance_update(self, adjustment):
+        display_distance = adjustment.get_value()
+        toggle_display_distance_end = self.settings.get_double('toggle-display-distance-end')
+        self.set_all_displays_distance_button.set_label(f"Use {display_distance}")
+        self.set_all_displays_distance_button.set_visible(display_distance != toggle_display_distance_end)
+        
+        toggle_display_distance_start = self.settings.get_double('toggle-display-distance-start')
+        self.set_focused_display_distance_button.set_label(f"Use {display_distance}")
+        self.set_focused_display_distance_button.set_visible(display_distance != toggle_display_distance_start)
+
+        should_zoom_on_focus_be_enabled = display_distance < toggle_display_distance_end
+        if self.display_zoom_on_focus_switch.get_active() != should_zoom_on_focus_be_enabled:
+            self.display_zoom_on_focus_switch.set_active(should_zoom_on_focus_be_enabled)
+
+    def _set_focused_display_distance(self, distance):
+        self.focused_display_distance_label.set_markup(f"Focused display: <b>{distance}</b>")
+        self.settings.set_double('toggle-display-distance-start', distance)
+        self.set_focused_display_distance_button.set_visible(False)
+
+    def _set_all_displays_distance(self, distance):
+        self.all_displays_distance_label.set_markup(f"All displays: <b>{distance}</b>")
+        self.settings.set_double('toggle-display-distance-end', distance)
+        self.set_all_displays_distance_button.set_visible(False)
+        self.display_zoom_on_focus_switch.set_active(False)
+            
+    def _on_set_all_displays_distance(self, *args):
+        distance = self.settings.get_double('display-distance')
+        focused_display_distance = self.settings.get_double('toggle-display-distance-start')
+        all_displays_distance = self.settings.get_double('toggle-display-distance-end')
+        if (distance < focused_display_distance):
+            self._set_focused_display_distance(distance)
+        
+        self._set_all_displays_distance(distance)
+
+    def on_set_focused_display_distance(self, *args):
+        distance = self.settings.get_double('display-distance')
+        focused_display_distance = self.settings.get_double('toggle-display-distance-start')
+        all_displays_distance = self.settings.get_double('toggle-display-distance-end')
+        if (distance > all_displays_distance):
+            self._set_all_displays_distance(distance)
+
+        self._set_focused_display_distance(distance)
+
+    def _on_add_virtual_display(self, *args):
         resolution = self.add_virtual_display_menu.get_active_id()
         logger.info(f"Adding virtual display {resolution}")
 

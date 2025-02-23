@@ -85,13 +85,13 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         for child in self.main_content:
             self.main_content.remove(child)
 
-        if not self._skip_verification and not verify_installation():
+        if self.settings.get_boolean('debug-no-device'):
+            self.main_content.append(self.connected_device)
+            self.connected_device.set_device_name('Fake device')
+        elif not self._skip_verification and not verify_installation():
             self.main_content.append(self.failed_verification)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)
-        elif self.settings.get_boolean('debug-no-device'):
-            self.main_content.append(self.connected_device)
-            self.connected_device.set_device_name('Fake device')
         elif not self.state_manager.driver_running:
             self.main_content.append(self.no_driver)
         elif not self.state_manager.license_present:

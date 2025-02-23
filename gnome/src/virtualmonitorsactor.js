@@ -366,6 +366,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             -1, 100, -1
         ),
+        'display-zoom-on-focus': GObject.ParamSpec.boolean(
+            'display-zoom-on-focus',
+            'Display zoom on focus',
+            'Automatically move a display closer when it becomes focused.',
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
             'Display Distance',
@@ -444,6 +451,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
         super(params);
 
         this._current_display_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
+        this.no_distance_ease = false;
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
         this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
@@ -463,6 +471,13 @@ export const VirtualMonitorEffect = GObject.registerClass({
             if (this._distance_ease_target === desired_distance) return;
 
             this._distance_ease_timeline.stop();
+        }
+
+        if (this.no_distance_ease) {
+            this._current_display_distance = desired_distance;
+            this._update_display_position_uniforms();
+            this.no_distance_ease = false;
+            return;
         }
         
         // if we're the focused display, we'll double the timeline and wait for the first half to let other 
@@ -792,6 +807,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
             2.5,
             1.0
         ),
+        'display-zoom-on-focus': GObject.ParamSpec.boolean(
+            'display-zoom-on-focus',
+            'Display zoom on focus',
+            'Automatically move a display closer when it becomes focused.',
+            GObject.ParamFlags.READWRITE,
+            true
+        ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
             'Display Distance',
@@ -976,7 +998,6 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 'monitor-placements',
                 'imu-snapshots',
                 'focused-monitor-index',
-                'display-distance',
                 'lens-vector',
                 'look-ahead-override',
                 'disable-anti-aliasing',
@@ -986,8 +1007,11 @@ export const VirtualMonitorsActor = GObject.registerClass({
             }));
 
             const updateEffectDistanceDefault = (() => {
+                effect.no_distance_ease = Math.abs(this.display_distance - effect.display_distance) <= 0.05;
+                effect.display_distance = this.display_distance;
                 effect.display_distance_default = this._display_distance_default();
             }).bind(this);
+            this._property_connections.push(this.connect('notify::display-distance', updateEffectDistanceDefault));
             this._property_connections.push(this.connect('notify::toggle-display-distance-start', updateEffectDistanceDefault));
             this._property_connections.push(this.connect('notify::toggle-display-distance-end', updateEffectDistanceDefault));
 
@@ -1047,7 +1071,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
     }
 
     _display_distance_default() {
-        return Math.max(this.toggle_display_distance_start, this.toggle_display_distance_end);
+        return Math.max(this.display_distance, this.toggle_display_distance_start, this.toggle_display_distance_end);
     }
 
     _fov_details() {
