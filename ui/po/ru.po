@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 13:06-0800\n"
+"POT-Creation-Date: 2025-02-23 16:29-0800\n"
 "PO-Revision-Date: 2024-08-17 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Russian <gnu@d07.ru>\n"
@@ -29,30 +29,30 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Эта функция в настоящее время не поддерживается для вашего устройства."
 
-#: src/connecteddevice.py:125
+#: src/connecteddevice.py:126
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Расстояние дисплея"
 
-#: src/connecteddevice.py:126
+#: src/connecteddevice.py:127
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:133
+#: src/connecteddevice.py:134
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Расстояние дисплея"
 
-#: src/connecteddevice.py:134
+#: src/connecteddevice.py:135
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:261
+#: src/connecteddevice.py:264
 #, fuzzy
 msgid "Focused display"
 msgstr "Расстояние дисплея"
 
-#: src/connecteddevice.py:267
+#: src/connecteddevice.py:270
 #, fuzzy
 msgid "All displays"
 msgstr "Изогнутый дисплей"
@@ -421,6 +421,14 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:520
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
+msgstr ""
+
+#: src/gtk/connected-device.ui:550
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#: src/gtk/connected-device.ui:551
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
 
 #: src/gtk/display-distance-dialog.ui:9

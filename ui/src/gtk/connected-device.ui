@@ -545,6 +545,17 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Enable multi-tap detection</property>
+                        <property name="subtitle" translatable="yes">Enables double-tap to recenter and triple-tap to recalibrate.</property>
+                        <child>
+                          <object class="GtkSwitch" id="enable_multi_tap_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

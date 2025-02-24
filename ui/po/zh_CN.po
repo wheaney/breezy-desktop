@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 13:06-0800\n"
+"POT-Creation-Date: 2025-02-23 16:29-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -26,30 +26,30 @@ msgstr "切换到并排模式，并将显示宽度翻倍。"
 msgid "This feature is not currently supported for your device."
 msgstr "您的设备目前不支援此功能。"
 
-#: src/connecteddevice.py:125
+#: src/connecteddevice.py:126
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:126
+#: src/connecteddevice.py:127
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:133
+#: src/connecteddevice.py:134
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:134
+#: src/connecteddevice.py:135
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:261
+#: src/connecteddevice.py:264
 #, fuzzy
 msgid "Focused display"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:267
+#: src/connecteddevice.py:270
 #, fuzzy
 msgid "All displays"
 msgstr "曲面显示"
@@ -410,6 +410,14 @@ msgstr "字体大小比例"
 #: src/gtk/connected-device.ui:520
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr "字体缩放小于1.0，将模拟解析度更高的显示效果"
+
+#: src/gtk/connected-device.ui:550
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#: src/gtk/connected-device.ui:551
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr ""
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Show full range"

@@ -57,6 +57,7 @@ class ConnectedDevice(Gtk.Box):
     movement_look_ahead_adjustment = Gtk.Template.Child()
     text_scaling_scale = Gtk.Template.Child()
     text_scaling_adjustment = Gtk.Template.Child()
+    enable_multi_tap_switch = Gtk.Template.Child()
     monitor_wrapping_scheme_menu = Gtk.Template.Child()
     monitor_spacing_scale = Gtk.Template.Child()
     monitor_spacing_adjustment = Gtk.Template.Child()
@@ -152,6 +153,8 @@ class ConnectedDevice(Gtk.Box):
 
         self.config_manager = ConfigManager.get_instance()
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
+        self.config_manager.bind_property('multi-tap-enabled', self.enable_multi_tap_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.enable_multi_tap_switch.connect('notify::active', lambda widget, param: self.config_manager.set_property('multi-tap-enabled', widget.get_active()))
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
