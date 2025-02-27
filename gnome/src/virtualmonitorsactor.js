@@ -44,19 +44,44 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);
 
+    const xzMagnitude = Math.sqrt(rotatedLookVector[0]*rotatedLookVector[0] + rotatedLookVector[2]*rotatedLookVector[2]);
+    const lookUpTheta = Math.atan2(rotatedLookVector[2], rotatedLookVector[0]);
+    const aspect = fovDetails.widthPixels / fovDetails.heightPixels;
+
     let closestIndex = -1;
     let closestDistance = Infinity;
     let currentFocusedDistance = Infinity;
 
     // find the vector closest to the rotated look vector
     monitorVectors.forEach((vector, index) => {
+
+        // weight the rotation about the y-axis between the two vectors, by the aspect ratio
+        const vectorUpTheta = Math.atan2(vector[2], vector[0]);
+        const upDelta = lookUpTheta - vectorUpTheta;
+        const newLookUpTheta = Math.tan(Math.max(
+            -Math.PI, 
+            Math.min(
+                Math.PI, 
+                upDelta * aspect + vectorUpTheta
+            )
+        ));
+        const weightedLookVector = [
+            xzMagnitude * Math.cos(newLookUpTheta),
+            rotatedLookVector[1],
+            xzMagnitude * Math.sin(newLookUpTheta)
+        ];
+
+        // find the distance between the monitor vector and weighted look vector
         const distance = Math.acos(
-            Math.min(1.0, Math.max(-1.0, vector[0] * rotatedLookVector[0] + vector[1] * rotatedLookVector[1] + vector[2] * rotatedLookVector[2]))
+            Math.min(1.0, Math.max(-1.0, 
+                vector[0] * weightedLookVector[0] + 
+                vector[1] * weightedLookVector[1] + 
+                vector[2] * weightedLookVector[2]
+            ))
         );
 
         const distancePixels = fovDetails.fullScreenDistance * Math.tan(distance);
-        const monitorDiagonalPixels = Math.sqrt(Math.pow(monitorsDetails[index].width, 2) + Math.pow(monitorsDetails[index].height, 2));
-        const distanceToMonitorSize = distancePixels / monitorDiagonalPixels;
+        const distanceToMonitorSize = distancePixels / monitorsDetails[index].width;
 
         if (currentFocusedIndex === index) {
             currentFocusedDistance = distanceToMonitorSize * focusedMonitorDistance;
