@@ -250,9 +250,6 @@ export default class BreezyDesktopExtension extends Extension {
                 const virtualMonitors = this._find_virtual_monitors();
                 const refreshRate = targetMonitor.refreshRate ?? 60;
 
-                this._cursor_manager = new CursorManager(Main.layoutManager.uiGroup, [targetMonitor, ...virtualMonitors], refreshRate);
-                this._cursor_manager.enable();
-
                 // use rgba(255, 4, 144, 1) for chroma key background
                 this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', clip_to_allocation: true });
                 this._overlay.opacity = 255;
@@ -285,16 +282,15 @@ export default class BreezyDesktopExtension extends Extension {
                 Shell.util_set_hidden_from_pick(this._overlay, true);
                 global.stage.add_child(this._overlay);
 
-                // In GS 45, use of "actor" was renamed to "child".
-                const clutterContainer = Clutter.Container !== undefined;
-                this._actor_added_connection = global.stage.connect(
-                    clutterContainer ? 'actor-added' : 'child-added',
-                    this._handle_sibling_update.bind(this),
-                );
-                this._actor_removed_connection = global.stage.connect(
-                    clutterContainer ? 'actor-removed' : 'child-removed',
-                    this._handle_sibling_update.bind(this),
-                );
+                const cursor_manager_monitor_objs = this._overlay_content.monitor_actors.map(monitor => {
+                    return {
+                        monitor: monitor.monitorDetails,
+                        actor: monitor.containerActor
+                    };
+                });
+
+                this._cursor_manager = new CursorManager(cursor_manager_monitor_objs, refreshRate);
+                this._cursor_manager.enable();
 
                 this._update_follow_threshold(this.settings);
 
@@ -340,11 +336,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._effect_disable();
             }
         }
-    }
-
-    _handle_sibling_update() {
-        Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        global.stage.set_child_above_sibling(this._overlay, null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {

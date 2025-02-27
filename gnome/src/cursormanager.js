@@ -6,8 +6,7 @@ import Globals from './globals.js';
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 export class CursorManager {
-    constructor(mainActor, targetMonitors, refreshRate) {
-        this._mainActor = mainActor;
+    constructor(targetMonitors, refreshRate) {
         this._targetMonitors = targetMonitors;
         this._refreshRate = refreshRate;
 
@@ -111,7 +110,6 @@ export class CursorManager {
     // prereqs: setup in _enableCloningMouse
     _startCloningMouse() {
         Globals.logger.log_debug('CursorManager _startCloningMouse');
-        this._mainActor.add_child(this._cursorRoot);
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
@@ -122,10 +120,6 @@ export class CursorManager {
 
         this._cursorWatch = PointerWatcher.getPointerWatcher().addWatch(interval, this._updateMousePosition.bind(this));
         this._updateMousePosition();
-
-        const [xMouse, yMouse] = global.get_pointer();
-
-        if (this._targetMonitors.some(monitor => this._isWithinMonitorBounds(xMouse, yMouse, monitor))) this._hideSystemCursor();
     }
 
     // After this:
@@ -145,7 +139,6 @@ export class CursorManager {
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
         Meta.enable_unredirect_for_display(global.display);
         
-        if (this._cursorRoot) this._mainActor.remove_child(this._cursorRoot);
         if (!this._systemCursorShown) this._showSystemCursor();
     }
 
@@ -169,23 +162,54 @@ export class CursorManager {
 
     _updateMousePosition(...args) {
         const [xMouse, yMouse] = args.length ? args : global.get_pointer();
-        const inBounds = this._targetMonitors.some(monitor => this._isWithinMonitorBounds(xMouse, yMouse, monitor));
+        let onMonitorIndex;
+        let xRel;
+        let yRel;
 
-        if (xMouse === this.xMouse && yMouse === this.yMouse)
-            return;
+        const inBoundsCheck = (monitorObj, index) => {
+            const inBoundsCoordinates = this._getInBoundsCoordinates(xMouse, yMouse, monitorObj.monitor);
+            if (inBoundsCoordinates) {
+                onMonitorIndex = index;
+                xRel = inBoundsCoordinates.xRel;
+                yRel = inBoundsCoordinates.yRel;
+                return true;
+            }
+            return false;
+        }
 
-        if (inBounds) {
-            if (this._cursorRoot && this._mainActor.get_last_child() !== this._cursorRoot)
-                this._mainActor.set_child_above_sibling(this._cursorRoot,  null);
+        // check the previously in-bounds monitor first to avoid iterating over the whole list in the likely case that the cursor 
+        // is still on the same monitor
+        if (this.onMonitorIndex === undefined || !inBoundsCheck(this._targetMonitors[this.onMonitorIndex], this.onMonitorIndex)) {
+            for (let i = 0; i < this._targetMonitors.length; i++) {
+                if (this.onMonitorIndex === i) continue;
+                if (inBoundsCheck(this._targetMonitors[i], i)) break;
+            }
+        }
 
+        if (this.onMonitorIndex !== onMonitorIndex) {
+            try {
+                if (this.onMonitorIndex !== undefined) this._targetMonitors[this.onMonitorIndex].actor.remove_child(this._cursorRoot);
+
+                this.onMonitorIndex = onMonitorIndex;
+                if (this.onMonitorIndex !== undefined) {
+                    const actor = this._targetMonitors[this.onMonitorIndex].actor;
+                    actor.add_child(this._cursorRoot);
+                    actor.set_child_above_sibling(this._cursorRoot, null);
+                }
+            } catch (e) {
+                Globals.logger.log_debug(e);
+            }
+        }
+
+        if (this.onMonitorIndex !== undefined) {
             if (this._systemCursorShown) this._hideSystemCursor();
-            this._cursorRoot.set_position(xMouse, yMouse);
-        } else if (!this._systemCursorShown && !inBounds) {
+            this._cursorRoot.set_position(xRel, yRel);
+        } else if (!this._systemCursorShown) {
             this._showSystemCursor();
         }
 
-        this.xMouse = xMouse;
-        this.yMouse = yMouse;
+        this.xRel = xRel;
+        this.xRel = xRel;
 
         const seat = Clutter.get_default_backend().get_default_seat();
         if (this._cursorUnfocusInhibited && !seat.is_unfocus_inhibited()) {
@@ -214,8 +238,16 @@ export class CursorManager {
         }
     }
 
-    _isWithinMonitorBounds(x, y, monitor) {
-        return x >= monitor.x && x < monitor.x + monitor.width &&
-               y >= monitor.y && y < monitor.y + monitor.height;
+    _getInBoundsCoordinates(x, y, monitor) {
+        const xRel = x - monitor.x;
+        const yRel = y - monitor.y;
+        if (xRel >= 0 && xRel < monitor.width && yRel >= 0 && yRel < monitor.height) {
+            return {
+                xRel,
+                yRel,
+            }
+        }
+        
+        return null;
     }
 }

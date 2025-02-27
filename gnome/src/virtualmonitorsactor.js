@@ -5,6 +5,7 @@ import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
+import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import Globals from './globals.js';
@@ -339,6 +340,12 @@ export const VirtualMonitorEffect = GObject.registerClass({
             'Target and virtual monitor placement details, as relevant to rendering',
             GObject.ParamFlags.READWRITE
         ),
+        'target-monitor': GObject.ParamSpec.jsobject(
+            'target-monitor',
+            'Target Monitor',
+            'Details about the monitor being used as a viewport',
+            GObject.ParamFlags.READWRITE
+        ),
         'imu-snapshots': GObject.ParamSpec.jsobject(
             'imu-snapshots',
             'IMU Snapshots',
@@ -631,7 +638,11 @@ export const VirtualMonitorEffect = GObject.registerClass({
                 float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
                 float cogl_position_height = cogl_position_width / aspect_ratio;
 
-                vec3 pos_factors = vec3(cogl_position_width / u_display_resolution.x, cogl_position_height / u_display_resolution.y, cogl_position_mystery_factor / u_display_resolution.x);
+                vec3 pos_factors = vec3(
+                    cogl_position_width / u_display_resolution.x, 
+                    cogl_position_height / u_display_resolution.y, 
+                    cogl_position_mystery_factor / u_display_resolution.x
+                );
                 world_pos.x -= u_display_position.x * pos_factors.x;
                 world_pos.y -= u_display_position.y * pos_factors.y;
                 world_pos.z = u_display_position.z * pos_factors.z;
@@ -697,7 +708,7 @@ export const VirtualMonitorEffect = GObject.registerClass({
             );
             this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
             this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovVerticalRadians]);
-            this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.get_actor().width, this.get_actor().height]);
+            this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
             this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
@@ -769,6 +780,12 @@ export const VirtualMonitorsActor = GObject.registerClass({
             'monitor-placements',
             'Monitor Placements',
             'Target and virtual monitor placement details, as relevant to rendering',
+            GObject.ParamFlags.READWRITE
+        ),
+        'monitor-actors': GObject.ParamSpec.jsobject(
+            'monitor-actors',
+            'Monitor Actors',
+            'Tracking actors and details for each monitor',
             GObject.ParamFlags.READWRITE
         ),
         'imu-snapshots': GObject.ParamSpec.jsobject(
@@ -910,13 +927,14 @@ export const VirtualMonitorsActor = GObject.registerClass({
         );
         this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
         this.bannerActor.hide();
+
+        this.monitor_actors = [];
     }
 
     renderMonitors() {
         // collect bindings and connections to clean up on dispose
         this._property_bindings = [];
         this._property_connections = [];
-        this._monitor_actors = [];
 
         const notifyToFunction = ((property, fn) => {
             this._property_connections.push(this.connect(`notify::${property}`, fn.bind(this)));
@@ -956,17 +974,21 @@ export const VirtualMonitorsActor = GObject.registerClass({
             Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
             const containerActor = new Clutter.Actor({
-                width: this.target_monitor.width,
-                height: this.target_monitor.height
+                clip_to_allocation: true
+            });
+            const viewport = new St.Bin({
+                child: containerActor,
+                width: monitor.width,
+                height: monitor.height
             });
 
             // Create a clone of the stage content for this monitor
             const monitorClone = new Clutter.Clone({
                 source: Main.layoutManager.uiGroup,
+                clip_to_allocation: true,
                 x: -monitor.x,
                 y: -monitor.y
             });
-            monitorClone.set_clip(monitor.x, monitor.y, monitor.width, monitor.height);
 
             // Add the monitor actor to the scene
             containerActor.add_child(monitorClone);
@@ -975,6 +997,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 imu_snapshots: this.imu_snapshots,
                 monitor_index: index,
                 monitor_placements: this.monitor_placements,
+                target_monitor: this.target_monitor,
                 display_distance: this.display_distance,
                 display_distance_default: this._display_distance_default(),
                 actor_to_display_ratios: actorToDisplayRatios,
@@ -982,17 +1005,20 @@ export const VirtualMonitorsActor = GObject.registerClass({
                 lens_vector: this.lens_vector,
                 show_banner: this.show_banner
             });
-            containerActor.add_effect_with_name('viewport-effect', effect);
-            this.add_child(containerActor);
+            viewport.add_effect_with_name('viewport-effect', effect);
+            this.add_child(viewport);
+            Shell.util_set_hidden_from_pick(viewport, true);
 
-            this._monitor_actors.push({
+            this.monitor_actors.push({
+                viewport,
                 containerActor,
                 monitorClone,
-                effect
+                effect,
+                monitorDetails: monitor
             });
 
             // do this so the primary monitor is always on top at first, before the focused monitor logic comes into play
-            this.set_child_below_sibling(containerActor, null);
+            this.set_child_below_sibling(viewport, null);
 
             [
                 'monitor-placements',
@@ -1018,7 +1044,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
             // in addition to rendering distance properly in the shader, the parent actor determines overlap based on child ordering
             effect.connect('notify::is-closest', ((actor, _pspec) => {
                 if (!this._is_disposed && actor.is_closest) {
-                    this.set_child_above_sibling(containerActor, null);
+                    this.set_child_above_sibling(viewport, null);
                     if (this.show_banner) this.set_child_above_sibling(this.bannerActor, null);
                 }
             }).bind(this));
@@ -1063,7 +1089,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
 
             Globals.data_stream.refresh_data();
             this.imu_snapshots = Globals.data_stream.imu_snapshots;
-            this.queue_redraw();
+            this.monitor_actors.forEach(({ monitorClone }) => monitorClone.queue_redraw());
             this._last_redraw = Date.now();
         }).bind(this));
         this._redraw_timeline.set_repeat_count(-1);
@@ -1080,7 +1106,7 @@ export const VirtualMonitorsActor = GObject.registerClass({
         const fovVerticalRadians = Math.atan(Math.tan(fovVerticalRadiansInitial) / this._display_distance_default());
 
         // distance needed for the FOV-sized monitor to fill up the screen
-        const fullScreenDistance = this.target_monitor.height / 2 / Math.sin(fovVerticalRadians / 2);
+        const fullScreenDistance = this.target_monitor.height / 2 / Math.tan(fovVerticalRadians / 2);
 
         return {
             widthPixels: this.target_monitor.width,
@@ -1172,12 +1198,13 @@ export const VirtualMonitorsActor = GObject.registerClass({
             this._redraw_timeline = null;
         }
 
-        this._monitor_actors.forEach(({ containerActor, monitorClone, effect }) => {
-            containerActor.remove_effect(effect);
+        this.monitor_actors.forEach(({ viewport, containerActor, monitorClone, effect }) => {
+            viewport.remove_effect(effect);
             containerActor.remove_child(monitorClone);
-            this.remove_child(containerActor);
+            viewport.remove_child(containerActor);
+            this.remove_child(viewport);
         });
-        this._monitor_actors = [];
+        this.monitor_actors = [];
 
         this._property_bindings.forEach(binding => binding.unbind());
         this._property_bindings = [];
