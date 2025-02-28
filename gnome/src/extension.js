@@ -1,4 +1,3 @@
-import Clutter from 'gi://Clutter'
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
@@ -10,7 +9,7 @@ import { DeviceDataStream } from './devicedatastream.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
 import { MonitorManager } from './monitormanager.js';
-import { VirtualMonitorsActor } from './virtualmonitorsactor.js';
+import { VirtualDisplaysActor } from './virtualdisplaysactor.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -43,36 +42,16 @@ export default class BreezyDesktopExtension extends Extension {
         // Set/destroyed by enable/disable
         this._cursor_manager = null;
         this._monitor_manager = null;
-        this._overlay_content = null;
-        this._overlay = null;
+        this._virtual_displays_actor = null;
+        this._virtual_displays_overlay = null;
         this._target_monitor = null;
         this._is_effect_running = false;
-        this._distance_binding = null;
-        this._show_banner_binding = null;
+        this._effect_settings_bindings = [];
+        this._data_stream_bindings = [];
         this._show_banner_connection = null;
-        this._custom_banner_enabled_binding = null;
-        this._monitor_wrapping_scheme_binding = null;
-        this._viewport_offset_x_binding = null;
-        this._viewport_offset_y_binding = null;
-        this._monitor_spacing_binding = null;
         this._distance_connection = null;
         this._follow_threshold_connection = null;
-        this._widescreen_mode_settings_connection = null;
-        this._widescreen_mode_effect_state_connection = null;
         this._breezy_desktop_running_connection = null;
-        this._debug_no_device_binding = null;
-        this._start_binding = null;
-        this._end_binding = null;
-        this._curved_display_binding = null;
-        this._display_size_binding = null;
-        this._look_ahead_override_binding = null;
-        this._disable_anti_aliasing_binding = null;
-        this._framerate_cap_binding = null;
-        this._optimal_monitor_config_binding = null;
-        this._headset_as_primary_binding = null;
-        this._actor_added_connection = null;
-        this._actor_removed_connection = null;
-        this._data_stream_connection = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -94,7 +73,6 @@ export default class BreezyDesktopExtension extends Extension {
 
         try {
             Globals.extension_dir = this.path;
-            this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
 
             Globals.data_stream.start();
 
@@ -107,12 +85,11 @@ export default class BreezyDesktopExtension extends Extension {
             this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
             this._monitor_manager.enable();
 
-            this._optimal_monitor_config_binding = this.settings.bind('use-optimal-monitor-config', 
-                this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
-            this._headset_as_primary_binding = this.settings.bind('headset-as-primary',
-                this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
-            this._debug_no_device_binding = this.settings.bind('debug-no-device', 
-                Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('use-optimal-monitor-config',this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('headset-as-primary', this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
+
             this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 
                 this._handle_breezy_desktop_running_change.bind(this));
 
@@ -251,22 +228,22 @@ export default class BreezyDesktopExtension extends Extension {
                 const refreshRate = targetMonitor.refreshRate ?? 60;
 
                 // use rgba(255, 4, 144, 1) for chroma key background
-                this._overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', clip_to_allocation: true });
-                this._overlay.opacity = 255;
-                this._overlay.set_position(targetMonitor.x, targetMonitor.y);
-                this._overlay.set_size(targetMonitor.width, targetMonitor.height);
+                this._virtual_displays_overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', clip_to_allocation: true });
+                this._virtual_displays_overlay.opacity = 255;
+                this._virtual_displays_overlay.set_position(targetMonitor.x, targetMonitor.y);
+                this._virtual_displays_overlay.set_size(targetMonitor.width, targetMonitor.height);
 
                 // const textureSourceActor = Main.layoutManager.uiGroup;
                 Globals.data_stream.refresh_data();
-                this._overlay_content = new VirtualMonitorsActor({
+                this._virtual_displays_actor = new VirtualDisplaysActor({
                     width: targetMonitor.width,
                     height: targetMonitor.height,
+                    target_monitor: targetMonitor,
                     virtual_monitors: virtualMonitors,
                     monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
                     monitor_spacing: this.settings.get_int('monitor-spacing'),
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
-                    target_monitor: targetMonitor,
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
@@ -276,13 +253,13 @@ export default class BreezyDesktopExtension extends Extension {
                     custom_banner_enabled: Globals.data_stream.custom_banner_enabled
                 });
 
-                this._overlay.set_child(this._overlay_content);
-                this._overlay_content.renderMonitors();
+                this._virtual_displays_overlay.set_child(this._virtual_displays_actor);
+                this._virtual_displays_actor.renderMonitors();
 
-                Shell.util_set_hidden_from_pick(this._overlay, true);
-                global.stage.add_child(this._overlay);
+                Shell.util_set_hidden_from_pick(this._virtual_displays_overlay, true);
+                global.stage.add_child(this._virtual_displays_overlay);
 
-                const cursor_manager_monitor_objs = this._overlay_content.monitor_actors.map(monitor => {
+                const cursor_manager_monitor_objs = this._virtual_displays_actor.monitor_actors.map(monitor => {
                     return {
                         monitor: monitor.monitorDetails,
                         actor: monitor.containerActor
@@ -294,41 +271,42 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._update_follow_threshold(this.settings);
 
-                // this gets triggered before _effect_enable if in fast-sbs-mode-switching mode
-                // if (!this.settings.get_boolean('fast-sbs-mode-switching')) 
-                //     this._update_widescreen_mode_from_settings(this.settings);
-
-                // this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
-
-                this._show_banner_binding = Globals.data_stream.bind_property('show-banner', this._overlay_content, 'show-banner', Gio.SettingsBindFlags.DEFAULT);
+                this._data_stream_bindings = [
+                    'show-banner',
+                    'custom-banner-enabled'
+                ].map(data_stream_key => 
+                    Globals.data_stream.bind_property(data_stream_key, this._virtual_displays_actor, data_stream_key, Gio.SettingsBindFlags.DEFAULT)
+                );
+                
                 this._show_banner_connection = Globals.data_stream.connect('notify::show-banner', this._handle_show_banner_update.bind(this));
                 this._was_show_banner = Globals.data_stream.show_banner;
                 if (!this._was_show_banner) this._recenter_display();
 
-                this._custom_banner_enabled_binding = Globals.data_stream.bind_property('custom-banner-enabled', this._overlay_content, 'custom-banner-enabled', Gio.SettingsBindFlags.DEFAULT);
+                this._effect_settings_bindings = [
+                    'monitor-wrapping-scheme',
+                    'viewport-offset-x',
+                    'viewport-offset-y',
+                    'monitor-spacing',
+                    'display-distance',
+                    'toggle-display-distance-start',
+                    'toggle-display-distance-end',
+                    'display-size',
+                    'framerate-cap',
+                    'look-ahead-override',
+                    'disable-anti-aliasing'
+                ]
+                this._effect_settings_bindings.forEach(settings_key => 
+                    this.settings.bind(settings_key, this._virtual_displays_actor, settings_key, Gio.SettingsBindFlags.DEFAULT)
+                );
 
-                this._monitor_wrapping_scheme_binding = this.settings.bind('monitor-wrapping-scheme', this._overlay_content, 'monitor-wrapping-scheme', Gio.SettingsBindFlags.DEFAULT);
-                this._viewport_offset_x_binding = this.settings.bind('viewport-offset-x', this._overlay_content, 'viewport-offset-x', Gio.SettingsBindFlags.DEFAULT);
-                this._viewport_offset_y_binding = this.settings.bind('viewport-offset-y', this._overlay_content, 'viewport-offset-y', Gio.SettingsBindFlags.DEFAULT);
-                this._monitor_spacing_binding = this.settings.bind('monitor-spacing', this._overlay_content, 'monitor-spacing', Gio.SettingsBindFlags.DEFAULT);
-                this._distance_binding = this.settings.bind('display-distance', this._overlay_content, 'display-distance', Gio.SettingsBindFlags.DEFAULT);
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
-                
-                // this._widescreen_mode_settings_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode_from_settings.bind(this))
-                this._start_binding = this.settings.bind('toggle-display-distance-start', this._overlay_content, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
-                this._end_binding = this.settings.bind('toggle-display-distance-end', this._overlay_content, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT);
-                this._display_size_binding = this.settings.bind('display-size', this._overlay_content, 'display-size', Gio.SettingsBindFlags.DEFAULT);
-                this._framerate_cap_binding = this.settings.bind('framerate-cap', this._overlay_content, 'framerate-cap', Gio.SettingsBindFlags.DEFAULT);
-                // this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
-                this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._overlay_content, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
-                this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._overlay_content, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
 
                 Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
-                this._add_settings_keybinding('toggle-display-distance-shortcut', this._overlay_content._change_distance.bind(this._overlay_content));
+                this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
                 Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
@@ -557,100 +535,35 @@ export default class BreezyDesktopExtension extends Extension {
             Main.wm.removeKeybinding('toggle-follow-shortcut');
             Meta.enable_unredirect_for_display(global.display);
 
-            if (this._actor_added_connection) {
-                global.stage.disconnect(this._actor_added_connection);
-                this._actor_added_connection = null;
+            for (let settings_key of this._effect_settings_bindings) {
+                Gio.Settings.unbind(this.settings, settings_key);
             }
-            if (this._actor_removed_connection) {
-                global.stage.disconnect(this._actor_removed_connection);
-                this._actor_removed_connection = null;
-            }
-            if (this._distance_binding) {
-                this.settings.unbind(this._distance_binding);
-                this._distance_binding = null;
-            }
-            if (this._monitor_spacing_binding) {
-                this.settings.unbind(this._monitor_spacing_binding);
-                this._monitor_spacing_binding = null;
-            }
-            if (this._viewport_offset_x_binding) {
-                this.settings.unbind(this._viewport_offset_x_binding);
-                this._viewport_offset_x_binding = null;
-            }
-            if (this._viewport_offset_y_binding) {
-                this.settings.unbind(this._viewport_offset_y_binding);
-                this._viewport_offset_y_binding = null;
-            }
-            if (this._monitor_wrapping_scheme_binding) {
-                this.settings.unbind(this._monitor_wrapping_scheme_binding);
-                this._monitor_wrapping_scheme_binding = null;
-            }
-            if (this._show_banner_binding) {
-                this._show_banner_binding.unbind();
-                this._show_banner_binding = null;
-            }
+            this._effect_settings_bindings = [];
+            this._data_stream_bindings.forEach(binding => binding.unbind());
+            this._data_stream_bindings = [];
+
             if (this._show_banner_connection) {
                 Globals.data_stream.disconnect(this._show_banner_connection);
                 this._show_banner_connection = null;
-            }
-            if (this._custom_banner_enabled_binding) {
-                this._custom_banner_enabled_binding.unbind();
-                this._custom_banner_enabled_binding = null;
             }
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
                 this._distance_connection = null;
             }
-            if (this._data_stream_connection) {
-                this._data_stream_connection.unbind();
-                this._data_stream_connection = null;
-            }
             if (this._follow_threshold_connection) {
                 this.settings.disconnect(this._follow_threshold_connection);
                 this._follow_threshold_connection = null;
             }
-            if (this._widescreen_mode_settings_connection) {
-                this.settings.disconnect(this._widescreen_mode_settings_connection);
-                this._widescreen_mode_settings_connection = null;
-            }
-            if (this._start_binding) {
-                this.settings.unbind(this._start_binding);
-                this._start_binding = null;
-            }
-            if (this._end_binding) {
-                this.settings.unbind(this._end_binding);
-                this._end_binding = null;
-            }
-            if (this._curved_display_binding) {
-                this.settings.unbind(this._curved_display_binding);
-                this._curved_display_binding = null;
-            }
-            if (this._display_size_binding) {
-                this.settings.unbind(this._display_size_binding);
-                this._display_size_binding = null;
-            }
-            if (this._look_ahead_override_binding) {
-                this.settings.unbind(this._look_ahead_override_binding);
-                this._look_ahead_override_binding = null;
-            }
-            if (this._disable_anti_aliasing_binding) {
-                this.settings.unbind(this._disable_anti_aliasing_binding);
-                this._disable_anti_aliasing_binding = null;
-            }
-            if (this._framerate_cap_binding) {
-                this.settings.unbind(this._framerate_cap_binding);
-                this._framerate_cap_binding = null;
-            }
-            if (this._overlay) {
-                if (this._overlay_content) {
-                    this._overlay.remove_child(this._overlay_content);
-                    this._overlay_content.destroy();
-                    this._overlay_content = null;
+            if (this._virtual_displays_overlay) {
+                if (this._virtual_displays_actor) {
+                    this._virtual_displays_overlay.remove_child(this._virtual_displays_actor);
+                    this._virtual_displays_actor.destroy();
+                    this._virtual_displays_actor = null;
                 }
 
-                global.stage.remove_child(this._overlay);
-                this._overlay.destroy();
-                this._overlay = null;
+                global.stage.remove_child(this._virtual_displays_overlay);
+                this._virtual_displays_overlay.destroy();
+                this._virtual_displays_overlay = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
@@ -680,21 +593,12 @@ export default class BreezyDesktopExtension extends Extension {
                 Globals.data_stream.disconnect(this._breezy_desktop_running_connection);
                 this._breezy_desktop_running_connection = null;
             }
-            if (this._debug_no_device_binding) {
-                this.settings.unbind(this._debug_no_device_binding);
-                this._debug_no_device_binding = null;
-            }
+            Gio.Settings.unbind(this.settings, 'debug');
+            Gio.Settings.unbind(this.settings, 'use-optimal-monitor-config');
+            Gio.Settings.unbind(this.settings, 'headset-as-primary');
+            Gio.Settings.unbind(this.settings, 'debug-no-device');
 
             if (this._monitor_manager) {
-                if (this._optimal_monitor_config_binding) {
-                    this.settings.unbind(this._optimal_monitor_config_binding);
-                    this._optimal_monitor_config_binding = null
-                }
-                if (this._headset_as_primary_binding) {
-                    this.settings.unbind(this._headset_as_primary_binding);
-                    this._headset_as_primary_binding = null;
-                }
-
                 this._monitor_manager.disable();
                 this._monitor_manager = null;
             }
