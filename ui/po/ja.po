@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-23 16:29-0800\n"
+"POT-Creation-Date: 2025-02-27 18:29-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -21,40 +21,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/connecteddevice.py:22
+#: src/connecteddevice.py:23
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします。"
 
-#: src/connecteddevice.py:23
+#: src/connecteddevice.py:24
 msgid "This feature is not currently supported for your device."
 msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
-#: src/connecteddevice.py:126
+#: src/connecteddevice.py:128
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "ディスプレイ距離"
 
-#: src/connecteddevice.py:127
+#: src/connecteddevice.py:129
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:134
+#: src/connecteddevice.py:136
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "ディスプレイ距離"
 
-#: src/connecteddevice.py:135
+#: src/connecteddevice.py:137
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:264
+#: src/connecteddevice.py:237
+msgid ""
+"Unable to add virtual displays on this machine. xdg-desktop-portal is "
+"required."
+msgstr ""
+
+#: src/connecteddevice.py:272
 #, fuzzy
 msgid "Focused display"
 msgstr "ディスプレイ距離"
 
-#: src/connecteddevice.py:270
+#: src/connecteddevice.py:278
 #, fuzzy
 msgid "All displays"
 msgstr "曲面ディスプレイ"

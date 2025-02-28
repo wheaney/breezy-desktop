@@ -7,6 +7,7 @@ from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
 from .virtualdisplaymanager import VirtualDisplayManager
+from .virtualdisplay import is_screencast_available
 from .virtualdisplayrow import VirtualDisplayRow
 from .xrdriveripc import XRDriverIPC
 import gettext
@@ -34,6 +35,7 @@ class ConnectedDevice(Gtk.Box):
     # widescreen_mode_row = Gtk.Template.Child()
     # curved_display_switch = Gtk.Template.Child()
     top_features_group = Gtk.Template.Child()
+    virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
     add_virtual_display_button = Gtk.Template.Child()
     launch_display_settings_button = Gtk.Template.Child()
@@ -229,6 +231,12 @@ class ConnectedDevice(Gtk.Box):
 
         for widget in self.all_enabled_state_inputs:
             widget.set_sensitive(requesting_enabled)
+
+        if not is_screencast_available():
+            self.virtual_displays_row.set_subtitle(
+                _("Unable to add virtual displays on this machine. xdg-desktop-portal is required."))
+            self.add_virtual_display_button.set_sensitive(False)
+            self.add_virtual_display_menu.set_sensitive(False)
         
         # if requesting_enabled: 
         #     self._refresh_follow_mode(self.follow_mode_switch, None)

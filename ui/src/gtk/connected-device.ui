@@ -65,7 +65,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="AdwActionRow">
+                      <object class="AdwActionRow" id="virtual_displays_row">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Virtual displays</property>
                         <property name="valign">2</property>
                         <child>

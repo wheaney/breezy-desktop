@@ -86,5 +86,15 @@ class VirtualDisplay:
         self.pipeline.get_bus().connect('message', self._on_message)
         self.pipeline.set_state(Gst.State.PAUSED)
 
+def is_screencast_available():
+    try:
+        bus = pydbus.SessionBus()
+        # Try to get the ScreenCast interface
+        screen_cast = bus.get(screen_cast_iface, '/org/gnome/Mutter/ScreenCast')
+        return True
+    except Exception as e:
+        logger.warning(f"ScreenCast portal not available: {e}")
+        return False
+
 
 
