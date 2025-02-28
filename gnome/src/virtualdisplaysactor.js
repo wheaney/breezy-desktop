@@ -49,7 +49,6 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
 
     const xzMagnitude = Math.sqrt(rotatedLookVector[0]*rotatedLookVector[0] + rotatedLookVector[2]*rotatedLookVector[2]);
     const lookUpTheta = Math.atan2(rotatedLookVector[2], rotatedLookVector[0]);
-    const aspect = fovDetails.widthPixels / fovDetails.heightPixels;
 
     let closestIndex = -1;
     let closestDistance = Infinity;
@@ -57,6 +56,8 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
 
     // find the vector closest to the rotated look vector
     monitorVectors.forEach((vector, index) => {
+        const monitor = monitorsDetails[index];
+        const monitorAspectRatio = monitor.width / monitor.height;
 
         // weight the rotation about the y-axis between the two vectors, by the aspect ratio
         const vectorUpTheta = Math.atan2(vector[2], vector[0]);
@@ -65,7 +66,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
             -Math.PI, 
             Math.min(
                 Math.PI, 
-                upDelta * aspect + vectorUpTheta
+                upDelta * monitorAspectRatio + vectorUpTheta
             )
         ));
         const weightedLookVector = [
@@ -84,7 +85,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
         );
 
         const distancePixels = fovDetails.fullScreenDistance * Math.tan(distance);
-        const distanceToMonitorSize = distancePixels / monitorsDetails[index].width;
+        const distanceToMonitorSize = distancePixels / monitor.width;
 
         if (currentFocusedIndex === index) {
             currentFocusedDistance = distanceToMonitorSize * focusedMonitorDistance;
