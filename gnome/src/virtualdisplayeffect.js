@@ -384,7 +384,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
     vfunc_paint_target(node, paintContext) {
         if (!this._initialized) {
-            const aspect = this.get_actor().width / this.get_actor().height;
+            const aspect = this.target_monitor.width / this.target_monitor.height;
             const fovDiagonalRadians = Globals.data_stream.device_data.displayFov * Math.PI / 180.0;
             const diagToVertRatio = Math.sqrt(aspect * aspect + 1);
             const fovVerticalRadians = fovDiagonalRadians / diagToVertRatio;
