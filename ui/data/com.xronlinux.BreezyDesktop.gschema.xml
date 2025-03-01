@@ -156,7 +156,7 @@
     </key>
     <key name="headset-as-primary" type="b">
       <default>
-        true
+        false
       </default>
       <summary>Headset as primary</summary>
       <description>

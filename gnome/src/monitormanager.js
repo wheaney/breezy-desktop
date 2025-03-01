@@ -259,7 +259,7 @@ export const MonitorManager = GObject.registerClass({
             'Use headset as primary monitor',
             'Automatically set the headset as the primary display upon connection',
             GObject.ParamFlags.READWRITE,
-            true
+            false
         ),
         'extension-path': GObject.ParamSpec.string(
             'extension-path',
