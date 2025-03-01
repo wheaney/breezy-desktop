@@ -281,16 +281,16 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 return v + q.w * t + cross(q.xyz, t);
             }
 
-            vec4 applyXRotationToVector(vec4 v, float angle) {
+            vec3 applyXRotationToVector(vec3 v, float angle) {
                 float c = cos(angle);
                 float s = sin(angle);
-                return vec4(v.x, v.y * c - v.z * s, v.y * s + v.z * c, v.w);
+                return vec3(v.x, v.y * c - v.z * s, v.y * s + v.z * c);
             }
 
-            vec4 applyYRotationToVector(vec4 v, float angle) {
+            vec3 applyYRotationToVector(vec3 v, float angle) {
                 float c = cos(angle);
                 float s = sin(angle);
-                return vec4(v.x * c + v.z * s, v.y, v.z * c - v.x * s, v.w);
+                return vec3(v.x * c + v.z * s, v.y, v.z * c - v.x * s);
             }
 
             vec4 nwuToESU(vec4 v) {
@@ -326,10 +326,11 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 float cogl_position_width = cogl_position_mystery_factor * aspect_ratio / u_actor_to_display_ratios.y;
                 float cogl_position_height = cogl_position_width / aspect_ratio;
 
+                float pos_z_factor = aspect_ratio / u_actor_to_display_ratios.y;
                 vec3 pos_factors = vec3(
                     cogl_position_width / u_display_resolution.x, 
                     cogl_position_height / u_display_resolution.y, 
-                    cogl_position_mystery_factor / u_display_resolution.x
+                    cogl_position_mystery_factor * pos_z_factor / u_display_resolution.x
                 );
                 world_pos.x -= u_display_position.x * pos_factors.x;
                 world_pos.y -= u_display_position.y * pos_factors.y;
@@ -339,13 +340,10 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 world_pos.x += u_actor_to_display_offsets.x * cogl_position_width / 2;
                 world_pos.y -= u_actor_to_display_offsets.y * cogl_position_height / 2;
 
-                world_pos.z *= aspect_ratio / u_actor_to_display_ratios.y;
-                world_pos = applyXRotationToVector(world_pos, u_rotation_x_radians);
-                world_pos = applyYRotationToVector(world_pos, u_rotation_y_radians);
+                vec3 complete_vector = applyXRotationToVector(world_pos.xyz, u_rotation_x_radians);
+                complete_vector = applyYRotationToVector(complete_vector, u_rotation_y_radians);
 
                 vec4 quat_t0 = nwuToESU(quatConjugate(u_imu_data[0]));
-                vec3 adjusted_lens_vector = u_lens_vector * pos_factors;
-                vec3 complete_vector = world_pos.xyz + adjusted_lens_vector;
                 vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
                 vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_imu_data[1])));
                 float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
@@ -357,10 +355,10 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
                 vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
 
-                vec3 rotated_lens_vector = applyQuaternionToVector(adjusted_lens_vector, quat_t0);
-                world_pos = vec4(look_ahead_vector - rotated_lens_vector, world_pos.w);
+                vec3 adjusted_lens_vector = u_lens_vector * pos_factors;
+                world_pos = vec4(look_ahead_vector - adjusted_lens_vector, world_pos.w);
 
-                world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
+                world_pos.z /= pos_z_factor;
 
                 world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
 
