@@ -542,7 +542,6 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('show-banner', this._handle_banner_update);
         notifyToFunction('custom-banner-enabled', this._handle_banner_update);
         notifyToFunction('framerate-cap', this._handle_frame_rate_cap_change);
-        this._update_monitor_placements();
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
 
@@ -659,7 +658,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
                     this._fov_details(),
-                    this._all_monitors
+                    this._sorted_monitors
                 );
 
                 if (this.focused_monitor_index !== focusedMonitorIndex) {
@@ -712,6 +711,28 @@ export const VirtualDisplaysActor = GObject.registerClass({
         };
     }
 
+    _horizontal_monitor_sort() {
+        return [...this._all_monitors].sort((a, b) => {
+            // First compare by y-coordinate to form rows (top to bottom)
+            if (a.y !== b.y) {
+                return a.y - b.y;
+            }
+            // Then compare by x-coordinate within the same row (left to right)
+            return a.x - b.x;
+        });
+    }
+
+    _vertical_monitor_sort() {
+        return [...this._all_monitors].sort((a, b) => {
+            // First compare by x-coordinate to form columns (left to right)
+            if (a.x !== b.x) {
+                return a.x - b.x;
+            }
+            // Then compare by y-coordinate within the same column (top to bottom)
+            return a.y - b.y;
+        });
+    }
+
     _update_monitor_placements() {
         // collect minimum and maximum x and y values of monitors
         let actualWrapScheme = this.monitor_wrapping_scheme;
@@ -728,6 +749,11 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 actualWrapScheme = 'vertical';
             }
         }
+
+        // use horizontal in all cases but vertical wrapping
+        this._sorted_monitors = actualWrapScheme === 'vertical' ? 
+            this._vertical_monitor_sort() : 
+            this._horizontal_monitor_sort();
         
         const fovDetails = this._fov_details();
         this.lens_vector = [0.0, 0.0, -fovDetails.lensDistance];
@@ -735,7 +761,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             fovDetails,
 
             // shift all monitors so they center around the target monitor, then adjusted by the offsets
-            this._all_monitors.map(monitor => ({
+            this._sorted_monitors.map(monitor => ({
                 x: monitor.x - this.target_monitor.x - this.viewport_offset_x * this.target_monitor.width,
                 y: monitor.y - this.target_monitor.y + this.viewport_offset_y * this.target_monitor.height,
                 width: monitor.width,
