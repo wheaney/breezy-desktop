@@ -25,6 +25,7 @@ class ConnectedDevice(Gtk.Box):
 
     device_label = Gtk.Template.Child()
     effect_enable_switch = Gtk.Template.Child()
+    disable_physical_displays_switch = Gtk.Template.Child()
     display_zoom_on_focus_switch = Gtk.Template.Child()
     # display_size_scale = Gtk.Template.Child()
     # display_size_adjustment = Gtk.Template.Child()
@@ -54,7 +55,6 @@ class ConnectedDevice(Gtk.Box):
     headset_as_primary_switch = Gtk.Template.Child()
     use_optimal_monitor_config_switch = Gtk.Template.Child()
     use_highest_refresh_rate_switch = Gtk.Template.Child()
-    fast_sbs_mode_switch = Gtk.Template.Child()
     movement_look_ahead_scale = Gtk.Template.Child()
     movement_look_ahead_adjustment = Gtk.Template.Child()
     text_scaling_scale = Gtk.Template.Child()
@@ -95,6 +95,7 @@ class ConnectedDevice(Gtk.Box):
         self.virtual_display_manager = VirtualDisplayManager.get_instance()
         self.extensions_manager = ExtensionsManager.get_instance()
 
+        self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::display-distance', self._handle_display_distance)
         # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
@@ -103,7 +104,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        # self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('monitor-spacing', self.monitor_spacing_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('viewport-offset-x', self.viewport_offset_x_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)

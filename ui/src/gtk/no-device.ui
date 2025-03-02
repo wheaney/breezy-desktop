@@ -29,6 +29,17 @@
             </child>
           </object>
         </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
+            <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
+            <child>
+              <object class="GtkSwitch" id="disable_physical_displays_switch">
+                <property name="valign">3</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </template>

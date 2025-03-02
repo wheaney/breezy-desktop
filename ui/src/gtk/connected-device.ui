@@ -52,6 +52,17 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
+                        <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
+                        <child>
+                          <object class="GtkSwitch" id="disable_physical_displays_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->Zoom on focus mode</property>
                         <property name="subtitle" translatable="yes"><!--
                           -->Automatically move a display closer when you look at it.
@@ -66,7 +77,7 @@
                     </child>
                     <child>
                       <object class="AdwActionRow" id="virtual_displays_row">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Virtual displays</property>
+                        <property name="title" translatable="yes">Virtual displays</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -467,17 +478,6 @@
                         <property name="subtitle" translatable="yes">Automatically set the glasses as the primary display when plugged in.</property>
                         <child>
                           <object class="GtkSwitch" id="headset_as_primary_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes">Fast SBS mode switching</property>
-                        <property name="subtitle" translatable="yes">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
-                        <child>
-                          <object class="GtkSwitch" id="fast_sbs_mode_switch">
                             <property name="valign">3</property>
                           </object>
                         </child>

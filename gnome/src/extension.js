@@ -8,26 +8,11 @@ import { CursorManager } from './cursormanager.js';
 import { DeviceDataStream } from './devicedatastream.js';
 import Globals from './globals.js';
 import { Logger } from './logger.js';
-import { MonitorManager } from './monitormanager.js';
+import { MonitorManager, NESTED_MONITOR_PRODUCT, SUPPORTED_MONITOR_PRODUCTS, VIRTUAL_MONITOR_PRODUCT } from './monitormanager.js';
 import { VirtualDisplaysActor } from './virtualdisplaysactor.js';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-
-const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
-const VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
-const SUPPORTED_MONITOR_PRODUCTS = [
-    'VITURE',
-    'nreal air',
-    'Air',
-    'Air 2',
-    'Air 2 Pro',
-    'Air 2 Ultra',
-    'SmartGlasses', // TCL/RayNeo
-    'Rokid Max',
-    'Rokid Air',
-    NESTED_MONITOR_PRODUCT
-];
 
 const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
 const XDG_CLI_PATH = GLib.build_filenamev([BIN_HOME, 'xr_driver_cli']);
@@ -80,6 +65,7 @@ export default class BreezyDesktopExtension extends Extension {
                 use_optimal_monitor_config: this.settings.get_boolean('use-optimal-monitor-config'),
                 headset_as_primary: this.settings.get_boolean('headset-as-primary'),
                 use_highest_refresh_rate: this.settings.get_boolean('use-highest-refresh-rate'),
+                disable_physical_displays: this.settings.get_boolean('disable-physical-displays'),
                 extension_path: this.path
             });
             this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
@@ -88,6 +74,7 @@ export default class BreezyDesktopExtension extends Extension {
             this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('use-optimal-monitor-config',this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('headset-as-primary', this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('disable-physical-displays', this._monitor_manager, 'disable-physical-displays', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
 
             this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 
@@ -596,6 +583,7 @@ export default class BreezyDesktopExtension extends Extension {
             Gio.Settings.unbind(this.settings, 'debug');
             Gio.Settings.unbind(this.settings, 'use-optimal-monitor-config');
             Gio.Settings.unbind(this.settings, 'headset-as-primary');
+            Gio.Settings.unbind(this.settings, 'disable-physical-displays');
             Gio.Settings.unbind(this.settings, 'debug-no-device');
 
             if (this._monitor_manager) {

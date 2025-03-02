@@ -10,6 +10,7 @@ class NoDevice(Gtk.Box):
     __gtype_name__ = "NoDevice"
 
     effect_enable_switch = Gtk.Template.Child()
+    disable_physical_displays_switch = Gtk.Template.Child()
     # widescreen_mode_switch = Gtk.Template.Child()
 
     def __init__(self):
@@ -24,6 +25,7 @@ class NoDevice(Gtk.Box):
 
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
 
         self._handle_enabled_config(self.config_manager, None)
 

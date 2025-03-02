@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-27 18:29-0800\n"
+"POT-Creation-Date: 2025-03-02 10:59-0800\n"
 "PO-Revision-Date: 2024-08-17 10:08-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -28,36 +28,36 @@ msgstr "Переключає окуляри в режим «бок о бок» �
 msgid "This feature is not currently supported for your device."
 msgstr "Ця функція наразі не підтримується на вашому пристрої."
 
-#: src/connecteddevice.py:128
+#: src/connecteddevice.py:129
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:129
+#: src/connecteddevice.py:130
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:136
+#: src/connecteddevice.py:137
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:137
+#: src/connecteddevice.py:138
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:237
+#: src/connecteddevice.py:238
 msgid ""
 "Unable to add virtual displays on this machine. xdg-desktop-portal is "
 "required."
 msgstr ""
 
-#: src/connecteddevice.py:272
+#: src/connecteddevice.py:273
 #, fuzzy
 msgid "Focused display"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:278
+#: src/connecteddevice.py:279
 #, fuzzy
 msgid "All displays"
 msgstr "Викривлений дисплей"
@@ -210,11 +210,20 @@ msgstr "Ефект XR"
 msgid "Enables the Breezy Desktop XR effect."
 msgstr "Включає ефект Breezy Desktop XR."
 
-#: src/gtk/connected-device.ui:55
+#: src/gtk/connected-device.ui:55 src/gtk/no-device.ui:34
+msgid "Disable physical displays"
+msgstr ""
+
+#: src/gtk/connected-device.ui:56 src/gtk/no-device.ui:35
+msgid ""
+"Automatically disable all physical displays when the XR effect is enabled."
+msgstr ""
+
+#: src/gtk/connected-device.ui:66
 msgid "Zoom on focus mode"
 msgstr ""
 
-#: src/gtk/connected-device.ui:56
+#: src/gtk/connected-device.ui:67
 msgid ""
 "Automatically move a display closer when you look at it.\n"
 "Set your preferred focused and unfocused distances in the Adjustments "
@@ -222,146 +231,146 @@ msgid ""
 "                        "
 msgstr ""
 
-#: src/gtk/connected-device.ui:69
+#: src/gtk/connected-device.ui:80
 #, fuzzy
 msgid "Virtual displays"
 msgstr "Викривлений дисплей"
 
-#: src/gtk/connected-device.ui:81
+#: src/gtk/connected-device.ui:92
 #, fuzzy
 msgid "Rearrange displays"
 msgstr "Викривлений дисплей"
 
-#: src/gtk/connected-device.ui:93
+#: src/gtk/connected-device.ui:104
 msgid "1080p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:94
+#: src/gtk/connected-device.ui:105
 msgid "1440p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:118
+#: src/gtk/connected-device.ui:129
 msgid "Adjustments"
 msgstr "Налаштування"
 
-#: src/gtk/connected-device.ui:121
+#: src/gtk/connected-device.ui:132
 #, fuzzy
 msgid "Display distances"
 msgstr "Відстань дисплея"
 
-#: src/gtk/connected-device.ui:122
+#: src/gtk/connected-device.ui:133
 msgid "Set how close you want displays to appear."
 msgstr ""
 
-#: src/gtk/connected-device.ui:177
+#: src/gtk/connected-device.ui:188
 #, fuzzy
 msgid "Display angling"
 msgstr "Розмір дисплея"
 
-#: src/gtk/connected-device.ui:178
+#: src/gtk/connected-device.ui:189
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr ""
 
-#: src/gtk/connected-device.ui:192
+#: src/gtk/connected-device.ui:203
 msgid "Automatic"
 msgstr ""
 
-#: src/gtk/connected-device.ui:193
+#: src/gtk/connected-device.ui:204
 msgid "Side-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:194
+#: src/gtk/connected-device.ui:205
 msgid "Top-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:195
+#: src/gtk/connected-device.ui:206
 msgid "Flat"
 msgstr ""
 
-#: src/gtk/connected-device.ui:205
+#: src/gtk/connected-device.ui:216
 #, fuzzy
 msgid "Display spacing"
 msgstr "Розмір дисплея"
 
-#: src/gtk/connected-device.ui:206
+#: src/gtk/connected-device.ui:217
 msgid "Put empty space between displays, when there are multiple."
 msgstr ""
 
-#: src/gtk/connected-device.ui:236
+#: src/gtk/connected-device.ui:247
 msgid "Viewport horizontal offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:237
+#: src/gtk/connected-device.ui:248
 msgid ""
 "By default, the viewport will center on the primary display. Use this slider "
 "to move the viewport to the left or right."
 msgstr ""
 
-#: src/gtk/connected-device.ui:266
+#: src/gtk/connected-device.ui:277
 msgid "Viewport vertical offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:267
+#: src/gtk/connected-device.ui:278
 msgid ""
 "By default, the viewport will center on the primary display. Use this slider "
 "to move the viewport up or down."
 msgstr ""
 
-#: src/gtk/connected-device.ui:303 src/gtk/connected-device.ui:309
+#: src/gtk/connected-device.ui:314 src/gtk/connected-device.ui:320
 msgid "Keyboard Shortcuts"
 msgstr "Сполучення клавіш"
 
-#: src/gtk/connected-device.ui:312
+#: src/gtk/connected-device.ui:323
 msgid "XR Effect on/off shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:313
+#: src/gtk/connected-device.ui:324
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
 
-#: src/gtk/connected-device.ui:332 src/gtk/connected-device.ui:361
-#: src/gtk/connected-device.ui:390 src/gtk/connected-device.ui:419
+#: src/gtk/connected-device.ui:343 src/gtk/connected-device.ui:372
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
 msgid "Change"
 msgstr "Змінити"
 
-#: src/gtk/connected-device.ui:341
+#: src/gtk/connected-device.ui:352
 msgid "Re-center display shortcut"
 msgstr "Сполучення клавіш для центрування дисплея"
 
-#: src/gtk/connected-device.ui:342
+#: src/gtk/connected-device.ui:353
 msgid "Pin the virtual display to the current position."
 msgstr "Фіксувати віртуальний дисплей у поточній позиції."
 
-#: src/gtk/connected-device.ui:370
+#: src/gtk/connected-device.ui:381
 #, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "Сполучення клавіш для перемикання режиму слідування"
 
-#: src/gtk/connected-device.ui:371
+#: src/gtk/connected-device.ui:382
 #, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "Швидко перемикати режим слідування."
 
-#: src/gtk/connected-device.ui:399
+#: src/gtk/connected-device.ui:410
 msgid "Toggle follow mode shortcut"
 msgstr "Сполучення клавіш для перемикання режиму слідування"
 
-#: src/gtk/connected-device.ui:400
+#: src/gtk/connected-device.ui:411
 msgid "Quickly toggle follow mode."
 msgstr "Швидко перемикати режим слідування."
 
-#: src/gtk/connected-device.ui:435 src/gtk/connected-device.ui:441
+#: src/gtk/connected-device.ui:446 src/gtk/connected-device.ui:452
 msgid "Advanced Settings"
 msgstr "Додаткові налаштування"
 
-#: src/gtk/connected-device.ui:444
+#: src/gtk/connected-device.ui:455
 msgid "Find optimal display config"
 msgstr "Знайти оптимальну конфігурацію дисплея"
 
-#: src/gtk/connected-device.ui:445
+#: src/gtk/connected-device.ui:456
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -369,35 +378,23 @@ msgstr ""
 "Автоматично змінює конфігурацію дисплея окулярів для максимальної роздільної "
 "здатності і найкращого масштабування при підключенні."
 
-#: src/gtk/connected-device.ui:455
+#: src/gtk/connected-device.ui:466
 msgid "Use highest refresh rate"
 msgstr "Використовувати найвищу частоту оновлення"
 
-#: src/gtk/connected-device.ui:456
+#: src/gtk/connected-device.ui:467
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "Частота оновлення може вплинути на продуктивність, вимкніть це, щоб "
 "встановити її вручну."
 
-#: src/gtk/connected-device.ui:466
+#: src/gtk/connected-device.ui:477
 msgid "Always primary display"
 msgstr "Завжди основний дисплей"
 
-#: src/gtk/connected-device.ui:467
+#: src/gtk/connected-device.ui:478
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "Автоматично встановлює окуляри як основний дисплей при підключенні."
-
-#: src/gtk/connected-device.ui:477
-msgid "Fast SBS mode switching"
-msgstr "Швидке перемикання режиму SBS"
-
-#: src/gtk/connected-device.ui:478
-msgid ""
-"Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
-"is on. May cause instability."
-msgstr ""
-"Переключає окуляри в режим SBS відразу після підключення, якщо режим "
-"широкого екрана увімкнено. Може викликати нестабільність."
 
 #: src/gtk/connected-device.ui:488
 msgid "Movement look-ahead"
@@ -597,6 +594,16 @@ msgstr "Скинути"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Про BreezyDesktop"
+
+#~ msgid "Fast SBS mode switching"
+#~ msgstr "Швидке перемикання режиму SBS"
+
+#~ msgid ""
+#~ "Switches glasses to SBS mode immediately when plugged in, if widescreen "
+#~ "mode is on. May cause instability."
+#~ msgstr ""
+#~ "Переключає окуляри в режим SBS відразу після підключення, якщо режим "
+#~ "широкого екрана увімкнено. Може викликати нестабільність."
 
 #, fuzzy
 #~ msgid "Set Unfocused Displays Distance"

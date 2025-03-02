@@ -190,6 +190,15 @@
         Disable anti-aliasing
       </description>
     </key>
+    <key name="disable-physical-displays" type="b">
+      <default>
+        true
+      </default>
+      <summary>Disable physical displays</summary>
+      <description>
+        Disable physical displays when XR effect is enabled
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false
