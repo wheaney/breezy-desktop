@@ -559,7 +559,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
-        this._all_monitors.forEach(((monitor, index) => {
+        this._sorted_monitors.forEach(((monitor, index) => {
             Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
             const containerActor = new Clutter.Actor({
