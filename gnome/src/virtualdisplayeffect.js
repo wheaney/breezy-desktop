@@ -4,6 +4,7 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
+import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
 
 // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
 function lookAheadMS(imuDateMs, lookAheadCfg, override) {
@@ -236,8 +237,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location("u_show_banner"), 1, [this.show_banner ? 1.0 : 0.0]);
     }
 
-    perspective(fovVerticalRadians, aspect, near, far) {
-        const fovHorizontalRadians = fovVerticalRadians * aspect;
+    perspective(fovHorizontalRadians, aspect, near, far) {
         const f = 1.0 / Math.tan(fovHorizontalRadians / 2.0);
         const range = far - near;
     
@@ -383,17 +383,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
     vfunc_paint_target(node, paintContext) {
         if (!this._initialized) {
             const aspect = this.target_monitor.width / this.target_monitor.height;
-            const fovDiagonalRadians = Globals.data_stream.device_data.displayFov * Math.PI / 180.0;
-            const diagToVertRatio = Math.sqrt(aspect * aspect + 1);
-            const fovVerticalRadians = fovDiagonalRadians / diagToVertRatio;
+            const fovRadians = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
             const projection_matrix = this.perspective(
-                fovVerticalRadians,
+                fovRadians.horizontal,
                 aspect,
                 0.0001,
                 1000.0
             );
             this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
-            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovVerticalRadians]);
+            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovRadians.vertical]);
             this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
             this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
