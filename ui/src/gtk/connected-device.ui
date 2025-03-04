@@ -63,7 +63,7 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- feature switch -->Zoom on focus mode</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->Zoom on focus</property>
                         <property name="subtitle" translatable="yes"><!--
                           -->Automatically move a display closer when you look at it.
 <!--                      -->Set your preferred focused and unfocused distances in the Adjustments section.

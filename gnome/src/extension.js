@@ -260,7 +260,8 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._data_stream_bindings = [
                     'show-banner',
-                    'custom-banner-enabled'
+                    'custom-banner-enabled',
+                    'smooth-follow-enabled'
                 ].map(data_stream_key => 
                     Globals.data_stream.bind_property(data_stream_key, this._virtual_displays_actor, data_stream_key, Gio.SettingsBindFlags.DEFAULT)
                 );
@@ -508,6 +509,7 @@ export default class BreezyDesktopExtension extends Extension {
 
     _toggle_follow_mode() {
         Globals.logger.log_debug('BreezyDesktopExtension _toggle_follow_mode');
+        this._virtual_displays_actor.set_property('smooth-follow-toggle-epoch-ms', Date.now());
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 

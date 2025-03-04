@@ -1,10 +1,22 @@
 import Clutter from 'gi://Clutter'
 import Cogl from 'gi://Cogl';
+import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
 import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
+
+
+// these need to mirror the values in XRLinuxDriver
+// https://github.com/wheaney/XRLinuxDriver/blob/main/src/plugins/smooth_follow.c#L31
+export const SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
+const SMOOTH_FOLLOW_SLERP_FACTOR = Math.pow(1-0.99, 1/SMOOTH_FOLLOW_SLERP_TIMELINE_MS);
+
+// this mirror's how the driver's slerp function progresses so our effect will match it
+function smoothFollowSlerpProgress(elapsedMs) {
+    return 1 - Math.pow(SMOOTH_FOLLOW_SLERP_FACTOR, elapsedMs);
+}
 
 // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
 function lookAheadMS(imuDateMs, lookAheadCfg, override) {
@@ -40,6 +52,20 @@ export const VirtualDisplayEffect = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'smooth-follow-enabled': GObject.ParamSpec.boolean(
+            'smooth-follow-enabled',
+            'Smooth follow enabled',
+            'Whether smooth follow is enabled',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'smooth-follow-toggle-epoch-ms': GObject.ParamSpec.uint64(
+            'smooth-follow-toggle-epoch-ms',
+            'Smooth follow toggle epoch time',
+            'ms since epoch when smooth follow was toggled',
+            GObject.ParamFlags.READWRITE,
+            0, Number.MAX_SAFE_INTEGER, 0
         ),
         'width': GObject.ParamSpec.int(
             'width',
@@ -77,12 +103,6 @@ export const VirtualDisplayEffect = GObject.registerClass({
             0.0, 
             2.5, 
             1.0
-        ),
-        'display-position': GObject.ParamSpec.jsobject(
-            'display-position',
-            'Display Position',
-            'Position of the display in COGL (ESU) coordinates',
-            GObject.ParamFlags.READWRITE
         ),
         'display-distance-default': GObject.ParamSpec.double(
             'display-distance-default',
@@ -148,12 +168,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
         this._current_display_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
         this.no_distance_ease = false;
+        this._current_follow_ease_progress = 0.0;
+        this._use_smooth_follow_origin = false;
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
         this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
         this.connect('notify::monitor-placements', this._update_display_position_uniforms.bind(this));
         this.connect('notify::monitor-wrapping-scheme', this._update_display_position_uniforms.bind(this));
         this.connect('notify::show-banner', this._handle_banner_update.bind(this));
+        this.connect('notify::smooth-follow-enabled', this._handle_smooth_follow_enabled_update.bind(this));
     }
 
     _is_focused() {
@@ -212,8 +235,67 @@ export const VirtualDisplayEffect = GObject.registerClass({
         }).bind(this));
 
         this._distance_ease_timeline.start();
+
+        if (this.smooth_follow_enabled) this._handle_smooth_follow_enabled_update();
     }
 
+    _handle_smooth_follow_enabled_update() {
+        // we'll re-trigger this once a monitor becomes focused
+        if (this.focused_monitor_index === -1) return;
+
+        this._use_smooth_follow_origin = false;
+
+        if (this._follow_ease_timeline?.is_playing()) this._follow_ease_timeline.stop();
+
+        const from = this._current_follow_ease_progress;
+        const to = this.smooth_follow_enabled && this._is_focused() ? 1.0 : 0.0;
+        const toggleTime = this.smooth_follow_toggle_epoch_ms === 0 ? Date.now() : this.smooth_follow_toggle_epoch_ms;
+        
+        // would have been a slight delay between request and slerp actually starting
+        const toggleDelayMs = (Date.now() - toggleTime) * 0.75;
+        const slerpStartTime = toggleTime + toggleDelayMs;
+
+        const dataAge = Date.now() - this.imu_snapshots.timestamp_ms;
+        if (to !== from) {
+            this._follow_ease_timeline = Clutter.Timeline.new_for_actor(
+                this.get_actor(), 
+                SMOOTH_FOLLOW_SLERP_TIMELINE_MS - toggleDelayMs
+            );
+            this._follow_ease_timeline.connect('new-frame', ((timeline, elapsed_ms) => {
+                const toggleTimeOffsetMs = Date.now() - slerpStartTime;
+
+                // this relies on the slerp function tuned to reach 100% in about 1 second
+                const progress = smoothFollowSlerpProgress(toggleTimeOffsetMs);
+                this._current_follow_ease_progress = from + (to - from) * progress;
+                this._update_display_position_uniforms();
+            }).bind(this));
+
+            this._follow_ease_timeline.connect('completed', (() => {
+                this._current_follow_ease_progress = to;
+                this._use_smooth_follow_origin = false;
+                this.smooth_follow_toggle_epoch_ms = 0;
+                this._update_display_position_uniforms();
+            }).bind(this));
+
+            this._follow_ease_timeline.start();
+        } else if (!this.smooth_follow_enabled) {
+            // smooth follow has been turned off and this screen wasn't the focus,
+            // continue to use the smooth_follow_origin data for 1 more second
+            this._use_smooth_follow_origin = true;
+            GLib.timeout_add(
+                GLib.PRIORITY_DEFAULT, 
+                SMOOTH_FOLLOW_SLERP_TIMELINE_MS - toggleDelayMs, 
+                (() => {
+                    this._use_smooth_follow_origin = false;
+                    this.smooth_follow_toggle_epoch_ms = 0;
+                    this._current_follow_ease_progress = to;
+                    return GLib.SOURCE_REMOVE;
+                }).bind(this)
+            );
+        }
+    }
+
+    // follow_ease transitions this from a rotated display (0.0) to a centered/focused display (1.0)
     _update_display_position_uniforms() {
         // this is in NWU coordinates
         const monitorPlacement = this.monitor_placements[this.monitor_index];
@@ -225,12 +307,24 @@ export const VirtualDisplayEffect = GObject.registerClass({
         const noRotationVector = monitorPlacement.topLeftNoRotate.map((coord, index) => coord - distanceDelta[index]);
 
         // convert to CoGL's east-down-south coordinates and apply display distance
-        this.set_uniform_float(this.get_uniform_location("u_display_position"), 3, 
-            [-noRotationVector[1], -noRotationVector[2], -noRotationVector[0]]);
+        const inverse_follow_ease = 1.0 - this._current_follow_ease_progress;
+        if (this._current_follow_ease_progress === 0.0) {
+            this.set_uniform_float(this.get_uniform_location("u_display_position"), 3, 
+                [-noRotationVector[1], -noRotationVector[2], -noRotationVector[0]]);
+        } else {
+            const focusDistanceNorth = monitorPlacement.centerOrigin[0] * inverseAppliedDistance;
+            const centerOriginVector = {...monitorPlacement.centerOrigin};
+            centerOriginVector[0] -= focusDistanceNorth;
+
+            // slerp from the rotated display to the centered display
+            const followVector = noRotationVector.map((coord, index) => coord * inverse_follow_ease + centerOriginVector[index] * this._current_follow_ease_progress);
+            this.set_uniform_float(this.get_uniform_location("u_display_position"), 3, 
+                [-followVector[1], -followVector[2], -followVector[0]]);
+        }
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
-        this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [rotation_radians.x]);
-        this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y]);
+        this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [rotation_radians.x * inverse_follow_ease]);
+        this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y * inverse_follow_ease]);
     }
 
     _handle_banner_update() {
@@ -350,7 +444,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
 
                 // compute the capped look ahead with scanline adjustments
-                float look_ahead_scanline_ms = vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
+                float look_ahead_scanline_ms = u_look_ahead_ms == 0.0 ? 0.0 : vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
                 float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
 
                 vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
@@ -402,8 +496,20 @@ export const VirtualDisplayEffect = GObject.registerClass({
             this._initialized = true;
         }
 
-        this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
-        this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
+        let lookAheadSet = false;
+        if (!this._use_smooth_follow_origin && (this._is_focused() || this._current_follow_ease_progress > 0.0 || !this.smooth_follow_enabled)) {
+            if (this._current_follow_ease_progress > 0.0 && this._current_follow_ease_progress < 1.0) {
+                // don't apply look-ahead while the display is slerping
+                this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
+                lookAheadSet = true;
+            }
+            this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
+        } else {
+            this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.smooth_follow_origin);
+        }
+        if (!lookAheadSet) {
+            this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
+        }
 
         if (!this.disable_anti_aliasing) {
             // improves sampling quality for smooth text and edges

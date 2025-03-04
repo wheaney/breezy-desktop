@@ -7,7 +7,7 @@ import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 
-import { VirtualDisplayEffect } from './virtualdisplayeffect.js';
+import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
 import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -31,7 +31,7 @@ function applyQuaternionToVector(vector, quaternion) {
 const FOCUS_THRESHOLD = 0.95 / 2.0;
 
 // if we leave the monitor with some margin, unfocus even if no other monitor is in focus
-const UNFOCUS_THRESHOLD = 1.1 / 2.0;
+const UNFOCUS_THRESHOLD = 1.2 / 2.0;
 
 /**
  * Find the vector in the array that's closest to the quaternion rotation
@@ -40,11 +40,12 @@ const UNFOCUS_THRESHOLD = 1.1 / 2.0;
  * @param {number[][]} monitorVectors - Array of monitor vectors [x, y, z] to search from
  * @param {number} currentFocusedIndex - Index of the currently focused monitor
  * @param {number} focusedMonitorDistance - Distance to the focused monitor, < 1.0 if zoomed in
+ * @param {boolean} smoothFollowEnabled - If true, always keep the current monitor in focus or choose the closest
  * @param {Object} fovDetails - Contains reference widthPixels, heightPixels, horizontal and vertical radians, and pixel distance to the center of the screen
  * @param {Object[]} monitorsDetails - Contains x, y, width, height (coordinates from top-left) for each monitor
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
-function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, fovDetails, monitorsDetails) {
+function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);
 
@@ -85,6 +86,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
             ))
         );
 
+        // TODO - this assumes the display is facing towards us, need to account for looking in the "flat" direction
         const distanceFromCenterPixels = fovDetails.completeScreenDistancePixels * Math.tan(distance);
         const distanceFromCenterSizeRatio = distanceFromCenterPixels / monitor.width;
 
@@ -98,9 +100,9 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
         }
     });
 
-    const keepCurrent = currentFocusedIndex !== -1 && currentFocusedDistance < UNFOCUS_THRESHOLD;
+    const keepCurrent = currentFocusedIndex !== -1 && (smoothFollowEnabled || currentFocusedDistance < UNFOCUS_THRESHOLD);
     if (!keepCurrent) {
-        if (closestDistance < FOCUS_THRESHOLD) return closestIndex;
+        if (smoothFollowEnabled || closestDistance < FOCUS_THRESHOLD) return closestIndex;
 
         // neither the current nor the closest will take focus, unfocus all displays
         return -1;
@@ -200,14 +202,19 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             const monitorWrapDetails = monitorWrap(cachedMonitorRadians, sideEdgeRadius, monitorSpacingPixels, monitorDetails.x, monitorDetails.width);
             const monitorCenterRadius = Math.sqrt(Math.pow(sideEdgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2));
             const upTopPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
-            const upCenterPixels = upTopPixels + monitorDetails.height / 2 - fovDetails.heightPixels / 2;
+
+            // how to place the monitors at the origin (0, 0)
+            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
+            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+
+            const upCenterPixels = upTopPixels + upCenterOriginPixels;
 
             monitorPlacements.push({
                 topLeftNoRotate: [
                     monitorCenterRadius,
 
-                    // west stays aligned with (0, 0), will apply rotationAngleRadians value during rendering
-                    -(monitorDetails.width - fovDetails.widthPixels) / 2,
+                    // west stays aligned with the origin, will apply rotationAngleRadians value during rendering
+                    -westCenterOriginPixels,
 
                     // up is flat when wrapping horizontally, apply it here as a constant, not touched by rendering
                     -upTopPixels
@@ -221,7 +228,12 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     // up is flat when wrapping horizontally
                     -upCenterPixels
                 ],
-                center: [
+                centerOrigin: [
+                    monitorCenterRadius,
+                    -westCenterOriginPixels,
+                    upCenterOriginPixels
+                ],
+                centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
@@ -249,7 +261,12 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             const monitorWrapDetails = monitorWrap(cachedMonitorRadians, topEdgeRadius, monitorSpacingPixels, monitorDetails.y, monitorDetails.height);
             const monitorCenterRadius = Math.sqrt(Math.pow(topEdgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2));
             const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
-            const westCenterPixels = westPixels + monitorDetails.width / 2 - fovDetails.widthPixels / 2;
+
+            // how to place the monitors at the origin (0, 0)
+            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
+            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+
+            const westCenterPixels = westPixels + westCenterOriginPixels;
 
             monitorPlacements.push({
                 topLeftNoRotate: [
@@ -258,8 +275,8 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     // west is flat when wrapping vertically, apply it here as a constant, not touched by rendering
                     westPixels,
 
-                    // up stays aligned with (0, 0), will apply rotationAngleRadians value during rendering
-                    (monitorDetails.height - fovDetails.heightPixels) / 2
+                    // up stays aligned with the origin, will apply rotationAngleRadians value during rendering
+                    upCenterOriginPixels
                 ],
                 centerNoRotate: [
                     monitorCenterRadius,
@@ -270,7 +287,12 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     // west centered about the FOV center
                     0
                 ],
-                center: [
+                centerOrigin: [
+                    monitorCenterRadius,
+                    -westCenterOriginPixels,
+                    upCenterOriginPixels
+                ],
+                centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
@@ -293,8 +315,14 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         monitorDetailsList.forEach(monitorDetails => {
             const upPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
             const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
-            const westCenterPixels = westPixels + monitorDetails.width / 2 - fovDetails.widthPixels / 2;
-            const upCenterPixels = upPixels + monitorDetails.height / 2 - fovDetails.heightPixels / 2;
+
+            // how to place the monitors at the origin (0, 0)
+            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
+            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+
+            const westCenterPixels = westPixels + westCenterOriginPixels;
+            const upCenterPixels = upPixels + upCenterOriginPixels;
+
             monitorPlacements.push({
                 topLeftNoRotate: [
                     fovDetails.completeScreenDistancePixels,
@@ -306,7 +334,12 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     westCenterPixels,
                     -upCenterPixels
                 ],
-                center: [
+                centerOrigin: [
+                    fovDetails.completeScreenDistancePixels,
+                    -westCenterOriginPixels,
+                    upCenterOriginPixels
+                ],
+                centerLook: [
                     fovDetails.completeScreenDistancePixels,
                     -westCenterPixels,
                     -upCenterPixels
@@ -383,6 +416,20 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'smooth-follow-enabled': GObject.ParamSpec.boolean(
+            'smooth-follow-enabled',
+            'Smooth follow enabled',
+            'Whether smooth follow is enabled',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'smooth-follow-toggle-epoch-ms': GObject.ParamSpec.uint64(
+            'smooth-follow-toggle-epoch-ms',
+            'Smooth follow toggle epoch time',
+            'ms since epoch when smooth follow was toggled',
+            GObject.ParamFlags.READWRITE,
+            0, Number.MAX_SAFE_INTEGER, 0
         ),
         'show-banner': GObject.ParamSpec.boolean(
             'show-banner',
@@ -541,6 +588,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('show-banner', this._handle_banner_update);
         notifyToFunction('custom-banner-enabled', this._handle_banner_update);
         notifyToFunction('framerate-cap', this._handle_frame_rate_cap_change);
+        notifyToFunction('smooth-follow-enabled', this._handle_smooth_follow_enabled_change);
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
 
@@ -612,6 +660,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
             [
                 'monitor-placements',
                 'imu-snapshots',
+                'smooth-follow-enabled',
+                'smooth-follow-toggle-epoch-ms',
                 'focused-monitor-index',
                 'lens-vector',
                 'look-ahead-override',
@@ -650,12 +700,19 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
-            } else if (this.imu_snapshots) {
+            } else if (this.imu_snapshots && (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
+                // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
+                // since it reflects where the user is looking in relation to the original monitor positions
+                const currentPoseQuat = this.smooth_follow_enabled ? 
+                    this.imu_snapshots.smooth_follow_origin.splice(0, 4) : 
+                    this.imu_snapshots.imu_data.splice(0, 4);
+
                 const focusedMonitorIndex = findFocusedMonitor(
-                    this.imu_snapshots.imu_data.splice(0, 4),
+                    currentPoseQuat,
                     this._monitorsAsNormalizedVectors, 
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
+                    this.smooth_follow_enabled,
                     this._fov_details(),
                     this._sorted_monitors
                 );
@@ -773,7 +830,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
         // normalize the center vectors
         this._monitorsAsNormalizedVectors = this.monitor_placements.map(monitorVectors => {
-            const vector = monitorVectors.center;
+            const vector = monitorVectors.centerLook;
             const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
             return [vector[0] / length, vector[1] / length, vector[2] / length];
         });
@@ -799,6 +856,17 @@ export const VirtualDisplaysActor = GObject.registerClass({
         // add a margin to the cap time so we don't cut off frames that come in close
         const frametime_margin = 0.75;
         this._cap_frametime_ms = this.framerate_cap === 0 ? 0.0 : Math.floor(1000 * frametime_margin / this.framerate_cap);
+    }
+
+    _handle_smooth_follow_enabled_change() {
+        if (this._smooth_follow_timeout_id !== undefined) GLib.source_remove(this._smooth_follow_timeout_id);
+
+        this._smooth_follow_slerping = true;
+        this._smooth_follow_timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SMOOTH_FOLLOW_SLERP_TIMELINE_MS, (() => {
+            this._smooth_follow_slerping = false;
+            this._smooth_follow_timeout_id = undefined;
+            return GLib.SOURCE_REMOVE;
+        }).bind(this));
     }
 
     _change_distance() {

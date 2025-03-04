@@ -21,7 +21,7 @@ const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 const KEEPALIVE_REFRESH_INTERVAL_SEC = 1;
 
 // the driver should be using the same data layout version
-const DATA_LAYOUT_VERSION = 3;
+const DATA_LAYOUT_VERSION = 4;
 
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
@@ -32,7 +32,9 @@ const DISPLAY_FOV = [dataViewEnd(DISPLAY_RES), FLOAT_SIZE, 1];
 const LENS_DISTANCE_RATIO = [dataViewEnd(DISPLAY_FOV), FLOAT_SIZE, 1];
 const SBS_ENABLED = [dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1];
 const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
-const EPOCH_MS = [dataViewEnd(CUSTOM_BANNER_ENABLED), UINT_SIZE, 2];
+const SMOOTH_FOLLOW_ENABLED = [dataViewEnd(CUSTOM_BANNER_ENABLED), BOOL_SIZE, 1];
+const SMOOTH_FOLLOW_ORIGIN_DATA = [dataViewEnd(SMOOTH_FOLLOW_ENABLED), FLOAT_SIZE, 16];
+const EPOCH_MS = [dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), UINT_SIZE, 2];
 const IMU_QUAT_DATA = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
 const IMU_PARITY_BYTE = [dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1];
 const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
@@ -94,6 +96,13 @@ export const DeviceDataStream = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'smooth-follow-enabled': GObject.ParamSpec.boolean(
+            'smooth-follow-enabled',
+            'Smooth follow enabled',
+            'Whether smooth follow is enabled',
+            GObject.ParamFlags.READWRITE,
+            false
         ),
         'show-banner': GObject.ParamSpec.boolean(
             'show-banner',
@@ -182,6 +191,8 @@ export const DeviceDataStream = GObject.registerClass({
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
                     let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                    let smoothFollowEnabled = dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
+                    let smoothFollowOrigin = dataViewFloatArray(dataView, SMOOTH_FOLLOW_ORIGIN_DATA);
                     const imuResetState = enabled && validData && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
@@ -215,15 +226,24 @@ export const DeviceDataStream = GObject.registerClass({
                             }
                         }
 
+                        if (smoothFollowEnabled !== this.smooth_follow_enabled) {
+                            Globals.logger.log_debug(`Smooth follow enabled: ${smoothFollowEnabled}`);
+                            this.smooth_follow_enabled = smoothFollowEnabled;
+                        }
+                        this.imu_snapshots = {
+                            ...(this.imu_snapshots ?? {}),
+                            smooth_follow_origin: smoothFollowOrigin
+                        }
+
                         let attempts = 0;
-                        while (!success && attempts < 3) {
+                        while (!success && attempts < 2) {
                             if (dataView.byteLength === DATA_VIEW_LENGTH) {
                                 if (checkParityByte(dataView)) {
-                                    this.device_data.imuData = imuData;
-                                    this.device_data.imuDateMs = imuDateMs;
+                                    
                                     this.imu_snapshots = {
                                         imu_data: imuData,
-                                        timestamp_ms: imuDateMs
+                                        timestamp_ms: imuDateMs,
+                                        smooth_follow_origin: smoothFollowOrigin
                                     };
                                     success = true;
                                 }
@@ -231,7 +251,7 @@ export const DeviceDataStream = GObject.registerClass({
                                 Globals.logger.log(`[ERROR] Invalid dataView.byteLength: ${dataView.byteLength} !== ${DATA_VIEW_LENGTH}`)
                             }
             
-                            if (!success && ++attempts < 3) {
+                            if (!success && ++attempts < 2) {
                                 data = this._ipc_file.load_contents(null);
                                 if (data[0]) {
                                     buffer = new Uint8Array(data[1]).buffer;
@@ -277,19 +297,17 @@ export const DeviceDataStream = GObject.registerClass({
                     ...imuDataFirst,
                     2.0, 1.0, 0.0, 0.0
                 ]
-                const imuDateMs = Date.now();
-                this.device_data.imuData = imuData;
-                this.device_data.imuDateMs = imuDateMs;
                 this.imu_snapshots = {
                     imu_data: imuData,
-                    timestamp_ms: imuDateMs
+                    timestamp_ms: Date.now(),
+                    smooth_follow_origin: [0.0, 0.0, 0.0, 1.0]
                 };
             }
             this.breezy_desktop_running = true;
         } else if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) {
             // update the breezy_desktop_running property if the state changes to trigger "notify::" events
             this.breezy_desktop_running = this.breezy_desktop_actually_running;
-            if (!this.breezy_desktop_running) {
+            if (!this.breezy_desktop_running && keepalive_only) {
                 this.device_data = null;
                 this.imu_snapshots = null;
             }
