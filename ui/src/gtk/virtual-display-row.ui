@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="VirtualDisplayRow" parent="AdwActionRow">
+    <property name="subtitle"></property>
+    <child type="suffix">
+        <object class="GtkButton" id="remove_virtual_display_button">
+            <property name="name">remove-virtual-display</property>
+            <property name="icon-name">user-trash-symbolic</property>
+            <property name="valign">center</property>
+            <style>
+              <class name="flat"/>
+            </style>
+        </object>
+    </child>
+  </template>
+</interface>

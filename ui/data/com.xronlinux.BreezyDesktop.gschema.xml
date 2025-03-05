@@ -91,6 +91,42 @@
         The size of the display
       </description>
     </key>
+    <key name="viewport-offset-x" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Viewport offset x</summary>
+      <description>
+        How far to offset the viewport from the target monitor in the x direction
+      </description>
+    </key>
+    <key name="viewport-offset-y" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Viewport offset y</summary>
+      <description>
+        How far to offset the viewport from the target monitor in the y direction
+      </description>
+    </key>
+    <key name="monitor-wrapping-scheme" type="s">
+      <default>
+        "automatic"
+      </default>
+      <summary>Monitor wrapping scheme</summary>
+      <description>
+        How the monitors are wrapped around the viewport
+      </description>
+    </key>
+    <key name="monitor-spacing" type="i">
+      <default>
+        0
+      </default>
+      <summary>Monitor spacing</summary>
+      <description>
+        How far apart the monitors are visually (not logically)
+      </description>
+    </key>
     <key name="curved-display" type="b">
       <default>
         false
@@ -120,7 +156,7 @@
     </key>
     <key name="headset-as-primary" type="b">
       <default>
-        true
+        false
       </default>
       <summary>Headset as primary</summary>
       <description>
@@ -154,6 +190,15 @@
         Disable anti-aliasing
       </description>
     </key>
+    <key name="disable-physical-displays" type="b">
+      <default>
+        true
+      </default>
+      <summary>Disable physical displays</summary>
+      <description>
+        Disable physical displays when XR effect is enabled
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false
@@ -172,6 +217,15 @@
         Log debug messages
       </description>
     </key>
+    <key name="debug-no-device" type="b">
+      <default>
+        false
+      </default>
+      <summary>Debug no device</summary>
+      <description>
+        Debug no device
+      </description>
+    </key>
     <key name="custom-monitor-product" type="s">
       <default>
         ""
@@ -179,6 +233,15 @@
       <summary>Custom monitor product</summary>
       <description>
         Custom monitor product
+      </description>
+    </key>
+    <key name="framerate-cap" type="d">
+      <default>
+        0.0
+      </default>
+      <summary>Framerate cap</summary>
+      <description>
+        Framerate cap
       </description>
     </key>
 	</schema>

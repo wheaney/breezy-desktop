@@ -30,12 +30,11 @@
           </object>
         </child>
         <child>
-          <object class="AdwActionRow" id="widescreen_mode_row">
-            <property name="title" translatable="yes"><!-- feature switch -->Start in widescreen mode</property>
-            <property name="subtitle" translatable="yes">Widescreen mode is not supported for all glasses.</property>
-            <property name="valign">2</property>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
+            <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
             <child>
-              <object class="GtkSwitch" id="widescreen_mode_switch">
+              <object class="GtkSwitch" id="disable_physical_displays_switch">
                 <property name="valign">3</property>
               </object>
             </child>
