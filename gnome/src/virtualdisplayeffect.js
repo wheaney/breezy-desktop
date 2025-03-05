@@ -255,7 +255,6 @@ export const VirtualDisplayEffect = GObject.registerClass({
         const toggleDelayMs = (Date.now() - toggleTime) * 0.75;
         const slerpStartTime = toggleTime + toggleDelayMs;
 
-        const dataAge = Date.now() - this.imu_snapshots.timestamp_ms;
         if (to !== from) {
             this._follow_ease_timeline = Clutter.Timeline.new_for_actor(
                 this.get_actor(), 
@@ -299,7 +298,6 @@ export const VirtualDisplayEffect = GObject.registerClass({
     _update_display_position_uniforms() {
         // this is in NWU coordinates
         const monitorPlacement = this.monitor_placements[this.monitor_index];
-        // Globals.logger.log_debug(`\t\t\tMonitor ${this.monitor_index} vectors: ${JSON.stringify(monitorPlacement)}`);
 
         // use the center vector with the distance applied to determine how much to move each coordinate, so they all move uniformly
         const inverseAppliedDistance = 1.0 - this._current_display_distance / this.display_distance_default;
@@ -497,7 +495,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         }
 
         let lookAheadSet = false;
-        if (!this._use_smooth_follow_origin && (this._is_focused() || this._current_follow_ease_progress > 0.0 || !this.smooth_follow_enabled)) {
+        if (!this._use_smooth_follow_origin && (!this.smooth_follow_enabled || this._is_focused() || this._current_follow_ease_progress > 0.0)) {
             if (this._current_follow_ease_progress > 0.0 && this._current_follow_ease_progress < 1.0) {
                 // don't apply look-ahead while the display is slerping
                 this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);

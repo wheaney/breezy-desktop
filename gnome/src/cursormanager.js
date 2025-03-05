@@ -61,13 +61,17 @@ export class CursorManager {
         this._cursorRoot.add_child(this._mouseSprite);
     }
 
+    _backend() {
+        return global.stage.get_context?.().get_backend() ?? Clutter.get_default_backend();
+    }
+
     _hideSystemCursor() {
         this._systemCursorShown = false;
 
         this._cursorRoot.show();
 
         if (!this._cursorUnfocusInhibited) {
-            global.stage.get_context().get_backend().get_default_seat().inhibit_unfocus();
+            this._backend().get_default_seat().inhibit_unfocus();
             this._cursorUnfocusInhibited = true;
         }
 
@@ -148,7 +152,7 @@ export class CursorManager {
         if (this._cursorRoot) this._cursorRoot.hide();
 
         if (this._cursorUnfocusInhibited) {
-            global.stage.get_context().get_backend().get_default_seat().uninhibit_unfocus();
+            this._backend().get_default_seat().uninhibit_unfocus();
             this._cursorUnfocusInhibited = false;
         }
 
@@ -211,7 +215,7 @@ export class CursorManager {
         this.xRel = xRel;
         this.xRel = xRel;
 
-        const seat = global.stage.get_context().get_backend().get_default_seat();
+        const seat = this._backend().get_default_seat();
         if (this._cursorUnfocusInhibited && !seat.is_unfocus_inhibited()) {
             Globals.logger.log_debug('reinhibiting');
             seat.inhibit_unfocus();

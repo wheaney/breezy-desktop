@@ -221,7 +221,6 @@ export default class BreezyDesktopExtension extends Extension {
                 this._virtual_displays_overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._virtual_displays_overlay.set_size(targetMonitor.width, targetMonitor.height);
 
-                // const textureSourceActor = Main.layoutManager.uiGroup;
                 Globals.data_stream.refresh_data();
                 this._virtual_displays_actor = new VirtualDisplaysActor({
                     width: targetMonitor.width,
