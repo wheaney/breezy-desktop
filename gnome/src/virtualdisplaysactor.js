@@ -452,6 +452,12 @@ export const VirtualDisplaysActor = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             -1, 100, -1
         ),
+        'focused-monitor-details': GObject.ParamSpec.jsobject(
+            'focused-monitor-details',
+            'Focused Monitor Details',
+            'Details about the monitor that is currently focused',
+            GObject.ParamFlags.READWRITE
+        ),
         'display-size': GObject.ParamSpec.double(
             'display-size',
             'Display size',
@@ -700,6 +706,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
+                this.focused_monitor_details = null;
             } else if (this.imu_snapshots && (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
                 // since it reflects where the user is looking in relation to the original monitor positions
@@ -720,6 +727,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 if (this.focused_monitor_index !== focusedMonitorIndex) {
                     Globals.logger.log_debug(`Switching to monitor ${focusedMonitorIndex}`);
                     this.focused_monitor_index = focusedMonitorIndex;
+                    this.focused_monitor_details = this._sorted_monitors[focusedMonitorIndex];
                 }
             }
 

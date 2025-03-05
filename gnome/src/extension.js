@@ -35,6 +35,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._data_stream_bindings = [];
         this._show_banner_connection = null;
         this._distance_connection = null;
+        this._focused_monitor_distance_connection = null;
         this._follow_threshold_connection = null;
         this._breezy_desktop_running_connection = null;
 
@@ -288,6 +289,8 @@ export default class BreezyDesktopExtension extends Extension {
                 );
 
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
+                this._focused_monitor_distance_connection = 
+                    this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
 
                 Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
@@ -378,10 +381,19 @@ export default class BreezyDesktopExtension extends Extension {
         return state;
     }
 
-    _update_display_distance(settings, event) {
-        const value = settings.get_double('display-distance');
+    _update_display_distance(object, event) {
+        const value = this.settings.get_double('display-distance');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${value}`);
-        if (value !== undefined) this._write_control('breezy_desktop_display_distance', value);
+        if (value !== undefined) {
+            let focusedMonitorSizeAdjustment = 1.0;
+            if (this._virtual_displays_actor?.focused_monitor_details && this._target_monitor) {
+                const fovMonitor = this._target_monitor.monitor;
+                const focusedMonitor = this._virtual_displays_actor.focused_monitor_details;
+                focusedMonitorSizeAdjustment = 
+                    Math.max(focusedMonitor.width / fovMonitor.width, focusedMonitor.height / fovMonitor.height);
+            }
+            this._write_control('breezy_desktop_display_distance', value / focusedMonitorSizeAdjustment);
+        }
     }
 
     _update_follow_threshold(settings, event) {
@@ -540,6 +552,10 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
                 this._distance_connection = null;
+            }
+            if (this._focused_monitor_distance_connection) {
+                this._virtual_displays_actor.disconnect(this._focused_monitor_distance_connection);
+                this._focused_monitor_distance_connection = null;
             }
             if (this._follow_threshold_connection) {
                 this.settings.disconnect(this._follow_threshold_connection);
