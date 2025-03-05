@@ -27,14 +27,9 @@ class ConnectedDevice(Gtk.Box):
     effect_enable_switch = Gtk.Template.Child()
     disable_physical_displays_switch = Gtk.Template.Child()
     display_zoom_on_focus_switch = Gtk.Template.Child()
-    # display_size_scale = Gtk.Template.Child()
-    # display_size_adjustment = Gtk.Template.Child()
-    # follow_threshold_scale = Gtk.Template.Child()
-    # follow_threshold_adjustment = Gtk.Template.Child()
-    # follow_mode_switch = Gtk.Template.Child()
-    # widescreen_mode_switch = Gtk.Template.Child()
-    # widescreen_mode_row = Gtk.Template.Child()
-    # curved_display_switch = Gtk.Template.Child()
+    follow_threshold_scale = Gtk.Template.Child()
+    follow_threshold_adjustment = Gtk.Template.Child()
+    follow_mode_switch = Gtk.Template.Child()
     top_features_group = Gtk.Template.Child()
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
@@ -75,8 +70,8 @@ class ConnectedDevice(Gtk.Box):
         self.all_enabled_state_inputs = [
             self.display_zoom_on_focus_switch,
             # self.display_size_scale,
-            # self.follow_mode_switch,
-            # self.follow_threshold_scale,
+            self.follow_mode_switch,
+            self.follow_threshold_scale,
             # self.curved_display_switch,
             self.add_virtual_display_menu,
             self.add_virtual_display_button,
@@ -98,7 +93,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::display-distance', self._handle_display_distance)
         # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
-        # self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -146,12 +141,12 @@ class ConnectedDevice(Gtk.Box):
         self.launch_display_settings_button.connect('clicked', self._launch_display_settings)
 
         self.state_manager = StateManager.get_instance()
-        # self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
+        self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
         self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
         self.state_manager.connect('notify::device-supports-sbs', self._handle_device_supports_sbs)
 
-        # self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
-        # self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
+        self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
+        self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
 
         self.config_manager = ConfigManager.get_instance()
@@ -171,8 +166,6 @@ class ConnectedDevice(Gtk.Box):
 
         self.virtual_display_manager.connect('notify::displays', self._on_virtual_displays_update)
         self._on_virtual_displays_update(self.virtual_display_manager, None)
-
-        # self.connect("destroy", self._on_widget_destroy)
 
         self.virtual_displays_by_pid = {}
 
@@ -239,11 +232,10 @@ class ConnectedDevice(Gtk.Box):
             self.add_virtual_display_button.set_sensitive(False)
             self.add_virtual_display_menu.set_sensitive(False)
         
-        # if requesting_enabled: 
-        #     self._refresh_follow_mode(self.follow_mode_switch, None)
+        if requesting_enabled: 
+            self._refresh_follow_mode(self.follow_mode_switch, None)
 
     def _refresh_follow_mode(self, switch, param):
-        self.follow_threshold_scale.set_sensitive(switch.get_active())
         if (self.state_manager.get_property('follow-mode') == switch.get_active()):
             return
         
@@ -344,12 +336,6 @@ class ConnectedDevice(Gtk.Box):
 
     def _launch_display_settings(self, *args):
         self._settings_displays_app_info.launch()
-    
-    # def _on_widget_destroy(self, widget):
-        # self.state_manager.unbind_property('follow-mode', self.follow_mode_switch, 'active')
-        # self.settings.unbind('display-size', self.display_size_adjustment, 'value')
-        # self.settings.unbind('follow-threshold', self.follow_threshold_adjustment, 'value')
-        # self.settings.unbind('widescreen-mode', self.widescreen_mode_switch, 'active')
 
 def reload_display_distance_toggle_button(widget):
     distance = SettingsManager.get_instance().settings.get_double(widget.get_name())

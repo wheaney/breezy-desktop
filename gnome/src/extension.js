@@ -290,7 +290,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
 
-                Meta.disable_unredirect_for_display(global.display);
+                Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
@@ -509,7 +509,7 @@ export default class BreezyDesktopExtension extends Extension {
 
     _toggle_follow_mode() {
         Globals.logger.log_debug('BreezyDesktopExtension _toggle_follow_mode');
-        this._virtual_displays_actor.set_property('smooth-follow-toggle-epoch-ms', Date.now());
+        if (!!this._virtual_displays_actor) this._virtual_displays_actor.set_property('smooth-follow-toggle-epoch-ms', Date.now());
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
@@ -519,10 +519,12 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
 
+            if (Globals.data_stream.smooth_follow_enabled) this._toggle_follow_mode();
+
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
-            Meta.enable_unredirect_for_display(global.display);
+            Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
 
             for (let settings_key of this._effect_settings_bindings) {
                 Gio.Settings.unbind(this.settings, settings_key);

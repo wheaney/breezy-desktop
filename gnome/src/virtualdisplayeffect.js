@@ -11,7 +11,7 @@ import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
 // these need to mirror the values in XRLinuxDriver
 // https://github.com/wheaney/XRLinuxDriver/blob/main/src/plugins/smooth_follow.c#L31
 export const SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
-const SMOOTH_FOLLOW_SLERP_FACTOR = Math.pow(1-0.99, 1/SMOOTH_FOLLOW_SLERP_TIMELINE_MS);
+const SMOOTH_FOLLOW_SLERP_FACTOR = Math.pow(1-0.999, 1/SMOOTH_FOLLOW_SLERP_TIMELINE_MS);
 
 // this mirror's how the driver's slerp function progresses so our effect will match it
 function smoothFollowSlerpProgress(elapsedMs) {

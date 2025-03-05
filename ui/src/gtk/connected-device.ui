@@ -52,17 +52,6 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
-                        <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
-                        <child>
-                          <object class="GtkSwitch" id="disable_physical_displays_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->Zoom on focus</property>
                         <property name="subtitle" translatable="yes"><!--
                           -->Automatically move a display closer when you look at it.
@@ -70,6 +59,28 @@
                         </property>
                         <child>
                           <object class="GtkSwitch" id="display_zoom_on_focus_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- feature switch -->Follow mode</property>
+                        <property name="subtitle" translatable="yes">Keep the focused display near the center of your view.</property>
+                        <child>
+                          <object class="GtkSwitch" id="follow_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
+                        <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
+                        <child>
+                          <object class="GtkSwitch" id="disable_physical_displays_switch">
                             <property name="valign">3</property>
                           </object>
                         </child>
@@ -179,6 +190,30 @@
                                 </child>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Follow threshold</property>
+                        <property name="subtitle" translatable="yes">How far away you can look before the display follows.</property>
+                        <child>
+                          <object class="GtkScale" id="follow_threshold_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="follow_threshold_adjustment">
+                                <property name="lower">1</property>
+                                <property name="upper">45</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">15</property>
+                              </object>
+                            </property>
                           </object>
                         </child>
                       </object>

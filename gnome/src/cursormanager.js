@@ -52,7 +52,7 @@ export class CursorManager {
     // and will trigger _startCloningMouse when the cursor should be shown
     _enableCloningMouse() {
         Globals.logger.log_debug('CursorManager _enableCloningMouse');
-        this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
+        this._cursorTracker = global.backend.get_cursor_tracker?.() ?? Meta.CursorTracker.get_for_display(global.display);
 
         this._mouseSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
         this._mouseSprite.content = new MouseSpriteContent();
@@ -67,7 +67,7 @@ export class CursorManager {
         this._cursorRoot.show();
 
         if (!this._cursorUnfocusInhibited) {
-            Clutter.get_default_backend().get_default_seat().inhibit_unfocus();
+            global.stage.get_context().get_backend().get_default_seat().inhibit_unfocus();
             this._cursorUnfocusInhibited = true;
         }
 
@@ -113,7 +113,7 @@ export class CursorManager {
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
-        Meta.disable_unredirect_for_display(global.display);
+        Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
 
         // cap the refresh rate for performance reasons
         const interval = 1000.0 / Math.min(this._refreshRate, 60);
@@ -137,7 +137,7 @@ export class CursorManager {
 
         if (this._cursorTracker) this._cursorTracker.disconnectObject(this);
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
-        Meta.enable_unredirect_for_display(global.display);
+        Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
         
         if (!this._systemCursorShown) this._showSystemCursor();
     }
@@ -148,7 +148,7 @@ export class CursorManager {
         if (this._cursorRoot) this._cursorRoot.hide();
 
         if (this._cursorUnfocusInhibited) {
-            Clutter.get_default_backend().get_default_seat().uninhibit_unfocus();
+            global.stage.get_context().get_backend().get_default_seat().uninhibit_unfocus();
             this._cursorUnfocusInhibited = false;
         }
 
@@ -211,7 +211,7 @@ export class CursorManager {
         this.xRel = xRel;
         this.xRel = xRel;
 
-        const seat = Clutter.get_default_backend().get_default_seat();
+        const seat = global.stage.get_context().get_backend().get_default_seat();
         if (this._cursorUnfocusInhibited && !seat.is_unfocus_inhibited()) {
             Globals.logger.log_debug('reinhibiting');
             seat.inhibit_unfocus();
