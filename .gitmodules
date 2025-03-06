@@ -11,4 +11,3 @@
 [submodule "ui/modules/PyXRLinuxDriverIPC"]
 	path = ui/modules/PyXRLinuxDriverIPC
 	url = https://github.com/wheaney/PyXRLinuxDriverIPC.git
-	branch = v1.1
