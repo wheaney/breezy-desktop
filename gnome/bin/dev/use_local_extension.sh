@@ -7,6 +7,7 @@ if [ -z "$XDG_DATA_HOME" ]; then
   XDG_DATA_HOME="$USER_HOME/.local/share"
 fi
 DATA_DIR="$XDG_DATA_HOME/breezy_gnome"
+mkdir -p $DATA_DIR
 
 # if $XDG_DATA_HOME/gnome-shell/extensions/breezydesktop@xronlinux.com exists
 extension_path="$XDG_DATA_HOME/gnome-shell/extensions/breezydesktop@xronlinux.com"

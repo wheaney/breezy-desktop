@@ -22,6 +22,7 @@ from .extensionsmanager import ExtensionsManager
 from .license import BREEZY_GNOME_FEATURES
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
+from .settingsmanager import SettingsManager
 from .connecteddevice import ConnectedDevice
 from .failedverification import FailedVerification
 from .nodevice import NoDevice
@@ -42,14 +43,6 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
     def __init__(self, skip_verification, **kwargs):
         super().__init__(**kwargs)
-        
-        self._skip_verification = skip_verification
-
-        self.state_manager = StateManager.get_instance()
-        self.state_manager.connect('device-update', self._handle_state_update)
-        self.state_manager.connect('notify::license-action-needed', self._handle_state_update)
-        self.state_manager.connect('notify::license-present', self._handle_state_update)
-        self.state_manager.connect('notify::enabled-features-list', self._handle_state_update)
 
         self.connected_device = ConnectedDevice()
         self.failed_verification = FailedVerification()
@@ -57,6 +50,16 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.no_driver = NoDriver()
         self.no_extension = NoExtension()
         self.no_license = NoLicense()
+        
+        self._skip_verification = skip_verification
+
+        self.settings = SettingsManager.get_instance().settings
+        self.state_manager = StateManager.get_instance()
+        self.state_manager.connect('device-update', self._handle_state_update)
+        self.state_manager.connect('notify::license-action-needed', self._handle_state_update)
+        self.state_manager.connect('notify::license-present', self._handle_state_update)
+        self.state_manager.connect('notify::enabled-features-list', self._handle_state_update)
+        self.settings.connect('changed::debug-no-device', self._handle_settings_update)
 
         self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
         self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)
@@ -66,6 +69,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self._skip_verification = skip_verification
 
         self.connect("destroy", self._on_window_destroy)
+
+    def _handle_settings_update(self, settings_manager, key):
+        self._handle_state_update(self.state_manager, None)
 
     def _handle_state_update(self, state_manager, val):
         GLib.idle_add(self._handle_state_update_gui, state_manager)
@@ -79,7 +85,10 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         for child in self.main_content:
             self.main_content.remove(child)
 
-        if not self._skip_verification and not verify_installation():
+        if self.settings.get_boolean('debug-no-device'):
+            self.main_content.append(self.connected_device)
+            self.connected_device.set_device_name('Fake device')
+        elif not self._skip_verification and not verify_installation():
             self.main_content.append(self.failed_verification)
         elif not ExtensionsManager.get_instance().is_installed():
             self.main_content.append(self.no_extension)

@@ -43,6 +43,7 @@ cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_BREEZY_DIR
 cp -r po/mo/* $PACKAGE_LOCALE_DIR
 cp data/com.xronlinux.BreezyDesktop.gschema.xml $PACKAGE_SCHEMAS_DIR
 cp $UI_BUILD_PATH/src/breezydesktop $PACKAGE_BIN_DIR
+cp $UI_BUILD_PATH/src/virtualdisplay $PACKAGE_BIN_DIR
 cp $UI_BUILD_PATH/data/com.xronlinux.BreezyDesktop.desktop $PACKAGE_APPS_DIR
 
 mkdir -p $PACKAGE_ICONS_DIR/64x64/apps

@@ -96,9 +96,10 @@ var Logger = GObject.registerClass({
         }
 
         const now = GLib.DateTime.new_now_local();
+        const timestamp = now.format('%Y-%m-%d %H:%M:%S.') + now.format('%f').substring(0, 3);
         const logFileName = `${now.format('%Y-%m-%d')}.log`;
         const file = Gio.File.new_for_path(`${this._log_file_dir}/${logFileName}`);
-
+    
         if (!file.query_exists(null)) {
             const parentDir = file.get_parent();
             if (!parentDir.query_exists(null)) {
@@ -106,13 +107,13 @@ var Logger = GObject.registerClass({
             }
         }
         const stream = file.append_to(Gio.FileCreateFlags.NONE, null);
-        stream.write(`${this.title}: ${text}\n`, null);
+        stream.write(`${timestamp} ${text}\n`, null);
         stream.close(null);
     }
 
     log_debug(text) {
         if (this.debug) {
-            this.log(`\tDEBUG - ${text}`);
+            this.log(`[DEBUG] ${text}`);
         }
     }
 });

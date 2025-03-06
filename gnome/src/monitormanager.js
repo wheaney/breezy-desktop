@@ -26,6 +26,21 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 const Globals = Me.imports.globals;
 
+var NESTED_MONITOR_PRODUCT = 'MetaMonitor';
+var VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
+var SUPPORTED_MONITOR_PRODUCTS = [
+    'VITURE',
+    'nreal air',
+    'Air',
+    'Air 2',
+    'Air 2 Pro',
+    'Air 2 Ultra',
+    'SmartGlasses', // TCL/RayNeo
+    'Rokid Max',
+    'Rokid Air',
+    NESTED_MONITOR_PRODUCT
+];
+
 let cachedDisplayConfigProxy = null;
 
 function getDisplayConfigProxy(extPath) {
@@ -38,7 +53,7 @@ function getDisplayConfigProxy(extPath) {
                 xml = new TextDecoder().decode(bytes);
             }
         } catch (e) {
-            Globals.logger.log('ERROR: failed to load DisplayConfig interface XML');
+            Globals.logger.log('[ERROR] failed to load DisplayConfig interface XML');
             throw e;
         }
         cachedDisplayConfigProxy = Gio.DBusProxy.makeProxyWrapper(xml);
@@ -57,40 +72,35 @@ function newDisplayConfig(extPath, callback) {
 }
 
 function getMonitorConfig(displayConfigProxy, callback) {
-    displayConfigProxy.GetResourcesRemote((result, error) => {
+    displayConfigProxy.GetCurrentStateRemote((result, error) => {
         if (error) {
-            callback(null, `GetResourcesRemote failed: ${error}`);
+            callback(null, `GetCurrentState failed: ${error}`);
         } else {
-            const monitors = [];
-            for (let i = 0; i < result[2].length; i++) {
-                const output = result[2][i];
-                if (output.length <= 7) {
-                    callback(null, 'Cannot get DisplayConfig: No properties on output #' + i);
-                    return;
-                }
-                const props = output[7];
-                const displayName = props['display-name'].get_string()[0];
-                const connectorName = output[4];
-                if (!displayName || displayName == '') {
-                    const displayName = 'Monitor on output ' + connectorName;
-                }
-                const vendor = props['vendor'].get_string()[0];
-                const product = props['product'].get_string()[0];
-                const serial = props['serial'].get_string()[0];
+            Globals.logger.log_debug(`monitormanager.js getMonitorConfig GetCurrentState result: ${JSON.stringify(result)}`);
+            
+            const allMonitors = [];
+            const [serial, monitors, logicalMonitors, properties] = result;
+            for (let monitor of monitors) {
+                const [details, modes, monProperties] = monitor;
+                const [connector, vendor, product, monitorSerial] = details;
+                const displayName = monProperties['display-name'].get_string()[0];
 
-                // grab refresh rate from the modes array
-                const refreshRate = result[3][i][4];
-
-                monitors.push([displayName, connectorName, vendor, product, serial, refreshRate]);
+                for (let mode of modes) {
+                    const [modeId, width, height, refreshRate, preferredScale, supportedScales, modeProperites] = mode;
+                    const isCurrent = !!modeProperites['is-current'];
+                    if (isCurrent) {
+                        allMonitors.push([displayName, connector, vendor, product, serial, refreshRate]);
+                    }
+                }
             }
-            callback(monitors, null);
+            callback(allMonitors, null);
         }
     });
 }
 
 // triggers callback with true result if an an async monitor config change was triggered, false if no config change needed
 function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPrimary, useHighestRefreshRate, 
-                                 callback, allowConfigUpdateFn) {
+                                 disablePhysicalDisplays, callback, allowConfigUpdateFn) {
     Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck for ${connectorName}`);
 
     displayConfigProxy.GetCurrentStateRemote((result, error) => {
@@ -165,15 +175,22 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
                     logicalMonitors.sort((a, b) => a[0] - b[0]);
 
                     // map from original logical monitors schema to a(iiduba(ssa{sv})) for ApplyMonitorsConfig call
-                    const updatedLogicalMonitors = logicalMonitors.map((logicalMonitor) => {
+                    const removeMonitorIndexes = [];
+                    const updatedLogicalMonitors = logicalMonitors.map((logicalMonitor, index) => {
                         const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
                         const hasOurMonitor = !!monitors.some((monitor) => monitor[0] === connectorName);
+                        const hasVirtualMonitor = monitors.some((monitor) => monitor[2] === VIRTUAL_MONITOR_PRODUCT);
                         const newScale = (!skipScaleUpdate && hasOurMonitor) ? bestFitMode.bestScale : scale;
                         anyMonitorsChanged |= newScale !== scale;
 
                         // there can only be one primary monitor, so we need to set all other monitors to not primary and glasses to primary, 
                         // if headsetAsPrimary is true
                         anyMonitorsChanged |= headsetAsPrimary && ((hasOurMonitor && !primary) || (!hasOurMonitor && primary));
+
+                        if (disablePhysicalDisplays && !hasVirtualMonitor && !hasOurMonitor) {
+                            removeMonitorIndexes.push(index);
+                            anyMonitorsChanged = true;
+                        }
 
                         // we need to figure out if the deltaX applies to this logical monitor,
                         // i.e. if it is within the same row as our monitor and to the right of it
@@ -221,6 +238,112 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
 
                     // if our monitor is already properly configured, we can skip the ApplyMonitorsConfig call
                     if (anyMonitorsChanged) {
+                        if (removeMonitorIndexes.length > 0) {
+                            let removedPrimary = false;
+
+                            // remove monitors that are not virtual or our monitor
+                            removeMonitorIndexes.reverse().forEach((index) => {
+                                const [x, y, scale, transform, primary, monitors, logMonProperties] = updatedLogicalMonitors[index];
+                                if (primary) removedPrimary = true;
+                                updatedLogicalMonitors.splice(index, 1);
+                            });
+
+                            // collect sizes based on modes of attached monitors
+                            const logicalMonitorsWithSizes = updatedLogicalMonitors.map((logicalMonitor) => {
+                                const [x, y, scale, transform, primary, monitors, logMonProperties] = logicalMonitor;
+                                const {width, height} = monitors.reduce(({width, height}, monitor) => {
+                                    const monitorConnector = monitor[0];
+                                    const currentMode = monitorToCurrentModeMap[monitorConnector];
+                                    const currentWidth = currentMode[1];
+                                    const currentHeight = currentMode[2];
+                                    return {
+                                        width: Math.max(width, currentWidth),
+                                        height: Math.max(height, currentHeight)
+                                    };
+                                }, {width: 0, height: 0});
+
+                                return {
+                                    logicalMonitor,
+                                    width,
+                                    height,
+                                    xEnd: x + width,
+                                    yEnd: y + height
+                                }
+                            });
+                            logicalMonitorsWithSizes.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+
+                            // this array will track monitors we've already corrected, but we'll toss it out since we're modifying the
+                            // objects in the original array
+                            const processedLogicalMonitors = [];
+
+                            // make sure all monitors have a monitor adjacent
+                            for (let i = 0; i < logicalMonitorsWithSizes.length; i++) {
+                                const thisMonitor = logicalMonitorsWithSizes[i];
+                                const [x, y, scale, transform, primary, monitors, logMonProperties] = thisMonitor.logicalMonitor;
+                                const {xEnd, yEnd} = thisMonitor;
+
+                                const hasOurMonitor = !!monitors.some((monitor) => monitor[0] === connectorName);
+                                if (removedPrimary && hasOurMonitor) {
+                                    // if we removed the primary monitor, we need to set the glasses monitor as the new primary
+                                    thisMonitor.logicalMonitor[4] = true;
+                                }
+
+                                if (logicalMonitorsWithSizes.some((monitor, index) => {
+                                    if (index === i) return false;
+
+                                    const [monX, monY, monScale, monTransform, monPrimary, monMonitors, monLogMonProperties] = monitor.logicalMonitor;
+                                    const monXEnd = monitor.xEnd;
+                                    const monYEnd = monitor.yEnd;
+                                    const xOverlap = x < monXEnd && xEnd > monX;
+                                    const yOverlap = y < monYEnd && yEnd > monY;
+
+                                    // use top or left sides to determine if it's already adjacent
+                                    return (x === monXEnd && yOverlap) || (y === monYEnd && xOverlap);
+                                })) {
+                                    // this monitor is already adjacent to another monitor, leave it as-is
+                                    processedLogicalMonitors.push(thisMonitor);
+                                } else {
+                                    let newX = undefined;
+                                    let newY = undefined;
+
+                                    // move the monitor left until it runs into one
+                                    const procMonitorsByXEndDesc = [...processedLogicalMonitors].sort((a, b) => b.xEnd - a.xEnd);
+                                    for (let j = 0; j < procMonitorsByXEndDesc.length; j++) {
+                                        const procMonitor = procMonitorsByXEndDesc[j];
+                                        const [procX, procY, procScale, procTransform, procPrimary, procMonitors, procLogMonProperties] = procMonitor.logicalMonitor;
+                                        if (procMonitor.xEnd <= x && procY < yEnd && procMonitor.yEnd > y) {
+                                            newX = procMonitor.xEnd;
+                                            newY = y;
+                                            break;
+                                        }
+                                    }
+
+                                    if (newX === undefined) {
+                                        newX = 0;
+
+                                        // we didn't find an adjacent monitor to the left, now move it up until it runs into one
+                                        const procMonitorsByYEndDesc = [...processedLogicalMonitors].sort((a, b) => b.yEnd - a.yEnd);
+                                        for (let j = 0; j < procMonitorsByYEndDesc.length; j++) {
+                                            const procMonitor = procMonitorsByYEndDesc[j];
+                                            const [procX, procY, procScale, procTransform, procPrimary, procMonitors, procLogMonProperties] = procMonitor.logicalMonitor;
+                                            if (procMonitor.yEnd <= y && procX < thisMonitor.width && procMonitor.xEnd > 0) {
+                                                newY = procMonitor.yEnd;
+                                                break;
+                                            }
+                                        }
+
+                                        // if nothing found, put at origin
+                                        if (newY === undefined) newY = 0;
+                                    }
+                                    thisMonitor.logicalMonitor[0] = newX;
+                                    thisMonitor.logicalMonitor[1] = newY;
+                                    thisMonitor.xEnd = newX + thisMonitor.width;
+                                    thisMonitor.yEnd = newY + thisMonitor.height;
+                                    processedLogicalMonitors.push(thisMonitor);
+                                }
+                            }
+                        }
+
                         Globals.logger.log_debug(`monitormanager.js performOptimalModeCheck updatedLogicalMonitors: ${JSON.stringify(updatedLogicalMonitors)}`);
                         displayConfigProxy.ApplyMonitorsConfigRemote(
                             serial,
@@ -267,6 +390,13 @@ var MonitorManager = GObject.registerClass({
             'Use headset as primary monitor',
             'Automatically set the headset as the primary display upon connection',
             GObject.ParamFlags.READWRITE,
+            false
+        ),
+        'disable-physical-displays': GObject.ParamSpec.boolean(
+            'disable-physical-displays',
+            'Disable physical displays',
+            'Disable physical displays when a virtual display is connected',
+            GObject.ParamFlags.READWRITE,
             true
         ),
         'extension-path': GObject.ParamSpec.string(
@@ -285,11 +415,12 @@ var MonitorManager = GObject.registerClass({
         this._displayConfigProxy = null;
         this._monitorProperties = null;
         this._changeHookFn = null;
-        this._needsConfigCheck = this.use_optimal_monitor_config;
+        this._needsConfigCheck = this.use_optimal_monitor_config || this.headset_as_primary || this.disable_physical_displays;
 
         // help prevent certain actions from taking place multiple times in the event of rapid monitor updates
         this._asyncRequestsInFlight = 0;
         this._configCheckRequestsCount = 0;
+        this._enabled = false;
     }
 
     enable() {
@@ -303,12 +434,17 @@ var MonitorManager = GObject.registerClass({
         }).bind(this));
 
         this._monitorsChangedConnection = Main.layoutManager.connect('monitors-changed', this._on_monitors_change.bind(this));
+        this._disable_physical_displays_connection = this.connect('notify::disable-physical-displays', this._on_disable_physical_displays_change.bind(this));
+        this._enabled = true;
     }
 
     disable() {
         Globals.logger.log_debug('MonitorManager disable');
+        this.disconnect(this._disable_physical_displays_connection);
         Main.layoutManager.disconnect(this._monitorsChangedConnection);
 
+        this._enabled = false;
+        this._disable_physical_displays_connection = null;
         this._monitorsChangedConnection = null;
         this._displayConfigProxy = null;
         this._monitorProperties = null;
@@ -346,7 +482,7 @@ var MonitorManager = GObject.registerClass({
                 return this._asyncRequestsInFlight === 1 && this._configCheckRequestsCount === configCheckCountSnapshot;
             }).bind(this);
 
-            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, this.use_highest_refresh_rate, ((configChanged, error) => {
+            performOptimalModeCheck(this._displayConfigProxy, monitorConnector, this.headset_as_primary, this.use_highest_refresh_rate, this.disable_physical_displays, ((configChanged, error) => {
                 if (--this._asyncRequestsInFlight > 0) {
                     Globals.logger.log_debug(`MonitorManager needsOptimalModeCheck: ${this._asyncRequestsInFlight} async requests still pending, skipping change hook`);
                     return;
@@ -357,7 +493,7 @@ var MonitorManager = GObject.registerClass({
 
                 this._needsConfigCheck = false;
                 if (error) {
-                    Globals.logger.log(`Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
+                    Globals.logger.log(`[ERROR] Failed to switch to optimal mode for monitor ${monitorConnector}: ${error}`);
 
                     // tell the extension to proceed, this should result in another config check
                     this._changeHookFn();
@@ -383,11 +519,13 @@ var MonitorManager = GObject.registerClass({
     }
 
     _on_monitors_change() {
+        if (!this._enabled) return;
+
         Globals.logger.log_debug('MonitorManager _on_monitors_change');
         if (this._displayConfigProxy == null) {
             return;
         }
-        if (this.use_optimal_monitor_config) {
+        if (this.use_optimal_monitor_config || this.headset_as_primary || this.disable_physical_displays) {
             this._needsConfigCheck = true;
             this._configCheckRequestsCount++;
         }
@@ -395,7 +533,7 @@ var MonitorManager = GObject.registerClass({
         getMonitorConfig(this._displayConfigProxy, ((result, error) => {
             this._asyncRequestsInFlight--;
             if (error) {
-                Globals.logger.log(error);
+                Globals.logger.log(`[ERROR] Failed _on_monitors_change getMonitorConfig: ${error}`);
                 return;
             }
 
@@ -427,5 +565,14 @@ var MonitorManager = GObject.registerClass({
                 Globals.logger.log('MonitorManager _on_monitors_change: can\'t trigger change hook, no hook set!');
             }
         }).bind(this));
+    }
+
+    _on_disable_physical_displays_change() {
+        if (this._enabled && this.disable_physical_displays && !!this._changeHookFn) {
+            Globals.logger.log_debug('MonitorManager _on_disable_physical_displays_change triggering change hook');
+            this._needsConfigCheck = true;
+            this._configCheckRequestsCount++;
+            this._changeHookFn();
+        }
     }
 });

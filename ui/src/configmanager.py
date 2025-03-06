@@ -6,6 +6,7 @@ from .xrdriveripc import XRDriverIPC
 class ConfigManager(GObject.GObject):
     __gproperties__ = {
         'breezy-desktop-enabled': (bool, 'Breezy Desktop Enabled', 'Whether Breezy Desktop is enabled', False, GObject.ParamFlags.READWRITE),
+        'multi-tap-enabled': (bool, 'Multi-Tap Enabled', 'Whether Multi-Tap is enabled', False, GObject.ParamFlags.READWRITE),
     }
 
     _instance = None
@@ -27,6 +28,7 @@ class ConfigManager(GObject.GObject):
         GObject.GObject.__init__(self)
         self.ipc = XRDriverIPC.get_instance()
         self.breezy_desktop_enabled = None
+        self.multi_tap_enabled = None
         self._running = True
         self._refresh_config()
 
@@ -38,6 +40,9 @@ class ConfigManager(GObject.GObject):
         if self._is_breezy_desktop_enabled() != self.breezy_desktop_enabled:
             self.set_property('breezy-desktop-enabled', self._is_breezy_desktop_enabled())
 
+        if self.config['multi_tap_enabled'] != self.multi_tap_enabled:
+            self.set_property('multi-tap-enabled', self.config['multi_tap_enabled'])
+
         if self._running: threading.Timer(1.0, self._refresh_config).start()
 
     def _is_breezy_desktop_enabled(self):
@@ -48,17 +53,26 @@ class ConfigManager(GObject.GObject):
             self.config['disabled'] = False
             self.config['output_mode'] = 'external_only'
             self.config['external_mode'] = ['breezy_desktop']
-            self.ipc.write_config(self.config)
         else:
             self.config['external_mode'] = []
-            self.ipc.write_config(self.config)
 
+        self.ipc.write_config(self.config)
         self.breezy_desktop_enabled = value
+
+    def _set_multi_tap_enabled(self, value):
+        if self.multi_tap_enabled != value:
+            self.config['multi_tap_enabled'] = value
+            self.ipc.write_config(self.config)
+            self.multi_tap_enabled = value
 
     def do_set_property(self, prop, value):
         if prop.name == 'breezy-desktop-enabled':
             self._set_breezy_desktop_enabled(value)
+        elif prop.name == 'multi-tap-enabled':
+            self._set_multi_tap_enabled(value)
 
     def do_get_property(self, prop):
         if prop.name == 'breezy-desktop-enabled':
             return self.breezy_desktop_enabled
+        elif prop.name == 'multi-tap-enabled':
+            return self.multi_tap_enabled

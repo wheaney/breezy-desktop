@@ -3,6 +3,7 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
+const St = imports.gi.St;
 
 const Main = imports.ui.main;
 
@@ -11,25 +12,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 const Globals = Me.imports.globals;
 const { CursorManager } = Me.imports.cursormanager;
+const { DeviceDataStream } = Me.imports.devicedatastream;
 const { Logger } = Me.imports.logger;
-const { MonitorManager } = Me.imports.monitormanager;
-const { Overlay } = Me.imports.overlay;
-const { isValidKeepAlive } = Me.imports.time;
-const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
+const { MonitorManager, NESTED_MONITOR_PRODUCT, SUPPORTED_MONITOR_PRODUCTS, VIRTUAL_MONITOR_PRODUCT } = Me.imports.monitormanager;
+const { VirtualDisplaysActor } = Me.imports.virtualdisplaysactor;
 
-const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
-const SUPPORTED_MONITOR_PRODUCTS = [
-    'VITURE',
-    'nreal air',
-    'Air',
-    'Air 2',
-    'Air 2 Pro',
-    'Air 2 Ultra',
-    'SmartGlasses', // TCL/RayNeo
-    'Rokid Max',
-    'Rokid Air',
-    NESTED_MONITOR_PRODUCT
-];
 
 const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
 const XDG_CLI_PATH = GLib.build_filenamev([BIN_HOME, 'xr_driver_cli']);
@@ -44,26 +31,17 @@ class BreezyDesktopExtension {
         // Set/destroyed by enable/disable
         this._cursor_manager = null;
         this._monitor_manager = null;
-        this._xr_effect = null;
-        this._overlay = null;
+        this._virtual_displays_actor = null;
+        this._virtual_displays_overlay = null;
         this._target_monitor = null;
         this._is_effect_running = false;
-        this._distance_binding = null;
+        this._effect_settings_bindings = [];
+        this._data_stream_bindings = [];
+        this._show_banner_connection = null;
         this._distance_connection = null;
+        this._focused_monitor_distance_connection = null;
         this._follow_threshold_connection = null;
-        this._widescreen_mode_settings_connection = null;
-        this._widescreen_mode_effect_state_connection = null;
-        this._supported_device_detected_connected = null;
-        this._start_binding = null;
-        this._end_binding = null;
-        this._curved_display_binding = null;
-        this._display_size_binding = null;
-        this._look_ahead_override_binding = null;
-        this._disable_anti_aliasing_binding = null;
-        this._optimal_monitor_config_binding = null;
-        this._headset_as_primary_binding = null;
-        this._actor_added_connection = null;
-        this._actor_removed_connection = null;
+        this._breezy_desktop_running_connection = null;
 
         if (!Globals.logger) {
             Globals.logger = new Logger({
@@ -72,6 +50,12 @@ class BreezyDesktopExtension {
             });
             Globals.logger.logVersion();
         }
+
+        if (!Globals.data_stream) {
+            Globals.data_stream = new DeviceDataStream({
+                debug_no_device: this.settings.get_boolean('debug-no-device')
+            });
+        }
     }
 
     enable() {
@@ -79,107 +63,102 @@ class BreezyDesktopExtension {
 
         try {
             Globals.extension_dir = this.path;
-            this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
+
+            Globals.data_stream.start();
 
             this._monitor_manager = new MonitorManager({
                 use_optimal_monitor_config: this.settings.get_boolean('use-optimal-monitor-config'),
                 headset_as_primary: this.settings.get_boolean('headset-as-primary'),
                 use_highest_refresh_rate: this.settings.get_boolean('use-highest-refresh-rate'),
+                disable_physical_displays: this.settings.get_boolean('disable-physical-displays'),
                 extension_path: this.path
             });
             this._monitor_manager.setChangeHook(this._handle_monitor_change.bind(this));
             this._monitor_manager.enable();
 
-            this._optimal_monitor_config_binding = this.settings.bind('use-optimal-monitor-config', 
-                this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
-            this._headset_as_primary_binding = this.settings.bind('headset-as-primary',
-                this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('debug', Globals.logger, 'debug', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('use-optimal-monitor-config',this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('headset-as-primary', this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('disable-physical-displays', this._monitor_manager, 'disable-physical-displays', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
+
+            this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 
+                this._handle_breezy_desktop_running_change.bind(this));
 
             this._cli_file = Gio.file_new_for_path(XDG_CLI_PATH);
             if (!this._cli_file.query_exists(null)) {
                 this._cli_file = Gio.file_new_for_path(ALT_CLI_PATH);
                 if (!this._cli_file.query_exists(null)) {
                     this._cli_file = null;
-                    Globals.logger.log('ERROR: BreezyDesktopExtension enable - xr_driver_cli not found');
+                    Globals.logger.log('[ERROR] BreezyDesktopExtension enable - xr_driver_cli not found');
                 }
             }
 
             this._setup();
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
         }
     }
 
-    _poll_for_ready() {
-        Globals.logger.log_debug('BreezyDesktopExtension _poll_for_ready');
-        var target_monitor = this._target_monitor;
-        var is_effect_running = this._is_effect_running;
-        this._running_poller_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, (() => {
-            try {
-                if (is_effect_running) {
-                    this._running_poller_id = undefined;
-                    return GLib.SOURCE_REMOVE;
-                }
-
-                if (this._check_driver_running() && target_monitor) {
-                    // Don't enable the effect yet if monitor updates are needed.
-                    // _setup will be triggered again since a !ready result means it will trigger monitor changes,
-                    // so we can remove this timeout_add no matter what.
-                    if (this._target_monitor_ready(target_monitor)) {
-                        Globals.logger.log('Driver is running, supported monitor connected. Enabling XR effect.');
-                        this._effect_enable();
-                    }
-                    this._running_poller_id = undefined;
-                    return GLib.SOURCE_REMOVE;
-                } else {
-                    return GLib.SOURCE_CONTINUE;
-                }
-            } catch (e) {
-                Globals.logger.log(`ERROR: BreezyDesktopExtension _poll_for_ready ${e.message}\n${e.stack}`);
-                this._running_poller_id = undefined;
-                return GLib.SOURCE_REMOVE;
+    _find_virtual_monitors() {
+        try {
+            Globals.logger.log_debug('BreezyDesktopExtension _find_virtual_monitors');
+            const virtual_monitors = this._monitor_manager.getMonitorPropertiesList()?.filter(
+                monitor => monitor && monitor.product === VIRTUAL_MONITOR_PRODUCT);
+            if (virtual_monitors.length > 0) {
+                Globals.logger.log(`Found ${virtual_monitors.length} virtual monitors`);
+                return virtual_monitors.map(monitor => {
+                    return this._monitor_manager.getMonitors()[monitor.index];
+                });
             }
-        }).bind(this));
+
+            Globals.logger.log_debug('BreezyDesktopExtension _find_virtual_monitors - No virtual monitors found');
+        } catch (e) {
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _find_virtual_monitors ${e.message}\n${e.stack}`)
+        }
+
+        return [];
     }
 
     _find_supported_monitor() {
+        if (!this._monitor_manager.getMonitorPropertiesList()) return null;
+
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor');
-            const target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
-                monitor => SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
-                           this.settings.get_string('custom-monitor-product') === monitor.product);
+            let target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+                monitor => monitor && (SUPPORTED_MONITOR_PRODUCTS.includes(monitor.product) || 
+                           this.settings.get_string('custom-monitor-product') === monitor.product));
+            let is_dummy = target_monitor?.product === NESTED_MONITOR_PRODUCT;
+
+            if (target_monitor === undefined && this.settings.get_boolean('developer-mode')) {
+                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
+                // find the first of the physical monitors
+                target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
+                    monitor => monitor && monitor.product !== VIRTUAL_MONITOR_PRODUCT);
+                is_dummy = true;
+            }
+
             if (target_monitor !== undefined) {
                 Globals.logger.log(`Identified supported monitor: ${target_monitor.product} on ${target_monitor.connector}`);
                 return {
                     monitor: this._monitor_manager.getMonitors()[target_monitor.index],
                     connector: target_monitor.connector,
                     refreshRate: target_monitor.refreshRate,
-                    is_dummy: target_monitor.product === NESTED_MONITOR_PRODUCT
-                };
-            }
-
-            if (this.settings.get_boolean('developer-mode')) {
-                Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
-                // allow testing XR devices with just USB, no video needed
-                return {
-                    monitor: this._monitor_manager.getMonitors()[0],
-                    connector: 'dummy',
-                    refreshRate: 60,
-                    is_dummy: true
+                    is_dummy: is_dummy,
+                    is_virtual: target_monitor.product === VIRTUAL_MONITOR_PRODUCT
                 };
             }
 
             Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - No supported monitor found');
             return null;
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _find_supported_monitor ${e.message}\n${e.stack}`);
             return null;
         }
     }
 
     // Assumes target_monitor is set, and was returned by _find_supported_monitor.
-    // A false result means we'll expect _handle_monitor_change to be triggered, so active polling
-    // can be disabled.
+    // A false result means we'll expect _handle_monitor_change to be triggered
     _target_monitor_ready(target_monitor) {
         if (target_monitor.is_dummy) return true;
 
@@ -196,47 +175,24 @@ class BreezyDesktopExtension {
             Globals.logger.log('Reset triggered, disabling XR effect');
             this._effect_disable(!for_disable);
         }
-        const target_monitor = this._find_supported_monitor();
 
-        // if target_monitor isn't set, do nothing and wait for MonitorManager to call this again
-        if (target_monitor && this._running_poller_id === undefined) {
-            this._target_monitor = target_monitor;
-
-            if (this._check_driver_running()) {
+        this._target_monitor = this._find_supported_monitor();
+        if (this._target_monitor) {
+            if (Globals.data_stream.breezy_desktop_running) {
                 // Don't enable the effect yet if monitor updates are needed.
                 // _setup will be triggered again since a !ready result means it will trigger monitor changes
-                if (this._target_monitor_ready(target_monitor)) {
+                if (this._target_monitor_ready(this._target_monitor)) {
                     Globals.logger.log('Ready, enabling XR effect');
                     this._effect_enable();
                 } else {
-                    Globals.logger.log_debug('BreezyDesktopExtension _setup - driver running but async monitor action needed');
+                    Globals.logger.log_debug('BreezyDesktopExtension _setup - breezy desktop enabled, but async monitor action needed');
                 }
             } else {
-                Globals.logger.log_debug('BreezyDesktopExtension _setup - driver not running, starting poller');
-                this._poll_for_ready();
+                Globals.logger.log_debug('BreezyDesktopExtension _setup - Doing nothing, target monitor found, but device stream not being received');
             }
         } else {
-            if (!target_monitor) {
-                Globals.logger.log_debug(`BreezyDesktopExtension _setup - Doing nothing, no supported monitor found`);
-            } else {
-                Globals.logger.log_debug(`BreezyDesktopExtension _setup - Doing nothing, target monitor found, waiting for poller to pick it up`);
-            }
+            Globals.logger.log_debug(`BreezyDesktopExtension _setup - Doing nothing, no supported monitor found, breezy_desktop_running: ${Globals.data_stream.breezy_desktop_running}`);
         }
-    }
-
-    _check_driver_running() {
-        try {
-            if (!Globals.ipc_file) Globals.ipc_file = Gio.file_new_for_path(IPC_FILE_PATH);
-            if (Globals.ipc_file.query_exists(null)) {
-                const file_info = Globals.ipc_file.query_info(Gio.FILE_ATTRIBUTE_TIME_MODIFIED, Gio.FileQueryInfoFlags.NONE, null);
-                const file_modified_time = file_info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_TIME_MODIFIED);
-                return isValidKeepAlive(file_modified_time);
-            }
-        } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _check_driver_running ${e.message}\n${e.stack}`);
-        }
-
-        return false;
     }
 
     _needs_widescreen_monitor_update() {
@@ -255,77 +211,103 @@ class BreezyDesktopExtension {
 
     _effect_enable() {
         Globals.logger.log_debug('BreezyDesktopExtension _effect_enable');
-        this._running_poller_id = undefined;
         if (!this._is_effect_running) {
             this._is_effect_running = true;
 
             try {
                 const targetMonitor = this._target_monitor.monitor;
+                const virtualMonitors = this._find_virtual_monitors();
                 const refreshRate = targetMonitor.refreshRate ?? 60;
-                this._overlay = new Overlay(targetMonitor);
 
-                this._cursor_manager = new CursorManager(this._overlay, refreshRate);
-                this._cursor_manager.enable();
+                // use rgba(255, 4, 144, 1) for chroma key background
+                this._virtual_displays_overlay = new St.Bin({ style: 'background-color: rgba(0, 0, 0, 1);', clip_to_allocation: true });
+                this._virtual_displays_overlay.opacity = 255;
+                this._virtual_displays_overlay.set_position(targetMonitor.x, targetMonitor.y);
+                this._virtual_displays_overlay.set_size(targetMonitor.width, targetMonitor.height);
 
-                // In GS 45, use of "actor" was renamed to "child".
-                const clutterContainer = Clutter.Container !== undefined;
-                this._actor_added_connection = global.stage.connect(
-                    clutterContainer ? 'actor-added' : 'child-added',
-                    this._handle_sibling_update.bind(this),
-                );
-                this._actor_removed_connection = global.stage.connect(
-                    clutterContainer ? 'actor-removed' : 'child-removed',
-                    this._handle_sibling_update.bind(this),
-                );
-                
-                this._xr_effect = new XREffect({
+                Globals.data_stream.refresh_data();
+                this._virtual_displays_actor = new VirtualDisplaysActor({
+                    width: targetMonitor.width,
+                    height: targetMonitor.height,
                     target_monitor: targetMonitor,
-                    target_framerate: refreshRate,
+                    virtual_monitors: virtualMonitors,
+                    monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
+                    monitor_spacing: this.settings.get_int('monitor-spacing'),
+                    viewport_offset_x: this.settings.get_double('viewport-offset-x'),
+                    viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     display_distance: this.settings.get_double('display-distance'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
-                    look_ahead_override: this.settings.get_int('look-ahead-override'),
-                    disable_anti_aliasing: this.settings.get_boolean('disable-anti-aliasing')
+                    framerate_cap: this.settings.get_double('framerate-cap'),
+                    imu_snapshots: Globals.data_stream.imu_snapshots,
+                    show_banner: Globals.data_stream.show_banner,
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
                 });
+
+                this._virtual_displays_overlay.set_child(this._virtual_displays_actor);
+                this._virtual_displays_actor.renderMonitors();
+
+                Shell.util_set_hidden_from_pick(this._virtual_displays_overlay, true);
+                global.stage.add_child(this._virtual_displays_overlay);
+
+                const cursor_manager_monitor_objs = this._virtual_displays_actor.monitor_actors.map(monitor => {
+                    return {
+                        monitor: monitor.monitorDetails,
+                        actor: monitor.containerActor
+                    };
+                });
+
+                this._cursor_manager = new CursorManager(cursor_manager_monitor_objs, refreshRate);
+                this._cursor_manager.enable();
 
                 this._update_follow_threshold(this.settings);
 
-                // this gets triggered before _effect_enable if in fast-sbs-mode-switching mode
-                if (!this.settings.get_boolean('fast-sbs-mode-switching')) 
-                    this._update_widescreen_mode_from_settings(this.settings);
-
-                this._widescreen_mode_effect_state_connection = this._xr_effect.connect('notify::widescreen-mode-state', this._update_widescreen_mode_from_state.bind(this));
-                this._supported_device_detected_connected = this._xr_effect.connect('notify::supported-device-detected', this._handle_supported_device_change.bind(this));
-
-                this._distance_binding = this.settings.bind('display-distance', this._xr_effect, 'display-distance', Gio.SettingsBindFlags.DEFAULT)
-                this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this))
-                this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this))
+                this._data_stream_bindings = [
+                    'show-banner',
+                    'custom-banner-enabled',
+                    'smooth-follow-enabled'
+                ].map(data_stream_key => 
+                    Globals.data_stream.bind_property(data_stream_key, this._virtual_displays_actor, data_stream_key, Gio.SettingsBindFlags.DEFAULT)
+                );
                 
-                this._widescreen_mode_settings_connection = this.settings.connect('changed::widescreen-mode', this._update_widescreen_mode_from_settings.bind(this))
-                this._start_binding = this.settings.bind('toggle-display-distance-start', this._xr_effect, 'toggle-display-distance-start', Gio.SettingsBindFlags.DEFAULT)
-                this._end_binding = this.settings.bind('toggle-display-distance-end', this._xr_effect, 'toggle-display-distance-end', Gio.SettingsBindFlags.DEFAULT)
-                this._curved_display_binding = this.settings.bind('curved-display', this._xr_effect, 'curved-display', Gio.SettingsBindFlags.DEFAULT)
-                this._display_size_binding = this.settings.bind('display-size', this._xr_effect, 'display-size', Gio.SettingsBindFlags.DEFAULT);
-                this._look_ahead_override_binding = this.settings.bind('look-ahead-override', this._xr_effect, 'look-ahead-override', Gio.SettingsBindFlags.DEFAULT);
-                this._disable_anti_aliasing_binding = this.settings.bind('disable-anti-aliasing', this._xr_effect, 'disable-anti-aliasing', Gio.SettingsBindFlags.DEFAULT);
+                this._show_banner_connection = Globals.data_stream.connect('notify::show-banner', this._handle_show_banner_update.bind(this));
+                this._was_show_banner = Globals.data_stream.show_banner;
+                if (!this._was_show_banner) this._recenter_display();
 
-                this._overlay.mainActor().add_effect_with_name('xr-desktop', this._xr_effect);
-                Meta.disable_unredirect_for_display(global.display);
+                this._effect_settings_bindings = [
+                    'monitor-wrapping-scheme',
+                    'viewport-offset-x',
+                    'viewport-offset-y',
+                    'monitor-spacing',
+                    'display-distance',
+                    'toggle-display-distance-start',
+                    'toggle-display-distance-end',
+                    'display-size',
+                    'framerate-cap',
+                    'look-ahead-override',
+                    'disable-anti-aliasing'
+                ]
+                this._effect_settings_bindings.forEach(settings_key => 
+                    this.settings.bind(settings_key, this._virtual_displays_actor, settings_key, Gio.SettingsBindFlags.DEFAULT)
+                );
+
+                this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
+                this._focused_monitor_distance_connection = 
+                    this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
+                this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
+
+                Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
-                this._add_settings_keybinding('toggle-display-distance-shortcut', this._xr_effect._change_distance.bind(this._xr_effect));
+                this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
             } catch (e) {
-                Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
+                Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
+                Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
                 this._effect_disable();
             }
         }
-    }
-
-    _handle_sibling_update() {
-        Globals.logger.log_debug('BreezyDesktopExtension _handle_sibling_update()');
-        global.stage.set_child_above_sibling(this._overlay.mainActor(), null);
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -353,22 +335,27 @@ class BreezyDesktopExtension {
                         bind_to_function
                     );
                 } catch (e) {
-                    Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}\n${e.stack}`);
+                    Globals.logger.log(`[ERROR] BreezyDesktopExtension _add_settings_keybinding settings binding lambda ${e.message}\n${e.stack}`);
                 }
             });
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _add_settings_keybinding ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _add_settings_keybinding ${e.message}\n${e.stack}`);
         }
     }
 
     _write_control(key, value) {
         try {
-            const file = Gio.file_new_for_path('/dev/shm/xr_driver_control');
-            const stream = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-            stream.write(`${key}=${value}`, null);
-            stream.close(null);
+            Globals.logger.log_debug(`BreezyDesktopExtension _write_control ${key} ${value}`);
+            let proc = Gio.Subprocess.new(
+                ['bash', '-c', `echo "${key}=${value}" > /dev/shm/xr_driver_control`],
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+            );
+
+            let [success, stdout, stderr] = proc.communicate_utf8(null, null);
+            if (!success || !!stderr)
+                throw new Error(`Failed to write control: ${stderr}`);
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _write_control ${e.message}\n${e.stack}`);
         }
     }
 
@@ -392,15 +379,24 @@ class BreezyDesktopExtension {
                 }
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _read_state ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _read_state ${e.message}\n${e.stack}`);
         }
         return state;
     }
 
-    _update_display_distance(settings, event) {
-        const value = settings.get_double('display-distance');
+    _update_display_distance(object, event) {
+        const value = this.settings.get_double('display-distance');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${value}`);
-        if (value !== undefined) this._write_control('breezy_desktop_display_distance', value);
+        if (value !== undefined) {
+            let focusedMonitorSizeAdjustment = 1.0;
+            if (this._virtual_displays_actor?.focused_monitor_details && this._target_monitor) {
+                const fovMonitor = this._target_monitor.monitor;
+                const focusedMonitor = this._virtual_displays_actor.focused_monitor_details;
+                focusedMonitorSizeAdjustment = 
+                    Math.max(focusedMonitor.width / fovMonitor.width, focusedMonitor.height / fovMonitor.height);
+            }
+            this._write_control('breezy_desktop_display_distance', value / focusedMonitorSizeAdjustment);
+        }
     }
 
     _update_follow_threshold(settings, event) {
@@ -423,7 +419,7 @@ class BreezyDesktopExtension {
                     this._sbs_mode_update_timeout = undefined;
 
                     if (this.settings.get_boolean('fast-sbs-mode-switching')) {
-                        // setup and polling were halted if this is enabled, so we have to re-trigger setup
+                        // setup was halted if this is enabled, so we have to re-trigger it now
                         this._setup();
                     }
                     
@@ -445,12 +441,12 @@ class BreezyDesktopExtension {
     }
 
     _update_widescreen_mode_from_settings(settings, event) {
-        const value = settings.get_boolean('widescreen-mode');
-        Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_settings ${value}`);
-        if (value !== undefined && value !== this._xr_effect.widescreen_mode_state) {
-            this._request_sbs_mode_change(value);
-        } else
-            Globals.logger.log_debug('effect.widescreen_mode_state already matched setting');
+        // const value = settings.get_boolean('widescreen-mode');
+        // Globals.logger.log_debug(`BreezyDesktopExtension _update_widescreen_mode_from_settings ${value}`);
+        // if (value !== undefined && value !== this._xr_effect.widescreen_mode_state) {
+        //     this._request_sbs_mode_change(value);
+        // } else
+        //     Globals.logger.log_debug('effect.widescreen_mode_state already matched setting');
     }
 
     _update_widescreen_mode_from_state(effect, _pspec) {
@@ -474,15 +470,20 @@ class BreezyDesktopExtension {
         this._setup();
     }
 
-    _handle_supported_device_change(effect, _pspec) {
-        const device_connected = effect.supported_device_detected;
-        Globals.logger.log_debug(`BreezyDesktopExtension _handle_supported_device_change ${device_connected}`);
+    _handle_breezy_desktop_running_change(datastream, _pspec) {
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_breezy_desktop_running_change ${datastream.breezy_desktop_running}`);
 
-        // this will disable the effect and begin polling for a ready state again
-        if (!device_connected && this._is_effect_running) {
-            Globals.logger.log('Supported device disconnected');
-            this._setup(true);
+        if (datastream.breezy_desktop_running !== this._is_effect_running) {
+            if (!datastream.breezy_desktop_running) Globals.logger.log('Breezy desktop disabled');
+            this._setup(!datastream.breezy_desktop_running);
         }
+    }
+
+    _handle_show_banner_update(datastream, _pspec) {
+        Globals.logger.log_debug(`BreezyDesktopExtension _handle_show_banner_update ${datastream.show_banner}`);
+        if (this._was_show_banner && !datastream.show_banner) this._recenter_display();
+
+        this._was_show_banner = datastream.show_banner;
     }
 
     _toggle_xr_effect() {
@@ -497,7 +498,7 @@ class BreezyDesktopExtension {
 
         let [success, stdout, stderr] = proc.communicate_utf8(null, null);
         if (!success || !!stderr || !stdout) {
-            Globals.logger.log(`ERROR: Failed to get driver status: ${stderr}`);
+            Globals.logger.log(`[ERROR] Failed to get driver status: ${stderr}`);
             return;
         }
 
@@ -512,7 +513,7 @@ class BreezyDesktopExtension {
         );
         [success, stdout, stderr] = proc.communicate_utf8(null, null);
         if (!success || !!stderr) {
-            Globals.logger.log(`ERROR: Failed to toggle driver: ${stderr}`);
+            Globals.logger.log(`[ERROR] Failed to toggle driver: ${stderr}`);
         }
     }
 
@@ -523,6 +524,7 @@ class BreezyDesktopExtension {
 
     _toggle_follow_mode() {
         Globals.logger.log_debug('BreezyDesktopExtension _toggle_follow_mode');
+        if (!!this._virtual_displays_actor) this._virtual_displays_actor.set_property('smooth-follow-toggle-epoch-ms', Date.now());
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
@@ -532,84 +534,50 @@ class BreezyDesktopExtension {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
 
-            if (this._running_poller_id) {
-                const poller_id = this._running_poller_id;
-                this._running_poller_id = undefined;
-                GLib.source_remove(poller_id);
-            }
+            if (Globals.data_stream.smooth_follow_enabled) this._toggle_follow_mode();
 
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
-            Meta.enable_unredirect_for_display(global.display);
+            Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
 
-            if (this._actor_added_connection) {
-                global.stage.disconnect(this._actor_added_connection);
-                this._actor_added_connection = null;
+            for (let settings_key of this._effect_settings_bindings) {
+                Gio.Settings.unbind(this.settings, settings_key);
             }
-            if (this._actor_removed_connection) {
-                global.stage.disconnect(this._actor_removed_connection);
-                this._actor_removed_connection = null;
-            }
-            if (this._distance_binding) {
-                this.settings.unbind(this._distance_binding);
-                this._distance_binding = null;
+            this._effect_settings_bindings = [];
+            this._data_stream_bindings.forEach(binding => binding.unbind());
+            this._data_stream_bindings = [];
+
+            if (this._show_banner_connection) {
+                Globals.data_stream.disconnect(this._show_banner_connection);
+                this._show_banner_connection = null;
             }
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
                 this._distance_connection = null;
             }
+            if (this._focused_monitor_distance_connection) {
+                this._virtual_displays_actor.disconnect(this._focused_monitor_distance_connection);
+                this._focused_monitor_distance_connection = null;
+            }
             if (this._follow_threshold_connection) {
                 this.settings.disconnect(this._follow_threshold_connection);
                 this._follow_threshold_connection = null;
             }
-            if (this._widescreen_mode_settings_connection) {
-                this.settings.disconnect(this._widescreen_mode_settings_connection);
-                this._widescreen_mode_settings_connection = null;
-            }
-            if (this._start_binding) {
-                this.settings.unbind(this._start_binding);
-                this._start_binding = null;
-            }
-            if (this._end_binding) {
-                this.settings.unbind(this._end_binding);
-                this._end_binding = null;
-            }
-            if (this._curved_display_binding) {
-                this.settings.unbind(this._curved_display_binding);
-                this._curved_display_binding = null;
-            }
-            if (this._display_size_binding) {
-                this.settings.unbind(this._display_size_binding);
-                this._display_size_binding = null;
-            }
-            if (this._look_ahead_override_binding) {
-                this.settings.unbind(this._look_ahead_override_binding);
-                this._look_ahead_override_binding = null;
-            }
-            if (this._disable_anti_aliasing_binding) {
-                this.settings.unbind(this._disable_anti_aliasing_binding);
-                this._disable_anti_aliasing_binding = null;
-            }
-            if (this._xr_effect) {
-                if (this._widescreen_mode_effect_state_connection) {
-                    this._xr_effect.disconnect(this._widescreen_mode_effect_state_connection);
-                    this._widescreen_mode_effect_state_connection = null;
+            if (this._virtual_displays_overlay) {
+                if (this._virtual_displays_actor) {
+                    this._virtual_displays_overlay.remove_child(this._virtual_displays_actor);
+                    this._virtual_displays_actor.destroy();
+                    this._virtual_displays_actor = null;
                 }
-                if (this._supported_device_detected_connected) {
-                    this._xr_effect.disconnect(this._supported_device_detected_connected);
-                    this._supported_device_detected_connected = null;
-                }
-                this._xr_effect.cleanup();
-                this._xr_effect = null;
+
+                global.stage.remove_child(this._virtual_displays_overlay);
+                this._virtual_displays_overlay.destroy();
+                this._virtual_displays_overlay = null;
             }
             if (this._cursor_manager) {
                 this._cursor_manager.disable();
                 this._cursor_manager = null;
-            }
-            if (this._overlay) {
-                this._overlay.mainActor().remove_effect_by_name('xr-desktop');
-                this._overlay.destroy();
             }
 
             // this should always be done at the end of this function after the widescreen settings binding is removed,
@@ -619,30 +587,34 @@ class BreezyDesktopExtension {
                 this._write_control('sbs_mode', 'disable');
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
         }
     }
 
     disable() {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension disable');
-            this._effect_disable();
-            this._target_monitor = null;
-            if (this._monitor_manager) {
-                if (this._optimal_monitor_config_binding) {
-                    this.settings.unbind(this._optimal_monitor_config_binding);
-                    this._optimal_monitor_config_binding = null
-                }
-                if (this._headset_as_primary_binding) {
-                    this.settings.unbind(this._headset_as_primary_binding);
-                    this._headset_as_primary_binding = null;
-                }
 
+            this._effect_disable();
+            Globals.data_stream.stop();
+            this._target_monitor = null;
+            
+            if (this._breezy_desktop_running_connection) {
+                Globals.data_stream.disconnect(this._breezy_desktop_running_connection);
+                this._breezy_desktop_running_connection = null;
+            }
+            Gio.Settings.unbind(this.settings, 'debug');
+            Gio.Settings.unbind(this.settings, 'use-optimal-monitor-config');
+            Gio.Settings.unbind(this.settings, 'headset-as-primary');
+            Gio.Settings.unbind(this.settings, 'disable-physical-displays');
+            Gio.Settings.unbind(this.settings, 'debug-no-device');
+
+            if (this._monitor_manager) {
                 this._monitor_manager.disable();
                 this._monitor_manager = null;
             }
         } catch (e) {
-            Globals.logger.log(`ERROR: BreezyDesktopExtension disable ${e.message}\n${e.stack}`);
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension disable ${e.message}\n${e.stack}`);
         }
     }
 }

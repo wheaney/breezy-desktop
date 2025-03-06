@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+
+# virtualdisplay.in
+#
+# Copyright 2024 Unknown
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+import logging
+import os
+import sys
+
+lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
+sys.path.insert(0, lib_dir)
+
+from logging.handlers import TimedRotatingFileHandler
+
+config_home = os.environ.get('XDG_CONFIG_HOME', '~/.config')
+config_dir = os.path.expanduser(config_home)
+state_home = os.environ.get('XDG_STATE_HOME', '~/.local/state')
+state_dir = os.path.expanduser(state_home)
+breezy_state_dir = os.path.join(state_dir, 'breezy_gnome')
+log_dir = os.path.join(breezy_state_dir, 'logs/ui')
+os.makedirs(log_dir, exist_ok=True)
+
+logger = logging.getLogger('breezy_ui')
+logger.setLevel(logging.INFO)
+logname = os.path.join(log_dir, "breezy_desktop.log")
+handler = TimedRotatingFileHandler(logname, when="midnight", backupCount=30)
+handler.suffix = "%Y%m%d"
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+import sys
+import argparse
+import signal
+import time
+
+VERSION = '@VERSION@'
+
+xdg_data_home = os.getenv('XDG_DATA_HOME', os.path.join(os.path.expanduser('~'), '.local', 'share'))
+appdir = os.getenv('APPDIR', xdg_data_home) 
+locale_dir = os.path.join(appdir, 'locale')
+pkgdatadir = os.path.join(appdir, 'breezydesktop')
+sys.path.insert(1, pkgdatadir)
+
+import gi
+
+gi.require_version('GLib', '2.0')
+
+from gi.repository import GLib
+
+def graceful_shutdown(signum, frame):
+    global virtual_display_instance
+    global loop
+
+    if virtual_display_instance is not None:
+        virtual_display_instance.terminate()
+
+def _on_display_closed():
+    global loop
+    loop.quit()
+
+def create_display(width, height, framerate):
+    global virtual_display_instance
+
+    virtual_display_instance = VirtualDisplay(width, height, framerate, _on_display_closed)
+    virtual_display_instance.create()
+
+if __name__ == "__main__":
+    from breezydesktop import virtualdisplay
+    from breezydesktop.virtualdisplay import VirtualDisplay
+
+    global virtual_display_instance
+    global loop
+
+    parser = argparse.ArgumentParser(description="Virtual display arguments")
+    parser.add_argument("--height", type=int, required=True, help="Height of the display")
+    parser.add_argument("--width", type=int, required=True, help="Width of the display")
+    parser.add_argument("--framerate", type=int, default=60, help="Framerate of the display")
+    args = parser.parse_args()
+
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+    signal.signal(signal.SIGINT, graceful_shutdown)
+
+    loop = GLib.MainLoop()
+    
+    try:
+        GLib.idle_add(create_display, args.width, args.height, args.framerate)
+        loop.run()
+    except Exception as e:
+        logger.error(f"Error in main loop: {e}")
+        sys.exit(1)

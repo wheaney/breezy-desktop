@@ -26,12 +26,23 @@ configure_file(
   install_mode: 'r-xr-xr-x'
 )
 
+configure_file(
+  input: 'virtualdisplay.in',
+  output: 'virtualdisplay',
+  configuration: conf,
+  install: true,
+  install_dir: get_option('bindir'),
+  install_mode: 'r-xr-xr-x'
+)
+
 breezydesktop_sources = [
   '../modules/PyXRLinuxDriverIPC/xrdriveripc.py',
   '__init__.py',
   'configmanager.py',
   'connecteddevice.py',
   'extensionsmanager.py',
+  'displaydistancedialog.py',
+  'displaydistancedialogcontent.py',
   'failedverification.py',
   'license.py',
   'licensedialog.py',
@@ -47,8 +58,11 @@ breezydesktop_sources = [
   'shortcutdialog.py',
   'statemanager.py',
   'time.py',
+  'virtualdisplay.py',
+  'virtualdisplaymanager.py',
   'verify.py',
   'window.py'
 ]
 
 install_data(breezydesktop_sources, install_dir: moduledir)
+install_subdir('../lib', install_dir: moduledir)

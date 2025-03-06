@@ -10,8 +10,8 @@ const { MouseSpriteContent } = Me.imports.cursor;
 
 // Taken from https://github.com/jkitching/soft-brightness-plus
 var CursorManager = class CursorManager {
-    constructor(overlay, refreshRate) {
-        this._overlay = overlay;
+    constructor(targetMonitors, refreshRate) {
+        this._targetMonitors = targetMonitors;
         this._refreshRate = refreshRate;
 
         // Set/destroyed by _enableCloningMouse/_disableCloningMouse
@@ -56,7 +56,7 @@ var CursorManager = class CursorManager {
     // and will trigger _startCloningMouse when the cursor should be shown
     _enableCloningMouse() {
         Globals.logger.log_debug('CursorManager _enableCloningMouse');
-        this._cursorTracker = Meta.CursorTracker.get_for_display(global.display);
+        this._cursorTracker = global.backend.get_cursor_tracker?.() ?? Meta.CursorTracker.get_for_display(global.display);
 
         this._mouseSprite = new Clutter.Actor({ request_mode: Clutter.RequestMode.CONTENT_SIZE });
         this._mouseSprite.content = new MouseSpriteContent();
@@ -65,13 +65,17 @@ var CursorManager = class CursorManager {
         this._cursorRoot.add_child(this._mouseSprite);
     }
 
+    _backend() {
+        return global.stage.get_context?.().get_backend() ?? Clutter.get_default_backend();
+    }
+
     _hideSystemCursor() {
         this._systemCursorShown = false;
 
         this._cursorRoot.show();
 
         if (!this._cursorUnfocusInhibited) {
-            Clutter.get_default_backend().get_default_seat().inhibit_unfocus();
+            this._backend().get_default_seat().inhibit_unfocus();
             this._cursorUnfocusInhibited = true;
         }
 
@@ -114,20 +118,16 @@ var CursorManager = class CursorManager {
     // prereqs: setup in _enableCloningMouse
     _startCloningMouse() {
         Globals.logger.log_debug('CursorManager _startCloningMouse');
-        this._overlay.mainActor().add_child(this._cursorRoot);
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
-        Meta.disable_unredirect_for_display(global.display);
+        Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
 
         // cap the refresh rate for performance reasons
         const interval = 1000.0 / Math.min(this._refreshRate, 60);
 
         this._cursorWatch = PointerWatcher.getPointerWatcher().addWatch(interval, this._updateMousePosition.bind(this));
         this._updateMousePosition();
-
-        const [xMouse, yMouse] = global.get_pointer();
-        if (this._overlay.isWithinBounds(xMouse, yMouse)) this._hideSystemCursor();
     }
 
     // After this:
@@ -145,9 +145,8 @@ var CursorManager = class CursorManager {
 
         if (this._cursorTracker) this._cursorTracker.disconnectObject(this);
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
-        Meta.enable_unredirect_for_display(global.display);
+        Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
         
-        if (this._cursorRoot) this._overlay.mainActor().remove_child(this._cursorRoot);
         if (!this._systemCursorShown) this._showSystemCursor();
     }
 
@@ -157,7 +156,7 @@ var CursorManager = class CursorManager {
         if (this._cursorRoot) this._cursorRoot.hide();
 
         if (this._cursorUnfocusInhibited) {
-            Clutter.get_default_backend().get_default_seat().uninhibit_unfocus();
+            this._backend().get_default_seat().uninhibit_unfocus();
             this._cursorUnfocusInhibited = false;
         }
 
@@ -171,23 +170,56 @@ var CursorManager = class CursorManager {
 
     _updateMousePosition(...args) {
         const [xMouse, yMouse] = args.length ? args : global.get_pointer();
-        const inBounds = this._overlay.isWithinBounds(xMouse, yMouse);
-        const [xRel, yRel] = this._overlay.getRelativePosition(xMouse, yMouse);
+        let onMonitorIndex;
+        let xRel;
+        let yRel;
 
-        if (xRel === this.xMouse && yRel === this.yMouse)
-            return;
+        const inBoundsCheck = (monitorObj, index) => {
+            const inBoundsCoordinates = this._getInBoundsCoordinates(xMouse, yMouse, monitorObj.monitor);
+            if (inBoundsCoordinates) {
+                onMonitorIndex = index;
+                xRel = inBoundsCoordinates.xRel;
+                yRel = inBoundsCoordinates.yRel;
+                return true;
+            }
+            return false;
+        }
 
-        if (inBounds) {
+        // check the previously in-bounds monitor first to avoid iterating over the whole list in the likely case that the cursor 
+        // is still on the same monitor
+        if (this.onMonitorIndex === undefined || !inBoundsCheck(this._targetMonitors[this.onMonitorIndex], this.onMonitorIndex)) {
+            for (let i = 0; i < this._targetMonitors.length; i++) {
+                if (this.onMonitorIndex === i) continue;
+                if (inBoundsCheck(this._targetMonitors[i], i)) break;
+            }
+        }
+
+        if (this.onMonitorIndex !== onMonitorIndex) {
+            try {
+                if (this.onMonitorIndex !== undefined) this._targetMonitors[this.onMonitorIndex].actor.remove_child(this._cursorRoot);
+
+                this.onMonitorIndex = onMonitorIndex;
+                if (this.onMonitorIndex !== undefined) {
+                    const actor = this._targetMonitors[this.onMonitorIndex].actor;
+                    actor.add_child(this._cursorRoot);
+                    actor.set_child_above_sibling(this._cursorRoot, null);
+                }
+            } catch (e) {
+                Globals.logger.log_debug(e);
+            }
+        }
+
+        if (this.onMonitorIndex !== undefined) {
             if (this._systemCursorShown) this._hideSystemCursor();
             this._cursorRoot.set_position(xRel, yRel);
-        } else if (!this._systemCursorShown && !inBounds) {
+        } else if (!this._systemCursorShown) {
             this._showSystemCursor();
         }
 
-        this.xMouse = xRel;
-        this.yMouse = yRel;
+        this.xRel = xRel;
+        this.xRel = xRel;
 
-        const seat = Clutter.get_default_backend().get_default_seat();
+        const seat = this._backend().get_default_seat();
         if (this._cursorUnfocusInhibited && !seat.is_unfocus_inhibited()) {
             Globals.logger.log_debug('reinhibiting');
             seat.inhibit_unfocus();
@@ -212,5 +244,18 @@ var CursorManager = class CursorManager {
         } else {
             this._mouseSprite.hide();
         }
+    }
+
+    _getInBoundsCoordinates(x, y, monitor) {
+        const xRel = x - monitor.x;
+        const yRel = y - monitor.y;
+        if (xRel >= 0 && xRel < monitor.width && yRel >= 0 && yRel < monitor.height) {
+            return {
+                xRel,
+                yRel,
+            }
+        }
+        
+        return null;
     }
 }

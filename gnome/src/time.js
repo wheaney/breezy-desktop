@@ -7,5 +7,5 @@ function toSec(milliseconds) {
 }
 
 function isValidKeepAlive(dateSec) {
-    return Math.abs(toSec(Date.now()) - dateSec) <= 1;
+    return Math.abs(getEpochSec() - dateSec) <= 1;
 }

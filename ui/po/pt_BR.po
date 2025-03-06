@@ -7,18 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 13:27-0700\n"
+"POT-Creation-Date: 2025-03-05 12:28-0800\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
-"Language-Team: Brazilian Portuguese <ldpbr-translation@lists.sourceforge."
-"net>\n"
+"Language-Team: Brazilian Portuguese <ldpbr-"
+"translation@lists.sourceforge.net>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/connecteddevice.py:17
+#: src/connecteddevice.py:23
 msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
@@ -26,9 +26,55 @@ msgstr ""
 "Altera o modo dos óculos para lado a lado (SBS) e dobra a largura da tela "
 "(ultrawide)."
 
-#: src/connecteddevice.py:18
+#: src/connecteddevice.py:24
 msgid "This feature is not currently supported for your device."
 msgstr "Este recurso não é atualmente suportado para o seu dispositivo."
+
+#: src/connecteddevice.py:124
+#, fuzzy
+msgid "Set Focused Display Distance"
+msgstr "Distância da tela"
+
+#: src/connecteddevice.py:125
+msgid "Use a closer value so the display zooms in when you look at it."
+msgstr ""
+
+#: src/connecteddevice.py:132
+#, fuzzy
+msgid "Set All Displays Distance"
+msgstr "Distância da tela"
+
+#: src/connecteddevice.py:133
+msgid "Use a farther value so the displays are zoomed out when you look away."
+msgstr ""
+
+#: src/connecteddevice.py:231
+msgid ""
+"Unable to add virtual displays on this machine. xdg-desktop-portal is "
+"required."
+msgstr ""
+
+#: src/connecteddevice.py:265
+#, fuzzy
+msgid "Focused display"
+msgstr "Distância da tela"
+
+#: src/connecteddevice.py:271
+#, fuzzy
+msgid "All displays"
+msgstr "Tela curva"
+
+#: src/displaydistancedialogcontent.py:41
+msgid "closer"
+msgstr ""
+
+#: src/displaydistancedialogcontent.py:45
+msgid "fullscreen"
+msgstr ""
+
+#: src/displaydistancedialogcontent.py:48
+msgid "farther"
+msgstr ""
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -38,7 +84,7 @@ msgstr "Status do Nível Pago"
 msgid "Feature Availability"
 msgstr "Disponibilidade de Recursos"
 
-#: src/licensefeaturerow.py:15 src/shortcutdialog.py:107
+#: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
 msgid "Disabled"
 msgstr "Desabilitado"
 
@@ -167,125 +213,183 @@ msgid "Enables the Breezy Desktop XR effect."
 msgstr "Habilita o efeito XR do Breezy Desktop."
 
 #: src/gtk/connected-device.ui:55
-msgid "Widescreen mode"
-msgstr "Modo Ultrawide"
+msgid "Zoom on focus"
+msgstr ""
 
-#: src/gtk/connected-device.ui:66
+#: src/gtk/connected-device.ui:56
+msgid ""
+"Automatically move a display closer when you look at it.\n"
+"Set your preferred focused and unfocused distances in the Adjustments "
+"section.\n"
+"                        "
+msgstr ""
+
+#: src/gtk/connected-device.ui:69
 msgid "Follow mode"
 msgstr "Modo de acompanhamento"
 
-#: src/gtk/connected-device.ui:67
-msgid "Keep the virtual display near the center of your view."
+#: src/gtk/connected-device.ui:70
+#, fuzzy
+msgid "Keep the focused display near the center of your view."
 msgstr "Mantenha a tela virtual próxima ao centro da sua visão."
 
-#: src/gtk/connected-device.ui:77
-msgid "Curved display"
-msgstr "Tela curva"
+#: src/gtk/connected-device.ui:80 src/gtk/no-device.ui:34
+msgid "Disable physical displays"
+msgstr ""
 
-#: src/gtk/connected-device.ui:78
-msgid "Switch between flat and curved displays."
-msgstr "Alterne entre tela plana e tela curva."
+#: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:35
+msgid ""
+"Automatically disable all physical displays when the XR effect is enabled."
+msgstr ""
 
 #: src/gtk/connected-device.ui:91
+#, fuzzy
+msgid "Virtual displays"
+msgstr "Tela curva"
+
+#: src/gtk/connected-device.ui:103
+#, fuzzy
+msgid "Rearrange displays"
+msgstr "Tela curva"
+
+#: src/gtk/connected-device.ui:115
+msgid "1080p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:116
+msgid "1440p"
+msgstr ""
+
+#: src/gtk/connected-device.ui:140
 msgid "Adjustments"
 msgstr "Ajustes"
 
-#: src/gtk/connected-device.ui:94
-msgid "Display distance"
+#: src/gtk/connected-device.ui:143
+#, fuzzy
+msgid "Display distances"
 msgstr "Distância da tela"
 
-#: src/gtk/connected-device.ui:95
-msgid ""
-"Closer appears larger, further appears smaller. Controls depth when in "
-"widescreen mode."
+#: src/gtk/connected-device.ui:144
+msgid "Set how close you want displays to appear."
 msgstr ""
-"Mais perto parece maior, mais longe parece menor. Controla a profundidade no "
-"modo ultrawide."
 
-#: src/gtk/connected-device.ui:123
-msgid "Display size"
-msgstr "Tamanho da tela"
-
-#: src/gtk/connected-device.ui:124
-msgid ""
-"Combine with display distance to achieve a comfortable level of depth and "
-"size."
-msgstr ""
-"Combine com a distância da tela para alcançar um nível confortável de "
-"profundidade e tamanho."
-
-#: src/gtk/connected-device.ui:152
-msgid "Display toggle distances"
-msgstr "Alternância das distâncias de tela"
-
-#: src/gtk/connected-device.ui:153
-msgid ""
-"Use the buttons to capture the current display distance for use with the "
-"keyboard shortcut."
-msgstr ""
-"Use os botões para obter a distância atual da tela para depois usar com o "
-"atalho de teclado."
-
-#: src/gtk/connected-device.ui:178
+#: src/gtk/connected-device.ui:199
 msgid "Follow threshold"
 msgstr "Sensibilidade do modo de acompanhamento"
 
-#: src/gtk/connected-device.ui:179
+#: src/gtk/connected-device.ui:200
 msgid "How far away you can look before the display follows."
 msgstr "Quanto você pode mover a cabeça antes que a tela te acompanhe."
 
-#: src/gtk/connected-device.ui:209 src/gtk/connected-device.ui:215
+#: src/gtk/connected-device.ui:223
+#, fuzzy
+msgid "Display angling"
+msgstr "Tamanho da tela"
+
+#: src/gtk/connected-device.ui:224
+msgid ""
+"When there are multiple displays, choose how they should angle towards you."
+msgstr ""
+
+#: src/gtk/connected-device.ui:238
+msgid "Automatic"
+msgstr ""
+
+#: src/gtk/connected-device.ui:239
+msgid "Side-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:240
+msgid "Top-angled"
+msgstr ""
+
+#: src/gtk/connected-device.ui:241
+msgid "Flat"
+msgstr ""
+
+#: src/gtk/connected-device.ui:251
+#, fuzzy
+msgid "Display spacing"
+msgstr "Tamanho da tela"
+
+#: src/gtk/connected-device.ui:252
+msgid "Put empty space between displays, when there are multiple."
+msgstr ""
+
+#: src/gtk/connected-device.ui:282
+msgid "Viewport horizontal offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:283
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport to the left or right."
+msgstr ""
+
+#: src/gtk/connected-device.ui:312
+msgid "Viewport vertical offset"
+msgstr ""
+
+#: src/gtk/connected-device.ui:313
+msgid ""
+"By default, the viewport will center on the primary display. Use this slider "
+"to move the viewport up or down."
+msgstr ""
+
+#: src/gtk/connected-device.ui:349 src/gtk/connected-device.ui:355
 msgid "Keyboard Shortcuts"
 msgstr "Atalhos de teclado"
 
-#: src/gtk/connected-device.ui:218
+#: src/gtk/connected-device.ui:358
 msgid "XR Effect on/off shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:219
+#: src/gtk/connected-device.ui:359
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
 
-#: src/gtk/connected-device.ui:238 src/gtk/connected-device.ui:267
-#: src/gtk/connected-device.ui:296 src/gtk/connected-device.ui:325
+#: src/gtk/connected-device.ui:378 src/gtk/connected-device.ui:407
+#: src/gtk/connected-device.ui:436 src/gtk/connected-device.ui:465
 msgid "Change"
 msgstr "Alterar"
 
-#: src/gtk/connected-device.ui:247
+#: src/gtk/connected-device.ui:387
 msgid "Re-center display shortcut"
 msgstr "Atalho para recentralizar a tela"
 
-#: src/gtk/connected-device.ui:248
+#: src/gtk/connected-device.ui:388
 msgid "Pin the virtual display to the current position."
 msgstr "Traga a tela virtual para onde você está olhando."
 
-#: src/gtk/connected-device.ui:276
-msgid "Display distance shortcut"
-msgstr "Atalho de distância da tela"
+#: src/gtk/connected-device.ui:416
+#, fuzzy
+msgid "Toggle zoom on focus shortcut"
+msgstr "Atalho para alternar o modo de acompanhamento"
 
-#: src/gtk/connected-device.ui:277
-msgid "Quickly toggle between two predefined distances."
-msgstr "Alterne rapidamente entre as duas distâncias predefinidas."
+#: src/gtk/connected-device.ui:417
+#, fuzzy
+msgid "Quickly toggle zoom on focus mode."
+msgstr "Alterne rapidamente o modo de acompanhamento."
 
-#: src/gtk/connected-device.ui:305
+#: src/gtk/connected-device.ui:445
 msgid "Toggle follow mode shortcut"
 msgstr "Atalho para alternar o modo de acompanhamento"
 
-#: src/gtk/connected-device.ui:306
+#: src/gtk/connected-device.ui:446
 msgid "Quickly toggle follow mode."
 msgstr "Alterne rapidamente o modo de acompanhamento."
 
-#: src/gtk/connected-device.ui:341 src/gtk/connected-device.ui:347
+#: src/gtk/connected-device.ui:481 src/gtk/connected-device.ui:487
 msgid "Advanced Settings"
 msgstr "Configurações Avançadas"
 
-#: src/gtk/connected-device.ui:350
+#: src/gtk/connected-device.ui:490
 msgid "Find optimal display config"
 msgstr "Encontre a configuração de tela ideal"
 
-#: src/gtk/connected-device.ui:351
+#: src/gtk/connected-device.ui:491
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -293,42 +397,30 @@ msgstr ""
 "Modifique automaticamente a configuração de exibição dos óculos para máxima "
 "resolução e melhor dimensionamento quando conectado."
 
-#: src/gtk/connected-device.ui:361
+#: src/gtk/connected-device.ui:501
 msgid "Use highest refresh rate"
 msgstr "Use a taxa de atualização mais alta"
 
-#: src/gtk/connected-device.ui:362
+#: src/gtk/connected-device.ui:502
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "A taxa de atualização pode afetar o desempenho, desative-a para defini-la "
 "manualmente."
 
-#: src/gtk/connected-device.ui:372
+#: src/gtk/connected-device.ui:512
 msgid "Always primary display"
 msgstr "Sempre tela principal"
 
-#: src/gtk/connected-device.ui:373
+#: src/gtk/connected-device.ui:513
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 "Defina automaticamente os óculos como a tela primária quando conectados."
 
-#: src/gtk/connected-device.ui:383
-msgid "Fast SBS mode switching"
-msgstr "Alternância rápida do modo SBS"
-
-#: src/gtk/connected-device.ui:384
-msgid ""
-"Switches glasses to SBS mode immediately when plugged in, if widescreen mode "
-"is on. May cause instability."
-msgstr ""
-"Altera os óculos para o modo SBS imediatamente quando conectados, se o modo "
-"ultrawide estiver ativado. Pode causar instabilidade."
-
-#: src/gtk/connected-device.ui:394
+#: src/gtk/connected-device.ui:523
 msgid "Movement look-ahead"
 msgstr "Antecipação de movimento"
 
-#: src/gtk/connected-device.ui:395
+#: src/gtk/connected-device.ui:524
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -339,18 +431,34 @@ msgstr ""
 "virtual tenha atrasos, avance ou seja muito instável em relação aos "
 "movimentos da cabeça "
 
-#: src/gtk/connected-device.ui:413
+#: src/gtk/connected-device.ui:542
 msgid "Default"
 msgstr "Padrão"
 
-#: src/gtk/connected-device.ui:425
+#: src/gtk/connected-device.ui:554
 msgid "Text Scaling"
 msgstr "Redimensionamento de Texto"
 
-#: src/gtk/connected-device.ui:426
+#: src/gtk/connected-device.ui:555
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "Redimensionar o texto abaixo de 1.0 simulará uma tela de resolução mais alta"
+
+#: src/gtk/connected-device.ui:585
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#: src/gtk/connected-device.ui:586
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr ""
+
+#: src/gtk/display-distance-dialog.ui:9
+msgid "Show full range"
+msgstr ""
+
+#: src/gtk/display-distance-dialog.ui:18
+msgid "Done"
+msgstr ""
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -399,15 +507,6 @@ msgstr "Efeito XR"
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
-msgstr ""
-
-#: src/gtk/no-device.ui:34
-#, fuzzy
-msgid "Start in widescreen mode"
-msgstr "Modo Ultrawide"
-
-#: src/gtk/no-device.ui:35
-msgid "Widescreen mode is not supported for all glasses."
 msgstr ""
 
 #: src/gtk/no-driver.ui:13
@@ -516,3 +615,57 @@ msgstr "Forçar redefinição"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Sobre o BreezyDesktop"
+
+#~ msgid "Fast SBS mode switching"
+#~ msgstr "Alternância rápida do modo SBS"
+
+#~ msgid ""
+#~ "Switches glasses to SBS mode immediately when plugged in, if widescreen "
+#~ "mode is on. May cause instability."
+#~ msgstr ""
+#~ "Altera os óculos para o modo SBS imediatamente quando conectados, se o "
+#~ "modo ultrawide estiver ativado. Pode causar instabilidade."
+
+#, fuzzy
+#~ msgid "Set Unfocused Displays Distance"
+#~ msgstr "Distância da tela"
+
+#~ msgid "Widescreen mode"
+#~ msgstr "Modo Ultrawide"
+
+#~ msgid "Switch between flat and curved displays."
+#~ msgstr "Alterne entre tela plana e tela curva."
+
+#~ msgid ""
+#~ "Closer appears larger, further appears smaller. Controls depth when in "
+#~ "widescreen mode."
+#~ msgstr ""
+#~ "Mais perto parece maior, mais longe parece menor. Controla a profundidade "
+#~ "no modo ultrawide."
+
+#~ msgid ""
+#~ "Combine with display distance to achieve a comfortable level of depth and "
+#~ "size."
+#~ msgstr ""
+#~ "Combine com a distância da tela para alcançar um nível confortável de "
+#~ "profundidade e tamanho."
+
+#~ msgid "Display toggle distances"
+#~ msgstr "Alternância das distâncias de tela"
+
+#~ msgid ""
+#~ "Use the buttons to capture the current display distance for use with the "
+#~ "keyboard shortcut."
+#~ msgstr ""
+#~ "Use os botões para obter a distância atual da tela para depois usar com o "
+#~ "atalho de teclado."
+
+#~ msgid "Display distance shortcut"
+#~ msgstr "Atalho de distância da tela"
+
+#~ msgid "Quickly toggle between two predefined distances."
+#~ msgstr "Alterne rapidamente entre as duas distâncias predefinidas."
+
+#, fuzzy
+#~ msgid "Start in widescreen mode"
+#~ msgstr "Modo Ultrawide"

@@ -37,7 +37,7 @@
                 <property name="margin-end">20</property>
                 <property name="spacing">20</property>
                 <child>
-                  <object class="AdwPreferencesGroup">
+                  <object class="AdwPreferencesGroup" id="top_features_group">
                     <property name="title" translatable="yes"><!-- section heading for switches that enable certain features -->Features</property>
                     <child>
                       <object class="AdwActionRow">
@@ -51,11 +51,14 @@
                       </object>
                     </child>
                     <child>
-                      <object class="AdwActionRow" id="widescreen_mode_row">
-                        <property name="title" translatable="yes"><!-- feature switch -->Widescreen mode</property>
-                        <property name="valign">2</property>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- feature switch -->Zoom on focus</property>
+                        <property name="subtitle" translatable="yes"><!--
+                          -->Automatically move a display closer when you look at it.
+<!--                      -->Set your preferred focused and unfocused distances in the Adjustments section.
+                        </property>
                         <child>
-                          <object class="GtkSwitch" id="widescreen_mode_switch">
+                          <object class="GtkSwitch" id="display_zoom_on_focus_switch">
                             <property name="valign">3</property>
                           </object>
                         </child>
@@ -64,7 +67,7 @@
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->Follow mode</property>
-                        <property name="subtitle" translatable="yes">Keep the virtual display near the center of your view.</property>
+                        <property name="subtitle" translatable="yes">Keep the focused display near the center of your view.</property>
                         <child>
                           <object class="GtkSwitch" id="follow_mode_switch">
                             <property name="valign">3</property>
@@ -74,12 +77,58 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- feature switch -->Curved display</property>
-                        <property name="subtitle" translatable="yes">Switch between flat and curved displays.</property>
+                        <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
+                        <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
+                        <child>
+                          <object class="GtkSwitch" id="disable_physical_displays_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow" id="virtual_displays_row">
+                        <property name="title" translatable="yes">Virtual displays</property>
                         <property name="valign">2</property>
                         <child>
-                          <object class="GtkSwitch" id="curved_display_switch">
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="width-request">150</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkButton" id="launch_display_settings_button">
+                                <property name="visible">0</property>
+                                <property name="name">launch-display-settings</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="yes">Rearrange displays</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="valign">3</property>
+                                <style>
+                                  <class name="flat"/>
+                                </style>
+                                <child>
+                                  <object class="GtkComboBoxText" id="add_virtual_display_menu">
+                                    <items>
+                                      <item translatable="yes" id="1080p">1080p</item>
+                                      <item translatable="yes" id="1440p">1440p</item>
+                                    </items>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="suffix">
+                          <object class="GtkButton" id="add_virtual_display_button">
+                            <property name="name">add-virtual-display</property>
+                            <property name="icon-name">list-add-symbolic</property>
                             <property name="valign">3</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -91,82 +140,54 @@
                     <property name="title" translatable="yes"><!-- Section containing sliders for adjusting the XR effect -->Adjustments</property>
                     <child>
                       <object class="AdwActionRow" id="display_distance_row">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Display distance</property>
-                        <property name="subtitle" translatable="yes">Closer appears larger, further appears smaller. Controls depth when in widescreen mode.</property>
-                        <child>
-                          <object class="GtkScale" id="display_distance_scale">
-                            <property name="valign">3</property>
-                            <property name="draw-value">true</property>
-                            <property name="value-pos">0</property>
-                            <property name="digits">2</property>
-                            <property name="width-request">350</property>
-                            <property name="has-origin">false</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="display_distance_adjustment">
-                                <property name="lower">0.2</property>
-                                <property name="upper">2.5</property>
-                                <property name="step-increment">0.01</property>
-                                <property name="value">1.05</property>
-                              </object>
-                            </property>
-                            <marks>
-                              <mark value="0.2" position="bottom"></mark>
-                              <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.5" position="bottom"></mark>
-                            </marks>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Display size</property>
-                        <property name="subtitle" translatable="yes">Combine with display distance to achieve a comfortable level of depth and size.</property>
-                        <child>
-                          <object class="GtkScale" id="display_size_scale">
-                            <property name="valign">3</property>
-                            <property name="draw-value">true</property>
-                            <property name="value-pos">0</property>
-                            <property name="digits">2</property>
-                            <property name="width-request">350</property>
-                            <property name="has-origin">false</property>
-                            <property name="adjustment">
-                              <object class="GtkAdjustment" id="display_size_adjustment">
-                                <property name="lower">0.2</property>
-                                <property name="upper">2.5</property>
-                                <property name="step-increment">0.01</property>
-                                <property name="value">1.0</property>
-                              </object>
-                            </property>
-                            <marks>
-                              <mark value="0.2" position="bottom"></mark>
-                              <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.5" position="bottom"></mark>
-                            </marks>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes"><!-- adjustment slider -->Display toggle distances</property>
-                        <property name="subtitle" translatable="yes">Use the buttons to capture the current display distance for use with the keyboard shortcut.</property>
-                        <property name="valign">2</property>
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display distances</property>
+                        <property name="subtitle" translatable="yes">Set how close you want displays to appear.</property>
                         <child>
                           <object class="GtkBox">
-                            <property name="spacing">30</property>
-                            <property name="width-request">150</property>
-                            <property name="margin-start">30</property>
+                            <property name="spacing">25</property>
+                            <property name="homogeneous">1</property>
+                            <property name="margin-top">15</property>
+                            <property name="margin-bottom">15</property>
                             <child>
-                              <object class="GtkButton" id="set_toggle_display_distance_start_button">
-                                <property name="name">toggle-display-distance-start</property>
-                                <property name="valign">3</property>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <child>
+                                  <object class="GtkLabel" id="focused_display_distance_label">
+                                    <property name="label" translatable="yes"></property>
+                                    <property name="valign">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="change_focused_display_distance_button">
+                                    <property name="name">set-all-displays-distance</property>
+                                    <property name="valign">3</property>
+                                    <property name="label">Change</property>
+                                    <property name="margin-start">20</property>
+                                    <property name="margin-end">20</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                             <child>
-                              <object class="GtkButton" id="set_toggle_display_distance_end_button">
-                                <property name="name">toggle-display-distance-end</property>
-                                <property name="valign">3</property>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <child>
+                                  <object class="GtkLabel" id="all_displays_distance_label">
+                                    <property name="label" translatable="yes"></property>
+                                    <property name="valign">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="change_all_displays_distance_button">
+                                    <property name="name">set-all-displays-distance</property>
+                                    <property name="valign">3</property>
+                                    <property name="label">Change</property>
+                                    <property name="margin-start">20</property>
+                                    <property name="margin-end">20</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -193,6 +214,125 @@
                                 <property name="value">15</property>
                               </object>
                             </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- dropdown menu -->Display angling</property>
+                        <property name="subtitle" translatable="yes">When there are multiple displays, choose how they should angle towards you.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="width-request">150</property>
+                            <property name="margin-start">30</property>
+                            <property name="valign">3</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                            <child>
+                              <object class="GtkComboBoxText" id="monitor_wrapping_scheme_menu">
+                                <items>
+                                  <item translatable="yes" id="automatic">Automatic</item>
+                                  <item translatable="yes" id="horizontal">Side-angled</item>
+                                  <item translatable="yes" id="vertical">Top-angled</item>
+                                  <item translatable="yes" id="none">Flat</item>
+                                </items>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display spacing</property>
+                        <property name="subtitle" translatable="yes">Put empty space between displays, when there are multiple.</property>
+                        <child>
+                          <object class="GtkScale" id="monitor_spacing_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="monitor_spacing_adjustment">
+                                <property name="lower">0</property>
+                                <property name="upper">100</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0" position="bottom">0</mark>
+                              <mark value="25" position="bottom"></mark>
+                              <mark value="50" position="bottom">50</mark>
+                              <mark value="75" position="bottom"></mark>
+                              <mark value="100" position="bottom">100</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Viewport horizontal offset</property>
+                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport to the left or right.</property>
+                        <child>
+                          <object class="GtkScale" id="viewport_offset_x_scale">
+                            <property name="valign">3</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">1</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="viewport_offset_x_adjustment">
+                                <property name="lower">-2.5</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.1</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-2.0" position="bottom">left</mark>
+                              <mark value="-1.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom">center</mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom">right</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Viewport vertical offset</property>
+                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport up or down.</property>
+                        <child>
+                          <object class="GtkScale" id="viewport_offset_y_scale">
+                            <property name="valign">3</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">1</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="viewport_offset_y_adjustment">
+                                <property name="lower">-2.5</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.1</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="-2.0" position="bottom">down</mark>
+                              <mark value="-1.0" position="bottom"></mark>
+                              <mark value="0.0" position="bottom">center</mark>
+                              <mark value="1.0" position="bottom"></mark>
+                              <mark value="2.0" position="bottom">up</mark>
+                            </marks>
                           </object>
                         </child>
                       </object>
@@ -273,8 +413,8 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes">Display distance shortcut</property>
-                        <property name="subtitle" translatable="yes">Quickly toggle between two predefined distances.</property>
+                        <property name="title" translatable="yes">Toggle zoom on focus shortcut</property>
+                        <property name="subtitle" translatable="yes">Quickly toggle zoom on focus mode.</property>
                         <property name="valign">2</property>
                         <child>
                           <object class="GtkBox">
@@ -380,17 +520,6 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
-                        <property name="title" translatable="yes">Fast SBS mode switching</property>
-                        <property name="subtitle" translatable="yes">Switches glasses to SBS mode immediately when plugged in, if widescreen mode is on. May cause instability.</property>
-                        <child>
-                          <object class="GtkSwitch" id="fast_sbs_mode_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Movement look-ahead</property>
                         <property name="subtitle" translatable="yes">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
                         <child>
@@ -447,6 +576,17 @@
                               <mark value="1.25" position="bottom">1.25</mark>
                               <mark value="1.5" position="bottom">1.5</mark>
                             </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Enable multi-tap detection</property>
+                        <property name="subtitle" translatable="yes">Enables double-tap to recenter and triple-tap to recalibrate.</property>
+                        <child>
+                          <object class="GtkSwitch" id="enable_multi_tap_switch">
+                            <property name="valign">3</property>
                           </object>
                         </child>
                       </object>
