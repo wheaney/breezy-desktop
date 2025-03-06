@@ -32,13 +32,14 @@
             <property name="icon-name">applications-system-symbolic</property>
             <property name="child">
               <object class="GtkBox">
-                <property name="orientation">1</property>
+                <property name="orientation">2</property>
                 <property name="margin-start">20</property>
                 <property name="margin-end">20</property>
                 <property name="spacing">20</property>
                 <child>
                   <object class="AdwPreferencesGroup" id="top_features_group">
                     <property name="title" translatable="yes"><!-- section heading for switches that enable certain features -->Features</property>
+                    <property name="width-request">450</property>
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->XR effect</property>
@@ -96,14 +97,6 @@
                             <property name="width-request">150</property>
                             <property name="margin-start">30</property>
                             <child>
-                              <object class="GtkButton" id="launch_display_settings_button">
-                                <property name="visible">0</property>
-                                <property name="name">launch-display-settings</property>
-                                <property name="valign">3</property>
-                                <property name="label" translatable="yes">Rearrange displays</property>
-                              </object>
-                            </child>
-                            <child>
                               <object class="GtkBox">
                                 <property name="valign">3</property>
                                 <style>
@@ -133,11 +126,28 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow" id="launch_display_settings_row">
+                        <property name="title" translatable="yes">Rearrange displays</property>
+                        <property name="visible">0</property>
+                        <child type="suffix">
+                          <object class="GtkButton" id="launch_display_settings_button">
+                            <property name="name">rearrange-virtual-displays</property>
+                            <property name="icon-name">send-to-symbolic</property>
+                            <property name="valign">3</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
                   <object class="AdwPreferencesGroup">
                     <property name="title" translatable="yes"><!-- Section containing sliders for adjusting the XR effect -->Adjustments</property>
+                    <property name="width-request">700</property>
                     <child>
                       <object class="AdwActionRow" id="display_distance_row">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Display distances</property>
