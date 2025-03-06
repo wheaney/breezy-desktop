@@ -35,10 +35,10 @@ index 36ad7ee..41102a0 100644
  }, class MouseSpriteContent extends GObject.Object {
      _init() {
 diff --git a/gnome-44-max/src/cursormanager.js b/gnome-44-max/src/cursormanager.js
-index 52d1341..86d8a76 100644
+index b8470d1..a4c048a 100644
 --- a/gnome-44-max/src/cursormanager.js
 +++ b/gnome-44-max/src/cursormanager.js
-@@ -1,12 +1,15 @@
+@@ -1,11 +1,15 @@
 -import Clutter from 'gi://Clutter';
 -import Meta from 'gi://Meta';
 -import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
@@ -47,7 +47,7 @@ index 52d1341..86d8a76 100644
 +const Clutter = imports.gi.Clutter;
 +const Meta = imports.gi.Meta;
 +const PointerWatcher = imports.ui.pointerWatcher;
- 
++
 +const ExtensionUtils = imports.misc.extensionUtils;
 +const Me = ExtensionUtils.getCurrentExtension();
 +
@@ -57,27 +57,66 @@ index 52d1341..86d8a76 100644
  // Taken from https://github.com/jkitching/soft-brightness-plus
 -export class CursorManager {
 +var CursorManager = class CursorManager {
-     constructor(overlay, refreshRate) {
-         this._overlay = overlay;
+     constructor(targetMonitors, refreshRate) {
+         this._targetMonitors = targetMonitors;
          this._refreshRate = refreshRate;
+diff --git a/gnome-44-max/src/devicedatastream.js b/gnome-44-max/src/devicedatastream.js
+index aae3706..d2e96c0 100644
+--- a/gnome-44-max/src/devicedatastream.js
++++ b/gnome-44-max/src/devicedatastream.js
+@@ -1,8 +1,12 @@
+-import Gio from 'gi://Gio';
+-import GObject from 'gi://GObject';
++const Gio = imports.gi.Gio;
++const GObject = imports.gi.GObject;
+ 
+-import Globals from './globals.js';
+-import { 
++const ExtensionUtils = imports.misc.extensionUtils;
++const Me = ExtensionUtils.getCurrentExtension();
++
++const Globals = Me.imports.globals;
++const { isValidKeepAlive, getEpochSec, toSec } = Me.imports.time;
++const {
+     dataViewEnd,
+     dataViewUint8,
+     dataViewBigUint,
+@@ -14,8 +18,7 @@ import {
+     FLOAT_SIZE,
+     UINT_SIZE,
+     UINT8_SIZE
+-} from "./ipc.js";
+-import { isValidKeepAlive, getEpochSec, toSec } from "./time.js";
++} = Me.imports.ipc;
+ 
+ const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
+ const KEEPALIVE_REFRESH_INTERVAL_SEC = 1;
+@@ -75,7 +78,7 @@ function nextDebugIMUQuaternion(counter) {
+     return [x, y, z, w];
+ }
+ 
+-export const DeviceDataStream = GObject.registerClass({
++var DeviceDataStream = GObject.registerClass({
+     Properties: {
+         'breezy-desktop-running': GObject.ParamSpec.boolean(
+             'breezy-desktop-running',
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index d8adda3..a24370f 100644
+index ea30261..814f170 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
-@@ -1,19 +1,21 @@
--import Clutter from 'gi://Clutter'
+@@ -1,28 +1,32 @@
 -import Gio from 'gi://Gio';
 -import GLib from 'gi://GLib';
 -import Meta from 'gi://Meta';
 -import Shell from 'gi://Shell';
+-import St from 'gi://St';
 -
 -import { CursorManager } from './cursormanager.js';
+-import { DeviceDataStream } from './devicedatastream.js';
 -import Globals from './globals.js';
 -import { Logger } from './logger.js';
--import { MonitorManager } from './monitormanager.js';
--import { Overlay } from './overlay.js';
--import { isValidKeepAlive } from './time.js';
--import { IPC_FILE_PATH, XREffect } from './xrEffect.js';
+-import { MonitorManager, NESTED_MONITOR_PRODUCT, SUPPORTED_MONITOR_PRODUCTS, VIRTUAL_MONITOR_PRODUCT } from './monitormanager.js';
+-import { VirtualDisplaysActor } from './virtualdisplaysactor.js';
 -
 -import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 -import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -86,6 +125,7 @@ index d8adda3..a24370f 100644
 +const GLib = imports.gi.GLib;
 +const Meta = imports.gi.Meta;
 +const Shell = imports.gi.Shell;
++const St = imports.gi.St;
 +
 +const Main = imports.ui.main;
 +
@@ -94,15 +134,13 @@ index d8adda3..a24370f 100644
 +
 +const Globals = Me.imports.globals;
 +const { CursorManager } = Me.imports.cursormanager;
++const { DeviceDataStream } = Me.imports.devicedatastream;
 +const { Logger } = Me.imports.logger;
-+const { MonitorManager } = Me.imports.monitormanager;
-+const { Overlay } = Me.imports.overlay;
-+const { isValidKeepAlive } = Me.imports.time;
-+const { IPC_FILE_PATH, XREffect } = Me.imports.xrEffect;
++const { MonitorManager, NESTED_MONITOR_PRODUCT, SUPPORTED_MONITOR_PRODUCTS, VIRTUAL_MONITOR_PRODUCT } = Me.imports.monitormanager;
++const { VirtualDisplaysActor } = Me.imports.virtualdisplaysactor;
++
  
- const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
- const SUPPORTED_MONITOR_PRODUCTS = [
-@@ -33,11 +35,11 @@ const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_h
+ const BIN_HOME = GLib.getenv('XDG_BIN_HOME') || GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin']);
  const XDG_CLI_PATH = GLib.build_filenamev([BIN_HOME, 'xr_driver_cli']);
  const ALT_CLI_PATH = '/usr/bin/xr_driver_cli';
  
@@ -119,7 +157,7 @@ index d8adda3..a24370f 100644
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -645,6 +647,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -615,6 +619,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -129,13 +167,16 @@ index d8adda3..a24370f 100644
 +    return new BreezyDesktopExtension(meta.path);
  }
 diff --git a/gnome-44-max/src/globals.js b/gnome-44-max/src/globals.js
-index 124d2e1..79a3a87 100644
+index f11451c..4b5c65b 100644
 --- a/gnome-44-max/src/globals.js
 +++ b/gnome-44-max/src/globals.js
-@@ -2,5 +2,4 @@ const Globals = {
+@@ -1,7 +1,6 @@
+-const Globals = {
++var Globals = {
      logger:         null,   
      ipc_file:       null,   // Gio.File instance, file exists if set
-     extension_dir:  null    // string path
+     extension_dir:  null,   // string path
+     data_stream:    null,   // DeviceDataStream instance
 -}
 -export default Globals;
 \ No newline at end of file
@@ -212,7 +253,7 @@ index a729368..d5f7ab0 100644
      let offset = dataViewInfo[DATA_VIEW_INFO_OFFSET_INDEX];
      for (let i = 0; i < dataViewInfo[DATA_VIEW_INFO_COUNT_INDEX]; i++) {
 diff --git a/gnome-44-max/src/logger.js b/gnome-44-max/src/logger.js
-index 50450c1..8b307fc 100644
+index 5bdf115..138a98a 100644
 --- a/gnome-44-max/src/logger.js
 +++ b/gnome-44-max/src/logger.js
 @@ -14,15 +14,15 @@
@@ -238,15 +279,21 @@ index 50450c1..8b307fc 100644
      Properties: {
          'title': GObject.ParamSpec.string(
 diff --git a/gnome-44-max/src/math.js b/gnome-44-max/src/math.js
-index 497274e..6c98cdb 100644
+index f1c9983..9a98c7b 100644
 --- a/gnome-44-max/src/math.js
 +++ b/gnome-44-max/src/math.js
-@@ -1,3 +1,3 @@
+@@ -1,9 +1,9 @@
 -export function degreeToRadian(degree) {
 +function degreeToRadian(degree) {
      return degree * Math.PI / 180;
  }
-\ No newline at end of file
+ 
+ // FOV in radians is spherical, so doesn't follow Pythagoras' theorem
+-export function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
++function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
+     // first convert from a spherical FOV to a diagonal FOV on a flat plane at a generic distance of 1.0
+     const flatDiagonalFOV = 2 * Math.tan(diagonalFOVRadians / 2);
+ 
 diff --git a/gnome-44-max/src/metadata.json b/gnome-44-max/src/metadata.json
 index 125954e..c888f94 100644
 --- a/gnome-44-max/src/metadata.json
@@ -262,10 +309,10 @@ index 125954e..c888f94 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/monitormanager.js b/gnome-44-max/src/monitormanager.js
-index 6cf5532..580925c 100644
+index 4c57171..080924d 100644
 --- a/gnome-44-max/src/monitormanager.js
 +++ b/gnome-44-max/src/monitormanager.js
-@@ -16,12 +16,15 @@
+@@ -16,16 +16,19 @@
  // You should have received a copy of the GNU General Public License
  // along with this program.  If not, see <https://www.gnu.org/licenses/>.
  
@@ -280,12 +327,19 @@ index 6cf5532..580925c 100644
 -import Globals from './globals.js';
 +const ExtensionUtils = imports.misc.extensionUtils;
 +const Me = ExtensionUtils.getCurrentExtension();
-+
+ 
+-export const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
+-export const VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
+-export const SUPPORTED_MONITOR_PRODUCTS = [
 +const Globals = Me.imports.globals;
- 
- let cachedDisplayConfigProxy = null;
- 
-@@ -43,7 +46,7 @@ function getDisplayConfigProxy(extPath) {
++
++var NESTED_MONITOR_PRODUCT = 'MetaMonitor';
++var VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
++var SUPPORTED_MONITOR_PRODUCTS = [
+     'VITURE',
+     'nreal air',
+     'Air',
+@@ -58,7 +61,7 @@ function getDisplayConfigProxy(extPath) {
      return cachedDisplayConfigProxy;
  }
  
@@ -294,7 +348,7 @@ index 6cf5532..580925c 100644
      const DisplayConfigProxy = getDisplayConfigProxy(extPath);
      new DisplayConfigProxy(
          Gio.DBus.session,
-@@ -243,7 +246,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
+@@ -366,7 +369,7 @@ function performOptimalModeCheck(displayConfigProxy, connectorName, headsetAsPri
  }
  
  // Monitor change handling
@@ -303,31 +357,6 @@ index 6cf5532..580925c 100644
      Properties: {
          'use-optimal-monitor-config': GObject.ParamSpec.boolean(
              'use-optimal-monitor-config',
-diff --git a/gnome-44-max/src/overlay.js b/gnome-44-max/src/overlay.js
-index c42af7c..1c917dc 100644
---- a/gnome-44-max/src/overlay.js
-+++ b/gnome-44-max/src/overlay.js
-@@ -1,11 +1,14 @@
--import Clutter from 'gi://Clutter'
--import Shell from 'gi://Shell';
--import St from 'gi://St';
-+const Clutter = imports.gi.Clutter;
-+const Shell = imports.gi.Shell;
-+const St = imports.gi.St;
- 
--import { SystemBackground } from './systembackground.js';
--import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-+const Main = imports.ui.main;
- 
--export class Overlay {
-+const ExtensionUtils = imports.misc.extensionUtils;
-+const Me = ExtensionUtils.getCurrentExtension();
-+const { SystemBackground } = Me.imports.systembackground;
-+
-+var Overlay = class {
-     constructor(targetMonitor) {
-         this._overlayContent = new Clutter.Actor({clip_to_allocation: true});
-         this._overlay = new St.Bin({
 diff --git a/gnome-44-max/src/shader.js b/gnome-44-max/src/shader.js
 index f70c96d..352be40 100644
 --- a/gnome-44-max/src/shader.js
@@ -341,33 +370,8 @@ index f70c96d..352be40 100644
      const file = Gio.file_new_for_path(path);
      const data = file.load_contents(null);
  
-diff --git a/gnome-44-max/src/systembackground.js b/gnome-44-max/src/systembackground.js
-index cf7a3bb..cbf0a75 100644
---- a/gnome-44-max/src/systembackground.js
-+++ b/gnome-44-max/src/systembackground.js
-@@ -1,14 +1,14 @@
--import Clutter from 'gi://Clutter';
--import Cogl from 'gi://Cogl';
--import GLib from 'gi://GLib';
--import GObject from 'gi://GObject';
--import Meta from 'gi://Meta';
-+const Clutter = imports.gi.Clutter;
-+const Cogl = imports.gi.Cogl;
-+const GLib = imports.gi.GLib;
-+const GObject = imports.gi.GObject;
-+const Meta = imports.gi.Meta;
- 
- const DEFAULT_BACKGROUND_COLOR = Clutter.Color?.from_pixel(0x2e3436ff) || new Cogl.Color({red: 40, green: 40, blue: 40, alpha: 255});
- 
- let _systemBackground;
- 
--export const SystemBackground = GObject.registerClass({
-+var SystemBackground = GObject.registerClass({
-     Signals: {'loaded': {}},
- }, class SystemBackground extends Meta.BackgroundActor {
-     _init() {
 diff --git a/gnome-44-max/src/time.js b/gnome-44-max/src/time.js
-index 017994a..3aa97d9 100644
+index 8c17207..fdfdac1 100644
 --- a/gnome-44-max/src/time.js
 +++ b/gnome-44-max/src/time.js
 @@ -1,11 +1,11 @@
@@ -383,100 +387,121 @@ index 017994a..3aa97d9 100644
  
 -export function isValidKeepAlive(dateSec) {
 +function isValidKeepAlive(dateSec) {
-     return Math.abs(toSec(Date.now()) - dateSec) <= 1;
+     return Math.abs(getEpochSec() - dateSec) <= 1;
  }
 \ No newline at end of file
-diff --git a/gnome-44-max/src/xrEffect.js b/gnome-44-max/src/xrEffect.js
-index 8590e0f..4394f43 100644
---- a/gnome-44-max/src/xrEffect.js
-+++ b/gnome-44-max/src/xrEffect.js
-@@ -1,13 +1,15 @@
--import Clutter from 'gi://Clutter';
+diff --git a/gnome-44-max/src/virtualdisplayeffect.js b/gnome-44-max/src/virtualdisplayeffect.js
+index 7fb013b..bb12660 100644
+--- a/gnome-44-max/src/virtualdisplayeffect.js
++++ b/gnome-44-max/src/virtualdisplayeffect.js
+@@ -1,16 +1,18 @@
+-import Clutter from 'gi://Clutter'
+-import Cogl from 'gi://Cogl';
+-import GLib from 'gi://GLib';
+-import GObject from 'gi://GObject';
+-import Shell from 'gi://Shell';
++const Clutter = imports.gi.Clutter;
++const Cogl = imports.gi.Cogl;
++const GLib = imports.gi.GLib;
++const GObject = imports.gi.GObject;
++const Shell = imports.gi.Shell;
+ 
+-import Globals from './globals.js';
+-import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
++const ExtensionUtils = imports.misc.extensionUtils;
++const Me = ExtensionUtils.getCurrentExtension();
+ 
++const Globals = Me.imports.globals;
++const { degreeToRadian, diagonalToCrossFOVs } = Me.imports.math;
+ 
+ // these need to mirror the values in XRLinuxDriver
+ // https://github.com/wheaney/XRLinuxDriver/blob/main/src/plugins/smooth_follow.c#L31
+-export const SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
++var SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
+ const SMOOTH_FOLLOW_SLERP_FACTOR = Math.pow(1-0.999, 1/SMOOTH_FOLLOW_SLERP_TIMELINE_MS);
+ 
+ // this mirror's how the driver's slerp function progresses so our effect will match it
+@@ -26,7 +28,7 @@ function lookAheadMS(imuDateMs, lookAheadCfg, override) {
+     return (override === -1 ? lookAheadCfg[0] : override) + dataAge;
+ }
+ 
+-export const VirtualDisplayEffect = GObject.registerClass({
++var VirtualDisplayEffect = GObject.registerClass({
+     Properties: {
+         'monitor-index': GObject.ParamSpec.int(
+             'monitor-index',
+diff --git a/gnome-44-max/src/virtualdisplaysactor.js b/gnome-44-max/src/virtualdisplaysactor.js
+index cab3c47..f69eef6 100644
+--- a/gnome-44-max/src/virtualdisplaysactor.js
++++ b/gnome-44-max/src/virtualdisplaysactor.js
+@@ -1,18 +1,19 @@
+-import Clutter from 'gi://Clutter'
 -import Cogl from 'gi://Cogl';
 -import GdkPixbuf from 'gi://GdkPixbuf';
 -import GLib from 'gi://GLib';
 -import GObject from 'gi://GObject';
+-import Mtk from 'gi://Mtk';
 -import Shell from 'gi://Shell';
--
--import Globals from './globals.js';
--
--import { 
+-import St from 'gi://St';
 +const Clutter = imports.gi.Clutter;
 +const Cogl = imports.gi.Cogl;
 +const GdkPixbuf = imports.gi.GdkPixbuf;
 +const GLib = imports.gi.GLib;
 +const GObject = imports.gi.GObject;
 +const Shell = imports.gi.Shell;
-+
++const St = imports.gi.St;
+ 
+-import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
+-import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
++const Main = imports.ui.main;
+ 
+-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 +const ExtensionUtils = imports.misc.extensionUtils;
 +const Me = ExtensionUtils.getCurrentExtension();
-+
+ 
+-import Globals from './globals.js';
++const { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } = Me.imports.virtualdisplayeffect;
 +const Globals = Me.imports.globals;
-+const { 
-     dataViewEnd,
-     dataViewUint8,
-     dataViewBigUint,
-@@ -21,12 +23,12 @@ import {
-     FLOAT_SIZE,
-     UINT_SIZE,
-     UINT8_SIZE
--} from "./ipc.js";
--import { degreeToRadian } from "./math.js";
--import { getShaderSource } from "./shader.js";
--import { isValidKeepAlive, toSec } from "./time.js";
-+} = Me.imports.ipc;
-+const { degreeToRadian } = Me.imports.math;
-+const { getShaderSource } = Me.imports.shader;
-+const { isValidKeepAlive, toSec } = Me.imports.time;
++const { degreeToRadian, diagonalToCrossFOVs } = Me.imports.math;
  
--export const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
-+var IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
- 
- // the driver should be using the same data layout version
- const DATA_LAYOUT_VERSION = 3;
-@@ -232,7 +234,7 @@ function checkParityByte(dataView) {
-     return parityByte === parity;
+ function applyQuaternionToVector(vector, quaternion) {
+     const t = [
+@@ -357,7 +358,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
+     return monitorPlacements;
  }
  
--export const XREffect = GObject.registerClass({
-+var XREffect = GObject.registerClass({
+-export const VirtualDisplaysActor = GObject.registerClass({
++var VirtualDisplaysActor = GObject.registerClass({
      Properties: {
-         'supported-device-detected': GObject.ParamSpec.boolean(
-             'supported-device-detected',
-@@ -380,8 +382,13 @@ export const XREffect = GObject.registerClass({
-             if (!this._initialized) {
-                 this.set_uniform_float(this.get_uniform_location('screenTexture'), 1, [0]);
+         'target-monitor': GObject.ParamSpec.jsobject(
+             'target-monitor',
+@@ -538,26 +539,19 @@ export const VirtualDisplaysActor = GObject.registerClass({
+         this._all_monitors = [
+             this.target_monitor,
+             ...this.virtual_monitors
+-        ]
+-
+-        const bannerTextureClippingRect = new Mtk.Rectangle({
+-            x: 0,
+-            y: 0,
+-            width: 800,
+-            height: 200
+-        });
++        ];
  
--                this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
--                this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
-+                try {
-+                    // this can break in GNOME 42
-+                    this.get_pipeline().set_layer_texture(1, calibratingImage.get_texture());
-+                    this.get_pipeline().set_layer_texture(2, customBannerImage.get_texture());
-+                } catch (e) {
-+                    Globals.logger.log(`ERROR: xrEffect.js vfunc_paint_target ${e.message}\n${e.stack}`);
-+                }
-                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('calibratingTexture'), 1);
-                 this.get_pipeline().set_uniform_1i(this.get_uniform_location('customBannerTexture'), 2);
+         const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
+         const calibratingImage = new Clutter.Image();
+         calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                   calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
+-        this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), bannerTextureClippingRect);
++        this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), null);
  
-diff --git a/modules/XRLinuxDriver b/modules/XRLinuxDriver
-index 53002af..91a5d65 160000
---- a/modules/XRLinuxDriver
-+++ b/modules/XRLinuxDriver
-@@ -1 +1 @@
--Subproject commit 53002afde8406eef7fe309206268ad6dc39e2da6
-+Subproject commit 91a5d65c57a63a8003ef4f8a2c36bc519104d54c
-diff --git a/modules/sombrero b/modules/sombrero
-index 76cb6bb..0ddc237 160000
---- a/modules/sombrero
-+++ b/modules/sombrero
-@@ -1 +1 @@
--Subproject commit 76cb6bb65e90dfe2abf5bd2db8e280ae6e03d5c6
-+Subproject commit 0ddc237b5b47208eb9f3f520177920f7ea157dfd
-diff --git a/ui/modules/PyXRLinuxDriverIPC b/ui/modules/PyXRLinuxDriverIPC
-index c3b0dda..e6ec3e3 160000
---- a/ui/modules/PyXRLinuxDriverIPC
-+++ b/ui/modules/PyXRLinuxDriverIPC
-@@ -1 +1 @@
--Subproject commit c3b0ddab302e11e517b57b621ff334faf03173de
-+Subproject commit e6ec3e309e63608552becff694e5f3c9d1e5bcc3
+         const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
+         const customBannerImage = new Clutter.Image();
+         customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                    customBanner.width, customBanner.height, customBanner.rowstride);
+-        this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), bannerTextureClippingRect);
++        this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), null);
+ 
+         this.bannerActor = new Clutter.Actor({
+             width: calibratingBanner.width,
