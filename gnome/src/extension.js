@@ -562,7 +562,7 @@ export default class BreezyDesktopExtension extends Extension {
             }
             if (this._virtual_displays_overlay) {
                 if (this._virtual_displays_actor) {
-                    this._virtual_displays_overlay.remove_child(this._virtual_displays_actor);
+                    this._virtual_displays_overlay.set_child(null);
                     this._virtual_displays_actor.destroy();
                     this._virtual_displays_actor = null;
                 }

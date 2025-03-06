@@ -894,7 +894,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         this.monitor_actors.forEach(({ viewport, containerActor, monitorClone, effect }) => {
             viewport.remove_effect(effect);
             containerActor.remove_child(monitorClone);
-            viewport.remove_child(containerActor);
+            viewport.set_child(null);
             this.remove_child(viewport);
         });
         this.monitor_actors = [];
