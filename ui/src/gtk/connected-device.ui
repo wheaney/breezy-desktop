@@ -530,6 +530,39 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Remove virtual displays on disable</property>
+                        <property name="subtitle" translatable="yes">Automatically remove virtual displays when the XR effect is disabled.</property>
+                        <child>
+                          <object class="GtkSwitch" id="remove_virtual_displays_on_disable_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Enable multi-tap detection</property>
+                        <property name="subtitle" translatable="yes">Enables double-tap to recenter and triple-tap to recalibrate.</property>
+                        <child>
+                          <object class="GtkSwitch" id="enable_multi_tap_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">All displays follow mode</property>
+                        <property name="subtitle" translatable="yes">Follow mode moves all displays, not just the focused one.</property>
+                        <child>
+                          <object class="GtkSwitch" id="legacy_follow_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Movement look-ahead</property>
                         <property name="subtitle" translatable="yes">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>
                         <child>
@@ -586,28 +619,6 @@
                               <mark value="1.25" position="bottom">1.25</mark>
                               <mark value="1.5" position="bottom">1.5</mark>
                             </marks>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes">Enable multi-tap detection</property>
-                        <property name="subtitle" translatable="yes">Enables double-tap to recenter and triple-tap to recalibrate.</property>
-                        <child>
-                          <object class="GtkSwitch" id="enable_multi_tap_switch">
-                            <property name="valign">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="AdwActionRow">
-                        <property name="title" translatable="yes">All displays follow mode</property>
-                        <property name="subtitle" translatable="yes">Follow mode moves all displays, not just the focused one.</property>
-                        <child>
-                          <object class="GtkSwitch" id="legacy_follow_mode_switch">
-                            <property name="valign">3</property>
                           </object>
                         </child>
                       </object>

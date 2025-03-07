@@ -583,8 +583,20 @@ export default class BreezyDesktopExtension extends Extension {
                 Globals.logger.log('Disabling SBS mode due to disabling effect');
                 this._write_control('sbs_mode', 'disable');
             }
+
+            if (!for_setup && this.settings.get_boolean('remove-virtual-displays-on-disable')) {
+                this._remove_virtual_displays();
+            }
         } catch (e) {
             Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
+        }
+    }
+
+    _remove_virtual_displays() {
+        try {
+            GLib.spawn_command_line_sync(`pkill -f "/virtualdisplay( |$)"`);
+        } catch (e) {
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _remove_virtual_displays ${e.message}\n${e.stack}`);
         }
     }
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 19:45-0800\n"
+"POT-Creation-Date: 2025-03-06 22:32-0800\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -29,36 +29,36 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Diese Funktion wird von Ihrem Gerät derzeit nicht unterstützt."
 
-#: src/connecteddevice.py:127
+#: src/connecteddevice.py:129
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Display-Entfernung"
 
-#: src/connecteddevice.py:128
+#: src/connecteddevice.py:130
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:135
+#: src/connecteddevice.py:137
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Display-Entfernung"
 
-#: src/connecteddevice.py:136
+#: src/connecteddevice.py:138
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:234
+#: src/connecteddevice.py:236
 msgid ""
 "Unable to add virtual displays on this machine. xdg-desktop-portal is "
 "required."
 msgstr ""
 
-#: src/connecteddevice.py:268
+#: src/connecteddevice.py:270
 #, fuzzy
 msgid "Focused display"
 msgstr "Display-Entfernung"
 
-#: src/connecteddevice.py:274
+#: src/connecteddevice.py:276
 #, fuzzy
 msgid "All displays"
 msgstr "Gebogenes Display"
@@ -420,10 +420,36 @@ msgstr ""
 "angeschlossen ist."
 
 #: src/gtk/connected-device.ui:533
+#, fuzzy
+msgid "Remove virtual displays on disable"
+msgstr "Gebogenes Display"
+
+#: src/gtk/connected-device.ui:534
+msgid "Automatically remove virtual displays when the XR effect is disabled."
+msgstr ""
+
+#: src/gtk/connected-device.ui:544
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#: src/gtk/connected-device.ui:545
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr ""
+
+#: src/gtk/connected-device.ui:555
+#, fuzzy
+msgid "All displays follow mode"
+msgstr "Gebogenes Display"
+
+#: src/gtk/connected-device.ui:556
+msgid "Follow mode moves all displays, not just the focused one."
+msgstr ""
+
+#: src/gtk/connected-device.ui:566
 msgid "Movement look-ahead"
 msgstr "Bewegungsvorausschau"
 
-#: src/gtk/connected-device.ui:534
+#: src/gtk/connected-device.ui:567
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -434,34 +460,17 @@ msgstr ""
 "es sei denn, das virtuelle Display hängt hinter Ihren Kopfbewegungen "
 "hinterher, springt vor oder ist sehr wackelig."
 
-#: src/gtk/connected-device.ui:552
+#: src/gtk/connected-device.ui:585
 msgid "Default"
 msgstr "Standard"
 
-#: src/gtk/connected-device.ui:564
+#: src/gtk/connected-device.ui:597
 msgid "Text Scaling"
 msgstr "Textskalierung"
 
-#: src/gtk/connected-device.ui:565
+#: src/gtk/connected-device.ui:598
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr "Text unter 1.0 skalieren simuliert ein höher aufgelöstes Display"
-
-#: src/gtk/connected-device.ui:595
-msgid "Enable multi-tap detection"
-msgstr ""
-
-#: src/gtk/connected-device.ui:596
-msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr ""
-
-#: src/gtk/connected-device.ui:606
-#, fuzzy
-msgid "All displays follow mode"
-msgstr "Gebogenes Display"
-
-#: src/gtk/connected-device.ui:607
-msgid "Follow mode moves all displays, not just the focused one."
-msgstr ""
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Show full range"

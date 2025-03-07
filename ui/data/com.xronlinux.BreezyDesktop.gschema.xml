@@ -199,6 +199,15 @@
         Disable physical displays when XR effect is enabled
       </description>
     </key>
+    <key name="remove-virtual-displays-on-disable" type="b">
+      <default>
+        true
+      </default>
+      <summary>Remove virtual displays on disable</summary>
+      <description>
+        Remove virtual displays when XR effect is disabled
+      </description>
+    </key>
     <key name="legacy-follow-mode" type="b">
       <default>
         false
