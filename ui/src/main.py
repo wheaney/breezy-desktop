@@ -111,7 +111,9 @@ class BreezydesktopApplication(Adw.Application):
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
                                 version=self.version,
                                 authors=['Wayne Heaney'],
-                                copyright='© 2024 Wayne Heaney')
+                                copyright='© 2025 Wayne Heaney',
+                                license_type=Gtk.License.GPL_3_0,
+                                wrap_license=True)
         about.present()
 
     def on_license_action(self, widget, _):
