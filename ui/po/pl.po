@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 15:32-0800\n"
+"POT-Creation-Date: 2025-03-06 19:45-0800\n"
 "PO-Revision-Date: 2024-08-16 10:26-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -28,33 +28,33 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/connecteddevice.py:125
+#: src/connecteddevice.py:127
 msgid "Set Focused Display Distance"
 msgstr ""
 
-#: src/connecteddevice.py:126
+#: src/connecteddevice.py:128
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:133
+#: src/connecteddevice.py:135
 msgid "Set All Displays Distance"
 msgstr ""
 
-#: src/connecteddevice.py:134
+#: src/connecteddevice.py:136
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:232
+#: src/connecteddevice.py:234
 msgid ""
 "Unable to add virtual displays on this machine. xdg-desktop-portal is "
 "required."
 msgstr ""
 
-#: src/connecteddevice.py:266
+#: src/connecteddevice.py:268
 msgid "Focused display"
 msgstr ""
 
-#: src/connecteddevice.py:272
+#: src/connecteddevice.py:274
 msgid "All displays"
 msgstr ""
 
@@ -426,6 +426,14 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:596
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr ""
+
+#: src/gtk/connected-device.ui:606
+msgid "All displays follow mode"
+msgstr ""
+
+#: src/gtk/connected-device.ui:607
+msgid "Follow mode moves all displays, not just the focused one."
 msgstr ""
 
 #: src/gtk/display-distance-dialog.ui:9

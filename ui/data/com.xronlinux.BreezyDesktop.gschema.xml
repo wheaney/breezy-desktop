@@ -199,6 +199,15 @@
         Disable physical displays when XR effect is enabled
       </description>
     </key>
+    <key name="legacy-follow-mode" type="b">
+      <default>
+        false
+      </default>
+      <summary>Legacy follow mode</summary>
+      <description>
+        Enable legacy follow mode
+      </description>
+    </key>
     <key name="developer-mode" type="b">
       <default>
         false

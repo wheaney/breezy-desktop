@@ -76,6 +76,7 @@ export default class BreezyDesktopExtension extends Extension {
             this.settings.bind('use-optimal-monitor-config',this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('headset-as-primary', this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('disable-physical-displays', this._monitor_manager, 'disable-physical-displays', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('legacy-follow-mode', Globals.data_stream, 'legacy-follow-mode', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
 
             this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 

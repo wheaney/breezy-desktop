@@ -118,6 +118,13 @@ export const DeviceDataStream = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             false
         ),
+        'legacy-follow-mode': GObject.ParamSpec.boolean(
+            'legacy-follow-mode',
+            'Legacy follow mode',
+            'Whether the legacy follow mode is enabled',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'debug-no-device': GObject.ParamSpec.boolean(
             'debug-no-device',
             'Debug without device',
@@ -191,7 +198,7 @@ export const DeviceDataStream = GObject.registerClass({
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
                     let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-                    let smoothFollowEnabled = dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
+                    let smoothFollowEnabled = !this.legacy_follow_mode && dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
                     let smoothFollowOrigin = dataViewFloatArray(dataView, SMOOTH_FOLLOW_ORIGIN_DATA);
                     const imuResetState = enabled && validData && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;

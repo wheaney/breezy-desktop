@@ -601,6 +601,17 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">All displays follow mode</property>
+                        <property name="subtitle" translatable="yes">Follow mode moves all displays, not just the focused one.</property>
+                        <child>
+                          <object class="GtkSwitch" id="legacy_follow_mode_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
