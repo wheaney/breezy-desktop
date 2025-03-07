@@ -168,6 +168,12 @@ export const DeviceDataStream = GObject.registerClass({
         }
     }
 
+    _ipc_file_exists() {
+        if (!this._ipc_file_exists_cached) this._ipc_file_exists_cached = this._ipc_file.query_exists(null);
+
+        return this._ipc_file_exists_cached;
+    }
+
     // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update breezy_desktop_running if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
@@ -181,13 +187,20 @@ export const DeviceDataStream = GObject.registerClass({
             }
         }
 
-        if (this._ipc_file.query_exists(null) && (
+        if (this._ipc_file_exists() && (
             !this.device_data?.imuData || 
             !keepalive_only || 
             getEpochSec() - toSec(this.device_data?.imuDateMs ?? 0) > KEEPALIVE_REFRESH_INTERVAL_SEC
         )) {
-            let data = this._ipc_file.load_contents(null);
-            if (data[0]) {
+            let data;
+            let data_success = false;
+            try {
+                data = this._ipc_file.load_contents(null);
+                data_success = data[0];
+            } catch (e) {
+                Globals.logger.log_debug(`Error loading contents from IPC file: ${e.message}\n${e.stack}`);
+            }
+            if (data_success) {
                 let buffer = new Uint8Array(data[1]).buffer;
                 let dataView = new DataView(buffer);
                 if (dataView.byteLength === DATA_VIEW_LENGTH) {
@@ -275,6 +288,7 @@ export const DeviceDataStream = GObject.registerClass({
                     this.breezy_desktop_actually_running = false;
                 }
             } else {
+                this._ipc_file_exists_cached = false;
                 this.breezy_desktop_actually_running = false;
             }
         }

@@ -492,9 +492,14 @@
             <property name="icon-name">applications-system-symbolic</property>
             <property name="child">
               <object class="GtkBox">
+                <property name="orientation">2</property>
+                <property name="margin-start">20</property>
+                <property name="margin-end">20</property>
+                <property name="spacing">20</property>
                 <child>
                   <object class="AdwPreferencesGroup">
                     <property name="title" translatable="yes"><!-- section heading for the advanced settings -->Advanced Settings</property>
+                    <property name="width-request">450</property>
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature that tries to the find best-fit monitor config -->Find optimal display config</property>
@@ -568,6 +573,86 @@
                         <child>
                           <object class="GtkSwitch" id="legacy_follow_mode_switch">
                             <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwPreferencesGroup">
+                    <property name="title"> </property>
+                    <property name="width-request">700</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Follow mode movement tracking</property>
+                        <property name="subtitle" translatable="yes">Choose which movements should be tracked in follow mode.</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">20</property>
+                            <property name="margin-end">20</property>
+                            <property name="halign">start</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">center</property>
+                                <property name="width-request">80</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Horizontal</property>
+                                    <property name="valign">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkSwitch" id="follow_track_yaw_switch">
+                                    <property name="valign">3</property>
+                                    <property name="halign">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">center</property>
+                                <property name="width-request">80</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Vertical</property>
+                                    <property name="valign">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkSwitch" id="follow_track_pitch_switch">
+                                    <property name="valign">3</property>
+                                    <property name="halign">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">center</property>
+                                <property name="width-request">80</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Tilt/roll</property>
+                                    <property name="valign">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkSwitch" id="follow_track_roll_switch">
+                                    <property name="valign">3</property>
+                                    <property name="halign">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>

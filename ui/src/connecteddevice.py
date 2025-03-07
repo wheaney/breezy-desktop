@@ -59,6 +59,9 @@ class ConnectedDevice(Gtk.Box):
     text_scaling_adjustment = Gtk.Template.Child()
     enable_multi_tap_switch = Gtk.Template.Child()
     legacy_follow_mode_switch = Gtk.Template.Child()
+    follow_track_yaw_switch = Gtk.Template.Child()
+    follow_track_pitch_switch = Gtk.Template.Child()
+    follow_track_roll_switch = Gtk.Template.Child()
     monitor_wrapping_scheme_menu = Gtk.Template.Child()
     monitor_spacing_scale = Gtk.Template.Child()
     monitor_spacing_adjustment = Gtk.Template.Child()
@@ -158,8 +161,10 @@ class ConnectedDevice(Gtk.Box):
 
         self.config_manager = ConfigManager.get_instance()
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
-        self.config_manager.bind_property('multi-tap-enabled', self.enable_multi_tap_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        self.enable_multi_tap_switch.connect('notify::active', lambda widget, param: self.config_manager.set_property('multi-tap-enabled', widget.get_active()))
+        self._bind_switch_to_config(self.enable_multi_tap_switch, 'multi-tap-enabled')
+        self._bind_switch_to_config(self.follow_track_roll_switch, 'follow-track-roll')
+        self._bind_switch_to_config(self.follow_track_pitch_switch, 'follow-track-pitch')
+        self._bind_switch_to_config(self.follow_track_yaw_switch, 'follow-track-yaw')
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
@@ -182,6 +187,11 @@ class ConnectedDevice(Gtk.Box):
             if appinfo.get_id() == 'gnome-display-panel.desktop':
                 self._settings_displays_app_info = appinfo
                 break
+
+    def _bind_switch_to_config(self, switch, config_key):
+        self.config_manager.bind_property(config_key, switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        switch.set_active(self.config_manager.get_property(config_key))
+        switch.connect('notify::active', lambda widget, param: self.config_manager.set_property(config_key, widget.get_active()))
     
     def _handle_zoom_on_focus_switch_changed(self, widget, param):
         display_distance = self.settings.get_double('display-distance')
