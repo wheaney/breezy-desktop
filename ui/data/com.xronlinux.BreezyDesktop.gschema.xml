@@ -163,6 +163,15 @@
         Automatically set the headset as the primary display upon connection
       </description>
     </key>
+    <key name="headset-display-as-viewport-center" type="b">
+      <default>
+        false
+      </default>
+      <summary>Headset display as viewport center</summary>
+      <description>
+        Use the headset display as the reference point for the center of the viewport
+      </description>
+    </key>
     <key name="use-highest-refresh-rate" type="b">
       <default>
         true

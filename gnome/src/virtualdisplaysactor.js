@@ -483,6 +483,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
             2.5,
             1.05
         ),
+        'headset-display-as-viewport-center': GObject.ParamSpec.boolean(
+            'headset-display-as-viewport-center',
+            'Headset display as viewport center',
+            'Whether to use the headset display as the reference point for the center of the viewport',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'lens-vector': GObject.ParamSpec.jsobject(
             'lens-vector',
             'Lens Vector',
@@ -586,6 +593,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('display-distance', this._handle_display_distance_properties_change);
         notifyToFunction('monitor-wrapping-scheme', this._update_monitor_placements);
         notifyToFunction('monitor-spacing', this._update_monitor_placements);
+        notifyToFunction('headset-display-as-viewport-center', this._update_monitor_placements);
         notifyToFunction('viewport-offset-x', this._update_monitor_placements);
         notifyToFunction('viewport-offset-y', this._update_monitor_placements);
         notifyToFunction('show-banner', this._handle_banner_update);
@@ -798,14 +806,21 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
 
     _update_monitor_placements() {
+        const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
+        const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
+        const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
+        const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
+
+        // the beginning edges of the viewport if it's centered on all displays
+        const allDisplaysCenterXBegin = (minX + maxX) / 2 - this.target_monitor.width / 2;
+        const allDisplaysCenterYBegin = (minY + maxY) / 2 - this.target_monitor.height / 2;
+
+        const viewportXBegin = this.headset_display_as_viewport_center ? this.target_monitor.x : allDisplaysCenterXBegin;
+        const viewportYBegin = this.headset_display_as_viewport_center ? this.target_monitor.y : allDisplaysCenterYBegin;
+
         // collect minimum and maximum x and y values of monitors
         let actualWrapScheme = this.monitor_wrapping_scheme;
         if (actualWrapScheme === 'automatic') {
-            const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
-            const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
-            const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
-            const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
-
             // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
             if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
                 actualWrapScheme = 'horizontal';
@@ -824,10 +839,10 @@ export const VirtualDisplaysActor = GObject.registerClass({
         this.monitor_placements = monitorsToPlacements(
             fovDetails,
 
-            // shift all monitors so they center around the target monitor, then adjusted by the offsets
+            // shift all monitors so they center around the viewport center, then adjusted by the offsets
             this._sorted_monitors.map(monitor => ({
-                x: monitor.x - this.target_monitor.x - this.viewport_offset_x * this.target_monitor.width,
-                y: monitor.y - this.target_monitor.y + this.viewport_offset_y * this.target_monitor.height,
+                x: monitor.x - viewportXBegin - this.viewport_offset_x * this.target_monitor.width,
+                y: monitor.y - viewportYBegin + this.viewport_offset_y * this.target_monitor.height,
                 width: monitor.width,
                 height: monitor.height
             })),

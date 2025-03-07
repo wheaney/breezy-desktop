@@ -519,6 +519,17 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Center on glasses' display</property>
+                        <property name="subtitle" translatable="yes">Center the viewport on the glasses' display, even if the display is not in the middle.</property>
+                        <child>
+                          <object class="GtkSwitch" id="headset_display_as_viewport_center_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Always primary display</property>
                         <property name="subtitle" translatable="yes">Automatically set the glasses as the primary display when plugged in.</property>
                         <child>

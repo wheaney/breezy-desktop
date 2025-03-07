@@ -48,6 +48,7 @@ class ConnectedDevice(Gtk.Box):
     toggle_display_distance_shortcut_label = Gtk.Template.Child()
     reassign_toggle_follow_shortcut_button = Gtk.Template.Child()
     toggle_follow_shortcut_label = Gtk.Template.Child()
+    headset_display_as_viewport_center_switch = Gtk.Template.Child()
     headset_as_primary_switch = Gtk.Template.Child()
     remove_virtual_displays_on_disable_switch = Gtk.Template.Child()
     use_optimal_monitor_config_switch = Gtk.Template.Child()
@@ -99,6 +100,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('headset-display-as-viewport-center', self.headset_display_as_viewport_center_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('remove-virtual-displays-on-disable', self.remove_virtual_displays_on_disable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -320,9 +322,6 @@ class ConnectedDevice(Gtk.Box):
     def _on_virtual_displays_update_gui(self, virtual_display_manager):
         effect_enabled = self.effect_enable_switch.get_active()
         virtual_displays_present = len(virtual_display_manager.displays) > 0
-        self.launch_display_settings_button.set_visible(
-            self._settings_displays_app_info is not None and virtual_displays_present
-        )
         self.monitor_wrapping_scheme_menu.set_sensitive(effect_enabled and virtual_displays_present)
         self.monitor_spacing_scale.set_sensitive(effect_enabled and virtual_displays_present)
 
@@ -339,7 +338,9 @@ class ConnectedDevice(Gtk.Box):
             new_displays_by_pid[display['pid']] = child
 
         self.top_features_group.add(self.launch_display_settings_row)
-        self.launch_display_settings_row.set_visible(len(virtual_display_manager.displays) > 0)
+        self.launch_display_settings_row.set_visible(
+            self._settings_displays_app_info is not None and virtual_displays_present
+        )
         
         self.virtual_displays_by_pid = new_displays_by_pid
 
