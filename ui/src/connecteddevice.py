@@ -34,6 +34,7 @@ class ConnectedDevice(Gtk.Box):
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
     add_virtual_display_button = Gtk.Template.Child()
+    launch_display_settings_row = Gtk.Template.Child()
     launch_display_settings_button = Gtk.Template.Child()
     all_displays_distance_label = Gtk.Template.Child()
     change_all_displays_distance_button = Gtk.Template.Child()
@@ -262,13 +263,13 @@ class ConnectedDevice(Gtk.Box):
             self.display_zoom_on_focus_switch.set_active(should_zoom_on_focus_be_enabled)
 
     def _set_focused_display_distance(self, distance):
-        self.focused_display_distance_label.set_markup(f"{_("Focused display")}: <b>{distance}</b>")
+        self.focused_display_distance_label.set_markup(f"{_('Focused display')}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-start', distance)
 
         self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-end'))
 
     def _set_all_displays_distance(self, distance):
-        self.all_displays_distance_label.set_markup(f"{_("All displays")}: <b>{distance}</b>")
+        self.all_displays_distance_label.set_markup(f"{_('All displays')}: <b>{distance}</b>")
         self.settings.set_double('toggle-display-distance-end', distance)
         self.display_zoom_on_focus_switch.set_active(False)
         self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-start'))
@@ -321,6 +322,7 @@ class ConnectedDevice(Gtk.Box):
         self.monitor_wrapping_scheme_menu.set_sensitive(effect_enabled and virtual_displays_present)
         self.monitor_spacing_scale.set_sensitive(effect_enabled and virtual_displays_present)
 
+        self.top_features_group.remove(self.launch_display_settings_row)
         for pid, child in self.virtual_displays_by_pid.items():
             self.top_features_group.remove(child)
 
@@ -331,6 +333,9 @@ class ConnectedDevice(Gtk.Box):
                 VirtualDisplayRow(display['pid'], display['width'], display['height'], 60))
             self.top_features_group.add(child)
             new_displays_by_pid[display['pid']] = child
+
+        self.top_features_group.add(self.launch_display_settings_row)
+        self.launch_display_settings_row.set_visible(len(virtual_display_manager.displays) > 0)
         
         self.virtual_displays_by_pid = new_displays_by_pid
 

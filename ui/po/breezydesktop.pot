@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-05 12:28-0800\n"
+"POT-Creation-Date: 2025-03-06 15:32-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,33 +27,33 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/connecteddevice.py:124
+#: src/connecteddevice.py:125
 msgid "Set Focused Display Distance"
 msgstr ""
 
-#: src/connecteddevice.py:125
+#: src/connecteddevice.py:126
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:132
+#: src/connecteddevice.py:133
 msgid "Set All Displays Distance"
 msgstr ""
 
-#: src/connecteddevice.py:133
+#: src/connecteddevice.py:134
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:231
+#: src/connecteddevice.py:232
 msgid ""
 "Unable to add virtual displays on this machine. xdg-desktop-portal is "
 "required."
 msgstr ""
 
-#: src/connecteddevice.py:265
+#: src/connecteddevice.py:266
 msgid "Focused display"
 msgstr ""
 
-#: src/connecteddevice.py:271
+#: src/connecteddevice.py:272
 msgid "All displays"
 msgstr ""
 
@@ -197,19 +197,19 @@ msgstr ""
 msgid "Features"
 msgstr ""
 
-#: src/gtk/connected-device.ui:44
+#: src/gtk/connected-device.ui:45
 msgid "XR effect"
 msgstr ""
 
-#: src/gtk/connected-device.ui:45
+#: src/gtk/connected-device.ui:46
 msgid "Enables the Breezy Desktop XR effect."
 msgstr ""
 
-#: src/gtk/connected-device.ui:55
+#: src/gtk/connected-device.ui:56
 msgid "Zoom on focus"
 msgstr ""
 
-#: src/gtk/connected-device.ui:56
+#: src/gtk/connected-device.ui:57
 msgid ""
 "Automatically move a display closer when you look at it.\n"
 "Set your preferred focused and unfocused distances in the Adjustments "
@@ -217,213 +217,213 @@ msgid ""
 "                        "
 msgstr ""
 
-#: src/gtk/connected-device.ui:69
+#: src/gtk/connected-device.ui:70
 msgid "Follow mode"
 msgstr ""
 
-#: src/gtk/connected-device.ui:70
+#: src/gtk/connected-device.ui:71
 msgid "Keep the focused display near the center of your view."
 msgstr ""
 
-#: src/gtk/connected-device.ui:80 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:34
 msgid "Disable physical displays"
 msgstr ""
 
-#: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:82 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr ""
 
-#: src/gtk/connected-device.ui:91
+#: src/gtk/connected-device.ui:92
 msgid "Virtual displays"
 msgstr ""
 
-#: src/gtk/connected-device.ui:103
-msgid "Rearrange displays"
-msgstr ""
-
-#: src/gtk/connected-device.ui:115
+#: src/gtk/connected-device.ui:108
 msgid "1080p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:116
+#: src/gtk/connected-device.ui:109
 msgid "1440p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:140
+#: src/gtk/connected-device.ui:131
+msgid "Rearrange displays"
+msgstr ""
+
+#: src/gtk/connected-device.ui:149
 msgid "Adjustments"
 msgstr ""
 
-#: src/gtk/connected-device.ui:143
+#: src/gtk/connected-device.ui:153
 msgid "Display distances"
 msgstr ""
 
-#: src/gtk/connected-device.ui:144
+#: src/gtk/connected-device.ui:154
 msgid "Set how close you want displays to appear."
 msgstr ""
 
-#: src/gtk/connected-device.ui:199
+#: src/gtk/connected-device.ui:209
 msgid "Follow threshold"
 msgstr ""
 
-#: src/gtk/connected-device.ui:200
+#: src/gtk/connected-device.ui:210
 msgid "How far away you can look before the display follows."
 msgstr ""
 
-#: src/gtk/connected-device.ui:223
+#: src/gtk/connected-device.ui:233
 msgid "Display angling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:224
+#: src/gtk/connected-device.ui:234
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr ""
 
-#: src/gtk/connected-device.ui:238
+#: src/gtk/connected-device.ui:248
 msgid "Automatic"
 msgstr ""
 
-#: src/gtk/connected-device.ui:239
+#: src/gtk/connected-device.ui:249
 msgid "Side-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:240
+#: src/gtk/connected-device.ui:250
 msgid "Top-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:241
+#: src/gtk/connected-device.ui:251
 msgid "Flat"
 msgstr ""
 
-#: src/gtk/connected-device.ui:251
+#: src/gtk/connected-device.ui:261
 msgid "Display spacing"
 msgstr ""
 
-#: src/gtk/connected-device.ui:252
+#: src/gtk/connected-device.ui:262
 msgid "Put empty space between displays, when there are multiple."
 msgstr ""
 
-#: src/gtk/connected-device.ui:282
+#: src/gtk/connected-device.ui:292
 msgid "Viewport horizontal offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:283
+#: src/gtk/connected-device.ui:293
 msgid ""
 "By default, the viewport will center on the primary display. Use this slider "
 "to move the viewport to the left or right."
 msgstr ""
 
-#: src/gtk/connected-device.ui:312
+#: src/gtk/connected-device.ui:322
 msgid "Viewport vertical offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:313
+#: src/gtk/connected-device.ui:323
 msgid ""
 "By default, the viewport will center on the primary display. Use this slider "
 "to move the viewport up or down."
 msgstr ""
 
-#: src/gtk/connected-device.ui:349 src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:359 src/gtk/connected-device.ui:365
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: src/gtk/connected-device.ui:358
+#: src/gtk/connected-device.ui:368
 msgid "XR Effect on/off shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:359
+#: src/gtk/connected-device.ui:369
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
 
-#: src/gtk/connected-device.ui:378 src/gtk/connected-device.ui:407
-#: src/gtk/connected-device.ui:436 src/gtk/connected-device.ui:465
+#: src/gtk/connected-device.ui:388 src/gtk/connected-device.ui:417
+#: src/gtk/connected-device.ui:446 src/gtk/connected-device.ui:475
 msgid "Change"
 msgstr ""
 
-#: src/gtk/connected-device.ui:387
+#: src/gtk/connected-device.ui:397
 msgid "Re-center display shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:388
+#: src/gtk/connected-device.ui:398
 msgid "Pin the virtual display to the current position."
 msgstr ""
 
-#: src/gtk/connected-device.ui:416
+#: src/gtk/connected-device.ui:426
 msgid "Toggle zoom on focus shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:417
+#: src/gtk/connected-device.ui:427
 msgid "Quickly toggle zoom on focus mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:445
+#: src/gtk/connected-device.ui:455
 msgid "Toggle follow mode shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:446
+#: src/gtk/connected-device.ui:456
 msgid "Quickly toggle follow mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:481 src/gtk/connected-device.ui:487
+#: src/gtk/connected-device.ui:491 src/gtk/connected-device.ui:497
 msgid "Advanced Settings"
 msgstr ""
 
-#: src/gtk/connected-device.ui:490
+#: src/gtk/connected-device.ui:500
 msgid "Find optimal display config"
 msgstr ""
 
-#: src/gtk/connected-device.ui:491
+#: src/gtk/connected-device.ui:501
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
 
-#: src/gtk/connected-device.ui:501
+#: src/gtk/connected-device.ui:511
 msgid "Use highest refresh rate"
 msgstr ""
 
-#: src/gtk/connected-device.ui:502
+#: src/gtk/connected-device.ui:512
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 
-#: src/gtk/connected-device.ui:512
+#: src/gtk/connected-device.ui:522
 msgid "Always primary display"
 msgstr ""
 
-#: src/gtk/connected-device.ui:513
+#: src/gtk/connected-device.ui:523
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 
-#: src/gtk/connected-device.ui:523
+#: src/gtk/connected-device.ui:533
 msgid "Movement look-ahead"
 msgstr ""
 
-#: src/gtk/connected-device.ui:524
+#: src/gtk/connected-device.ui:534
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 
-#: src/gtk/connected-device.ui:542
+#: src/gtk/connected-device.ui:552
 msgid "Default"
 msgstr ""
 
-#: src/gtk/connected-device.ui:554
+#: src/gtk/connected-device.ui:564
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:555
+#: src/gtk/connected-device.ui:565
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 
-#: src/gtk/connected-device.ui:585
+#: src/gtk/connected-device.ui:595
 msgid "Enable multi-tap detection"
 msgstr ""
 
-#: src/gtk/connected-device.ui:586
+#: src/gtk/connected-device.ui:596
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
 

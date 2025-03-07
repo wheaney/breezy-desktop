@@ -541,29 +541,33 @@ var VirtualDisplaysActor = GObject.registerClass({
             ...this.virtual_monitors
         ];
 
-        const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
-        const calibratingImage = new Clutter.Image();
-        calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
-                                  calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
-        this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), null);
+        try {
+            const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
+            const calibratingImage = new Clutter.Image();
+            calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                    calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
+            this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), null);
 
-        const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
-        const customBannerImage = new Clutter.Image();
-        customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
-                                   customBanner.width, customBanner.height, customBanner.rowstride);
-        this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), null);
+            const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
+            const customBannerImage = new Clutter.Image();
+            customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                    customBanner.width, customBanner.height, customBanner.rowstride);
+            this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), null);
 
-        this.bannerActor = new Clutter.Actor({
-            width: calibratingBanner.width,
-            height: calibratingBanner.height,
-            reactive: false
-        });
-        this.bannerActor.set_position(
-            (this.target_monitor.width - this.bannerActor.width) / 2, 
-            this.target_monitor.height * 0.75 - this.bannerActor.height / 2
-        );
-        this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
-        this.bannerActor.hide();
+            this.bannerActor = new Clutter.Actor({
+                width: calibratingBanner.width,
+                height: calibratingBanner.height,
+                reactive: false
+            });
+            this.bannerActor.set_position(
+                (this.target_monitor.width - this.bannerActor.width) / 2, 
+                this.target_monitor.height * 0.75 - this.bannerActor.height / 2
+            );
+            this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
+            this.bannerActor.hide();
+        } catch (e) {
+            Globals.logger.log(`ERROR: virtualdisplaysactor.js ${e.message}\n${e.stack}`);
+        }
 
         this.monitor_actors = [];
     }
@@ -684,15 +688,17 @@ var VirtualDisplaysActor = GObject.registerClass({
             effect.connect('notify::is-closest', ((actor, _pspec) => {
                 if (!this._is_disposed && actor.is_closest) {
                     this.set_child_above_sibling(viewport, null);
-                    if (this.show_banner) this.set_child_above_sibling(this.bannerActor, null);
+                    if (this.show_banner && this.bannerActor) this.set_child_above_sibling(this.bannerActor, null);
                 }
             }).bind(this));
         }).bind(this));
 
-        this.add_child(this.bannerActor);
-        if (this.show_banner) {
-            this.set_child_above_sibling(this.bannerActor, null);
-            this.bannerActor.show();
+        if (this.bannerActor) {
+            this.add_child(this.bannerActor);
+            if (this.show_banner) {
+                this.set_child_above_sibling(this.bannerActor, null);
+                this.bannerActor.show();
+            }
         }
 
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, (() => {
@@ -846,11 +852,13 @@ var VirtualDisplaysActor = GObject.registerClass({
     }
 
     _handle_banner_update() {
-        if (this.show_banner) {
-            this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
-            this.bannerActor.show();
-        } else {
-            this.bannerActor.hide();
+        if (this.bannerActor) {
+            if (this.show_banner) {
+                this.bannerActor.set_content(this.custom_banner_enabled ? this.customBannerContent : this.bannerContent);
+                this.bannerActor.show();
+            } else {
+                this.bannerActor.hide();
+            }
         }
     }
 
@@ -888,7 +896,7 @@ var VirtualDisplaysActor = GObject.registerClass({
         this.monitor_actors.forEach(({ viewport, containerActor, monitorClone, effect }) => {
             viewport.remove_effect(effect);
             containerActor.remove_child(monitorClone);
-            viewport.remove_child(containerActor);
+            viewport.set_child(null);
             this.remove_child(viewport);
         });
         this.monitor_actors = [];
