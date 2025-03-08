@@ -295,7 +295,11 @@ export default class BreezyDesktopExtension extends Extension {
                     this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
 
-                Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
+                if (Meta.Compositor?.disable_unredirect) {
+                    Meta.Compositor.disable_unredirect();
+                } else {
+                    Meta.disable_unredirect_for_display(global.display);
+                }
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
@@ -538,7 +542,12 @@ export default class BreezyDesktopExtension extends Extension {
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
-            Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
+            
+            if (Meta.Compositor?.enable_unredirect) {
+                Meta.Compositor.enable_unredirect();
+            } else {
+                Meta.enable_unredirect_for_display(global.display);
+            }
 
             for (let settings_key of this._effect_settings_bindings) {
                 Gio.Settings.unbind(this.settings, settings_key);

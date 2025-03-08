@@ -586,16 +586,41 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
         try {
             const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
-            const calibratingImage = new Clutter.Image();
-            calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
-                                    calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
-            this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), null);
-
             const customBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/custom_banner.png`);
-            const customBannerImage = new Clutter.Image();
-            customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
-                                    customBanner.width, customBanner.height, customBanner.rowstride);
-            this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), null);
+
+            if (Clutter.Image) {
+                const calibratingImage = new Clutter.Image();
+                calibratingImage.set_data(calibratingBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                        calibratingBanner.width, calibratingBanner.height, calibratingBanner.rowstride);
+                this.bannerContent = Clutter.TextureContent.new_from_texture(calibratingImage.get_texture(), null);
+
+                const customBannerImage = new Clutter.Image();
+                customBannerImage.set_data(customBanner.get_pixels(), Cogl.PixelFormat.RGB_888,
+                                        customBanner.width, customBanner.height, customBanner.rowstride);
+                this.customBannerContent = Clutter.TextureContent.new_from_texture(customBannerImage.get_texture(), null);
+            } else {
+                const backend = global.stage.get_context?.().get_backend() ?? Clutter.get_default_backend();
+                const coglContext = backend.get_cogl_context();
+                this.bannerContent = St.ImageContent.new_with_preferred_size(calibratingBanner.width, calibratingBanner.height);
+                this.bannerContent.set_bytes(
+                    coglContext,
+                    calibratingBanner.get_pixels(),
+                    Cogl.PixelFormat.RGB_888,
+                    calibratingBanner.width,
+                    calibratingBanner.height,
+                    calibratingBanner.rowstride
+                )
+
+                this.customBannerContent = St.ImageContent.new_with_preferred_size(customBanner.width, customBanner.height);
+                this.customBannerContent.set_bytes(
+                    coglContext,
+                    customBanner.get_pixels(),
+                    Cogl.PixelFormat.RGB_888,
+                    customBanner.width,
+                    customBanner.height,
+                    customBanner.rowstride
+                );
+            }
 
             this.bannerActor = new Clutter.Actor({
                 width: calibratingBanner.width,
