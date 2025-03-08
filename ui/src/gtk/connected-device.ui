@@ -290,7 +290,7 @@
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Viewport horizontal offset</property>
-                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport to the left or right.</property>
+                        <property name="subtitle" translatable="yes">Move the viewport to the left or right of its default position.</property>
                         <child>
                           <object class="GtkScale" id="viewport_offset_x_scale">
                             <property name="valign">3</property>
@@ -320,7 +320,7 @@
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Viewport vertical offset</property>
-                        <property name="subtitle" translatable="yes">By default, the viewport will center on the primary display. Use this slider to move the viewport up or down.</property>
+                        <property name="subtitle" translatable="yes">Move the viewport up or down from its default position.</property>
                         <child>
                           <object class="GtkScale" id="viewport_offset_y_scale">
                             <property name="valign">3</property>

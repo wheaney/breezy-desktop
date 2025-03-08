@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-07 15:10-0800\n"
+"POT-Creation-Date: 2025-03-07 20:36-0800\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -320,9 +320,7 @@ msgid "Viewport horizontal offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:293
-msgid ""
-"By default, the viewport will center on the primary display. Use this slider "
-"to move the viewport to the left or right."
+msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
 #: src/gtk/connected-device.ui:322
@@ -330,9 +328,7 @@ msgid "Viewport vertical offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:323
-msgid ""
-"By default, the viewport will center on the primary display. Use this slider "
-"to move the viewport up or down."
+msgid "Move the viewport up or down from its default position."
 msgstr ""
 
 #: src/gtk/connected-device.ui:359 src/gtk/connected-device.ui:365
