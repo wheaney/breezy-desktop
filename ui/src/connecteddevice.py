@@ -339,6 +339,11 @@ class ConnectedDevice(Gtk.Box):
         for pid, child in self.virtual_displays_by_pid.items():
             self.top_features_group.remove(child)
 
+        self.top_features_group.add(self.launch_display_settings_row)
+        self.launch_display_settings_row.set_visible(
+            self._settings_displays_app_info is not None and virtual_displays_present
+        )
+
         new_displays_by_pid = {}
         for display in virtual_display_manager.displays:
             child = self.virtual_displays_by_pid.get(
@@ -346,11 +351,6 @@ class ConnectedDevice(Gtk.Box):
                 VirtualDisplayRow(display['pid'], display['width'], display['height'], 60))
             self.top_features_group.add(child)
             new_displays_by_pid[display['pid']] = child
-
-        self.top_features_group.add(self.launch_display_settings_row)
-        self.launch_display_settings_row.set_visible(
-            self._settings_displays_app_info is not None and virtual_displays_present
-        )
         
         self.virtual_displays_by_pid = new_displays_by_pid
 
