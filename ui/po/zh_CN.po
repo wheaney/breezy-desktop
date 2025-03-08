@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 15:32-0800\n"
+"POT-Creation-Date: 2025-03-07 20:36-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -26,36 +26,36 @@ msgstr "切换到并排模式，并将显示宽度翻倍。"
 msgid "This feature is not currently supported for your device."
 msgstr "您的设备目前不支援此功能。"
 
-#: src/connecteddevice.py:125
+#: src/connecteddevice.py:134
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:126
+#: src/connecteddevice.py:135
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:133
+#: src/connecteddevice.py:142
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:134
+#: src/connecteddevice.py:143
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:232
+#: src/connecteddevice.py:248
 msgid ""
 "Unable to add virtual displays on this machine. xdg-desktop-portal is "
 "required."
 msgstr ""
 
-#: src/connecteddevice.py:266
+#: src/connecteddevice.py:282
 #, fuzzy
 msgid "Focused display"
 msgstr "显示距离"
 
-#: src/connecteddevice.py:272
+#: src/connecteddevice.py:288
 #, fuzzy
 msgid "All displays"
 msgstr "曲面显示"
@@ -317,9 +317,7 @@ msgid "Viewport horizontal offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:293
-msgid ""
-"By default, the viewport will center on the primary display. Use this slider "
-"to move the viewport to the left or right."
+msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
 #: src/gtk/connected-device.ui:322
@@ -327,9 +325,7 @@ msgid "Viewport vertical offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:323
-msgid ""
-"By default, the viewport will center on the primary display. Use this slider "
-"to move the viewport up or down."
+msgid "Move the viewport up or down from its default position."
 msgstr ""
 
 #: src/gtk/connected-device.ui:359 src/gtk/connected-device.ui:365
@@ -377,41 +373,97 @@ msgstr "切换跟随模式快捷键"
 msgid "Quickly toggle follow mode."
 msgstr "快速切换跟随模式。"
 
-#: src/gtk/connected-device.ui:491 src/gtk/connected-device.ui:497
+#: src/gtk/connected-device.ui:491 src/gtk/connected-device.ui:501
 msgid "Advanced Settings"
 msgstr "高级设定"
 
-#: src/gtk/connected-device.ui:500
+#: src/gtk/connected-device.ui:505
 msgid "Find optimal display config"
 msgstr "寻找最佳显示设定"
 
-#: src/gtk/connected-device.ui:501
+#: src/gtk/connected-device.ui:506
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr "连接时，可以自动修改眼镜显示设定以表现出最大解析度和最佳的对比。"
 
-#: src/gtk/connected-device.ui:511
+#: src/gtk/connected-device.ui:516
 msgid "Use highest refresh rate"
 msgstr "使用最高刷新率"
 
-#: src/gtk/connected-device.ui:512
+#: src/gtk/connected-device.ui:517
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr "刷新率可能会影响性能，禁用此功能即可手动设置。"
 
-#: src/gtk/connected-device.ui:522
+#: src/gtk/connected-device.ui:527
+msgid "Center on glasses' display"
+msgstr ""
+
+#: src/gtk/connected-device.ui:528
+msgid ""
+"Center the viewport on the glasses' display, even if the display is not in "
+"the middle."
+msgstr ""
+
+#: src/gtk/connected-device.ui:538
 msgid "Always primary display"
 msgstr "每次设置为主要显示"
 
-#: src/gtk/connected-device.ui:523
+#: src/gtk/connected-device.ui:539
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "连接时，自动将眼镜设置为主要显示。"
 
-#: src/gtk/connected-device.ui:533
+#: src/gtk/connected-device.ui:549
+#, fuzzy
+msgid "Remove virtual displays on disable"
+msgstr "曲面显示"
+
+#: src/gtk/connected-device.ui:550
+msgid "Automatically remove virtual displays when the XR effect is disabled."
+msgstr ""
+
+#: src/gtk/connected-device.ui:560
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#: src/gtk/connected-device.ui:561
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr ""
+
+#: src/gtk/connected-device.ui:571
+#, fuzzy
+msgid "All displays follow mode"
+msgstr "曲面显示"
+
+#: src/gtk/connected-device.ui:572
+msgid "Follow mode moves all displays, not just the focused one."
+msgstr ""
+
+#: src/gtk/connected-device.ui:588
+msgid "Follow mode movement tracking"
+msgstr ""
+
+#: src/gtk/connected-device.ui:589
+msgid "Choose which movements should be tracked in follow mode."
+msgstr ""
+
+#: src/gtk/connected-device.ui:604
+msgid "Horizontal"
+msgstr ""
+
+#: src/gtk/connected-device.ui:624
+msgid "Vertical"
+msgstr ""
+
+#: src/gtk/connected-device.ui:644
+msgid "Tilt/roll"
+msgstr ""
+
+#: src/gtk/connected-device.ui:662
 msgid "Movement look-ahead"
 msgstr "移动预测"
 
-#: src/gtk/connected-device.ui:534
+#: src/gtk/connected-device.ui:663
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -420,25 +472,17 @@ msgstr ""
 "透过预测头部追踪位置，提前于渲染时间进行预测来抵消输入延迟。除非虚拟显示滞后"
 "于头部，提前跳动或非常抖动，请尽量使用默认设置。"
 
-#: src/gtk/connected-device.ui:552
+#: src/gtk/connected-device.ui:681
 msgid "Default"
 msgstr "默认"
 
-#: src/gtk/connected-device.ui:564
+#: src/gtk/connected-device.ui:693
 msgid "Text Scaling"
 msgstr "字体大小比例"
 
-#: src/gtk/connected-device.ui:565
+#: src/gtk/connected-device.ui:694
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr "字体缩放小于1.0，将模拟解析度更高的显示效果"
-
-#: src/gtk/connected-device.ui:595
-msgid "Enable multi-tap detection"
-msgstr ""
-
-#: src/gtk/connected-device.ui:596
-msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr ""
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Show full range"

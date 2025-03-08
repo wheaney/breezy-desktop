@@ -48,7 +48,9 @@ class ConnectedDevice(Gtk.Box):
     toggle_display_distance_shortcut_label = Gtk.Template.Child()
     reassign_toggle_follow_shortcut_button = Gtk.Template.Child()
     toggle_follow_shortcut_label = Gtk.Template.Child()
+    headset_display_as_viewport_center_switch = Gtk.Template.Child()
     headset_as_primary_switch = Gtk.Template.Child()
+    remove_virtual_displays_on_disable_switch = Gtk.Template.Child()
     use_optimal_monitor_config_switch = Gtk.Template.Child()
     use_highest_refresh_rate_switch = Gtk.Template.Child()
     movement_look_ahead_scale = Gtk.Template.Child()
@@ -56,6 +58,10 @@ class ConnectedDevice(Gtk.Box):
     text_scaling_scale = Gtk.Template.Child()
     text_scaling_adjustment = Gtk.Template.Child()
     enable_multi_tap_switch = Gtk.Template.Child()
+    legacy_follow_mode_switch = Gtk.Template.Child()
+    follow_track_yaw_switch = Gtk.Template.Child()
+    follow_track_pitch_switch = Gtk.Template.Child()
+    follow_track_roll_switch = Gtk.Template.Child()
     monitor_wrapping_scheme_menu = Gtk.Template.Child()
     monitor_spacing_scale = Gtk.Template.Child()
     monitor_spacing_adjustment = Gtk.Template.Child()
@@ -97,11 +103,14 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('headset-display-as-viewport-center', self.headset_display_as_viewport_center_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('remove-virtual-displays-on-disable', self.remove_virtual_displays_on_disable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-optimal-monitor-config', self.use_optimal_monitor_config_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('use-highest-refresh-rate', self.use_highest_refresh_rate_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('fast-sbs-mode-switching', self.fast_sbs_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('look-ahead-override', self.movement_look_ahead_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('legacy-follow-mode', self.legacy_follow_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('monitor-spacing', self.monitor_spacing_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('viewport-offset-x', self.viewport_offset_x_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('viewport-offset-y', self.viewport_offset_y_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
@@ -152,8 +161,10 @@ class ConnectedDevice(Gtk.Box):
 
         self.config_manager = ConfigManager.get_instance()
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
-        self.config_manager.bind_property('multi-tap-enabled', self.enable_multi_tap_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        self.enable_multi_tap_switch.connect('notify::active', lambda widget, param: self.config_manager.set_property('multi-tap-enabled', widget.get_active()))
+        self._bind_switch_to_config(self.enable_multi_tap_switch, 'multi-tap-enabled')
+        self._bind_switch_to_config(self.follow_track_roll_switch, 'follow-track-roll')
+        self._bind_switch_to_config(self.follow_track_pitch_switch, 'follow-track-pitch')
+        self._bind_switch_to_config(self.follow_track_yaw_switch, 'follow-track-yaw')
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
@@ -176,6 +187,11 @@ class ConnectedDevice(Gtk.Box):
             if appinfo.get_id() == 'gnome-display-panel.desktop':
                 self._settings_displays_app_info = appinfo
                 break
+
+    def _bind_switch_to_config(self, switch, config_key):
+        self.config_manager.bind_property(config_key, switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        switch.set_active(self.config_manager.get_property(config_key))
+        switch.connect('notify::active', lambda widget, param: self.config_manager.set_property(config_key, widget.get_active()))
     
     def _handle_zoom_on_focus_switch_changed(self, widget, param):
         display_distance = self.settings.get_double('display-distance')
@@ -316,9 +332,6 @@ class ConnectedDevice(Gtk.Box):
     def _on_virtual_displays_update_gui(self, virtual_display_manager):
         effect_enabled = self.effect_enable_switch.get_active()
         virtual_displays_present = len(virtual_display_manager.displays) > 0
-        self.launch_display_settings_button.set_visible(
-            self._settings_displays_app_info is not None and virtual_displays_present
-        )
         self.monitor_wrapping_scheme_menu.set_sensitive(effect_enabled and virtual_displays_present)
         self.monitor_spacing_scale.set_sensitive(effect_enabled and virtual_displays_present)
 
@@ -335,7 +348,9 @@ class ConnectedDevice(Gtk.Box):
             new_displays_by_pid[display['pid']] = child
 
         self.top_features_group.add(self.launch_display_settings_row)
-        self.launch_display_settings_row.set_visible(len(virtual_display_manager.displays) > 0)
+        self.launch_display_settings_row.set_visible(
+            self._settings_displays_app_info is not None and virtual_displays_present
+        )
         
         self.virtual_displays_by_pid = new_displays_by_pid
 

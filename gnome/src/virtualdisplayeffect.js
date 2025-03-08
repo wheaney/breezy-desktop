@@ -471,7 +471,7 @@ var VirtualDisplayEffect = GObject.registerClass({
             cogl_tex_coord_out[0] = cogl_tex_coord_in;
         `
 
-        this.add_glsl_snippet(Shell.SnippetHook.VERTEX, declarations, main, false);
+        this.add_glsl_snippet(Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX, declarations, main, false);
     }
 
     vfunc_paint_target(node, paintContext) {

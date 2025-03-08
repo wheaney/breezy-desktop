@@ -121,6 +121,13 @@ var DeviceDataStream = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             false
         ),
+        'legacy-follow-mode': GObject.ParamSpec.boolean(
+            'legacy-follow-mode',
+            'Legacy follow mode',
+            'Whether the legacy follow mode is enabled',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'debug-no-device': GObject.ParamSpec.boolean(
             'debug-no-device',
             'Debug without device',
@@ -164,6 +171,12 @@ var DeviceDataStream = GObject.registerClass({
         }
     }
 
+    _ipc_file_exists() {
+        if (!this._ipc_file_exists_cached) this._ipc_file_exists_cached = this._ipc_file.query_exists(null);
+
+        return this._ipc_file_exists_cached;
+    }
+
     // Refresh the data from the IPC file. if keepalive_only is true, we'll only check and update breezy_desktop_running if it 
     // hasn't been checked within KEEPALIVE_REFRESH_INTERVAL_SEC.
     refresh_data(keepalive_only = false) {
@@ -177,13 +190,20 @@ var DeviceDataStream = GObject.registerClass({
             }
         }
 
-        if (this._ipc_file.query_exists(null) && (
+        if (this._ipc_file_exists() && (
             !this.device_data?.imuData || 
             !keepalive_only || 
             getEpochSec() - toSec(this.device_data?.imuDateMs ?? 0) > KEEPALIVE_REFRESH_INTERVAL_SEC
         )) {
-            let data = this._ipc_file.load_contents(null);
-            if (data[0]) {
+            let data;
+            let data_success = false;
+            try {
+                data = this._ipc_file.load_contents(null);
+                data_success = data[0];
+            } catch (e) {
+                Globals.logger.log_debug(`Error loading contents from IPC file: ${e.message}\n${e.stack}`);
+            }
+            if (data_success) {
                 let buffer = new Uint8Array(data[1]).buffer;
                 let dataView = new DataView(buffer);
                 if (dataView.byteLength === DATA_VIEW_LENGTH) {
@@ -194,7 +214,7 @@ var DeviceDataStream = GObject.registerClass({
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
                     let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
-                    let smoothFollowEnabled = dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
+                    let smoothFollowEnabled = !this.legacy_follow_mode && dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
                     let smoothFollowOrigin = dataViewFloatArray(dataView, SMOOTH_FOLLOW_ORIGIN_DATA);
                     const imuResetState = enabled && validData && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
@@ -271,6 +291,7 @@ var DeviceDataStream = GObject.registerClass({
                     this.breezy_desktop_actually_running = false;
                 }
             } else {
+                this._ipc_file_exists_cached = false;
                 this.breezy_desktop_actually_running = false;
             }
         }

@@ -101,6 +101,11 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         else:
             self.main_content.append(self.connected_device)
             self.connected_device.set_device_name(state_manager.connected_device_name)
+        
+        self.set_resizable(True)
+        self.set_default_size(1, 1)
+        
+        return False
 
     def _on_license_button_clicked(self, widget):
         dialog = LicenseDialog()

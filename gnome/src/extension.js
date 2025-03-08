@@ -80,6 +80,7 @@ class BreezyDesktopExtension {
             this.settings.bind('use-optimal-monitor-config',this._monitor_manager, 'use-optimal-monitor-config', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('headset-as-primary', this._monitor_manager, 'headset-as-primary', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('disable-physical-displays', this._monitor_manager, 'disable-physical-displays', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('legacy-follow-mode', Globals.data_stream, 'legacy-follow-mode', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
 
             this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 
@@ -233,6 +234,7 @@ class BreezyDesktopExtension {
                     virtual_monitors: virtualMonitors,
                     monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
                     monitor_spacing: this.settings.get_int('monitor-spacing'),
+                    headset_display_as_viewport_center: this.settings.get_boolean('headset-display-as-viewport-center'),
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     display_distance: this.settings.get_double('display-distance'),
@@ -276,6 +278,7 @@ class BreezyDesktopExtension {
 
                 this._effect_settings_bindings = [
                     'monitor-wrapping-scheme',
+                    'headset-display-as-viewport-center',
                     'viewport-offset-x',
                     'viewport-offset-y',
                     'monitor-spacing',
@@ -586,8 +589,20 @@ class BreezyDesktopExtension {
                 Globals.logger.log('Disabling SBS mode due to disabling effect');
                 this._write_control('sbs_mode', 'disable');
             }
+
+            if (!for_setup && this.settings.get_boolean('remove-virtual-displays-on-disable')) {
+                this._remove_virtual_displays();
+            }
         } catch (e) {
             Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_disable ${e.message}\n${e.stack}`);
+        }
+    }
+
+    _remove_virtual_displays() {
+        try {
+            GLib.spawn_command_line_sync(`pkill -f "/virtualdisplay( |$)"`);
+        } catch (e) {
+            Globals.logger.log(`[ERROR] BreezyDesktopExtension _remove_virtual_displays ${e.message}\n${e.stack}`);
         }
     }
 

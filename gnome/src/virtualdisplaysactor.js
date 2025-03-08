@@ -182,6 +182,7 @@ function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, m
 *                               and distance to the center of the screen
  * @param {Object[]} monitorDetailsList - contains x, y, width, height (coordinates from top-left)
  * @param {string} monitorWrappingScheme - horizontal, vertical, none
+ * @param {number} monitorSpacing - visual spacing between monitors, as a percentage of the viewport width
  * @returns {Object[]} - contains NWU vectors pointing to `topLeftNoRotate` and `center` of each monitor 
  *                       and a `rotation` angle for the given wrapping scheme
  */
@@ -199,7 +200,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
 
         cachedMonitorRadians[0] = -fovDetails.defaultDistanceHorizontalRadians / 2;
-        monitorDetailsList.forEach(monitorDetails => {
+        horizontalMonitorSort(monitorDetailsList).forEach(({monitorDetails, originalIndex}) => {
             const monitorWrapDetails = monitorWrap(cachedMonitorRadians, sideEdgeRadius, monitorSpacingPixels, monitorDetails.x, monitorDetails.width);
             const monitorCenterRadius = Math.sqrt(Math.pow(sideEdgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2));
             const upTopPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
@@ -211,6 +212,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             const upCenterPixels = upTopPixels + upCenterOriginPixels;
 
             monitorPlacements.push({
+                originalIndex,
                 topLeftNoRotate: [
                     monitorCenterRadius,
 
@@ -258,7 +260,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const monitorSpacingPixels = monitorSpacing * fovDetails.heightPixels;
 
         cachedMonitorRadians[0] = -fovDetails.defaultDistanceVerticalRadians / 2;
-        monitorDetailsList.forEach(monitorDetails => {
+        verticalMonitorSort(monitorDetailsList).forEach(({monitorDetails, originalIndex}) => {
             const monitorWrapDetails = monitorWrap(cachedMonitorRadians, topEdgeRadius, monitorSpacingPixels, monitorDetails.y, monitorDetails.height);
             const monitorCenterRadius = Math.sqrt(Math.pow(topEdgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2));
             const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
@@ -270,6 +272,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             const westCenterPixels = westPixels + westCenterOriginPixels;
 
             monitorPlacements.push({
+                originalIndex,
                 topLeftNoRotate: [
                     monitorCenterRadius,
 
@@ -313,7 +316,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         const monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
 
         // monitors make a flat wall in front of us, no wrapping
-        monitorDetailsList.forEach(monitorDetails => {
+        monitorDetailsList.forEach((monitorDetails, index) => {
             const upPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
             const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
 
@@ -325,6 +328,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
             const upCenterPixels = upPixels + upCenterOriginPixels;
 
             monitorPlacements.push({
+                originalIndex: index,
                 topLeftNoRotate: [
                     fovDetails.completeScreenDistancePixels,
                     westPixels,
@@ -353,9 +357,42 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
         });
     }
 
+    // put them back in the original monitor order before returning
+    monitorPlacements.sort((a, b) => a.originalIndex - b.originalIndex);
+
     Globals.logger.log_debug(`\t\t\tMonitor placements: ${JSON.stringify(monitorPlacements)}, cached values: ${JSON.stringify(cachedMonitorRadians)}`);
 
     return monitorPlacements;
+}
+
+// sort monitors based on wrapping scheme before determining their placements to avoid odd gaps
+function horizontalMonitorSort(monitors) {
+    return monitors.map((monitor, index) => ({originalIndex: index, monitorDetails: monitor})).sort((a, b) => {
+        const aMon = a.monitorDetails;
+        const bMon = b.monitorDetails;
+
+        // First compare by y-coordinate to form rows (top to bottom)
+        if (aMon.y !== bMon.y) {
+            return aMon.y - bMon.y;
+        }
+        // Then compare by x-coordinate within the same row (left to right)
+        return aMon.x - bMon.x;
+    });
+}
+
+// sort monitors based on wrapping scheme before determining their placements to avoid odd gaps
+function verticalMonitorSort(monitors) {
+    return monitors.map((monitor, index) => ({originalIndex: index, monitorDetails: monitor})).sort((a, b) => {
+        const aMon = a.monitorDetails;
+        const bMon = b.monitorDetails;
+
+        // First compare by x-coordinate to form columns (left to right)
+        if (aMon.x !== bMon.x) {
+            return aMon.x - bMon.x;
+        }
+        // Then compare by y-coordinate within the same column (top to bottom)
+        return aMon.y - bMon.y;
+    });
 }
 
 var VirtualDisplaysActor = GObject.registerClass({
@@ -484,6 +521,13 @@ var VirtualDisplaysActor = GObject.registerClass({
             2.5,
             1.05
         ),
+        'headset-display-as-viewport-center': GObject.ParamSpec.boolean(
+            'headset-display-as-viewport-center',
+            'Headset display as viewport center',
+            'Whether to use the headset display as the reference point for the center of the viewport',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'lens-vector': GObject.ParamSpec.jsobject(
             'lens-vector',
             'Lens Vector',
@@ -587,6 +631,7 @@ var VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('display-distance', this._handle_display_distance_properties_change);
         notifyToFunction('monitor-wrapping-scheme', this._update_monitor_placements);
         notifyToFunction('monitor-spacing', this._update_monitor_placements);
+        notifyToFunction('headset-display-as-viewport-center', this._update_monitor_placements);
         notifyToFunction('viewport-offset-x', this._update_monitor_placements);
         notifyToFunction('viewport-offset-y', this._update_monitor_placements);
         notifyToFunction('show-banner', this._handle_banner_update);
@@ -611,7 +656,7 @@ var VirtualDisplaysActor = GObject.registerClass({
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
         
-        this._sorted_monitors.forEach(((monitor, index) => {
+        this._all_monitors.forEach(((monitor, index) => {
             Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
             const containerActor = new Clutter.Actor({
@@ -721,13 +766,13 @@ var VirtualDisplaysActor = GObject.registerClass({
                     this.display_distance / this._display_distance_default(),
                     this.smooth_follow_enabled,
                     this._fov_details(),
-                    this._sorted_monitors
+                    this._all_monitors
                 );
 
                 if (this.focused_monitor_index !== focusedMonitorIndex) {
                     Globals.logger.log_debug(`Switching to monitor ${focusedMonitorIndex}`);
                     this.focused_monitor_index = focusedMonitorIndex;
-                    this.focused_monitor_details = this._sorted_monitors[focusedMonitorIndex];
+                    this.focused_monitor_details = this._all_monitors[focusedMonitorIndex];
                 }
             }
 
@@ -776,72 +821,55 @@ var VirtualDisplaysActor = GObject.registerClass({
         };
     }
 
-    _horizontal_monitor_sort() {
-        return [...this._all_monitors].sort((a, b) => {
-            // First compare by y-coordinate to form rows (top to bottom)
-            if (a.y !== b.y) {
-                return a.y - b.y;
-            }
-            // Then compare by x-coordinate within the same row (left to right)
-            return a.x - b.x;
-        });
-    }
-
-    _vertical_monitor_sort() {
-        return [...this._all_monitors].sort((a, b) => {
-            // First compare by x-coordinate to form columns (left to right)
-            if (a.x !== b.x) {
-                return a.x - b.x;
-            }
-            // Then compare by y-coordinate within the same column (top to bottom)
-            return a.y - b.y;
-        });
-    }
-
     _update_monitor_placements() {
-        // collect minimum and maximum x and y values of monitors
-        let actualWrapScheme = this.monitor_wrapping_scheme;
-        if (actualWrapScheme === 'automatic') {
+        try {
             const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
-            const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
             const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
+            const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
             const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
 
-            // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
-            if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
-                actualWrapScheme = 'horizontal';
-            } else {
-                actualWrapScheme = 'vertical';
+            // the beginning edges of the viewport if it's centered on all displays
+            const allDisplaysCenterXBegin = (minX + maxX) / 2 - this.target_monitor.width / 2;
+            const allDisplaysCenterYBegin = (minY + maxY) / 2 - this.target_monitor.height / 2;
+
+            const viewportXBegin = this.headset_display_as_viewport_center ? this.target_monitor.x : allDisplaysCenterXBegin;
+            const viewportYBegin = this.headset_display_as_viewport_center ? this.target_monitor.y : allDisplaysCenterYBegin;
+
+            // collect minimum and maximum x and y values of monitors
+            let actualWrapScheme = this.monitor_wrapping_scheme;
+            if (actualWrapScheme === 'automatic') {
+                // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
+                if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
+                    actualWrapScheme = 'horizontal';
+                } else {
+                    actualWrapScheme = 'vertical';
+                }
             }
+            const fovDetails = this._fov_details();
+            this.lens_vector = [0.0, 0.0, -fovDetails.lensDistancePixels];
+            this.monitor_placements = monitorsToPlacements(
+                fovDetails,
+
+                // shift all monitors so they center around the viewport center, then adjusted by the offsets
+                this._all_monitors.map(monitor => ({
+                    x: monitor.x - viewportXBegin - this.viewport_offset_x * this.target_monitor.width,
+                    y: monitor.y - viewportYBegin + this.viewport_offset_y * this.target_monitor.height,
+                    width: monitor.width,
+                    height: monitor.height
+                })),
+                actualWrapScheme,
+                this.monitor_spacing / 1000.0
+            );
+
+            // normalize the center vectors
+            this._monitorsAsNormalizedVectors = this.monitor_placements.map(monitorVectors => {
+                const vector = monitorVectors.centerLook;
+                const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+                return [vector[0] / length, vector[1] / length, vector[2] / length];
+            });
+        } catch (e) {
+            Globals.logger.log(`ERROR: virtualdisplaysactor.js _update_monitor_placements ${e.message}\n${e.stack}`);
         }
-
-        // use horizontal in all cases but vertical wrapping
-        this._sorted_monitors = actualWrapScheme === 'vertical' ? 
-            this._vertical_monitor_sort() : 
-            this._horizontal_monitor_sort();
-        
-        const fovDetails = this._fov_details();
-        this.lens_vector = [0.0, 0.0, -fovDetails.lensDistancePixels];
-        this.monitor_placements = monitorsToPlacements(
-            fovDetails,
-
-            // shift all monitors so they center around the target monitor, then adjusted by the offsets
-            this._sorted_monitors.map(monitor => ({
-                x: monitor.x - this.target_monitor.x - this.viewport_offset_x * this.target_monitor.width,
-                y: monitor.y - this.target_monitor.y + this.viewport_offset_y * this.target_monitor.height,
-                width: monitor.width,
-                height: monitor.height
-            })),
-            actualWrapScheme,
-            this.monitor_spacing / 1000.0
-        );
-
-        // normalize the center vectors
-        this._monitorsAsNormalizedVectors = this.monitor_placements.map(monitorVectors => {
-            const vector = monitorVectors.centerLook;
-            const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
-            return [vector[0] / length, vector[1] / length, vector[2] / length];
-        });
     }
     
     _handle_display_distance_properties_change() {
