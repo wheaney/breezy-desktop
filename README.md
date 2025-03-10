@@ -20,7 +20,15 @@ Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNO
 
 For the best performance, ensure you have the latest graphics drivers installed for your distro. Also, double-check that your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you may not be able to launch virtual displays; switch to `Wayland` or follow the [GNOME Legacy setup](#gnome-widescreen-legacy-setup) instructions.
 
+#### Multi-display (Beta)
+
+1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
+2. Run the setup script: `~/Downloads/breezy_gnome_setup`
+3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
+
 #### Arch Linux
+
+**Note: for now only the legacy/single-screen build is in AUR.**
 
 Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands from a terminal:
 1. If you've previously installed Breezy GNOME using the setup script, you must uninstall it first with `breezy_gnome_uninstall`
@@ -28,15 +36,11 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 3. `systemctl --user enable --now xr-driver.service`
 4. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
-#### All other distros
-
-1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
-2. Run the setup script: `~/Downloads/breezy_gnome_setup`
-3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
-
 ### GNOME Widescreen (Legacy) Setup
 
-For single-screen ultrawide support, install the legacy version of Breezy Desktop by following the [All other distros](#all-other-distros) instructions, but run the setup script as `~/Downloads/breezy_gnome_setup --tag legacy`.
+1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
+2. Run the setup script: `~/Downloads/breezy_gnome_setup --tag legacy`
+3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
 ### Steam Deck desktop mode
 
