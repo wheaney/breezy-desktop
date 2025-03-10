@@ -61,7 +61,7 @@ index b8470d1..a4c048a 100644
          this._targetMonitors = targetMonitors;
          this._refreshRate = refreshRate;
 diff --git a/gnome-44-max/src/devicedatastream.js b/gnome-44-max/src/devicedatastream.js
-index aae3706..d2e96c0 100644
+index e396403..f047067 100644
 --- a/gnome-44-max/src/devicedatastream.js
 +++ b/gnome-44-max/src/devicedatastream.js
 @@ -1,8 +1,12 @@
@@ -101,7 +101,7 @@ index aae3706..d2e96c0 100644
          'breezy-desktop-running': GObject.ParamSpec.boolean(
              'breezy-desktop-running',
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index fcf860f..1f12ec1 100644
+index 29559f4..8b0a8bb 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
 @@ -1,28 +1,32 @@
@@ -157,7 +157,7 @@ index fcf860f..1f12ec1 100644
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -615,6 +619,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -630,6 +634,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -391,7 +391,7 @@ index 8c17207..fdfdac1 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/virtualdisplayeffect.js b/gnome-44-max/src/virtualdisplayeffect.js
-index 7fb013b..bb12660 100644
+index 6abb50f..4ab6942 100644
 --- a/gnome-44-max/src/virtualdisplayeffect.js
 +++ b/gnome-44-max/src/virtualdisplayeffect.js
 @@ -1,16 +1,18 @@
@@ -431,7 +431,7 @@ index 7fb013b..bb12660 100644
          'monitor-index': GObject.ParamSpec.int(
              'monitor-index',
 diff --git a/gnome-44-max/src/virtualdisplaysactor.js b/gnome-44-max/src/virtualdisplaysactor.js
-index a4b6a83..a3a4550 100644
+index e1fec8c..2662cb6 100644
 --- a/gnome-44-max/src/virtualdisplaysactor.js
 +++ b/gnome-44-max/src/virtualdisplaysactor.js
 @@ -1,18 +1,19 @@
@@ -466,8 +466,8 @@ index a4b6a83..a3a4550 100644
  
  function applyQuaternionToVector(vector, quaternion) {
      const t = [
-@@ -357,7 +358,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
-     return monitorPlacements;
+@@ -394,7 +395,7 @@ function verticalMonitorSort(monitors) {
+     });
  }
  
 -export const VirtualDisplaysActor = GObject.registerClass({

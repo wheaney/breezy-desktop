@@ -105,13 +105,25 @@
                                 <child>
                                   <object class="GtkComboBoxText" id="add_virtual_display_menu">
                                     <items>
-                                      <item translatable="yes" id="1080p">1080p</item>
-                                      <item translatable="yes" id="1440p">1440p</item>
+                                      <item translatable="yes" id="create_1080p_display">1080p</item>
+                                      <item translatable="yes" id="create_1440p_display">1440p</item>
+                                      <item translatable="yes" id="add_custom_resolution">Add custom</item>
                                     </items>
                                   </object>
                                 </child>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                        <child type="suffix">
+                          <object class="GtkButton" id="remove_custom_resolution_button">
+                            <property name="name">remove-custom-resolution</property>
+                            <property name="icon-name">list-remove-symbolic</property>
+                            <property name="valign">3</property>
+                            <property name="visible">0</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
                           </object>
                         </child>
                         <child type="suffix">

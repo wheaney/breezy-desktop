@@ -121,7 +121,6 @@ var CursorManager = class CursorManager {
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
-        Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
 
         // cap the refresh rate for performance reasons
         const interval = 1000.0 / Math.min(this._refreshRate, 60);
@@ -145,7 +144,6 @@ var CursorManager = class CursorManager {
 
         if (this._cursorTracker) this._cursorTracker.disconnectObject(this);
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
-        Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
         
         if (!this._systemCursorShown) this._showSystemCursor();
     }

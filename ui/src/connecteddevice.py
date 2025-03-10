@@ -1,7 +1,9 @@
 from gi.repository import Gio, GLib, Gtk, GObject
 from .configmanager import ConfigManager
-from .extensionsmanager import ExtensionsManager
+from .customresolutiondialog import CustomResolutionDialog
 from .displaydistancedialog import DisplayDistanceDialog
+from .extensionsmanager import ExtensionsManager
+from .files import get_state_dir
 from .license import BREEZY_GNOME_FEATURES
 from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
@@ -10,8 +12,12 @@ from .virtualdisplaymanager import VirtualDisplayManager
 from .virtualdisplay import is_screencast_available
 from .virtualdisplayrow import VirtualDisplayRow
 from .xrdriveripc import XRDriverIPC
+
 import gettext
+import json
 import logging
+import os
+from pathlib import Path
 
 _ = gettext.gettext
 logger = logging.getLogger('breezy_ui')
@@ -34,6 +40,7 @@ class ConnectedDevice(Gtk.Box):
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
     add_virtual_display_button = Gtk.Template.Child()
+    remove_custom_resolution_button = Gtk.Template.Child()
     launch_display_settings_row = Gtk.Template.Child()
     launch_display_settings_button = Gtk.Template.Child()
     all_displays_distance_label = Gtk.Template.Child()
@@ -146,7 +153,7 @@ class ConnectedDevice(Gtk.Box):
         self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
         self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
 
-        self.add_virtual_display_menu.set_active_id('1080p')
+        self.add_virtual_display_menu.set_active_id('create_1080p_display')
         self.add_virtual_display_button.connect('clicked', self._on_add_virtual_display)
         self.launch_display_settings_button.connect('clicked', self._launch_display_settings)
 
@@ -176,17 +183,25 @@ class ConnectedDevice(Gtk.Box):
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
         self.extensions_manager.connect('notify::breezy-enabled', self._handle_enabled_config)
 
-        self.virtual_display_manager.connect('notify::displays', self._on_virtual_displays_update)
-        self._on_virtual_displays_update(self.virtual_display_manager, None)
-
-        self.virtual_displays_by_pid = {}
-
         self._settings_displays_app_info = None
 
         for appinfo in Gio.AppInfo.get_all():
             if appinfo.get_id() == 'gnome-display-panel.desktop':
                 self._settings_displays_app_info = appinfo
                 break
+
+        self.virtual_display_manager.connect('notify::displays', self._on_virtual_displays_update)
+        self.add_virtual_display_menu.connect('changed', self._on_add_virtual_display_menu_changed)
+        self.remove_custom_resolution_button.connect('clicked', self._on_custom_resolution_option_remove)
+        self._on_virtual_displays_update(self.virtual_display_manager, None)
+        self.virtual_displays_by_pid = {}
+
+        self._default_resolution_options_count = 2
+        self._custom_resolution_options = []
+        self._custom_resolutions_file_path = Path(os.path.join(get_state_dir(), 'custom_resolutions.json'))
+        self._load_custom_resolutions()
+        for id in self._custom_resolution_options:
+            self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
 
     def _bind_switch_to_config(self, switch, config_key):
         self.config_manager.bind_property(config_key, switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -314,17 +329,72 @@ class ConnectedDevice(Gtk.Box):
 
         self._set_focused_display_distance(distance)
 
+    def _save_custom_resolutions(self):
+        with open(self._custom_resolutions_file_path, 'w') as f:
+            json.dump(self._custom_resolution_options, f)
+    
+    def _load_custom_resolutions(self):
+        if self._custom_resolutions_file_path.exists():
+            try:
+                with open(self._custom_resolutions_file_path, 'r') as f:
+                    self._custom_resolution_options = json.load(f)
+            except Exception:
+                self._custom_resolution_options = []
+
     def _on_add_virtual_display(self, *args):
         resolution = self.add_virtual_display_menu.get_active_id()
-        logger.info(f"Adding virtual display {resolution}")
 
-        width = 1920
-        height = 1080
-        if resolution == '1440p':
+        if resolution == 'create_1080p_display':
+            width = 1920
+            height = 1080
+        elif resolution == 'create_1440p_display':
             width = 2560
             height = 1440
+        elif resolution == 'add_custom_resolution':
+            dialog = CustomResolutionDialog(self._on_custom_resolution_dialog_add)
+            dialog.set_transient_for(self.get_ancestor(Gtk.Window))
+            dialog.present()
+            return
+        else:
+            width, height = resolution.split('x')
+            width = int(width)
+            height = int(height)
 
+        logger.info(f"Adding virtual display {resolution}")
         self.virtual_display_manager.create_virtual_display(width, height, 60)
+
+    def _on_custom_resolution_dialog_add(self, width, height):
+        width = int(round(width))
+        height = int(round(height))
+        
+        id = f"{width}x{height}"        
+        self._custom_resolution_options.append(id)
+        self._save_custom_resolutions()
+
+        self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
+        self.add_virtual_display_menu.set_active_id(id)
+        self._on_add_virtual_display_menu_changed(self.add_virtual_display_menu)
+        
+        self.virtual_display_manager.create_virtual_display(width, height, 60)
+
+    def _on_add_virtual_display_menu_changed(self, widget):
+        resolution = widget.get_active_id()
+        self.remove_custom_resolution_button.set_visible(resolution in self._custom_resolution_options)
+
+    def _on_custom_resolution_option_remove(self, *args):
+        resolution = self.add_virtual_display_menu.get_active_id()
+
+        for custom_resolution_option in self._custom_resolution_options:
+            self.add_virtual_display_menu.remove(self._default_resolution_options_count)
+            
+        self._custom_resolution_options.remove(resolution)
+        self._save_custom_resolutions()
+
+        for id in self._custom_resolution_options:
+            self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
+
+        self.add_virtual_display_menu.set_active_id('create_1080p_display')
+        self._on_add_virtual_display_menu_changed(self.add_virtual_display_menu)
 
     def _on_virtual_displays_update(self, virtual_display_manager, val):
         GLib.idle_add(self._on_virtual_displays_update_gui, virtual_display_manager)
@@ -339,6 +409,11 @@ class ConnectedDevice(Gtk.Box):
         for pid, child in self.virtual_displays_by_pid.items():
             self.top_features_group.remove(child)
 
+        self.top_features_group.add(self.launch_display_settings_row)
+        self.launch_display_settings_row.set_visible(
+            self._settings_displays_app_info is not None and virtual_displays_present
+        )
+
         new_displays_by_pid = {}
         for display in virtual_display_manager.displays:
             child = self.virtual_displays_by_pid.get(
@@ -346,11 +421,6 @@ class ConnectedDevice(Gtk.Box):
                 VirtualDisplayRow(display['pid'], display['width'], display['height'], 60))
             self.top_features_group.add(child)
             new_displays_by_pid[display['pid']] = child
-
-        self.top_features_group.add(self.launch_display_settings_row)
-        self.launch_display_settings_row.set_visible(
-            self._settings_displays_app_info is not None and virtual_displays_present
-        )
         
         self.virtual_displays_by_pid = new_displays_by_pid
 

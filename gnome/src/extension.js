@@ -43,6 +43,9 @@ class BreezyDesktopExtension {
         this._follow_threshold_connection = null;
         this._breezy_desktop_running_connection = null;
 
+        // "fresh" means the effect hasn't been enabled since breezy-desktop-running became true
+        this._fresh_session = true;
+
         if (!Globals.logger) {
             Globals.logger = new Logger({
                 title: 'breezydesktop',
@@ -274,7 +277,7 @@ class BreezyDesktopExtension {
                 
                 this._show_banner_connection = Globals.data_stream.connect('notify::show-banner', this._handle_show_banner_update.bind(this));
                 this._was_show_banner = Globals.data_stream.show_banner;
-                if (!this._was_show_banner) this._recenter_display();
+                if (!this._was_show_banner && this._fresh_session) this._recenter_display();
 
                 this._effect_settings_bindings = [
                     'monitor-wrapping-scheme',
@@ -299,12 +302,18 @@ class BreezyDesktopExtension {
                     this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
 
-                Meta.Compositor?.disable_unredirect?.() ?? Meta.disable_unredirect_for_display(global.display);
+                if (global.compositor?.disable_unredirect) {
+                    global.compositor.disable_unredirect();
+                } else {
+                    Meta.disable_unredirect_for_display(global.display);
+                }
 
                 this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
+
+                this._fresh_session = false;
             } catch (e) {
                 Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
                 Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
@@ -478,6 +487,7 @@ class BreezyDesktopExtension {
 
         if (datastream.breezy_desktop_running !== this._is_effect_running) {
             if (!datastream.breezy_desktop_running) Globals.logger.log('Breezy desktop disabled');
+            this._fresh_session = datastream.breezy_desktop_running;
             this._setup(!datastream.breezy_desktop_running);
         }
     }
@@ -542,7 +552,12 @@ class BreezyDesktopExtension {
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
-            Meta.Compositor?.enable_unredirect?.() ?? Meta.enable_unredirect_for_display(global.display);
+            
+            if (global.compositor?.enable_unredirect) {
+                global.compositor.enable_unredirect();
+            } else {
+                Meta.enable_unredirect_for_display(global.display);
+            }
 
             for (let settings_key of this._effect_settings_bindings) {
                 Gio.Settings.unbind(this.settings, settings_key);

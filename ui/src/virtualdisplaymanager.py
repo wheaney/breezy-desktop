@@ -61,7 +61,7 @@ class VirtualDisplayManager(GObject.GObject):
     def create_virtual_display(self, width, height, framerate):
         try:
             process = subprocess.Popen(
-                [f"{bindir}/virtualdisplay", "--width", str(width), "--height", str(height), "--framerate", str(framerate)],
+                [f"{bindir}/virtualdisplay", "--width", str(int(round(width))), "--height", str(int(round(height))), "--framerate", str(framerate)],
                 start_new_session=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -95,7 +95,7 @@ class VirtualDisplayManager(GObject.GObject):
             self._save_processes()
             return True
         except Exception as e:
-            print(f"Failed to kill process {pid}: {e}")
+            logger.error(f"Failed to kill process {pid}: {e}")
             return False
 
     def _save_processes(self):

@@ -475,49 +475,51 @@ var VirtualDisplayEffect = GObject.registerClass({
     }
 
     vfunc_paint_target(node, paintContext) {
-        if (!this._initialized) {
-            const aspect = this.target_monitor.width / this.target_monitor.height;
-            const fovRadians = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
-            const projection_matrix = this.perspective(
-                fovRadians.horizontal,
-                aspect,
-                0.0001,
-                1000.0
-            );
-            this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
-            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovRadians.vertical]);
-            this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
-            this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
-            this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
-            this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
-            this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.lens_vector);
-            this._update_display_position_uniforms();
-            this._handle_banner_update();
-            this._initialized = true;
-        }
-
-        let lookAheadSet = false;
-        if (!this._use_smooth_follow_origin && (!this.smooth_follow_enabled || this._is_focused() || this._current_follow_ease_progress > 0.0)) {
-            if (this._current_follow_ease_progress > 0.0 && this._current_follow_ease_progress < 1.0) {
-                // don't apply look-ahead while the display is slerping
-                this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
-                lookAheadSet = true;
+        if (this.imu_snapshots) {
+            if (!this._initialized) {
+                const aspect = this.target_monitor.width / this.target_monitor.height;
+                const fovRadians = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
+                const projection_matrix = this.perspective(
+                    fovRadians.horizontal,
+                    aspect,
+                    0.0001,
+                    1000.0
+                );
+                this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
+                this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovRadians.vertical]);
+                this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
+                this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
+                this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
+                this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
+                this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.lens_vector);
+                this._update_display_position_uniforms();
+                this._handle_banner_update();
+                this._initialized = true;
             }
-            this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
-        } else {
-            this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.smooth_follow_origin);
-        }
-        if (!lookAheadSet) {
-            this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
-        }
 
-        if (!this.disable_anti_aliasing) {
-            // improves sampling quality for smooth text and edges
-            this.get_pipeline().set_layer_filters(
-                0,
-                Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
-                Cogl.PipelineFilter.LINEAR
-            );
+            let lookAheadSet = false;
+            if (!this._use_smooth_follow_origin && (!this.smooth_follow_enabled || this._is_focused() || this._current_follow_ease_progress > 0.0)) {
+                if (this._current_follow_ease_progress > 0.0 && this._current_follow_ease_progress < 1.0) {
+                    // don't apply look-ahead while the display is slerping
+                    this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
+                    lookAheadSet = true;
+                }
+                this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
+            } else {
+                this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.smooth_follow_origin);
+            }
+            if (!lookAheadSet) {
+                this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
+            }
+
+            if (!this.disable_anti_aliasing) {
+                // improves sampling quality for smooth text and edges
+                this.get_pipeline().set_layer_filters(
+                    0,
+                    Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
+                    Cogl.PipelineFilter.LINEAR
+                );
+            }
         }
 
         super.vfunc_paint_target(node, paintContext);

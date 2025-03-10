@@ -3,7 +3,7 @@
     "name": "Breezy GNOME XR Desktop",
     "description": "XR virtual desktop for GNOME.",
     "settings-schema": "com.xronlinux.BreezyDesktop",
-    "session-modes": ["user", "unlock-dialog"],
+    "session-modes": ["user"],
     "shell-version": [
         "42", "43", "44"
     ],
