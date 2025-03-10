@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="CustomResolutionDialogContent" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="valign">3</property>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title" translatable="yes">Width</property>
+        <child>
+          <object class="GtkScale" id="custom_resolution_width_scale">
+            <property name="valign">3</property>
+            <property name="margin-top">20</property>
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="draw-value">true</property>
+            <property name="value-pos">0</property>
+            <property name="digits">0</property>
+            <property name="width-request">350</property>
+            <property name="has-origin">false</property>
+            <property name="adjustment">
+              <object class="GtkAdjustment" id="custom_resolution_width_adjustment">
+                <property name="lower">640</property>
+                <property name="upper">3840</property>
+                <property name="step-increment">10</property>
+                <property name="value">1920</property>
+              </object>
+            </property>
+            <marks>
+              <mark value="640" position="bottom">640</mark>
+              <mark value="1280" position="bottom">1280</mark>
+              <mark value="1920" position="bottom">1920</mark>
+              <mark value="2560" position="bottom">2560</mark>
+              <mark value="3840" position="bottom">3840</mark>
+            </marks>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title" translatable="yes">Height</property>
+        <child>
+          <object class="GtkScale" id="custom_resolution_height_scale">
+            <property name="valign">3</property>
+            <property name="margin-top">20</property>
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="draw-value">true</property>
+            <property name="value-pos">0</property>
+            <property name="digits">0</property>
+            <property name="width-request">350</property>
+            <property name="has-origin">false</property>
+            <property name="adjustment">
+              <object class="GtkAdjustment" id="custom_resolution_height_adjustment">
+                <property name="lower">480</property>
+                <property name="upper">2880</property>
+                <property name="step-increment">10</property>
+                <property name="value">1080</property>
+              </object>
+            </property>
+            <marks>
+              <mark value="480" position="bottom">480</mark>
+              <mark value="720" position="bottom">720</mark>
+              <mark value="1080" position="bottom">1080</mark>
+              <mark value="1440" position="bottom">1440</mark>
+              <mark value="2880" position="bottom">2880</mark>
+            </marks>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

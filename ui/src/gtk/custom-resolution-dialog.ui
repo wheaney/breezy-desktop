@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="CustomResolutionDialog" parent="GtkDialog">
+    <property name="title" translatable="yes">Add a Custom Resolution</property>
+    <property name="modal">1</property>
+    <property name="use-header-bar">1</property>
+    <child type="action">
+      <object class="GtkButton" id="add_button">
+        <property name="label" translatable="yes">Add</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+      </object>
+    </child>
+  </template>
+</interface>

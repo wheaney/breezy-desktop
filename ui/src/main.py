@@ -36,17 +36,13 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import Adw, Gtk, Gio, GLib
 from .configmanager import ConfigManager
+from .files import get_config_dir, get_state_dir
 from .licensedialog import LicenseDialog
 from .statemanager import StateManager
 from .window import BreezydesktopWindow
 from .xrdriveripc import XRDriverIPC
 
-config_home = os.environ.get('XDG_CONFIG_HOME', '~/.config')
-config_dir = os.path.expanduser(config_home)
-state_home = os.environ.get('XDG_STATE_HOME', '~/.local/state')
-state_dir = os.path.expanduser(state_home)
-breezy_state_dir = os.path.join(state_dir, 'breezy_gnome')
-log_dir = os.path.join(breezy_state_dir, 'logs/ui')
+log_dir = os.path.join(get_state_dir(), 'logs/ui')
 os.makedirs(log_dir, exist_ok=True)
 
 logger = logging.getLogger('breezy_ui')
@@ -63,7 +59,7 @@ def excepthook(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = excepthook
 
-XRDriverIPC.set_instance(XRDriverIPC(logger, config_dir))
+XRDriverIPC.set_instance(XRDriverIPC(logger, get_config_dir()))
 
 if GLib.MAJOR_VERSION * 100 + GLib.MINOR_VERSION >= 274:
     APPLICATION_FLAGS = Gio.ApplicationFlags.DEFAULT_FLAGS
