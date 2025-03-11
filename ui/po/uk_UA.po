@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 10:32-0700\n"
+"POT-Creation-Date: 2025-03-11 13:47-0700\n"
 "PO-Revision-Date: 2024-08-17 10:08-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -279,6 +279,12 @@ msgstr "Відстань дисплея"
 msgid "Set how close you want displays to appear."
 msgstr ""
 
+#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
+#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+msgid "Change"
+msgstr "Змінити"
+
 #: src/gtk/connected-device.ui:222
 msgid "Follow threshold"
 msgstr "Поріг слідування"
@@ -332,12 +338,32 @@ msgstr ""
 msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
+#: src/gtk/connected-device.ui:323
+msgid "left"
+msgstr ""
+
+#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+msgid "center"
+msgstr ""
+
+#: src/gtk/connected-device.ui:327
+msgid "right"
+msgstr ""
+
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:336
 msgid "Move the viewport up or down from its default position."
+msgstr ""
+
+#: src/gtk/connected-device.ui:353
+msgid "down"
+msgstr ""
+
+#: src/gtk/connected-device.ui:357
+msgid "up"
 msgstr ""
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
@@ -353,11 +379,6 @@ msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
-
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
-msgid "Change"
-msgstr "Змінити"
 
 #: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"

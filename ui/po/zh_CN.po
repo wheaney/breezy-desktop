@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 10:32-0700\n"
+"POT-Creation-Date: 2025-03-11 13:47-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -27,7 +27,6 @@ msgid "This feature is not currently supported for your device."
 msgstr "您的设备目前不支援此功能。"
 
 #: src/connecteddevice.py:141
-#, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "设定注视中的屏幕的距离"
 
@@ -36,7 +35,6 @@ msgid "Use a closer value so the display zooms in when you look at it."
 msgstr "近的数值会将您所看向的屏幕放大"
 
 #: src/connecteddevice.py:149
-#, fuzzy
 msgid "Set All Displays Distance"
 msgstr "设定所有屏幕的距离"
 
@@ -51,12 +49,10 @@ msgid ""
 msgstr "无法增加模拟显示。需要安装xdg-desktop-portal"
 
 #: src/connecteddevice.py:297
-#, fuzzy
 msgid "Focused display"
 msgstr "注视中的屏幕"
 
 #: src/connecteddevice.py:303
-#, fuzzy
 msgid "All displays"
 msgstr "所有的屏幕"
 
@@ -118,7 +114,7 @@ msgid "Inactive"
 msgstr "未订阅"
 
 #: src/licensetierrow.py:41
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "<b>${amount}</b> USD"
 msgstr "${amount} 美元"
 
@@ -218,14 +214,15 @@ msgid ""
 "Set your preferred focused and unfocused distances in the Adjustments "
 "section.\n"
 "                        "
-msgstr "当您看向着一个屏幕，将此屏幕自动放大。 注视中的屏幕，非注视中的屏幕都可以在「调整页」里设定距离"
+msgstr ""
+"当您看向着一个屏幕，将此屏幕自动放大。 注视中的屏幕，非注视中的屏幕都可以在"
+"「调整页」里设定距离"
 
 #: src/gtk/connected-device.ui:70
 msgid "Follow mode"
 msgstr "跟随模式"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
 msgstr "将注视中的屏幕保持在视野中心附近。"
 
@@ -239,7 +236,6 @@ msgid ""
 msgstr "XR效果开启时将所有具体屏幕自动关闭"
 
 #: src/gtk/connected-device.ui:92
-#, fuzzy
 msgid "Virtual displays"
 msgstr "模拟屏幕"
 
@@ -260,7 +256,6 @@ msgid "Remove custom resolution"
 msgstr "删除客制化解析度"
 
 #: src/gtk/connected-device.ui:144
-#, fuzzy
 msgid "Rearrange displays"
 msgstr "改变屏幕顺序"
 
@@ -269,13 +264,18 @@ msgid "Adjustments"
 msgstr "调整"
 
 #: src/gtk/connected-device.ui:166
-#, fuzzy
 msgid "Display distances"
 msgstr "屏幕距离"
 
 #: src/gtk/connected-device.ui:167
 msgid "Set how close you want displays to appear."
 msgstr "设定您所希望屏幕离你的距离有多近"
+
+#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
+#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+msgid "Change"
+msgstr "更改"
 
 #: src/gtk/connected-device.ui:222
 msgid "Follow threshold"
@@ -286,7 +286,6 @@ msgid "How far away you can look before the display follows."
 msgstr "在显示内容跟随前您可以看多远。"
 
 #: src/gtk/connected-device.ui:246
-#, fuzzy
 msgid "Display angling"
 msgstr "屏幕角度"
 
@@ -312,7 +311,6 @@ msgid "Flat"
 msgstr "平面"
 
 #: src/gtk/connected-device.ui:274
-#, fuzzy
 msgid "Display spacing"
 msgstr "屏幕之间缝隙的距差"
 
@@ -328,6 +326,18 @@ msgstr "眼镜视口特定水平偏移"
 msgid "Move the viewport to the left or right of its default position."
 msgstr "将眼镜视口从默认位置左右移动"
 
+#: src/gtk/connected-device.ui:323
+msgid "left"
+msgstr ""
+
+#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+msgid "center"
+msgstr ""
+
+#: src/gtk/connected-device.ui:327
+msgid "right"
+msgstr ""
+
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
 msgstr "眼镜视口特定垂直偏移"
@@ -335,6 +345,14 @@ msgstr "眼镜视口特定垂直偏移"
 #: src/gtk/connected-device.ui:336
 msgid "Move the viewport up or down from its default position."
 msgstr "将眼镜视口从默认位置上下移动"
+
+#: src/gtk/connected-device.ui:353
+msgid "down"
+msgstr ""
+
+#: src/gtk/connected-device.ui:357
+msgid "up"
+msgstr ""
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
@@ -350,11 +368,6 @@ msgid ""
 "manually once in order to enable the shortcut."
 msgstr "快速启用或禁用 XR 效果。您可能需要先手动启用一次该效果，才能设此快捷键"
 
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
-msgid "Change"
-msgstr "更改"
-
 #: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"
 msgstr "重新居中显示快捷键"
@@ -364,12 +377,10 @@ msgid "Pin the virtual display to the current position."
 msgstr "将虚拟显示固定在当前位置。"
 
 #: src/gtk/connected-device.ui:439
-#, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "切换注视自动放大模式快捷键"
 
 #: src/gtk/connected-device.ui:440
-#, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "快速地切换注视自动放大模式。"
 
@@ -422,7 +433,6 @@ msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "连接时，自动将眼镜设置为主要显示。"
 
 #: src/gtk/connected-device.ui:562
-#, fuzzy
 msgid "Remove virtual displays on disable"
 msgstr "自动模拟屏幕删除"
 
@@ -439,7 +449,6 @@ msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr "打开双击重新定位和三击重新校准手势"
 
 #: src/gtk/connected-device.ui:584
-#, fuzzy
 msgid "All displays follow mode"
 msgstr "全屏幕跟随模式"
 
@@ -675,7 +684,6 @@ msgstr "关于 Breezy Desktop"
 #~ msgstr ""
 #~ "连接时，如果宽屏模式开启，眼镜会立即切换到 并排模式。这可能会导致不稳定。"
 
-#, fuzzy
 #~ msgid "Set Unfocused Displays Distance"
 #~ msgstr "设定非注视中屏幕距离"
 
