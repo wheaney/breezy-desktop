@@ -19,4 +19,4 @@ def get_data_home():
 
 def get_bin_home():
     bin_home = os.environ.get('XDG_BIN_HOME', '~/.local/bin')
-    return os.path.expanduser(bin_home)
+    return os.getenv('BINDIR', os.path.expanduser(bin_home))

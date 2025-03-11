@@ -22,7 +22,7 @@
               <object class="GtkAdjustment" id="custom_resolution_width_adjustment">
                 <property name="lower">640</property>
                 <property name="upper">3840</property>
-                <property name="step-increment">10</property>
+                <property name="step-increment">2</property>
                 <property name="value">1920</property>
               </object>
             </property>
@@ -54,8 +54,8 @@
             <property name="adjustment">
               <object class="GtkAdjustment" id="custom_resolution_height_adjustment">
                 <property name="lower">480</property>
-                <property name="upper">2880</property>
-                <property name="step-increment">10</property>
+                <property name="upper">2160</property>
+                <property name="step-increment">2</property>
                 <property name="value">1080</property>
               </object>
             </property>
@@ -64,7 +64,7 @@
               <mark value="720" position="bottom">720</mark>
               <mark value="1080" position="bottom">1080</mark>
               <mark value="1440" position="bottom">1440</mark>
-              <mark value="2880" position="bottom">2880</mark>
+              <mark value="2880" position="bottom">2160</mark>
             </marks>
           </object>
         </child>

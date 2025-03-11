@@ -350,11 +350,6 @@ class ConnectedDevice(Gtk.Box):
         elif resolution == 'create_1440p_display':
             width = 2560
             height = 1440
-        elif resolution == 'add_custom_resolution':
-            dialog = CustomResolutionDialog(self._on_custom_resolution_dialog_add)
-            dialog.set_transient_for(self.get_ancestor(Gtk.Window))
-            dialog.present()
-            return
         else:
             width, height = resolution.split('x')
             width = int(width)
@@ -374,12 +369,18 @@ class ConnectedDevice(Gtk.Box):
         self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
         self.add_virtual_display_menu.set_active_id(id)
         self._on_add_virtual_display_menu_changed(self.add_virtual_display_menu)
-        
-        self.virtual_display_manager.create_virtual_display(width, height, 60)
 
     def _on_add_virtual_display_menu_changed(self, widget):
         resolution = widget.get_active_id()
         self.remove_custom_resolution_button.set_visible(resolution in self._custom_resolution_options)
+
+        add_custom_resolution_option = resolution == 'add_custom_resolution'
+        self.add_virtual_display_button.set_sensitive(not add_custom_resolution_option)
+        
+        if add_custom_resolution_option:
+            dialog = CustomResolutionDialog(self._on_custom_resolution_dialog_add)
+            dialog.set_transient_for(self.get_ancestor(Gtk.Window))
+            dialog.present()
 
     def _on_custom_resolution_option_remove(self, *args):
         resolution = self.add_virtual_display_menu.get_active_id()
