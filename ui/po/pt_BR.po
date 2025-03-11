@@ -262,7 +262,7 @@ msgstr "1440p"
 
 #: src/gtk/connected-device.ui:110
 msgid "Add custom"
-msgstr "Adicionar personalizado"
+msgstr "Adicionar"
 
 #: src/gtk/connected-device.ui:124
 msgid "Remove custom resolution"
