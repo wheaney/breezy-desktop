@@ -328,15 +328,15 @@ msgstr "将眼镜视口从默认位置左右移动"
 
 #: src/gtk/connected-device.ui:323
 msgid "left"
-msgstr ""
+msgstr "左"
 
 #: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
 msgid "center"
-msgstr ""
+msgstr "中"
 
 #: src/gtk/connected-device.ui:327
 msgid "right"
-msgstr ""
+msgstr "右"
 
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
@@ -348,11 +348,11 @@ msgstr "将眼镜视口从默认位置上下移动"
 
 #: src/gtk/connected-device.ui:353
 msgid "down"
-msgstr ""
+msgstr "下"
 
 #: src/gtk/connected-device.ui:357
 msgid "up"
-msgstr ""
+msgstr "上"
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
