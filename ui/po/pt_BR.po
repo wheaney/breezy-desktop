@@ -121,9 +121,8 @@ msgid "Inactive"
 msgstr "Inativo"
 
 #: src/licensetierrow.py:41
-#, fuzzy, python-brace-format
 msgid "<b>${amount}</b> USD"
-msgstr "${amount} USD"
+msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
