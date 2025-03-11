@@ -266,7 +266,7 @@ msgstr "Remover resolução personalizada"
 
 #: src/gtk/connected-device.ui:144
 msgid "Rearrange displays"
-msgstr "Tela curva"
+msgstr "Rearranjar tela"
 
 #: src/gtk/connected-device.ui:162
 msgid "Adjustments"
