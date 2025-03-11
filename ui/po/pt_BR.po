@@ -266,7 +266,7 @@ msgstr "Remover resolução personalizada"
 
 #: src/gtk/connected-device.ui:144
 msgid "Rearrange displays"
-msgstr "Tela curva"
+msgstr "Rearranjar tela"
 
 #: src/gtk/connected-device.ui:162
 msgid "Adjustments"
@@ -337,15 +337,15 @@ msgstr "Mova a janela de visualização para a esquerda ou direita da sua posiç
 
 #: src/gtk/connected-device.ui:323
 msgid "left"
-msgstr ""
+msgstr "esquerda"
 
 #: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
 msgid "center"
-msgstr ""
+msgstr "centro"
 
 #: src/gtk/connected-device.ui:327
 msgid "right"
-msgstr ""
+msgstr "direita"
 
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
@@ -357,11 +357,11 @@ msgstr "Mova a janela de visualização para cima ou para baixo da sua posição
 
 #: src/gtk/connected-device.ui:353
 msgid "down"
-msgstr ""
+msgstr "baixo"
 
 #: src/gtk/connected-device.ui:357
 msgid "up"
-msgstr ""
+msgstr "cima"
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
