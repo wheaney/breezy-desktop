@@ -29,22 +29,6 @@ if ! { python3 -c "$PYTHON_GI_CHECK" 2>/dev/null || python -c "$PYTHON_GI_CHECK"
     exit 1
 fi
 
-if ! gst-inspect-1.0 &>/dev/null; then
-    echo "Please install the gstreamer package, and make sure it's available in your \$PATH, then rerun the setup."
-    echo "For Debian/Ubuntu: sudo apt install gstreamer1.0-tools gstreamer1.0-pipewire"
-    echo "For Fedora: sudo dnf install gstreamer1-plugins-base-tools gstreamer1-plugin-pipewire"
-    echo "For Arch Linux: sudo pacman -S gst-plugins-base gst-plugin-pipewire"
-    exit 1
-fi
-
-if ! gst-inspect-1.0 pipewiresrc &>/dev/null; then
-    echo "Please install the gst-plugin-pipewire package, and make sure it's available in your \$PATH, then rerun the setup."
-    echo "For Debian/Ubuntu: sudo apt install gstreamer1.0-pipewire"
-    echo "For Fedora: sudo dnf install gstreamer1-plugin-pipewire"
-    echo "For Arch Linux: sudo pacman -S gst-plugin-pipewire"
-    exit 1
-fi
-
 if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
     printf "\033[1;33mWARNING:\033[0m Windowing system is %s\n" "$XDG_SESSION_TYPE"
     printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires GNOME on Wayland\n"
