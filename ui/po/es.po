@@ -48,15 +48,14 @@ msgstr "Usa un valor más alejado para que las pantallas se alejen cuando aparte
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
-msgstr "No se pueden agregar pantallas virtuales en esta máquina. Se requiere xdg-desktop-portal."
+msgstr ""
+"No se pueden agregar pantallas virtuales en esta máquina. Se requiere Wayland y xdg-desktop-portal."
 
 #: src/connecteddevice.py:300
-#, fuzzy
 msgid "Focused display"
 msgstr "Pantalla enfocada"
 
 #: src/connecteddevice.py:306
-#, fuzzy
 msgid "All displays"
 msgstr "Todas las pantallas"
 
@@ -334,15 +333,15 @@ msgstr "Mueve el visor a izquierda o derecha de su posición predeterminada."
 
 #: src/gtk/connected-device.ui:323
 msgid "left"
-msgstr ""
+msgstr "izquierda"
 
 #: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
 msgid "center"
-msgstr ""
+msgstr "centro"
 
 #: src/gtk/connected-device.ui:327
 msgid "right"
-msgstr ""
+msgstr "derecha"
 
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
@@ -354,11 +353,11 @@ msgstr "Mueve el visor arriba o abajo de su posición predeterminada."
 
 #: src/gtk/connected-device.ui:353
 msgid "down"
-msgstr ""
+msgstr "abajo"
 
 #: src/gtk/connected-device.ui:357
 msgid "up"
-msgstr ""
+msgstr "arriba"
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
@@ -437,7 +436,7 @@ msgid ""
 "the middle."
 msgstr ""
 "Centrar el visor en la pantalla de las gafas, incluso si la pantalla no está "
-"en el centro.
+"en el centro."
 
 #: src/gtk/connected-device.ui:551
 msgid "Always primary display"
