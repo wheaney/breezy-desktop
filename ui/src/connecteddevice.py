@@ -203,6 +203,9 @@ class ConnectedDevice(Gtk.Box):
         for id in self._custom_resolution_options:
             self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
 
+        # wayland is required to create virtual displays
+        self.is_wayland = "WAYLAND_DISPLAY" in os.environ
+
     def _bind_switch_to_config(self, switch, config_key):
         self.config_manager.bind_property(config_key, switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         switch.set_active(self.config_manager.get_property(config_key))
@@ -258,9 +261,9 @@ class ConnectedDevice(Gtk.Box):
         for widget in self.all_enabled_state_inputs:
             widget.set_sensitive(requesting_enabled)
 
-        if not is_screencast_available():
+        if not is_screencast_available() or not self.is_wayland:
             self.virtual_displays_row.set_subtitle(
-                _("Unable to add virtual displays on this machine. xdg-desktop-portal is required."))
+                _("Unable to add virtual displays on this machine. Wayland and xdg-desktop-portal are required."))
             self.add_virtual_display_button.set_sensitive(False)
             self.add_virtual_display_menu.set_sensitive(False)
         

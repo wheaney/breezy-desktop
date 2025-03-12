@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 13:47-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -47,18 +47,18 @@ msgstr "Distanza del display"
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
 msgstr ""
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 #, fuzzy
 msgid "Focused display"
 msgstr "Distanza del display"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 #, fuzzy
 msgid "All displays"
 msgstr "Display curvo"

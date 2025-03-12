@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 13:47-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -49,18 +49,18 @@ msgstr "すべてのディスプレイ距離"
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr "遠くに設定すると視線の外れたディスプレイがズームアウトします。"
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
 msgstr "仮想ディスプレイが追加できません。"
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 #, fuzzy
 msgid "Focused display"
 msgstr "フォーカスされたディスプレイ"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 #, fuzzy
 msgid "All displays"
 msgstr "すべてのディスプレイ"

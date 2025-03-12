@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 13:47-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-19 09:39-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Brazilian Portuguese <ldpbr-"
@@ -36,8 +36,9 @@ msgstr "Distância da tela"
 
 #: src/connecteddevice.py:142
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr "Use um valor mais aproximado para que as telas se aproximem "
-"quando olha para ela."
+msgstr ""
+"Use um valor mais aproximado para que as telas se aproximem quando olha para "
+"ela."
 
 #: src/connecteddevice.py:149
 msgid "Set All Displays Distance"
@@ -45,21 +46,23 @@ msgstr "Distância da tela"
 
 #: src/connecteddevice.py:150
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr "Use um valor mais distante para que as telas se afastem " 
-"quando olha para elas."
+msgstr ""
+"Use um valor mais distante para que as telas se afastem quando olha para "
+"elas."
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
-msgstr "Não é possível adicionar telas neste dispositivo. "
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
+msgstr ""
+"Não é possível adicionar telas neste dispositivo. "
 "xdg-desktop-portal é requerido."
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 msgid "Focused display"
 msgstr "Distância da tela"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 msgid "All displays"
 msgstr "Tela curva"
 
@@ -121,6 +124,7 @@ msgid "Inactive"
 msgstr "Inativo"
 
 #: src/licensetierrow.py:41
+#, python-brace-format
 msgid "<b>${amount}</b> USD"
 msgstr "<b>${amount}</b> USD"
 
@@ -222,8 +226,8 @@ msgid ""
 "                        "
 msgstr ""
 "Mover automaticamente a tela mais perto quando olha nela.\n"
-"Defina as suas distâncias preferidas focadas e não focadas nos "
-"Ajustes de secção.\n"
+"Defina as suas distâncias preferidas focadas e não focadas nos Ajustes de "
+"secção.\n"
 "                        "
 
 #: src/gtk/connected-device.ui:70
@@ -241,7 +245,9 @@ msgstr "Desativar as telas físicas"
 #: src/gtk/connected-device.ui:82 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr "Desactive automaticamente todos as telas físicas quando o efeito XR estiver activado."
+msgstr ""
+"Desactive automaticamente todos as telas físicas quando o efeito XR estiver "
+"activado."
 
 #: src/gtk/connected-device.ui:92
 msgid "Virtual displays"
@@ -300,7 +306,9 @@ msgstr "Tamanho da tela"
 #: src/gtk/connected-device.ui:247
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr "Quando existirem várias telas, escolha o ângulo em que devem estar virados para si."
+msgstr ""
+"Quando existirem várias telas, escolha o ângulo em que devem estar virados "
+"para si."
 
 #: src/gtk/connected-device.ui:261
 msgid "Automatic"
@@ -332,7 +340,9 @@ msgstr "Deslocamento horizontal da janela de visualização"
 
 #: src/gtk/connected-device.ui:306
 msgid "Move the viewport to the left or right of its default position."
-msgstr "Mova a janela de visualização para a esquerda ou direita da sua posição predefinida."
+msgstr ""
+"Mova a janela de visualização para a esquerda ou direita da sua posição "
+"predefinida."
 
 #: src/gtk/connected-device.ui:323
 msgid "left"
@@ -352,7 +362,9 @@ msgstr "Deslocamento vertical da janela de visualização"
 
 #: src/gtk/connected-device.ui:336
 msgid "Move the viewport up or down from its default position."
-msgstr "Mova a janela de visualização para cima ou para baixo da sua posição predefinida."
+msgstr ""
+"Mova a janela de visualização para cima ou para baixo da sua posição "
+"predefinida."
 
 #: src/gtk/connected-device.ui:353
 msgid "down"
@@ -374,8 +386,9 @@ msgstr "Atalho para ligar/desligar o efeito XR"
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
-msgstr "Ative ou desative rapidamente o Efeito XR. Pode ser necessário "
-"ativar o efeito manualmente para ativar o atalho."
+msgstr ""
+"Ative ou desative rapidamente o Efeito XR. Pode ser necessário ativar o "
+"efeito manualmente para ativar o atalho."
 
 #: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"
@@ -435,8 +448,9 @@ msgstr "Centralize na exposição dos óculos"
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
-msgstr "Centralize a janela de visualização no ecrã dos óculos, mesmo que a "
-"tela não esteja no meio."
+msgstr ""
+"Centralize a janela de visualização no ecrã dos óculos, mesmo que a tela não "
+"esteja no meio."
 
 #: src/gtk/connected-device.ui:551
 msgid "Always primary display"
@@ -453,7 +467,8 @@ msgstr "Tela curva"
 
 #: src/gtk/connected-device.ui:563
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr "Remove automaticamente as telas virtuais quando o efeito XR está desativado."
+msgstr ""
+"Remove automaticamente as telas virtuais quando o efeito XR está desativado."
 
 #: src/gtk/connected-device.ui:573
 msgid "Enable multi-tap detection"
@@ -701,6 +716,13 @@ msgstr "Forçar redefinição"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Sobre o BreezyDesktop"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. xdg-desktop-portal is "
+#~ "required."
+#~ msgstr ""
+#~ "Não é possível adicionar telas neste dispositivo. xdg-desktop-portal é "
+#~ "requerido."
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "Alternância rápida do modo SBS"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 13:47-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -42,17 +42,18 @@ msgstr "设定所有屏幕的距离"
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr "远的数值会将您所看向的屏幕缩小"
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
-msgstr "无法增加模拟显示。需要安装xdg-desktop-portal"
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
+msgstr ""
+"无法增加模拟显示。需要安装xdg-desktop-portal"
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 msgid "Focused display"
 msgstr "注视中的屏幕"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 msgid "All displays"
 msgstr "所有的屏幕"
 
@@ -674,6 +675,11 @@ msgstr "强制重置"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "关于 Breezy Desktop"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. xdg-desktop-portal is "
+#~ "required."
+#~ msgstr "无法增加模拟显示。需要安装xdg-desktop-portal"
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "快速并排模式切换"

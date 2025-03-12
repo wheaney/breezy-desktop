@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 14:24-0700\n"
+"POT-Creation-Date: 2025-03-12 08:57-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,17 +43,17 @@ msgstr ""
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
 msgstr ""
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 msgid "Focused display"
 msgstr ""
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 msgid "All displays"
 msgstr ""
 
