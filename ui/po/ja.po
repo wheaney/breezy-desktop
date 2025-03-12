@@ -32,7 +32,6 @@ msgid "This feature is not currently supported for your device."
 msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
 #: src/connecteddevice.py:141
-#, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "フォーカスされたディスプレイ距離"
 
@@ -41,7 +40,6 @@ msgid "Use a closer value so the display zooms in when you look at it."
 msgstr "近くに設定すると見たディスプレイにズームインします。"
 
 #: src/connecteddevice.py:149
-#, fuzzy
 msgid "Set All Displays Distance"
 msgstr "すべてのディスプレイ距離"
 
@@ -56,12 +54,10 @@ msgid ""
 msgstr "仮想ディスプレイが追加できません。"
 
 #: src/connecteddevice.py:300
-#, fuzzy
 msgid "Focused display"
 msgstr "フォーカスされたディスプレイ"
 
 #: src/connecteddevice.py:306
-#, fuzzy
 msgid "All displays"
 msgstr "すべてのディスプレイ"
 
@@ -232,7 +228,6 @@ msgid "Follow mode"
 msgstr "フォローモード"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
 msgstr "仮想ディスプレイを視界の中心近くに保ちます。"
 
@@ -246,7 +241,6 @@ msgid ""
 msgstr "XRエフェクト有効時、自動的に物理ディスプレイを無効化する。"
 
 #: src/gtk/connected-device.ui:92
-#, fuzzy
 msgid "Virtual displays"
 msgstr "仮想ディスプレイ"
 
@@ -267,7 +261,6 @@ msgid "Remove custom resolution"
 msgstr "カスタム解像度の削除"
 
 #: src/gtk/connected-device.ui:144
-#, fuzzy
 msgid "Rearrange displays"
 msgstr "ディスプレイの配置"
 
@@ -276,7 +269,6 @@ msgid "Adjustments"
 msgstr "調整"
 
 #: src/gtk/connected-device.ui:166
-#, fuzzy
 msgid "Display distances"
 msgstr "ディスプレイ距離"
 
@@ -299,7 +291,6 @@ msgid "How far away you can look before the display follows."
 msgstr "ディスプレイがフォロー(追従)を開始するまでの距離"
 
 #: src/gtk/connected-device.ui:246
-#, fuzzy
 msgid "Display angling"
 msgstr "ディスプレイの向き"
 
@@ -325,7 +316,6 @@ msgid "Flat"
 msgstr "平面"
 
 #: src/gtk/connected-device.ui:274
-#, fuzzy
 msgid "Display spacing"
 msgstr "ディスプレイの隙間"
 
@@ -394,12 +384,10 @@ msgid "Pin the virtual display to the current position."
 msgstr "仮想ディスプレイを現在の視点に固定します。"
 
 #: src/gtk/connected-device.ui:439
-#, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "フォーカス時のズーム切り替え"
 
 #: src/gtk/connected-device.ui:440
-#, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "フォーカス時のズームをすばやく切り替えます。"
 
@@ -456,7 +444,6 @@ msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "メガネ接続時、自動的にプライマリディスプレイにします。"
 
 #: src/gtk/connected-device.ui:562
-#, fuzzy
 msgid "Remove virtual displays on disable"
 msgstr "無効時に仮想ディスプレイ削除"
 
@@ -473,7 +460,6 @@ msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr "ダブルタップで中央へ移動、トリプルタップで再キャリブレーションを有効にします。"
 
 #: src/gtk/connected-device.ui:584
-#, fuzzy
 msgid "All displays follow mode"
 msgstr "全画面フォローモード"
 
@@ -720,7 +706,6 @@ msgstr "Breezy Desktopについて"
 #~ "ワイドスクリーンモードがオンになっている場合、メガネ接続時にたたちにSBS"
 #~ "モードに切り替えます。不安定になる可能性があります。"
 
-#, fuzzy
 #~ msgid "Set Unfocused Displays Distance"
 #~ msgstr "フォーカス外のディスプレイ距離"
 
