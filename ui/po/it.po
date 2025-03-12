@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 10:32-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -47,18 +47,18 @@ msgstr "Distanza del display"
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
 msgstr ""
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
 #, fuzzy
 msgid "Focused display"
 msgstr "Distanza del display"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
 #, fuzzy
 msgid "All displays"
 msgstr "Display curvo"
@@ -280,6 +280,12 @@ msgstr "Distanza del display"
 msgid "Set how close you want displays to appear."
 msgstr ""
 
+#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
+#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+msgid "Change"
+msgstr "Cambia"
+
 #: src/gtk/connected-device.ui:222
 msgid "Follow threshold"
 msgstr "Soglia di inseguimento"
@@ -331,12 +337,32 @@ msgstr ""
 msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
+#: src/gtk/connected-device.ui:323
+msgid "left"
+msgstr ""
+
+#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+msgid "center"
+msgstr ""
+
+#: src/gtk/connected-device.ui:327
+msgid "right"
+msgstr ""
+
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
 msgstr ""
 
 #: src/gtk/connected-device.ui:336
 msgid "Move the viewport up or down from its default position."
+msgstr ""
+
+#: src/gtk/connected-device.ui:353
+msgid "down"
+msgstr ""
+
+#: src/gtk/connected-device.ui:357
+msgid "up"
 msgstr ""
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
@@ -355,11 +381,6 @@ msgstr ""
 "Abilitazione/disabilitazione rapida dell'effetto XR. Può essere necessario "
 "abilitare l'effetto manualmente almeno una volta per abilitare la "
 "scorciatoia da tastiera."
-
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
-msgid "Change"
-msgstr "Cambia"
 
 #: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"

@@ -15,7 +15,7 @@ def get_state_dir():
 
 def get_data_home():
     data_home = os.environ.get('XDG_DATA_HOME', '~/.local/share')
-    return os.path.expanduser(data_home)
+    return os.getenv('APPDIR', os.path.expanduser(data_home))
 
 def get_bin_home():
     bin_home = os.environ.get('XDG_BIN_HOME', '~/.local/bin')

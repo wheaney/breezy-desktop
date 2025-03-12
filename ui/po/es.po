@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 10:32-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -44,17 +44,19 @@ msgstr "Ajusta Todas las Distancias de Pantalla"
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr "Usa un valor más alejado para que las pantallas se alejen cuando apartes la vista."
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
 msgstr "No se pueden agregar pantallas virtuales en esta máquina. Se requiere xdg-desktop-portal."
 
-#: src/connecteddevice.py:297
+#: src/connecteddevice.py:300
+#, fuzzy
 msgid "Focused display"
 msgstr "Pantalla enfocada"
 
-#: src/connecteddevice.py:303
+#: src/connecteddevice.py:306
+#, fuzzy
 msgid "All displays"
 msgstr "Todas las pantallas"
 
@@ -275,6 +277,12 @@ msgstr "Distancias de la pantalla"
 msgid "Set how close you want displays to appear."
 msgstr "Ajusta cómo de cerca quieres que aparezcan las pantallas."
 
+#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
+#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+msgid "Change"
+msgstr "Cambiar"
+
 #: src/gtk/connected-device.ui:222
 msgid "Follow threshold"
 msgstr "Umbral de seguimiento"
@@ -324,6 +332,18 @@ msgstr "Desplazamiento horizontal del visor"
 msgid "Move the viewport to the left or right of its default position."
 msgstr "Mueve el visor a izquierda o derecha de su posición predeterminada."
 
+#: src/gtk/connected-device.ui:323
+msgid "left"
+msgstr ""
+
+#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+msgid "center"
+msgstr ""
+
+#: src/gtk/connected-device.ui:327
+msgid "right"
+msgstr ""
+
 #: src/gtk/connected-device.ui:335
 msgid "Viewport vertical offset"
 msgstr "Desplazamiento vertical del visor"
@@ -331,6 +351,14 @@ msgstr "Desplazamiento vertical del visor"
 #: src/gtk/connected-device.ui:336
 msgid "Move the viewport up or down from its default position."
 msgstr "Mueve el visor arriba o abajo de su posición predeterminada."
+
+#: src/gtk/connected-device.ui:353
+msgid "down"
+msgstr ""
+
+#: src/gtk/connected-device.ui:357
+msgid "up"
+msgstr ""
 
 #: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
@@ -347,11 +375,6 @@ msgid ""
 msgstr ""
 "Activa o desactiva rápidamente el Efecto XR. Es posible que necesites "
 "activar el efecto manualmente una vez para habilitar el atajo."
-
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
-msgid "Change"
-msgstr "Cambiar"
 
 #: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"

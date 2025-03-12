@@ -19,6 +19,26 @@ check_command "update-desktop-database"
 check_command "gtk-update-icon-cache"
 check_command "python" "python3"
 
+PYTHON_GI_CHECK="import gi; gi.require_version('Gtk', '4.0'); gi.require_version('Adw', '1'); gi.require_version('Gio', '2.0'); gi.require_version('GLib', '2.0'); gi.require_version('GObject', '2.0'); gi.require_version('Gst', '1.0'); from gi.repository import Gtk, Adw, Gio, GLib, GObject, Gst"
+
+if ! { python3 -c "$PYTHON_GI_CHECK" 2>/dev/null || python -c "$PYTHON_GI_CHECK" 2>/dev/null; }; then
+    echo "Please install the required GTK4, libadwaita, and GStreamer libraries:"
+    echo "For Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-4.0 libadwaita-1-0 gir1.2-adw-1 gir1.2-glib-2.0 gir1.2-gobject-2.0 gir1.2-gstreamer-1.0"
+    echo "For Fedora: sudo dnf install python3-gobject gtk4 libadwaita gstreamer1-python"
+    echo "For Arch Linux: sudo pacman -S python-gobject gtk4 libadwaita gst-python"
+    exit 1
+fi
+
+if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
+    printf "\033[1;33mWARNING:\033[0m Windowing system is %s\n" "$XDG_SESSION_TYPE"
+    printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires GNOME on Wayland\n"
+fi
+
+if ! systemctl --user is-active gnome-remote-desktop &>/dev/null; then
+    printf "\033[1;33mWARNING:\033[0m gnome-remote-desktop service is not running\n"
+    printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires the gnome-remote-desktop service running\n"
+fi
+
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
 # to a specific release of the code, and guarantees it will never run along-side newer or older binaries.
 
