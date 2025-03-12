@@ -47,7 +47,7 @@ msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
 msgstr ""
-"无法增加模拟显示。需要安装xdg-desktop-portal"
+"无法增加模拟显示。需要安装xdg-desktop-portal和Wayland"
 
 #: src/connecteddevice.py:300
 msgid "Focused display"
