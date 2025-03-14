@@ -36,6 +36,7 @@ class ConnectedDevice(Gtk.Box):
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
+    curved_display_switch = Gtk.Template.Child()
     top_features_group = Gtk.Template.Child()
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
@@ -86,7 +87,7 @@ class ConnectedDevice(Gtk.Box):
             # self.display_size_scale,
             self.follow_mode_switch,
             self.follow_threshold_scale,
-            # self.curved_display_switch,
+            self.curved_display_switch,
             self.add_virtual_display_menu,
             self.add_virtual_display_button,
             self.change_all_displays_distance_button,
@@ -109,7 +110,7 @@ class ConnectedDevice(Gtk.Box):
         # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
-        # self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-display-as-viewport-center', self.headset_display_as_viewport_center_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('remove-virtual-displays-on-disable', self.remove_virtual_displays_on_disable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -430,13 +431,3 @@ class ConnectedDevice(Gtk.Box):
 
     def _launch_display_settings(self, *args):
         self._settings_displays_app_info.launch()
-
-def reload_display_distance_toggle_button(widget):
-    distance = SettingsManager.get_instance().settings.get_double(widget.get_name())
-    if distance: widget.set_label(str(distance))
-
-def on_set_display_distance_toggle(widget):
-    settings = SettingsManager.get_instance().settings
-    distance = settings.get_double('display-distance')
-    settings.set_double(widget.get_name(), distance)
-    reload_display_distance_toggle_button(widget)

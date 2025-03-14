@@ -233,6 +233,7 @@ export default class BreezyDesktopExtension extends Extension {
                     virtual_monitors: virtualMonitors,
                     monitor_wrapping_scheme: this.settings.get_string('monitor-wrapping-scheme'),
                     monitor_spacing: this.settings.get_int('monitor-spacing'),
+                    curved_display: this.settings.get_boolean('curved-display'),
                     headset_display_as_viewport_center: this.settings.get_boolean('headset-display-as-viewport-center'),
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
@@ -277,6 +278,7 @@ export default class BreezyDesktopExtension extends Extension {
 
                 this._effect_settings_bindings = [
                     'monitor-wrapping-scheme',
+                    'curved-display',
                     'headset-display-as-viewport-center',
                     'viewport-offset-x',
                     'viewport-offset-y',

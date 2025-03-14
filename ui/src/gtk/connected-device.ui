@@ -78,6 +78,18 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- feature switch -->Curved display</property>
+                        <property name="subtitle" translatable="yes">Switch between flat and curved displays.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkSwitch" id="curved_display_switch">
+                            <property name="valign">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
                         <property name="subtitle" translatable="yes">Automatically disable all physical displays when the XR effect is enabled.</property>
                         <child>
