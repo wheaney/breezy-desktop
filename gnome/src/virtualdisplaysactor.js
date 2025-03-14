@@ -3,29 +3,15 @@ import Cogl from 'gi://Cogl';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
-import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
-import { degreeToRadian, diagonalToCrossFOVs } from './math.js';
+import { applyQuaternionToVector, degreeToRadian, diagonalToCrossFOVs, fovConversionFns, normalizeVector } from './math.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import Globals from './globals.js';
-
-function applyQuaternionToVector(vector, quaternion) {
-    const t = [
-        2.0 * (quaternion[1] * vector[2] - quaternion[2] * vector[1]),
-        2.0 * (quaternion[2] * vector[0] - quaternion[0] * vector[2]),
-        2.0 * (quaternion[0] * vector[1] - quaternion[1] * vector[0])
-    ];
-    return [
-        vector[0] + quaternion[3] * t[0] + quaternion[1] * t[2] - quaternion[2] * t[1],
-        vector[1] + quaternion[3] * t[1] + quaternion[2] * t[0] - quaternion[0] * t[2],
-        vector[2] + quaternion[3] * t[2] + quaternion[0] * t[1] - quaternion[1] * t[0]
-    ];
-}
 
 // if nothing is in focus, take it as soon as it crosses into the monitor's bounds
 const FOCUS_THRESHOLD = 0.95 / 2.0;
@@ -57,12 +43,12 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
     let currentFocusedDistance = Infinity;
 
     // find the vector closest to the rotated look vector
-    monitorVectors.forEach((vector, index) => {
+    monitorVectors.forEach((monitorVector, index) => {
         const monitor = monitorsDetails[index];
         const monitorAspectRatio = monitor.width / monitor.height;
 
         // weight the rotation about the y-axis between the two vectors, by the aspect ratio
-        const vectorUpTheta = Math.atan2(vector[2], vector[0]);
+        const vectorUpTheta = Math.atan2(monitorVector[2], monitorVector[0]);
         const upDelta = lookUpTheta - vectorUpTheta;
         const newLookUpTheta = Math.tan(Math.max(
             -Math.PI, 
@@ -71,21 +57,22 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
                 upDelta * monitorAspectRatio + vectorUpTheta
             )
         ));
-        const weightedLookVector = [
+        const weightedLookVector = normalizeVector([
             xzMagnitude * Math.cos(newLookUpTheta),
             rotatedLookVector[1],
             xzMagnitude * Math.sin(newLookUpTheta)
-        ];
+        ]);
 
         // find the distance between the monitor vector and weighted look vector
         const distance = Math.acos(
             Math.min(1.0, Math.max(-1.0, 
-                vector[0] * weightedLookVector[0] + 
-                vector[1] * weightedLookVector[1] + 
-                vector[2] * weightedLookVector[2]
+                monitorVector[0] * weightedLookVector[0] + 
+                monitorVector[1] * weightedLookVector[1] + 
+                monitorVector[2] * weightedLookVector[2]
             ))
         );
 
+        // TODO - update this for curved displays
         // TODO - this assumes the display is facing towards us, need to account for looking in the "flat" direction
         const distanceFromCenterPixels = fovDetails.completeScreenDistancePixels * Math.tan(distance);
         const distanceFromCenterSizeRatio = distanceFromCenterPixels / monitor.width;
@@ -114,7 +101,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
 /***
  * @returns {Object} - containing `begin`, `center`, and `end` radians for rotating the given monitor
  */
-function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels) {
+function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels, lengthToRadianFn) {
     let closestWrapPixel = monitorBeginPixel;
     let closestWrap = cachedMonitorRadians[monitorBeginPixel];
     if (closestWrap === undefined) {
@@ -140,12 +127,11 @@ function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, m
         closestWrap = cachedMonitorRadians[closestWrapPixel];
     }
 
-    const spacingRadians = Math.asin(monitorSpacingPixels / 2 / radiusPixels) * 2;
+    const spacingRadians = lengthToRadianFn(monitorSpacingPixels);
     if (closestWrapPixel !== monitorBeginPixel) {
         // there's a gap between the cached wrap value and this one
         const gapPixels = monitorBeginPixel - closestWrapPixel;
-        const gapHalfRadians = Math.asin(gapPixels / 2 / radiusPixels);
-        const gapRadians = gapHalfRadians * 2;
+        const gapRadians = lengthToRadianFn(gapPixels);
 
         // use Math.floor so if it's negative (this monitor is to the left of or above the closest) it will always
         // compenstate for the spacing that's needed at the right/bottom
@@ -157,9 +143,9 @@ function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, m
         cachedMonitorRadians[closestWrapPixel] = closestWrap;
     }
 
-    const monitorHalfRadians = Math.asin(monitorLengthPixels / 2 / radiusPixels);
-    const centerRadians = closestWrap + monitorHalfRadians;
-    const endRadians = centerRadians + monitorHalfRadians;
+    const monitorRadians = lengthToRadianFn(monitorLengthPixels);
+    const centerRadians = closestWrap + monitorRadians / 2;
+    const endRadians = closestWrap + monitorRadians;
 
     // since we're computing the end values for this monitor, cache them too in case they line up with a future monitor
     const nextMonitorPixel = monitorBeginPixel + monitorLengthPixels;
@@ -180,60 +166,56 @@ function monitorWrap(cachedMonitorRadians, radiusPixels, monitorSpacingPixels, m
  * @param {Object} fovDetails - contains reference widthPixels, heightPixels, horizontal and vertical radians, 
 *                               and distance to the center of the screen
  * @param {Object[]} monitorDetailsList - contains x, y, width, height (coordinates from top-left)
- * @param {string} monitorWrappingScheme - horizontal, vertical, none
  * @param {number} monitorSpacing - visual spacing between monitors, as a percentage of the viewport width
- * @returns {Object[]} - contains NWU vectors pointing to `topLeftNoRotate` and `center` of each monitor 
- *                       and a `rotation` angle for the given wrapping scheme
+ * @returns {Object[]} - contains NWU vectors used for rendering and focused monitor detection
  */
-function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingScheme, monitorSpacing) {
+function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
     const monitorPlacements = [];
     const cachedMonitorRadians = {};
 
-    Globals.logger.log_debug(`\t\t\tFOV Details: ${JSON.stringify(fovDetails)}, Monitor Wrapping Scheme: ${monitorWrappingScheme}`);
+    Globals.logger.log_debug(`\t\t\tFOV Details: ${JSON.stringify(fovDetails)}`);
 
-    if (monitorWrappingScheme === 'horizontal') {
+    const conversionFns = fovDetails.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
+
+    if (fovDetails.monitorWrappingScheme === 'horizontal') {
         // monitors wrap around us horizontally
 
-        // distance to a horizontal edge is the hypothenuse of the triangle where the opposite side is half the width of the reference fov screen
-        const sideEdgeRadius = Math.sqrt(Math.pow(fovDetails.widthPixels / 2, 2) + Math.pow(fovDetails.completeScreenDistancePixels, 2));
+        const sideEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.widthPixels);
         const monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
+        const lengthToRadianFn = (targetWidth) => conversionFns.lengthToRadians(
+            fovDetails.defaultDistanceHorizontalRadians, 
+            fovDetails.widthPixels, 
+            sideEdgeRadius, 
+            targetWidth
+        );
 
         cachedMonitorRadians[0] = -fovDetails.defaultDistanceHorizontalRadians / 2;
         horizontalMonitorSort(monitorDetailsList).forEach(({monitorDetails, originalIndex}) => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, sideEdgeRadius, monitorSpacingPixels, monitorDetails.x, monitorDetails.width);
-            const monitorCenterRadius = Math.sqrt(Math.pow(sideEdgeRadius, 2) - Math.pow(monitorDetails.width / 2, 2));
-            const upTopPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
+            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorDetails.x, monitorDetails.width, lengthToRadianFn);
+            const monitorCenterRadius = conversionFns.fovEdgeToScreenCenterDistance(sideEdgeRadius, monitorDetails.width);
+            const upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
 
-            // how to place the monitors at the origin (0, 0)
-            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
-            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+            // offset for aligning this monitor's center with the fov-sized viewport's center
+            const upCenterOffsetPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
 
-            const upCenterPixels = upTopPixels + upCenterOriginPixels;
+            // this is where our monitor's center is in relation to an fov-sized viewport centered about (0, 0)
+            const upCenterPixels = upTopPixels - upCenterOffsetPixels;
 
             monitorPlacements.push({
                 originalIndex,
-                topLeftNoRotate: [
-                    monitorCenterRadius,
-
-                    // west stays aligned with the origin, will apply rotationAngleRadians value during rendering
-                    -westCenterOriginPixels,
-
-                    // up is flat when wrapping horizontally, apply it here as a constant, not touched by rendering
-                    -upTopPixels
-                ],
                 centerNoRotate: [
                     monitorCenterRadius,
 
-                    // west centered about the FOV center
+                    // west is centered about the FOV center
                     0,
 
                     // up is flat when wrapping horizontally
-                    -upCenterPixels
+                    upCenterPixels
                 ],
                 centerOrigin: [
                     monitorCenterRadius,
-                    -westCenterOriginPixels,
-                    upCenterOriginPixels
+                    0,
+                    upCenterOffsetPixels
                 ],
                 centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
@@ -243,7 +225,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                     -monitorCenterRadius * Math.sin(monitorWrapDetails.center),
 
                     // up is flat when wrapping horizontally
-                    -upCenterPixels
+                    upCenterPixels
                 ],
                 rotationAngleRadians: {
                     x: 0,
@@ -251,56 +233,52 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
                 }
             });
         });
-    } else if (monitorWrappingScheme === 'vertical') {
+    } else if (fovDetails.monitorWrappingScheme === 'vertical') {
         // monitors wrap around us vertically
 
-        // distance to the top edge is the hypothenuse of the triangle where the opposite side is half the height of the reference fov screen
-        const topEdgeRadius = Math.sqrt(Math.pow(fovDetails.heightPixels / 2, 2) + Math.pow(fovDetails.completeScreenDistancePixels, 2));
+        const topEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.heightPixels);
         const monitorSpacingPixels = monitorSpacing * fovDetails.heightPixels;
+        const lengthToRadianFn = (targetHeight) => conversionFns.lengthToRadians(
+            fovDetails.defaultDistanceVerticalRadians, 
+            fovDetails.heightPixels, 
+            topEdgeRadius, 
+            targetHeight
+        );
 
         cachedMonitorRadians[0] = -fovDetails.defaultDistanceVerticalRadians / 2;
         verticalMonitorSort(monitorDetailsList).forEach(({monitorDetails, originalIndex}) => {
-            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, topEdgeRadius, monitorSpacingPixels, monitorDetails.y, monitorDetails.height);
-            const monitorCenterRadius = Math.sqrt(Math.pow(topEdgeRadius, 2) - Math.pow(monitorDetails.height / 2, 2));
-            const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
+            const monitorWrapDetails = monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorDetails.y, monitorDetails.height, lengthToRadianFn);
+            const monitorCenterRadius = conversionFns.fovEdgeToScreenCenterDistance(topEdgeRadius, monitorDetails.height);
+            const westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
 
-            // how to place the monitors at the origin (0, 0)
-            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
-            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+            // offset for aligning this monitor's center with the fov-sized viewport's center
+            const westCenterOffsetPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
 
-            const westCenterPixels = westPixels + westCenterOriginPixels;
+            // this is where our monitor's center is in relation to an fov-sized viewport centered about (0, 0)
+            const westCenterPixels = westLeftPixels - westCenterOffsetPixels;
 
             monitorPlacements.push({
                 originalIndex,
-                topLeftNoRotate: [
-                    monitorCenterRadius,
-
-                    // west is flat when wrapping vertically, apply it here as a constant, not touched by rendering
-                    westPixels,
-
-                    // up stays aligned with the origin, will apply rotationAngleRadians value during rendering
-                    upCenterOriginPixels
-                ],
                 centerNoRotate: [
                     monitorCenterRadius,
 
                     // west is flat when wrapping horizontally
                     westCenterPixels,
 
-                    // west centered about the FOV center
+                    // up is centered about the FOV center
                     0
                 ],
                 centerOrigin: [
                     monitorCenterRadius,
-                    -westCenterOriginPixels,
-                    upCenterOriginPixels
+                    westCenterOffsetPixels,
+                    0
                 ],
                 centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
                     // west is flat when wrapping vertically
-                    -westCenterPixels,
+                    westCenterPixels,
 
                     // up is opposite where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
@@ -316,37 +294,32 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorWrappingSch
 
         // monitors make a flat wall in front of us, no wrapping
         monitorDetailsList.forEach((monitorDetails, index) => {
-            const upPixels = monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
-            const westPixels = monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
+            const upPixels = -monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
+            const westPixels = -monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
 
-            // how to place the monitors at the origin (0, 0)
-            const westCenterOriginPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
-            const upCenterOriginPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+            // offsets for aligning this monitor's center with the fov-sized viewport's center
+            const westCenterOffsetPixels = -(monitorDetails.width - fovDetails.widthPixels) / 2;
+            const upCenterOffsetPixels = -(monitorDetails.height - fovDetails.heightPixels) / 2;
 
-            const westCenterPixels = westPixels + westCenterOriginPixels;
-            const upCenterPixels = upPixels + upCenterOriginPixels;
+            const westCenterPixels = westPixels + westCenterOffsetPixels;
+            const upCenterPixels = upPixels + upCenterOffsetPixels;
 
             monitorPlacements.push({
                 originalIndex: index,
-                topLeftNoRotate: [
-                    fovDetails.completeScreenDistancePixels,
-                    westPixels,
-                    -upPixels
-                ],
                 centerNoRotate: [
                     fovDetails.completeScreenDistancePixels,
                     westCenterPixels,
-                    -upCenterPixels
+                    upCenterPixels
                 ],
                 centerOrigin: [
                     fovDetails.completeScreenDistancePixels,
-                    -westCenterOriginPixels,
-                    upCenterOriginPixels
+                    westCenterOffsetPixels,
+                    upCenterOffsetPixels
                 ],
                 centerLook: [
                     fovDetails.completeScreenDistancePixels,
-                    -westCenterPixels,
-                    -upCenterPixels
+                    westCenterPixels,
+                    upCenterPixels
                 ],
                 rotationAngleRadians: {
                     x: 0,
@@ -408,6 +381,12 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Details about the virtual monitors',
             GObject.ParamFlags.READWRITE
         ),
+        'fov-details': GObject.ParamSpec.jsobject(
+            'fov-details',
+            'FOV Details',
+            'Details about the field of view of the headset',
+            GObject.ParamFlags.READWRITE
+        ),
         'monitor-wrapping-scheme': GObject.ParamSpec.string(
             'monitor-wrapping-scheme',
             'Monitor Wrapping Scheme',
@@ -453,6 +432,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'curved-display': GObject.ParamSpec.boolean(
+            'curved-display',
+            'Curved Display',
+            'Whether the displays are curved',
+            GObject.ParamFlags.READWRITE,
+            false
         ),
         'smooth-follow-enabled': GObject.ParamSpec.boolean(
             'smooth-follow-enabled',
@@ -583,6 +569,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             this.target_monitor,
             ...this.virtual_monitors
         ];
+        this.focused_monitor_index = -1;
 
         try {
             const calibratingBanner = GdkPixbuf.Pixbuf.new_from_file(`${Globals.extension_dir}/textures/calibrating.png`);
@@ -656,6 +643,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('monitor-wrapping-scheme', this._update_monitor_placements);
         notifyToFunction('monitor-spacing', this._update_monitor_placements);
         notifyToFunction('headset-display-as-viewport-center', this._update_monitor_placements);
+        notifyToFunction('curved-display', this._update_monitor_placements);
         notifyToFunction('viewport-offset-x', this._update_monitor_placements);
         notifyToFunction('viewport-offset-y', this._update_monitor_placements);
         notifyToFunction('show-banner', this._handle_banner_update);
@@ -706,7 +694,9 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 focused_monitor_index: this.focused_monitor_index,
                 imu_snapshots: this.imu_snapshots,
                 monitor_index: index,
+                monitor_details: monitor,
                 monitor_placements: this.monitor_placements,
+                fov_details: this.fov_details,
                 target_monitor: this.target_monitor,
                 display_distance: this.display_distance,
                 display_distance_default: this._display_distance_default(),
@@ -732,6 +722,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
             [
                 'monitor-placements',
+                'fov-details',
                 'imu-snapshots',
                 'smooth-follow-enabled',
                 'smooth-follow-toggle-epoch-ms',
@@ -789,7 +780,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
                     this.smooth_follow_enabled,
-                    this._fov_details(),
+                    this.fov_details,
                     this._all_monitors
                 );
 
@@ -824,6 +815,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
     _fov_details() {
         const aspect = this.target_monitor.width / this.target_monitor.height;
         const fovRadians = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
+
+        // adjusted angles based on how far away the screens are e.g. a closer screen takes up a larger slice of our FOV
         const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / this._display_distance_default());
         const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / this._display_distance_default());
 
@@ -841,8 +834,25 @@ export const VirtualDisplaysActor = GObject.registerClass({
             defaultDistanceVerticalRadians,
             defaultDistanceHorizontalRadians,
             lensDistancePixels,
-            completeScreenDistancePixels
+            completeScreenDistancePixels,
+            monitorWrappingScheme: this._actual_wrap_scheme(),
+            curvedDisplay: this.curved_display
         };
+    }
+
+    _actual_wrap_scheme() {
+        if (this.monitor_wrapping_scheme !== 'automatic') return this.monitor_wrapping_scheme;
+
+        const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
+        const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
+        const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
+        const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
+
+        if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
+            return 'horizontal';
+        } else {
+            return 'vertical';
+        }
     }
 
     _update_monitor_placements() {
@@ -859,20 +869,10 @@ export const VirtualDisplaysActor = GObject.registerClass({
             const viewportXBegin = this.headset_display_as_viewport_center ? this.target_monitor.x : allDisplaysCenterXBegin;
             const viewportYBegin = this.headset_display_as_viewport_center ? this.target_monitor.y : allDisplaysCenterYBegin;
 
-            // collect minimum and maximum x and y values of monitors
-            let actualWrapScheme = this.monitor_wrapping_scheme;
-            if (actualWrapScheme === 'automatic') {
-                // check if there are more monitors in the horizontal or vertical direction, prefer horizontal if equal
-                if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
-                    actualWrapScheme = 'horizontal';
-                } else {
-                    actualWrapScheme = 'vertical';
-                }
-            }
-            const fovDetails = this._fov_details();
-            this.lens_vector = [0.0, 0.0, -fovDetails.lensDistancePixels];
+            this.fov_details = this._fov_details();
+            this.lens_vector = [0.0, 0.0, -this.fov_details.lensDistancePixels];
             this.monitor_placements = monitorsToPlacements(
-                fovDetails,
+                this.fov_details,
 
                 // shift all monitors so they center around the viewport center, then adjusted by the offsets
                 this._all_monitors.map(monitor => ({
@@ -881,11 +881,11 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     width: monitor.width,
                     height: monitor.height
                 })),
-                actualWrapScheme,
                 this.monitor_spacing / 1000.0
             );
 
             // normalize the center vectors
+            // TODO - just do this when we create the centerLook vector
             this._monitorsAsNormalizedVectors = this.monitor_placements.map(monitorVectors => {
                 const vector = monitorVectors.centerLook;
                 const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
