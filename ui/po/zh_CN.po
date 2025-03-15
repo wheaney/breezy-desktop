@@ -191,7 +191,7 @@ msgstr "已连接"
 
 #: src/gtk/connected-device.ui:31
 msgid "General Settings"
-msgstr "一般设定"
+msgstr "通用设定"
 
 #: src/gtk/connected-device.ui:41
 msgid "Features"
