@@ -284,7 +284,7 @@ msgstr "跟随触发值"
 
 #: src/gtk/connected-device.ui:223
 msgid "How far away you can look before the display follows."
-msgstr "在显示内容跟随前您可以看多远。"
+msgstr "显示内容开始进行跟随模式前您可以看得多远。"
 
 #: src/gtk/connected-device.ui:246
 msgid "Display angling"
