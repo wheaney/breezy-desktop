@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-12 08:49-0700\n"
+"POT-Creation-Date: 2025-03-15 16:43-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -26,34 +26,33 @@ msgstr "切换到并排模式，并将显示宽度翻倍。"
 msgid "This feature is not currently supported for your device."
 msgstr "您的设备目前不支援此功能。"
 
-#: src/connecteddevice.py:141
+#: src/connecteddevice.py:142
 msgid "Set Focused Display Distance"
 msgstr "设定注视中的屏幕的距离"
 
-#: src/connecteddevice.py:142
+#: src/connecteddevice.py:143
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr "近的数值会将您所看向的屏幕放大"
 
-#: src/connecteddevice.py:149
+#: src/connecteddevice.py:150
 msgid "Set All Displays Distance"
 msgstr "设定所有屏幕的距离"
 
-#: src/connecteddevice.py:150
+#: src/connecteddevice.py:151
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr "远的数值会将您所看向的屏幕缩小"
 
-#: src/connecteddevice.py:266
+#: src/connecteddevice.py:267
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
-msgstr ""
-"无法增加模拟显示。需要安装xdg-desktop-portal和Wayland"
+msgstr "无法增加模拟显示。需要安装xdg-desktop-portal和Wayland"
 
-#: src/connecteddevice.py:300
+#: src/connecteddevice.py:301
 msgid "Focused display"
 msgstr "注视中的屏幕"
 
-#: src/connecteddevice.py:306
+#: src/connecteddevice.py:307
 msgid "All displays"
 msgstr "所有的屏幕"
 
@@ -227,261 +226,269 @@ msgstr "跟随模式"
 msgid "Keep the focused display near the center of your view."
 msgstr "将注视中的屏幕保持在视野中心附近。"
 
-#: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:81
+msgid "Curved display"
+msgstr "曲面显示"
+
+#: src/gtk/connected-device.ui:82
+msgid "Switch between flat and curved displays."
+msgstr "平板和曲面显示模式之间切换。"
+
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
 msgid "Disable physical displays"
 msgstr "将所有具体屏幕关闭"
 
-#: src/gtk/connected-device.ui:82 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr "XR效果开启时将所有具体屏幕自动关闭"
 
-#: src/gtk/connected-device.ui:92
+#: src/gtk/connected-device.ui:104
 msgid "Virtual displays"
 msgstr "模拟屏幕"
 
-#: src/gtk/connected-device.ui:108
+#: src/gtk/connected-device.ui:120
 msgid "1080p"
 msgstr "1080p"
 
-#: src/gtk/connected-device.ui:109
+#: src/gtk/connected-device.ui:121
 msgid "1440p"
 msgstr "1440p"
 
-#: src/gtk/connected-device.ui:110
+#: src/gtk/connected-device.ui:122
 msgid "Add custom"
 msgstr "增加客制化解析度"
 
-#: src/gtk/connected-device.ui:124
+#: src/gtk/connected-device.ui:136
 msgid "Remove custom resolution"
 msgstr "删除客制化解析度"
 
-#: src/gtk/connected-device.ui:144
+#: src/gtk/connected-device.ui:156
 msgid "Rearrange displays"
 msgstr "改变屏幕顺序"
 
-#: src/gtk/connected-device.ui:162
+#: src/gtk/connected-device.ui:174
 msgid "Adjustments"
 msgstr "调整"
 
-#: src/gtk/connected-device.ui:166
+#: src/gtk/connected-device.ui:178
 msgid "Display distances"
 msgstr "屏幕距离"
 
-#: src/gtk/connected-device.ui:167
+#: src/gtk/connected-device.ui:179
 msgid "Set how close you want displays to appear."
 msgstr "设定您所希望屏幕离你的距离有多近"
 
-#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+#: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
+#: src/gtk/connected-device.ui:413 src/gtk/connected-device.ui:442
+#: src/gtk/connected-device.ui:471 src/gtk/connected-device.ui:500
 msgid "Change"
 msgstr "更改"
 
-#: src/gtk/connected-device.ui:222
+#: src/gtk/connected-device.ui:234
 msgid "Follow threshold"
 msgstr "跟随触发值"
 
-#: src/gtk/connected-device.ui:223
+#: src/gtk/connected-device.ui:235
 msgid "How far away you can look before the display follows."
 msgstr "显示内容开始进行跟随模式前您可以看得多远。"
 
-#: src/gtk/connected-device.ui:246
+#: src/gtk/connected-device.ui:258
 msgid "Display angling"
 msgstr "屏幕角度"
 
-#: src/gtk/connected-device.ui:247
+#: src/gtk/connected-device.ui:259
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr "有多屏幕时，选择屏幕向您倾斜的角度"
 
-#: src/gtk/connected-device.ui:261
+#: src/gtk/connected-device.ui:273
 msgid "Automatic"
 msgstr "自动"
 
-#: src/gtk/connected-device.ui:262
+#: src/gtk/connected-device.ui:274
 msgid "Side-angled"
 msgstr "侧边弯曲"
 
-#: src/gtk/connected-device.ui:263
+#: src/gtk/connected-device.ui:275
 msgid "Top-angled"
 msgstr "上下弯曲"
 
-#: src/gtk/connected-device.ui:264
+#: src/gtk/connected-device.ui:276
 msgid "Flat"
 msgstr "平面"
 
-#: src/gtk/connected-device.ui:274
+#: src/gtk/connected-device.ui:286
 msgid "Display spacing"
 msgstr "屏幕之间缝隙的距差"
 
-#: src/gtk/connected-device.ui:275
+#: src/gtk/connected-device.ui:287
 msgid "Put empty space between displays, when there are multiple."
 msgstr "把多屏幕之间插入一个空间"
 
-#: src/gtk/connected-device.ui:305
+#: src/gtk/connected-device.ui:317
 msgid "Viewport horizontal offset"
 msgstr "眼镜视口特定水平偏移"
 
-#: src/gtk/connected-device.ui:306
+#: src/gtk/connected-device.ui:318
 msgid "Move the viewport to the left or right of its default position."
 msgstr "将眼镜视口从默认位置左右移动"
 
-#: src/gtk/connected-device.ui:323
+#: src/gtk/connected-device.ui:335
 msgid "left"
 msgstr "左"
 
-#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:337 src/gtk/connected-device.ui:367
 msgid "center"
 msgstr "中"
 
-#: src/gtk/connected-device.ui:327
+#: src/gtk/connected-device.ui:339
 msgid "right"
 msgstr "右"
 
-#: src/gtk/connected-device.ui:335
+#: src/gtk/connected-device.ui:347
 msgid "Viewport vertical offset"
 msgstr "眼镜视口特定垂直偏移"
 
-#: src/gtk/connected-device.ui:336
+#: src/gtk/connected-device.ui:348
 msgid "Move the viewport up or down from its default position."
 msgstr "将眼镜视口从默认位置上下移动"
 
-#: src/gtk/connected-device.ui:353
+#: src/gtk/connected-device.ui:365
 msgid "down"
 msgstr "下"
 
-#: src/gtk/connected-device.ui:357
+#: src/gtk/connected-device.ui:369
 msgid "up"
 msgstr "上"
 
-#: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
+#: src/gtk/connected-device.ui:384 src/gtk/connected-device.ui:390
 msgid "Keyboard Shortcuts"
 msgstr "键盘快捷键"
 
-#: src/gtk/connected-device.ui:381
+#: src/gtk/connected-device.ui:393
 msgid "XR Effect on/off shortcut"
 msgstr "XR效果 开/关 快捷键"
 
-#: src/gtk/connected-device.ui:382
+#: src/gtk/connected-device.ui:394
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr "快速启用或禁用 XR 效果。您可能需要先手动启用一次该效果，才能设此快捷键"
 
-#: src/gtk/connected-device.ui:410
+#: src/gtk/connected-device.ui:422
 msgid "Re-center display shortcut"
 msgstr "重新居中显示快捷键"
 
-#: src/gtk/connected-device.ui:411
+#: src/gtk/connected-device.ui:423
 msgid "Pin the virtual display to the current position."
 msgstr "将虚拟显示固定在当前位置。"
 
-#: src/gtk/connected-device.ui:439
+#: src/gtk/connected-device.ui:451
 msgid "Toggle zoom on focus shortcut"
 msgstr "切换注视自动放大模式快捷键"
 
-#: src/gtk/connected-device.ui:440
+#: src/gtk/connected-device.ui:452
 msgid "Quickly toggle zoom on focus mode."
 msgstr "快速地切换注视自动放大模式。"
 
-#: src/gtk/connected-device.ui:468
+#: src/gtk/connected-device.ui:480
 msgid "Toggle follow mode shortcut"
 msgstr "切换跟随模式快捷键"
 
-#: src/gtk/connected-device.ui:469
+#: src/gtk/connected-device.ui:481
 msgid "Quickly toggle follow mode."
 msgstr "快速切换跟随模式。"
 
-#: src/gtk/connected-device.ui:504 src/gtk/connected-device.ui:514
+#: src/gtk/connected-device.ui:516 src/gtk/connected-device.ui:526
 msgid "Advanced Settings"
 msgstr "高级设定"
 
-#: src/gtk/connected-device.ui:518
+#: src/gtk/connected-device.ui:530
 msgid "Find optimal display config"
 msgstr "寻找最佳显示设定"
 
-#: src/gtk/connected-device.ui:519
+#: src/gtk/connected-device.ui:531
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr "连接时，可以自动修改眼镜显示设定以表现出最大解析度和最佳的对比。"
 
-#: src/gtk/connected-device.ui:529
+#: src/gtk/connected-device.ui:541
 msgid "Use highest refresh rate"
 msgstr "使用最高刷新率"
 
-#: src/gtk/connected-device.ui:530
+#: src/gtk/connected-device.ui:542
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr "刷新率可能会影响性能，禁用此功能即可手动设置。"
 
-#: src/gtk/connected-device.ui:540
+#: src/gtk/connected-device.ui:552
 msgid "Center on glasses' display"
 msgstr "视口眼镜屏幕固定"
 
-#: src/gtk/connected-device.ui:541
+#: src/gtk/connected-device.ui:553
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr "将眼镜视口对齐眼镜的主要屏幕, 即便此屏幕不在正中间"
 
-#: src/gtk/connected-device.ui:551
+#: src/gtk/connected-device.ui:563
 msgid "Always primary display"
 msgstr "每次设置为主要显示"
 
-#: src/gtk/connected-device.ui:552
+#: src/gtk/connected-device.ui:564
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "连接时，自动将眼镜设置为主要显示。"
 
-#: src/gtk/connected-device.ui:562
+#: src/gtk/connected-device.ui:574
 msgid "Remove virtual displays on disable"
 msgstr "自动模拟屏幕删除"
 
-#: src/gtk/connected-device.ui:563
+#: src/gtk/connected-device.ui:575
 msgid "Automatically remove virtual displays when the XR effect is disabled."
 msgstr "XR效果关闭时自动删除所有模拟屏幕"
 
-#: src/gtk/connected-device.ui:573
+#: src/gtk/connected-device.ui:585
 msgid "Enable multi-tap detection"
 msgstr "开启多点触控检测"
 
-#: src/gtk/connected-device.ui:574
+#: src/gtk/connected-device.ui:586
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr "打开双击重新定位和三击重新校准手势"
 
-#: src/gtk/connected-device.ui:584
+#: src/gtk/connected-device.ui:596
 msgid "All displays follow mode"
 msgstr "全屏幕跟随模式"
 
-#: src/gtk/connected-device.ui:585
+#: src/gtk/connected-device.ui:597
 msgid "Follow mode moves all displays, not just the focused one."
 msgstr "让跟随模式移动所有的屏幕而不只是注视中的屏幕"
 
-#: src/gtk/connected-device.ui:601
+#: src/gtk/connected-device.ui:613
 msgid "Follow mode movement tracking"
 msgstr "跟随模式感应"
 
-#: src/gtk/connected-device.ui:602
+#: src/gtk/connected-device.ui:614
 msgid "Choose which movements should be tracked in follow mode."
 msgstr "选择那一些动作会被感应到"
 
-#: src/gtk/connected-device.ui:617
+#: src/gtk/connected-device.ui:629
 msgid "Horizontal"
 msgstr "水平动作"
 
-#: src/gtk/connected-device.ui:637
+#: src/gtk/connected-device.ui:649
 msgid "Vertical"
 msgstr "垂直动作"
 
-#: src/gtk/connected-device.ui:657
+#: src/gtk/connected-device.ui:669
 msgid "Tilt/roll"
 msgstr "倾斜及滚转动作"
 
-#: src/gtk/connected-device.ui:675
+#: src/gtk/connected-device.ui:687
 msgid "Movement look-ahead"
 msgstr "移动预测"
 
-#: src/gtk/connected-device.ui:676
+#: src/gtk/connected-device.ui:688
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -490,15 +497,15 @@ msgstr ""
 "透过预测头部追踪位置，提前于渲染时间进行预测来抵消输入延迟。除非虚拟显示滞后"
 "于头部，提前跳动或非常抖动，请尽量使用默认设置。"
 
-#: src/gtk/connected-device.ui:694
+#: src/gtk/connected-device.ui:706
 msgid "Default"
 msgstr "默认"
 
-#: src/gtk/connected-device.ui:706
+#: src/gtk/connected-device.ui:718
 msgid "Text Scaling"
 msgstr "字体大小比例"
 
-#: src/gtk/connected-device.ui:707
+#: src/gtk/connected-device.ui:719
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr "字体缩放小于1.0，将模拟解析度更高的显示效果"
 
@@ -695,9 +702,6 @@ msgstr "关于 Breezy Desktop"
 
 #~ msgid "Widescreen mode"
 #~ msgstr "宽屏模式"
-
-#~ msgid "Switch between flat and curved displays."
-#~ msgstr "平板和曲面显示模式之间切换。"
 
 #~ msgid ""
 #~ "Closer appears larger, further appears smaller. Controls depth when in "

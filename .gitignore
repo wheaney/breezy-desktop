@@ -4,4 +4,3 @@ __pycache__
 gschemas.compiled
 out/
 *.po~
-gnome-44-max/

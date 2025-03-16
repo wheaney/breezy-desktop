@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-12 08:49-0700\n"
+"POT-Creation-Date: 2025-03-15 16:43-0700\n"
 "PO-Revision-Date: 2024-08-16 10:31-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -29,36 +29,36 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Din enhet stöder inte den här funktionen för tillfället."
 
-#: src/connecteddevice.py:141
+#: src/connecteddevice.py:142
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Avstånd till skärmen"
 
-#: src/connecteddevice.py:142
+#: src/connecteddevice.py:143
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:149
+#: src/connecteddevice.py:150
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Avstånd till skärmen"
 
-#: src/connecteddevice.py:150
+#: src/connecteddevice.py:151
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:266
+#: src/connecteddevice.py:267
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
 msgstr ""
 
-#: src/connecteddevice.py:300
+#: src/connecteddevice.py:301
 #, fuzzy
 msgid "Focused display"
 msgstr "Avstånd till skärmen"
 
-#: src/connecteddevice.py:306
+#: src/connecteddevice.py:307
 #, fuzzy
 msgid "All displays"
 msgstr "Böjd skärm"
@@ -232,148 +232,156 @@ msgstr "Följningsläge"
 msgid "Keep the focused display near the center of your view."
 msgstr "Håll den virtuella skärmen nära mitten av din syn."
 
-#: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:81
+msgid "Curved display"
+msgstr "Böjd skärm"
+
+#: src/gtk/connected-device.ui:82
+msgid "Switch between flat and curved displays."
+msgstr "Växla mellan platt eller böjd skärm."
+
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
 msgid "Disable physical displays"
 msgstr ""
 
-#: src/gtk/connected-device.ui:82 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr ""
 
-#: src/gtk/connected-device.ui:92
+#: src/gtk/connected-device.ui:104
 #, fuzzy
 msgid "Virtual displays"
 msgstr "Böjd skärm"
 
-#: src/gtk/connected-device.ui:108
+#: src/gtk/connected-device.ui:120
 msgid "1080p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:109
+#: src/gtk/connected-device.ui:121
 msgid "1440p"
 msgstr ""
 
-#: src/gtk/connected-device.ui:110
+#: src/gtk/connected-device.ui:122
 msgid "Add custom"
 msgstr ""
 
-#: src/gtk/connected-device.ui:124
+#: src/gtk/connected-device.ui:136
 msgid "Remove custom resolution"
 msgstr ""
 
-#: src/gtk/connected-device.ui:144
+#: src/gtk/connected-device.ui:156
 #, fuzzy
 msgid "Rearrange displays"
 msgstr "Böjd skärm"
 
-#: src/gtk/connected-device.ui:162
+#: src/gtk/connected-device.ui:174
 msgid "Adjustments"
 msgstr "Justeringar"
 
-#: src/gtk/connected-device.ui:166
+#: src/gtk/connected-device.ui:178
 #, fuzzy
 msgid "Display distances"
 msgstr "Avstånd till skärmen"
 
-#: src/gtk/connected-device.ui:167
+#: src/gtk/connected-device.ui:179
 msgid "Set how close you want displays to appear."
 msgstr ""
 
-#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
-#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
-#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+#: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
+#: src/gtk/connected-device.ui:413 src/gtk/connected-device.ui:442
+#: src/gtk/connected-device.ui:471 src/gtk/connected-device.ui:500
 msgid "Change"
 msgstr "Ändra"
 
-#: src/gtk/connected-device.ui:222
+#: src/gtk/connected-device.ui:234
 msgid "Follow threshold"
 msgstr "Automatisk följtröskel"
 
-#: src/gtk/connected-device.ui:223
+#: src/gtk/connected-device.ui:235
 msgid "How far away you can look before the display follows."
 msgstr "Huvudrörelsetröskel för automatisk efterföljning."
 
-#: src/gtk/connected-device.ui:246
+#: src/gtk/connected-device.ui:258
 #, fuzzy
 msgid "Display angling"
 msgstr "Skärmens storlek"
 
-#: src/gtk/connected-device.ui:247
+#: src/gtk/connected-device.ui:259
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr ""
 
-#: src/gtk/connected-device.ui:261
+#: src/gtk/connected-device.ui:273
 msgid "Automatic"
 msgstr ""
 
-#: src/gtk/connected-device.ui:262
+#: src/gtk/connected-device.ui:274
 msgid "Side-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:263
+#: src/gtk/connected-device.ui:275
 msgid "Top-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:264
+#: src/gtk/connected-device.ui:276
 msgid "Flat"
 msgstr ""
 
-#: src/gtk/connected-device.ui:274
+#: src/gtk/connected-device.ui:286
 #, fuzzy
 msgid "Display spacing"
 msgstr "Skärmens storlek"
 
-#: src/gtk/connected-device.ui:275
+#: src/gtk/connected-device.ui:287
 msgid "Put empty space between displays, when there are multiple."
 msgstr ""
 
-#: src/gtk/connected-device.ui:305
+#: src/gtk/connected-device.ui:317
 msgid "Viewport horizontal offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:306
+#: src/gtk/connected-device.ui:318
 msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
-#: src/gtk/connected-device.ui:323
+#: src/gtk/connected-device.ui:335
 msgid "left"
 msgstr ""
 
-#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+#: src/gtk/connected-device.ui:337 src/gtk/connected-device.ui:367
 msgid "center"
 msgstr ""
 
-#: src/gtk/connected-device.ui:327
+#: src/gtk/connected-device.ui:339
 msgid "right"
 msgstr ""
 
-#: src/gtk/connected-device.ui:335
+#: src/gtk/connected-device.ui:347
 msgid "Viewport vertical offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:336
+#: src/gtk/connected-device.ui:348
 msgid "Move the viewport up or down from its default position."
 msgstr ""
 
-#: src/gtk/connected-device.ui:353
+#: src/gtk/connected-device.ui:365
 msgid "down"
 msgstr ""
 
-#: src/gtk/connected-device.ui:357
+#: src/gtk/connected-device.ui:369
 msgid "up"
 msgstr ""
 
-#: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
+#: src/gtk/connected-device.ui:384 src/gtk/connected-device.ui:390
 msgid "Keyboard Shortcuts"
 msgstr "Tangentbordsgenvägar"
 
-#: src/gtk/connected-device.ui:381
+#: src/gtk/connected-device.ui:393
 msgid "XR Effect on/off shortcut"
 msgstr "XR-Effekt genväg på/av"
 
-#: src/gtk/connected-device.ui:382
+#: src/gtk/connected-device.ui:394
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
@@ -381,41 +389,41 @@ msgstr ""
 "Skifta snabbt mellan att slå av eller på XR-Effekt. Du kan behöva slå på den "
 "manuellt en gång för att genvägen ska fungera."
 
-#: src/gtk/connected-device.ui:410
+#: src/gtk/connected-device.ui:422
 msgid "Re-center display shortcut"
 msgstr "Om-centrering tangentbordsgenväg"
 
-#: src/gtk/connected-device.ui:411
+#: src/gtk/connected-device.ui:423
 msgid "Pin the virtual display to the current position."
 msgstr "Fäst den virtuella skärmen i den nuvarande positionen."
 
-#: src/gtk/connected-device.ui:439
+#: src/gtk/connected-device.ui:451
 #, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "Växla följ läge kort"
 
-#: src/gtk/connected-device.ui:440
+#: src/gtk/connected-device.ui:452
 #, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "Växla snabbt följ läge."
 
-#: src/gtk/connected-device.ui:468
+#: src/gtk/connected-device.ui:480
 msgid "Toggle follow mode shortcut"
 msgstr "Växla följ läge kort"
 
-#: src/gtk/connected-device.ui:469
+#: src/gtk/connected-device.ui:481
 msgid "Quickly toggle follow mode."
 msgstr "Växla snabbt följ läge."
 
-#: src/gtk/connected-device.ui:504 src/gtk/connected-device.ui:514
+#: src/gtk/connected-device.ui:516 src/gtk/connected-device.ui:526
 msgid "Advanced Settings"
 msgstr "Avancerade inställningar"
 
-#: src/gtk/connected-device.ui:518
+#: src/gtk/connected-device.ui:530
 msgid "Find optimal display config"
 msgstr "Hitta optimal konfiguration till skärmen"
 
-#: src/gtk/connected-device.ui:519
+#: src/gtk/connected-device.ui:531
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -423,85 +431,85 @@ msgstr ""
 "Ändrar automatisk glasögonens skärmkonfiguration för maximal upplösning och "
 "bästa skälning när den är ansluten."
 
-#: src/gtk/connected-device.ui:529
+#: src/gtk/connected-device.ui:541
 msgid "Use highest refresh rate"
 msgstr "Använd högsta uppdateringsfrekvens"
 
-#: src/gtk/connected-device.ui:530
+#: src/gtk/connected-device.ui:542
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "Uppdateringsfrekvens kan påverka prestanda, inaktivera detta för att ställa "
 "in det manuellt."
 
-#: src/gtk/connected-device.ui:540
+#: src/gtk/connected-device.ui:552
 msgid "Center on glasses' display"
 msgstr ""
 
-#: src/gtk/connected-device.ui:541
+#: src/gtk/connected-device.ui:553
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr ""
 
-#: src/gtk/connected-device.ui:551
+#: src/gtk/connected-device.ui:563
 msgid "Always primary display"
 msgstr "Alltid primär skärm"
 
-#: src/gtk/connected-device.ui:552
+#: src/gtk/connected-device.ui:564
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "Ställer automatisk glasögon som primär skärm när den är ansluten."
 
-#: src/gtk/connected-device.ui:562
+#: src/gtk/connected-device.ui:574
 #, fuzzy
 msgid "Remove virtual displays on disable"
 msgstr "Böjd skärm"
 
-#: src/gtk/connected-device.ui:563
+#: src/gtk/connected-device.ui:575
 msgid "Automatically remove virtual displays when the XR effect is disabled."
 msgstr ""
 
-#: src/gtk/connected-device.ui:573
+#: src/gtk/connected-device.ui:585
 msgid "Enable multi-tap detection"
 msgstr ""
 
-#: src/gtk/connected-device.ui:574
+#: src/gtk/connected-device.ui:586
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
 
-#: src/gtk/connected-device.ui:584
+#: src/gtk/connected-device.ui:596
 #, fuzzy
 msgid "All displays follow mode"
 msgstr "Böjd skärm"
 
-#: src/gtk/connected-device.ui:585
+#: src/gtk/connected-device.ui:597
 msgid "Follow mode moves all displays, not just the focused one."
 msgstr ""
 
-#: src/gtk/connected-device.ui:601
+#: src/gtk/connected-device.ui:613
 msgid "Follow mode movement tracking"
 msgstr ""
 
-#: src/gtk/connected-device.ui:602
+#: src/gtk/connected-device.ui:614
 msgid "Choose which movements should be tracked in follow mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:617
+#: src/gtk/connected-device.ui:629
 msgid "Horizontal"
 msgstr ""
 
-#: src/gtk/connected-device.ui:637
+#: src/gtk/connected-device.ui:649
 msgid "Vertical"
 msgstr ""
 
-#: src/gtk/connected-device.ui:657
+#: src/gtk/connected-device.ui:669
 msgid "Tilt/roll"
 msgstr ""
 
-#: src/gtk/connected-device.ui:675
+#: src/gtk/connected-device.ui:687
 msgid "Movement look-ahead"
 msgstr "Rörs förväntning"
 
-#: src/gtk/connected-device.ui:676
+#: src/gtk/connected-device.ui:688
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -510,15 +518,15 @@ msgstr ""
 "Motverkar ingångsfördröjning genom förutsägelse av huvudrörelser.Behåll "
 "standardinställningen om inte skärmen skakar mycket eller rörsig konstigt."
 
-#: src/gtk/connected-device.ui:694
+#: src/gtk/connected-device.ui:706
 msgid "Default"
 msgstr "Standard"
 
-#: src/gtk/connected-device.ui:706
+#: src/gtk/connected-device.ui:718
 msgid "Text Scaling"
 msgstr "Textskalning"
 
-#: src/gtk/connected-device.ui:707
+#: src/gtk/connected-device.ui:719
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr "Textskalning under 1.0 kommer att simulera en högre skärmupplösning"
 
@@ -719,9 +727,6 @@ msgstr "Om BreezyDesktop"
 
 #~ msgid "Widescreen mode"
 #~ msgstr "Bredbildsläge"
-
-#~ msgid "Switch between flat and curved displays."
-#~ msgstr "Växla mellan platt eller böjd skärm."
 
 #~ msgid ""
 #~ "Closer appears larger, further appears smaller. Controls depth when in "

@@ -23,7 +23,13 @@ check_command "gnome-shell"
 
 ARCH=$(uname -m)
 FILE_NAME="breezyGNOME-$ARCH.tar.gz"
-if [ "$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1)" -lt 45 ]; then
+GNOME_VERSION=$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1)
+VERSION_SPECIFIC_FILENAME="breezyGNOME-$GNOME_VERSION-$ARCH.tar.gz"
+LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
+if echo "$LATEST_RELEASE" | jq -e --arg filename "$VERSION_SPECIFIC_FILENAME" '.assets[] | select(.name == $filename)' > /dev/null; then
+  echo "Performing setup for GNOME $GNOME_VERSION ($ARCH)"
+  FILE_NAME=$VERSION_SPECIFIC_FILENAME
+elif [ "$GNOME_VERSION" -lt 45 ]; then
   echo "Performing setup for GNOME 44 and below ($ARCH)"
   FILE_NAME="breezyGNOME-44-max-$ARCH.tar.gz"
 else 
@@ -31,7 +37,6 @@ else
 fi
 
 start_dir=$(pwd)
-
 
 # create temp directory
 tmp_dir=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
