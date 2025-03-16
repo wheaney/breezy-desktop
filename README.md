@@ -14,7 +14,7 @@ There are two installations at the moment. **Note: Don't manually install either
 
 ## Breezy GNOME
 
-Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (support GNOME versions 42 through 47); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports multiple virtual monitors and multiple physical monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (support GNOME versions 42 through 48); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports multiple virtual monitors and multiple physical monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
 
 ### GNOME Setup
 
@@ -47,7 +47,7 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 Steam Deck's desktop mode runs KDE Plasma, so, for now, Breezy Desktop can only be run by launching a nested GNOME shell, and requires the read-only file system to be disabled to get setup. If you're interested, and *willing to accept any risks that come with disabling the read-only file system*, check out [the wiki entry](https://github.com/wheaney/breezy-desktop/wiki/Installing-on-Steam-Deck).
 
 ### Non-GNOME Setup
-A workable solution (with some [QoL improvements needed](#upcoming-features)) is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
+A workable demo -- but not a great long-term solutions -- is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
 1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 42-47, so check that using `gnome-shell --version`
 2. Run the [GNOME setup](#gnome-setup) steps. You shouldn't need to log out and back in since GNOME will be running nested.
 3. Launch the nested GNOME Shell using `MUTTER_DEBUG_DUMMY_MODE_SPECS="1920x1080@60" dbus-run-session -- gnome-shell --nested`
