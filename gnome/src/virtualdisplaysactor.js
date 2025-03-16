@@ -293,15 +293,15 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
 
         // monitors make a flat wall in front of us, no wrapping
         monitorDetailsList.forEach((monitorDetails, index) => {
-            const upPixels = -monitorDetails.y + (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
-            const westPixels = -monitorDetails.x + (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
+            const upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
+            const westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
 
             // offsets for aligning this monitor's center with the fov-sized viewport's center
-            const westCenterOffsetPixels = -(monitorDetails.width - fovDetails.widthPixels) / 2;
-            const upCenterOffsetPixels = -(monitorDetails.height - fovDetails.heightPixels) / 2;
+            const westCenterOffsetPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
+            const upCenterOffsetPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
 
-            const westCenterPixels = westPixels + westCenterOffsetPixels;
-            const upCenterPixels = upPixels + upCenterOffsetPixels;
+            const westCenterPixels = westLeftPixels - westCenterOffsetPixels;
+            const upCenterPixels = upTopPixels - upCenterOffsetPixels;
 
             monitorPlacements.push({
                 originalIndex: index,

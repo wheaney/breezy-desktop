@@ -25,6 +25,10 @@ else
   GNOME_DIR=$ROOT_DIR/gnome/backports/$GNOME_BACKPORT/gnome/
   BUILD_FILE_NAME=breezyGNOME-$GNOME_BACKPORT_NAME-$ARCH.tar.gz
   rm -rf $GNOME_DIR/build
+
+  pushd $GNOME_DIR
+  git submodule update --init
+  popd
 fi
 GNOME_BUILD_DIR=$GNOME_DIR/build
 
