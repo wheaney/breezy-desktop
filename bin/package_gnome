@@ -10,26 +10,21 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
 VULKAN_DIR=$ROOT_DIR/vulkan
 
-if [ -z "$GNOME_44_MAX" ]; then
+if [ -z "$GNOME_BACKPORT" ]; then
   # standard build for GNOME 45 and up
   echo "Building Breezy GNOME for $ARCH, GNOME versions 45 and up"
   GNOME_DIR=$ROOT_DIR/gnome
   BUILD_FILE_NAME=breezyGNOME-$ARCH.tar.gz
 else
-  # special patched build for GNOME 44 and below
-  echo "Building Breezy GNOME for $ARCH, GNOME versions 44 and below"
+  # special build process for backports
+  echo "Building Breezy GNOME backport \"$GNOME_BACKPORT\" for $ARCH, GNOME versions 44 and below"
 
-  # use a special directory for the GNOME 44 max build, ignored by git
-  GNOME_DIR=$ROOT_DIR/gnome-44-max
-  rm -rf $GNOME_DIR
-  mkdir $GNOME_DIR
-  BUILD_FILE_NAME=breezyGNOME-44-max-$ARCH.tar.gz
+  # strip the prefix "gnome-" from the backport name, if it's there
+  GNOME_BACKPORT_NAME=${GNOME_BACKPORT#gnome-}
 
-  # copy the GNOME extension source code to the new directory and apply 
-  # a patch that makes it compatible with GNOME 44 and below
-  cp -ra $ROOT_DIR/gnome/* $GNOME_DIR
+  GNOME_DIR=$ROOT_DIR/gnome/backports/$GNOME_BACKPORT/gnome/
+  BUILD_FILE_NAME=breezyGNOME-$GNOME_BACKPORT_NAME-$ARCH.tar.gz
   rm -rf $GNOME_DIR/build
-  git apply gnome-44-max.patch
 fi
 GNOME_BUILD_DIR=$GNOME_DIR/build
 
