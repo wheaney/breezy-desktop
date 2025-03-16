@@ -9,6 +9,8 @@ ARCH=${ARCH:-$(uname -m)}
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
 VULKAN_DIR=$ROOT_DIR/vulkan
+UI_DIR=$ROOT_DIR/ui
+XR_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
 
 if [ -z "$GNOME_BACKPORT" ]; then
   # standard build for GNOME 45 and up
@@ -17,12 +19,13 @@ if [ -z "$GNOME_BACKPORT" ]; then
   BUILD_FILE_NAME=breezyGNOME-$ARCH.tar.gz
 else
   # special build process for backports
-  echo "Building Breezy GNOME backport \"$GNOME_BACKPORT\" for $ARCH, GNOME versions 44 and below"
+  echo "Building Breezy GNOME backport \"$GNOME_BACKPORT\" for $ARCH"
 
   # strip the prefix "gnome-" from the backport name, if it's there
   GNOME_BACKPORT_NAME=${GNOME_BACKPORT#gnome-}
 
-  GNOME_DIR=$ROOT_DIR/gnome/backports/$GNOME_BACKPORT/gnome/
+  GNOME_DIR=$ROOT_DIR/gnome/backports/$GNOME_BACKPORT/gnome
+  UI_DIR=$ROOT_DIR/gnome/backports/$GNOME_BACKPORT/ui
   BUILD_FILE_NAME=breezyGNOME-$GNOME_BACKPORT_NAME-$ARCH.tar.gz
   rm -rf $GNOME_DIR/build
 
@@ -41,7 +44,6 @@ PACKAGE_DIR=$GNOME_BUILD_DIR/breezy_gnome
 rm -rf $PACKAGE_DIR
 mkdir -p $PACKAGE_DIR
 
-XR_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
 source $XR_DRIVER_DIR/bin/inject_ua
 
 # if a custom_banner image exists, copy it over the sombrero one
@@ -91,9 +93,9 @@ pushd $GNOME_DIR/src
 GNOME_MANIFEST_LINE=$(find -L . -type f ! -name "*.compiled" -exec sha256sum {} \; | sort | sha256sum | sed 's/ .*//')
 popd
 
-UI_BUILD_ARTIFACT=ui/out/breezyUI-$ARCH.tar.gz
+UI_BUILD_ARTIFACT=$UI_DIR/out/breezyUI-$ARCH.tar.gz
 if [ ! -e "$UI_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-ui" ] || [ "$1" == "--rebuild-all" ]; then
-  pushd ui
+  pushd $UI_DIR
   bin/package $ARCH
   popd
 fi
