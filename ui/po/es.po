@@ -237,7 +237,7 @@ msgstr "Mantener la pantalla enfocada cerca del centro de campo visual."
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Pantalla curvada"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

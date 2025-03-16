@@ -234,7 +234,7 @@ msgstr "Halten Sie das virtuelle Display Nahe der Mitte Ihres Blickfelds."
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Gebogenes Display"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

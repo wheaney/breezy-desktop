@@ -228,7 +228,7 @@ msgstr "将注视中的屏幕保持在视野中心附近。"
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "曲面显示"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

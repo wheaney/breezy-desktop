@@ -240,7 +240,7 @@ msgstr "Mantenha a tela virtual próxima ao centro da sua visão."
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Tela curva"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

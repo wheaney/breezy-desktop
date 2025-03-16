@@ -233,7 +233,7 @@ msgstr "Зберігае віртуальний дисплей поблизу ц
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Викривлений дисплей"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

@@ -234,7 +234,7 @@ msgstr "Håll den virtuella skärmen nära mitten av din syn."
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Böjd skärm"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

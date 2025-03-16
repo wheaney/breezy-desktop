@@ -233,7 +233,7 @@ msgstr "仮想ディスプレイを視界の中心近くに保ちます。"
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "曲面ディスプレイ"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."

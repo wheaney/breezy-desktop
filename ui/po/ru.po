@@ -234,7 +234,7 @@ msgstr "Поддерживает виртуальный дисплей вбли�
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
-msgstr ""
+msgstr "Изогнутый дисплей"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."
