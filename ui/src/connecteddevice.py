@@ -36,6 +36,7 @@ class ConnectedDevice(Gtk.Box):
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
+    # curved_display_switch = Gtk.Template.Child() # leave this here to keep po file line numbers aligned with main
     top_features_group = Gtk.Template.Child()
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()

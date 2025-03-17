@@ -76,6 +76,18 @@
                         </child>
                       </object>
                     </child>
+                    <!-- BEGIN 
+                    
+                    This space is here to keep this file in line with main, which has UI changes for the
+                    "curved display" option that will never get merged. This allows the po file numbers to stay in sync.
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    -->
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature switch -->Disable physical displays</property>
