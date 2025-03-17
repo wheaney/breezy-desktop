@@ -37,6 +37,15 @@
         Shortcut to toggle follow mode.
       </description>
     </key>
+    <key name="cursor-to-focused-display-shortcut" type="as">
+      <default>
+        <![CDATA[['<Control><Super>period']]]>
+      </default>
+      <summary>Move cursor to focused display</summary>
+      <description>
+        Shortcut to move the cursor to the focused display.
+      </description>
+    </key>
     <key name="display-distance" type="d">
       <default>
         1.05

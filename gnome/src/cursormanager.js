@@ -252,4 +252,8 @@ export class CursorManager {
         
         return null;
     }
+
+    moveCursorTo(x, y) {
+        this._backend().get_default_seat().warp_pointer(x, y);
+    }
 }

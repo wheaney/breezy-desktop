@@ -504,6 +504,35 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Summon mouse cursor shortcut</property>
+                        <property name="subtitle" translatable="yes">Bring the mouse cursor to the center of the focused display.</property>
+                        <property name="valign">2</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkShortcutLabel" id="cursor_to_focused_display_shortcut_label">
+                                <property name="valign">3</property>
+                                <property name="accelerator"></property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="reassign_cursor_to_focused_display_shortcut_button">
+                                <style>
+                                  <class name="row-button"/>
+                                </style>
+                                <property name="name">cursor-to-focused-display-shortcut</property>
+                                <property name="valign">3</property>
+                                <property name="label" translatable="yes">Change</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

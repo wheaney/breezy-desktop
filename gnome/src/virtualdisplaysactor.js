@@ -781,7 +781,11 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 if (this.focused_monitor_index !== focusedMonitorIndex) {
                     Globals.logger.log_debug(`Switching to monitor ${focusedMonitorIndex}`);
                     this.focused_monitor_index = focusedMonitorIndex;
-                    this.focused_monitor_details = this._all_monitors[focusedMonitorIndex];
+                    if (focusedMonitorIndex !== -1) {
+                        this.focused_monitor_details = this._all_monitors[focusedMonitorIndex];
+                    } else {
+                        this.focused_monitor_details = null;
+                    }
                 }
             }
 
