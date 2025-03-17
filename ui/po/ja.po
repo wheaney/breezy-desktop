@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-10 15:46-0700\n"
+"POT-Creation-Date: 2025-03-12 08:49-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -32,50 +32,46 @@ msgid "This feature is not currently supported for your device."
 msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
 #: src/connecteddevice.py:141
-#, fuzzy
 msgid "Set Focused Display Distance"
-msgstr "ディスプレイ距離"
+msgstr "フォーカスされたディスプレイ距離"
 
 #: src/connecteddevice.py:142
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr ""
+msgstr "近くに設定すると見たディスプレイにズームインします。"
 
 #: src/connecteddevice.py:149
-#, fuzzy
 msgid "Set All Displays Distance"
-msgstr "ディスプレイ距離"
+msgstr "すべてのディスプレイ距離"
 
 #: src/connecteddevice.py:150
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr ""
+msgstr "遠くに設定すると視線の外れたディスプレイがズームアウトします。"
 
-#: src/connecteddevice.py:263
+#: src/connecteddevice.py:266
 msgid ""
-"Unable to add virtual displays on this machine. xdg-desktop-portal is "
-"required."
-msgstr ""
+"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+"portal are required."
+msgstr "仮想ディスプレイが追加できません。"
 
-#: src/connecteddevice.py:297
-#, fuzzy
+#: src/connecteddevice.py:300
 msgid "Focused display"
-msgstr "ディスプレイ距離"
+msgstr "フォーカスされたディスプレイ"
 
-#: src/connecteddevice.py:303
-#, fuzzy
+#: src/connecteddevice.py:306
 msgid "All displays"
-msgstr "曲面ディスプレイ"
+msgstr "すべてのディスプレイ"
 
 #: src/displaydistancedialogcontent.py:41
 msgid "closer"
-msgstr ""
+msgstr "近い"
 
 #: src/displaydistancedialogcontent.py:45
 msgid "fullscreen"
-msgstr ""
+msgstr "全画面"
 
 #: src/displaydistancedialogcontent.py:48
 msgid "farther"
-msgstr ""
+msgstr "遠い"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -215,7 +211,7 @@ msgstr "Breezy DesktopのXRエフェクトを有効にします。"
 
 #: src/gtk/connected-device.ui:56
 msgid "Zoom on focus"
-msgstr ""
+msgstr "フォーカス時にズーム"
 
 #: src/gtk/connected-device.ui:57
 msgid ""
@@ -224,128 +220,154 @@ msgid ""
 "section.\n"
 "                        "
 msgstr ""
+"見たディスプレイが自動的に近づきます。\n"
+"フォーカス時とそれ以外の距離は調整セクションで設定できます。"
 
 #: src/gtk/connected-device.ui:70
 msgid "Follow mode"
 msgstr "フォローモード"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
 msgstr "仮想ディスプレイを視界の中心近くに保ちます。"
 
 #: src/gtk/connected-device.ui:81 src/gtk/no-device.ui:34
 msgid "Disable physical displays"
-msgstr ""
+msgstr "物理ディスプレイの無効化"
 
 #: src/gtk/connected-device.ui:82 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr ""
+msgstr "XRエフェクト有効時、自動的に物理ディスプレイを無効化する。"
 
 #: src/gtk/connected-device.ui:92
-#, fuzzy
 msgid "Virtual displays"
-msgstr "曲面ディスプレイ"
+msgstr "仮想ディスプレイ"
 
 #: src/gtk/connected-device.ui:108
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: src/gtk/connected-device.ui:109
 msgid "1440p"
-msgstr ""
+msgstr "1440p"
 
 #: src/gtk/connected-device.ui:110
 msgid "Add custom"
-msgstr ""
+msgstr "カスタム解像度"
 
-#: src/gtk/connected-device.ui:143
-#, fuzzy
+#: src/gtk/connected-device.ui:124
+msgid "Remove custom resolution"
+msgstr "カスタム解像度の削除"
+
+#: src/gtk/connected-device.ui:144
 msgid "Rearrange displays"
-msgstr "曲面ディスプレイ"
+msgstr "ディスプレイの配置"
 
-#: src/gtk/connected-device.ui:161
+#: src/gtk/connected-device.ui:162
 msgid "Adjustments"
 msgstr "調整"
 
-#: src/gtk/connected-device.ui:165
-#, fuzzy
+#: src/gtk/connected-device.ui:166
 msgid "Display distances"
 msgstr "ディスプレイ距離"
 
-#: src/gtk/connected-device.ui:166
+#: src/gtk/connected-device.ui:167
 msgid "Set how close you want displays to appear."
-msgstr ""
+msgstr "ディスプレイの表示距離を設定。"
 
-#: src/gtk/connected-device.ui:221
+#: src/gtk/connected-device.ui:188 src/gtk/connected-device.ui:209
+#: src/gtk/connected-device.ui:401 src/gtk/connected-device.ui:430
+#: src/gtk/connected-device.ui:459 src/gtk/connected-device.ui:488
+msgid "Change"
+msgstr "変更"
+
+#: src/gtk/connected-device.ui:222
 msgid "Follow threshold"
 msgstr "フォローしきい値"
 
-#: src/gtk/connected-device.ui:222
+#: src/gtk/connected-device.ui:223
 msgid "How far away you can look before the display follows."
 msgstr "ディスプレイがフォロー(追従)を開始するまでの距離"
 
-#: src/gtk/connected-device.ui:245
-#, fuzzy
-msgid "Display angling"
-msgstr "ディスプレイサイズ"
-
 #: src/gtk/connected-device.ui:246
+msgid "Display angling"
+msgstr "ディスプレイの向き"
+
+#: src/gtk/connected-device.ui:247
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr ""
-
-#: src/gtk/connected-device.ui:260
-msgid "Automatic"
-msgstr ""
+msgstr "複数のディスプレイがある場合、ディスプレイの向きを選択します。"
 
 #: src/gtk/connected-device.ui:261
-msgid "Side-angled"
-msgstr ""
+msgid "Automatic"
+msgstr "自動"
 
 #: src/gtk/connected-device.ui:262
-msgid "Top-angled"
-msgstr ""
+msgid "Side-angled"
+msgstr "横向き"
 
 #: src/gtk/connected-device.ui:263
-msgid "Flat"
-msgstr ""
+msgid "Top-angled"
+msgstr "縦向き"
 
-#: src/gtk/connected-device.ui:273
-#, fuzzy
-msgid "Display spacing"
-msgstr "ディスプレイサイズ"
+#: src/gtk/connected-device.ui:264
+msgid "Flat"
+msgstr "平面"
 
 #: src/gtk/connected-device.ui:274
-msgid "Put empty space between displays, when there are multiple."
-msgstr ""
+msgid "Display spacing"
+msgstr "ディスプレイの隙間"
 
-#: src/gtk/connected-device.ui:304
-msgid "Viewport horizontal offset"
-msgstr ""
+#: src/gtk/connected-device.ui:275
+msgid "Put empty space between displays, when there are multiple."
+msgstr "複数のディスプレイがある場合、ディスプレイ間の隙間を設定します。"
 
 #: src/gtk/connected-device.ui:305
-msgid "Move the viewport to the left or right of its default position."
-msgstr ""
+msgid "Viewport horizontal offset"
+msgstr "表示域の水平オフセット"
 
-#: src/gtk/connected-device.ui:334
-msgid "Viewport vertical offset"
-msgstr ""
+#: src/gtk/connected-device.ui:306
+msgid "Move the viewport to the left or right of its default position."
+msgstr "表示域を左右に移動させます。"
+
+#: src/gtk/connected-device.ui:323
+msgid "left"
+msgstr "左"
+
+#: src/gtk/connected-device.ui:325 src/gtk/connected-device.ui:355
+msgid "center"
+msgstr "中央"
+
+#: src/gtk/connected-device.ui:327
+msgid "right"
+msgstr "→"
 
 #: src/gtk/connected-device.ui:335
-msgid "Move the viewport up or down from its default position."
-msgstr ""
+msgid "Viewport vertical offset"
+msgstr "表示域の垂直オフセット"
 
-#: src/gtk/connected-device.ui:371 src/gtk/connected-device.ui:377
+#: src/gtk/connected-device.ui:336
+msgid "Move the viewport up or down from its default position."
+msgstr "表示域を上下に移動させます。"
+
+#: src/gtk/connected-device.ui:353
+msgid "down"
+msgstr "下"
+
+#: src/gtk/connected-device.ui:357
+msgid "up"
+msgstr "上"
+
+#: src/gtk/connected-device.ui:372 src/gtk/connected-device.ui:378
 msgid "Keyboard Shortcuts"
 msgstr "キーボードショートカット"
 
-#: src/gtk/connected-device.ui:380
+#: src/gtk/connected-device.ui:381
 msgid "XR Effect on/off shortcut"
 msgstr "XRエフェクトの切り替え"
 
-#: src/gtk/connected-device.ui:381
+#: src/gtk/connected-device.ui:382
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
@@ -353,46 +375,39 @@ msgstr ""
 "XRエフェクトの有効・無効を切り替えます。このショートカットを有効にするために"
 "手動で1回XRエフェクトを有効にする必要があります。"
 
-#: src/gtk/connected-device.ui:400 src/gtk/connected-device.ui:429
-#: src/gtk/connected-device.ui:458 src/gtk/connected-device.ui:487
-msgid "Change"
-msgstr "変更"
-
-#: src/gtk/connected-device.ui:409
+#: src/gtk/connected-device.ui:410
 msgid "Re-center display shortcut"
 msgstr "ディスプレイを中央へ移動"
 
-#: src/gtk/connected-device.ui:410
+#: src/gtk/connected-device.ui:411
 msgid "Pin the virtual display to the current position."
 msgstr "仮想ディスプレイを現在の視点に固定します。"
 
-#: src/gtk/connected-device.ui:438
-#, fuzzy
-msgid "Toggle zoom on focus shortcut"
-msgstr "フォローモードの切り替え"
-
 #: src/gtk/connected-device.ui:439
-#, fuzzy
-msgid "Quickly toggle zoom on focus mode."
-msgstr "フォローモードのオン／オフをすばやく切り替えます。"
+msgid "Toggle zoom on focus shortcut"
+msgstr "フォーカス時のズーム切り替え"
 
-#: src/gtk/connected-device.ui:467
+#: src/gtk/connected-device.ui:440
+msgid "Quickly toggle zoom on focus mode."
+msgstr "フォーカス時のズームをすばやく切り替えます。"
+
+#: src/gtk/connected-device.ui:468
 msgid "Toggle follow mode shortcut"
 msgstr "フォローモードの切り替え"
 
-#: src/gtk/connected-device.ui:468
+#: src/gtk/connected-device.ui:469
 msgid "Quickly toggle follow mode."
 msgstr "フォローモードのオン／オフをすばやく切り替えます。"
 
-#: src/gtk/connected-device.ui:503 src/gtk/connected-device.ui:513
+#: src/gtk/connected-device.ui:504 src/gtk/connected-device.ui:514
 msgid "Advanced Settings"
 msgstr "詳細設定"
 
-#: src/gtk/connected-device.ui:517
+#: src/gtk/connected-device.ui:518
 msgid "Find optimal display config"
 msgstr "ディスプレイ設定を最適化する"
 
-#: src/gtk/connected-device.ui:518
+#: src/gtk/connected-device.ui:519
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -400,85 +415,83 @@ msgstr ""
 "メガネ接続時、最大解像度と最適なスケーリングのためにディスプレイ設定を自動的"
 "に変更します。"
 
-#: src/gtk/connected-device.ui:528
+#: src/gtk/connected-device.ui:529
 msgid "Use highest refresh rate"
 msgstr "最大のリフレッシュレートを使用する"
 
-#: src/gtk/connected-device.ui:529
+#: src/gtk/connected-device.ui:530
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "リフレッシュレートはパフォーマンスに影響を与える可能性があります。手動で設定"
 "する場合は無効にしてください。"
 
-#: src/gtk/connected-device.ui:539
-msgid "Center on glasses' display"
-msgstr ""
-
 #: src/gtk/connected-device.ui:540
+msgid "Center on glasses' display"
+msgstr "メガネのディスプレイを中央に"
+
+#: src/gtk/connected-device.ui:541
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
-msgstr ""
+msgstr "ディスプレイが中央にない場合でも、表示域をメガネのディスプレイの中央に配置します。"
 
-#: src/gtk/connected-device.ui:550
+#: src/gtk/connected-device.ui:551
 msgid "Always primary display"
 msgstr "常にプライマリディスプレイにする"
 
-#: src/gtk/connected-device.ui:551
+#: src/gtk/connected-device.ui:552
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "メガネ接続時、自動的にプライマリディスプレイにします。"
 
-#: src/gtk/connected-device.ui:561
-#, fuzzy
-msgid "Remove virtual displays on disable"
-msgstr "曲面ディスプレイ"
-
 #: src/gtk/connected-device.ui:562
-msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr ""
+msgid "Remove virtual displays on disable"
+msgstr "無効時に仮想ディスプレイ削除"
 
-#: src/gtk/connected-device.ui:572
-msgid "Enable multi-tap detection"
-msgstr ""
+#: src/gtk/connected-device.ui:563
+msgid "Automatically remove virtual displays when the XR effect is disabled."
+msgstr "XRエフェクト無効時に仮想ディスプレイを自動的に削除します。"
 
 #: src/gtk/connected-device.ui:573
-msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr ""
+msgid "Enable multi-tap detection"
+msgstr "マルチタップ認識を有効化"
 
-#: src/gtk/connected-device.ui:583
-#, fuzzy
-msgid "All displays follow mode"
-msgstr "曲面ディスプレイ"
+#: src/gtk/connected-device.ui:574
+msgid "Enables double-tap to recenter and triple-tap to recalibrate."
+msgstr "ダブルタップで中央へ移動、トリプルタップで再キャリブレーションを有効にします。"
 
 #: src/gtk/connected-device.ui:584
-msgid "Follow mode moves all displays, not just the focused one."
-msgstr ""
+msgid "All displays follow mode"
+msgstr "全画面フォローモード"
 
-#: src/gtk/connected-device.ui:600
-msgid "Follow mode movement tracking"
-msgstr ""
+#: src/gtk/connected-device.ui:585
+msgid "Follow mode moves all displays, not just the focused one."
+msgstr "フォローモードはフォーカスされてるディスプレイだけでなく全ての画面が移動します。"
 
 #: src/gtk/connected-device.ui:601
+msgid "Follow mode movement tracking"
+msgstr "フォローモード移動設定"
+
+#: src/gtk/connected-device.ui:602
 msgid "Choose which movements should be tracked in follow mode."
-msgstr ""
+msgstr "フォローモードで追跡する方法を選択します。"
 
-#: src/gtk/connected-device.ui:616
+#: src/gtk/connected-device.ui:617
 msgid "Horizontal"
-msgstr ""
+msgstr "水平"
 
-#: src/gtk/connected-device.ui:636
+#: src/gtk/connected-device.ui:637
 msgid "Vertical"
-msgstr ""
+msgstr "垂直"
 
-#: src/gtk/connected-device.ui:656
+#: src/gtk/connected-device.ui:657
 msgid "Tilt/roll"
-msgstr ""
+msgstr "傾き・回転"
 
-#: src/gtk/connected-device.ui:674
+#: src/gtk/connected-device.ui:675
 msgid "Movement look-ahead"
 msgstr "動きの先読み"
 
-#: src/gtk/connected-device.ui:675
+#: src/gtk/connected-device.ui:676
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -488,15 +501,15 @@ msgstr ""
 "ます。仮想ディスプレイが頭の動きに遅れたり、先に進んだり、非常に揺れたりする"
 "場合を除き、デフォルトのままで問題ありません。"
 
-#: src/gtk/connected-device.ui:693
+#: src/gtk/connected-device.ui:694
 msgid "Default"
 msgstr "デフォルト"
 
-#: src/gtk/connected-device.ui:705
+#: src/gtk/connected-device.ui:706
 msgid "Text Scaling"
 msgstr "テキストスケーリング"
 
-#: src/gtk/connected-device.ui:706
+#: src/gtk/connected-device.ui:707
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "テキストを1.0未満にスケーリングすると、高解像度ディスプレイをシミュレートしま"
@@ -504,27 +517,27 @@ msgstr ""
 
 #: src/gtk/custom-resolution-dialog-content.ui:9
 msgid "Width"
-msgstr ""
+msgstr "幅"
 
 #: src/gtk/custom-resolution-dialog-content.ui:42
 msgid "Height"
-msgstr ""
+msgstr "高さ"
 
 #: src/gtk/custom-resolution-dialog.ui:5
 msgid "Add a Custom Resolution"
-msgstr ""
+msgstr "カスタム解像度を追加"
 
 #: src/gtk/custom-resolution-dialog.ui:10
 msgid "Add"
-msgstr ""
+msgstr "追加"
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Show full range"
-msgstr ""
+msgstr "全範囲を表示"
 
 #: src/gtk/display-distance-dialog.ui:18
 msgid "Done"
-msgstr ""
+msgstr "完了"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -693,9 +706,8 @@ msgstr "Breezy Desktopについて"
 #~ "ワイドスクリーンモードがオンになっている場合、メガネ接続時にたたちにSBS"
 #~ "モードに切り替えます。不安定になる可能性があります。"
 
-#, fuzzy
 #~ msgid "Set Unfocused Displays Distance"
-#~ msgstr "ディスプレイ距離"
+#~ msgstr "フォーカス外のディスプレイ距離"
 
 #~ msgid "Widescreen mode"
 #~ msgstr "ワイドスクリーンモード"

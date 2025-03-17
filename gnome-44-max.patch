@@ -35,7 +35,7 @@ index 36ad7ee..41102a0 100644
  }, class MouseSpriteContent extends GObject.Object {
      _init() {
 diff --git a/gnome-44-max/src/cursormanager.js b/gnome-44-max/src/cursormanager.js
-index b8470d1..a4c048a 100644
+index dd4a77d..bbb8872 100644
 --- a/gnome-44-max/src/cursormanager.js
 +++ b/gnome-44-max/src/cursormanager.js
 @@ -1,11 +1,15 @@
@@ -101,7 +101,7 @@ index e396403..f047067 100644
          'breezy-desktop-running': GObject.ParamSpec.boolean(
              'breezy-desktop-running',
 diff --git a/gnome-44-max/src/extension.js b/gnome-44-max/src/extension.js
-index 29559f4..8b0a8bb 100644
+index b3363d5..d5be026 100644
 --- a/gnome-44-max/src/extension.js
 +++ b/gnome-44-max/src/extension.js
 @@ -1,28 +1,32 @@
@@ -157,7 +157,7 @@ index 29559f4..8b0a8bb 100644
          
          // Set/destroyed by enable/disable
          this._cursor_manager = null;
-@@ -630,6 +634,6 @@ export default class BreezyDesktopExtension extends Extension {
+@@ -645,6 +649,6 @@ export default class BreezyDesktopExtension extends Extension {
      }
  }
  
@@ -295,12 +295,12 @@ index f1c9983..9a98c7b 100644
      const flatDiagonalFOV = 2 * Math.tan(diagonalFOVRadians / 2);
  
 diff --git a/gnome-44-max/src/metadata.json b/gnome-44-max/src/metadata.json
-index 125954e..c888f94 100644
+index 0f8073b..bc26f97 100644
 --- a/gnome-44-max/src/metadata.json
 +++ b/gnome-44-max/src/metadata.json
 @@ -5,7 +5,7 @@
      "settings-schema": "com.xronlinux.BreezyDesktop",
-     "session-modes": ["user", "unlock-dialog"],
+     "session-modes": ["user"],
      "shell-version": [
 -        "45", "46", "47"
 +        "42", "43", "44"
@@ -391,7 +391,7 @@ index 8c17207..fdfdac1 100644
  }
 \ No newline at end of file
 diff --git a/gnome-44-max/src/virtualdisplayeffect.js b/gnome-44-max/src/virtualdisplayeffect.js
-index 6abb50f..4ab6942 100644
+index 26be71e..42da807 100644
 --- a/gnome-44-max/src/virtualdisplayeffect.js
 +++ b/gnome-44-max/src/virtualdisplayeffect.js
 @@ -1,16 +1,18 @@
@@ -431,7 +431,7 @@ index 6abb50f..4ab6942 100644
          'monitor-index': GObject.ParamSpec.int(
              'monitor-index',
 diff --git a/gnome-44-max/src/virtualdisplaysactor.js b/gnome-44-max/src/virtualdisplaysactor.js
-index e1fec8c..2662cb6 100644
+index 538fa8c..fa134f1 100644
 --- a/gnome-44-max/src/virtualdisplaysactor.js
 +++ b/gnome-44-max/src/virtualdisplaysactor.js
 @@ -1,18 +1,19 @@

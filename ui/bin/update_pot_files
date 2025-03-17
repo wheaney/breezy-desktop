@@ -11,7 +11,7 @@ for file in po/*.po; do
     lang=${file##*/}
     lang=${lang%.po}
 
-    msgmerge --update "po/$lang.po" po/breezydesktop.pot
+    msgmerge --no-fuzzy-matching --update "po/$lang.po" po/breezydesktop.pot
 
     outdir="po/mo/$lang/LC_MESSAGES"
     mkdir -p "$outdir"

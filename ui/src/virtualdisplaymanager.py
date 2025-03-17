@@ -12,8 +12,7 @@ logger = logging.getLogger('breezy_ui')
 gi.require_version('GLib', '2.0')
 from gi.repository import GLib, GObject
 
-xdg_bin_home = os.getenv('XDG_BIN_HOME', os.path.join(os.path.expanduser('~'), '.local', 'bin'))
-bindir = os.getenv('BINDIR', xdg_bin_home)
+from .files import get_bin_home
 
 class VirtualDisplayManager(GObject.GObject):
     __gproperties__ = {
@@ -61,7 +60,7 @@ class VirtualDisplayManager(GObject.GObject):
     def create_virtual_display(self, width, height, framerate):
         try:
             process = subprocess.Popen(
-                [f"{bindir}/virtualdisplay", "--width", str(int(round(width))), "--height", str(int(round(height))), "--framerate", str(framerate)],
+                [f"{get_bin_home()}/virtualdisplay", "--width", str(int(round(width))), "--height", str(int(round(height))), "--framerate", str(framerate)],
                 start_new_session=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

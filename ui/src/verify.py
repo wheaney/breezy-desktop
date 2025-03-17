@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 
-from .files import get_bin_home, get_data_home
+from .files import get_bin_home
 
 logger = logging.getLogger('breezy_ui')
 

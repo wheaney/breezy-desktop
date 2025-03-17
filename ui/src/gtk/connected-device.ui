@@ -121,6 +121,7 @@
                             <property name="icon-name">list-remove-symbolic</property>
                             <property name="valign">3</property>
                             <property name="visible">0</property>
+                            <property name="tooltip-text" translatable="yes">Remove custom resolution</property>
                             <style>
                               <class name="flat"/>
                             </style>
@@ -184,7 +185,7 @@
                                   <object class="GtkButton" id="change_focused_display_distance_button">
                                     <property name="name">set-all-displays-distance</property>
                                     <property name="valign">3</property>
-                                    <property name="label">Change</property>
+                                    <property name="label" translatable="yes">Change</property>
                                     <property name="margin-start">20</property>
                                     <property name="margin-end">20</property>
                                   </object>
@@ -205,7 +206,7 @@
                                   <object class="GtkButton" id="change_all_displays_distance_button">
                                     <property name="name">set-all-displays-distance</property>
                                     <property name="valign">3</property>
-                                    <property name="label">Change</property>
+                                    <property name="label" translatable="yes">Change</property>
                                     <property name="margin-start">20</property>
                                     <property name="margin-end">20</property>
                                   </object>
@@ -319,11 +320,11 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="-2.0" position="bottom">left</mark>
+                              <mark value="-2.0" position="bottom" translatable="yes">left</mark>
                               <mark value="-1.0" position="bottom"></mark>
-                              <mark value="0.0" position="bottom">center</mark>
+                              <mark value="0.0" position="bottom" translatable="yes">center</mark>
                               <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.0" position="bottom">right</mark>
+                              <mark value="2.0" position="bottom" translatable="yes">right</mark>
                             </marks>
                           </object>
                         </child>
@@ -349,11 +350,11 @@
                               </object>
                             </property>
                             <marks>
-                              <mark value="-2.0" position="bottom">down</mark>
+                              <mark value="-2.0" position="bottom" translatable="yes">down</mark>
                               <mark value="-1.0" position="bottom"></mark>
-                              <mark value="0.0" position="bottom">center</mark>
+                              <mark value="0.0" position="bottom" translatable="yes">center</mark>
                               <mark value="1.0" position="bottom"></mark>
-                              <mark value="2.0" position="bottom">up</mark>
+                              <mark value="2.0" position="bottom" translatable="yes">up</mark>
                             </marks>
                           </object>
                         </child>
