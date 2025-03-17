@@ -56,6 +56,8 @@ class ConnectedDevice(Gtk.Box):
     toggle_display_distance_shortcut_label = Gtk.Template.Child()
     reassign_toggle_follow_shortcut_button = Gtk.Template.Child()
     toggle_follow_shortcut_label = Gtk.Template.Child()
+    reassign_cursor_to_focused_display_shortcut_button = Gtk.Template.Child()
+    cursor_to_focused_display_shortcut_label = Gtk.Template.Child()
     headset_display_as_viewport_center_switch = Gtk.Template.Child()
     headset_as_primary_switch = Gtk.Template.Child()
     remove_virtual_displays_on_disable_switch = Gtk.Template.Child()
@@ -132,7 +134,8 @@ class ConnectedDevice(Gtk.Box):
             [self.reassign_toggle_xr_effect_shortcut_button, self.toggle_xr_effect_shortcut_label],
             [self.reassign_recenter_display_shortcut_button, self.recenter_display_shortcut_label],
             [self.reassign_toggle_display_distance_shortcut_button, self.toggle_display_distance_shortcut_label],
-            [self.reassign_toggle_follow_shortcut_button, self.toggle_follow_shortcut_label]
+            [self.reassign_toggle_follow_shortcut_button, self.toggle_follow_shortcut_label],
+            [self.reassign_cursor_to_focused_display_shortcut_button, self.cursor_to_focused_display_shortcut_label]
         ])
 
         self.change_focused_display_distance_button.connect('clicked', 

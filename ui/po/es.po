@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:58-0700\n"
+"POT-Creation-Date: 2025-03-16 22:26-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -28,26 +28,26 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr "Esta función no es compatible con tu dispositivo en este momento."
 
-#: src/connecteddevice.py:142
+#: src/connecteddevice.py:145
 msgid "Set Focused Display Distance"
 msgstr "Ajusta Distancia de Enfoque de la Pantalla"
 
-#: src/connecteddevice.py:143
+#: src/connecteddevice.py:146
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 "Usa un valor más cercano para que la pantalla se acerque cuando la mires."
 
-#: src/connecteddevice.py:150
+#: src/connecteddevice.py:153
 msgid "Set All Displays Distance"
 msgstr "Ajusta Todas las Distancias de Pantalla"
 
-#: src/connecteddevice.py:151
+#: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 "Usa un valor más alejado para que las pantallas se alejen cuando apartes la "
 "vista."
 
-#: src/connecteddevice.py:267
+#: src/connecteddevice.py:270
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
@@ -55,11 +55,11 @@ msgstr ""
 "No se pueden agregar pantallas virtuales en esta máquina. Se requiere "
 "Wayland y xdg-desktop-portal."
 
-#: src/connecteddevice.py:301
+#: src/connecteddevice.py:304
 msgid "Focused display"
 msgstr "Pantalla enfocada"
 
-#: src/connecteddevice.py:307
+#: src/connecteddevice.py:310
 msgid "All displays"
 msgstr "Todas las pantallas"
 
@@ -285,6 +285,7 @@ msgstr "Ajusta cómo de cerca quieres que aparezcan las pantallas."
 #: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
 #: src/gtk/connected-device.ui:413 src/gtk/connected-device.ui:442
 #: src/gtk/connected-device.ui:471 src/gtk/connected-device.ui:500
+#: src/gtk/connected-device.ui:529
 msgid "Change"
 msgstr "Cambiar"
 
@@ -405,15 +406,23 @@ msgstr "Atajo para alternar el modo de seguimiento"
 msgid "Quickly toggle follow mode."
 msgstr "Activar el modo de seguimiento."
 
-#: src/gtk/connected-device.ui:516 src/gtk/connected-device.ui:526
+#: src/gtk/connected-device.ui:509
+msgid "Summon mouse cursor shortcut"
+msgstr ""
+
+#: src/gtk/connected-device.ui:510
+msgid "Bring the mouse cursor to the center of the focused display."
+msgstr ""
+
+#: src/gtk/connected-device.ui:545 src/gtk/connected-device.ui:555
 msgid "Advanced Settings"
 msgstr "Configuración Avanzada"
 
-#: src/gtk/connected-device.ui:530
+#: src/gtk/connected-device.ui:559
 msgid "Find optimal display config"
 msgstr "Encuentre la configuración de pantalla óptima"
 
-#: src/gtk/connected-device.ui:531
+#: src/gtk/connected-device.ui:560
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -422,21 +431,21 @@ msgstr ""
 "obtener la máxima resolución y la mejor escalabilidad cuando estén "
 "enchufadas."
 
-#: src/gtk/connected-device.ui:541
+#: src/gtk/connected-device.ui:570
 msgid "Use highest refresh rate"
 msgstr "Utilizar la frecuencia de actualización más alta"
 
-#: src/gtk/connected-device.ui:542
+#: src/gtk/connected-device.ui:571
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "La frecuencia de actualización puede afectar el rendimiento, deshabilite "
 "esto para configurarlo manualmente."
 
-#: src/gtk/connected-device.ui:552
+#: src/gtk/connected-device.ui:581
 msgid "Center on glasses' display"
 msgstr "Centrar en la pantalla de las gafas"
 
-#: src/gtk/connected-device.ui:553
+#: src/gtk/connected-device.ui:582
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
@@ -444,67 +453,67 @@ msgstr ""
 "Centrar el visor en la pantalla de las gafas, incluso si la pantalla no está "
 "en el centro."
 
-#: src/gtk/connected-device.ui:563
+#: src/gtk/connected-device.ui:592
 msgid "Always primary display"
 msgstr "Siempre como pantalla principal"
 
-#: src/gtk/connected-device.ui:564
+#: src/gtk/connected-device.ui:593
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr ""
 "Automáticamente configurar las gafas como pantalla principal al enchufarse."
 
-#: src/gtk/connected-device.ui:574
+#: src/gtk/connected-device.ui:603
 msgid "Remove virtual displays on disable"
 msgstr "Eliminar pantallas virtuales al desactivar"
 
-#: src/gtk/connected-device.ui:575
+#: src/gtk/connected-device.ui:604
 msgid "Automatically remove virtual displays when the XR effect is disabled."
 msgstr ""
 "Eliminar automáticamente las pantallas virtuales cuando se desactiva el "
 "efecto XR."
 
-#: src/gtk/connected-device.ui:585
+#: src/gtk/connected-device.ui:614
 msgid "Enable multi-tap detection"
 msgstr "Activar la detección de toques múltiples"
 
-#: src/gtk/connected-device.ui:586
+#: src/gtk/connected-device.ui:615
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
 "Activa el doble toque para recentrar y el triple toque para recalibrar."
 
-#: src/gtk/connected-device.ui:596
+#: src/gtk/connected-device.ui:625
 msgid "All displays follow mode"
 msgstr "Modo de seguimiento de todas las pantallas"
 
-#: src/gtk/connected-device.ui:597
+#: src/gtk/connected-device.ui:626
 msgid "Follow mode moves all displays, not just the focused one."
 msgstr "El modo de seguimiento mueve todas las pantallas, no solo la enfocada."
 
-#: src/gtk/connected-device.ui:613
+#: src/gtk/connected-device.ui:642
 msgid "Follow mode movement tracking"
 msgstr "Rastreo de movimiento de modo de seguimiento"
 
-#: src/gtk/connected-device.ui:614
+#: src/gtk/connected-device.ui:643
 msgid "Choose which movements should be tracked in follow mode."
 msgstr "Elige qué movimientos deben rastrearse en el modo de seguimiento."
 
-#: src/gtk/connected-device.ui:629
+#: src/gtk/connected-device.ui:658
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: src/gtk/connected-device.ui:649
+#: src/gtk/connected-device.ui:678
 msgid "Vertical"
 msgstr "Vertical"
 
-#: src/gtk/connected-device.ui:669
+#: src/gtk/connected-device.ui:698
 msgid "Tilt/roll"
 msgstr "Inclinación/giro"
 
-#: src/gtk/connected-device.ui:687
+#: src/gtk/connected-device.ui:716
 msgid "Movement look-ahead"
 msgstr "Anticipación de movimiento"
 
-#: src/gtk/connected-device.ui:688
+#: src/gtk/connected-device.ui:717
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -515,15 +524,15 @@ msgstr ""
 "predeterminado a menos que la pantalla virtual se retrase detrás de los "
 "movimientos de la cabeza, se adelante o sea muy inestable."
 
-#: src/gtk/connected-device.ui:706
+#: src/gtk/connected-device.ui:735
 msgid "Default"
 msgstr "Predeterminado"
 
-#: src/gtk/connected-device.ui:718
+#: src/gtk/connected-device.ui:747
 msgid "Text Scaling"
 msgstr "Escalado de Texto"
 
-#: src/gtk/connected-device.ui:719
+#: src/gtk/connected-device.ui:748
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "Escalando el texto por debajo de 1.0 simulará una pantalla de mayor "

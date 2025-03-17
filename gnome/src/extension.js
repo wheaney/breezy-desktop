@@ -308,6 +308,7 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
+                this._add_settings_keybinding('cursor-to-focused-display-shortcut', this._cursor_to_focused_display.bind(this));
 
                 this._fresh_session = false;
             } catch (e) {
@@ -537,6 +538,16 @@ export default class BreezyDesktopExtension extends Extension {
         this._write_control('toggle_breezy_desktop_smooth_follow', 'true');
     }
 
+    _cursor_to_focused_display() {
+        Globals.logger.log_debug('BreezyDesktopExtension _cursor_to_focused_display');
+        if (this._virtual_displays_actor?.focused_monitor_details) {
+            const monitorDetails = this._virtual_displays_actor.focused_monitor_details;
+            const xMid = monitorDetails.x + monitorDetails.width / 2;
+            const yMid = monitorDetails.y + monitorDetails.height / 2;
+            this._cursor_manager.moveCursorTo(xMid, yMid);
+        }
+    }
+
     // for_setup should be true if our intention is to immediately re-enable the extension
     _effect_disable(for_setup = false) {
         try {
@@ -545,9 +556,11 @@ export default class BreezyDesktopExtension extends Extension {
 
             if (Globals.data_stream.smooth_follow_enabled) this._toggle_follow_mode();
 
+            Main.wm.removeKeybinding('toggle-xr-effect-shortcut');
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
+            Main.wm.removeKeybinding('cursor-to-focused-display-shortcut');
             
             if (global.compositor?.enable_unredirect) {
                 global.compositor.enable_unredirect();
