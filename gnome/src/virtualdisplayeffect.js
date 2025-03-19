@@ -249,8 +249,9 @@ var VirtualDisplayEffect = GObject.registerClass({
 
         if (this._follow_ease_timeline?.is_playing()) this._follow_ease_timeline.stop();
 
+        const ease_to_focus = this.smooth_follow_enabled && this._is_focused();
         const from = this._current_follow_ease_progress;
-        const to = this.smooth_follow_enabled && this._is_focused() ? 1.0 : 0.0;
+        const to = ease_to_focus ? 1.0 : 0.0;
         const toggleTime = this.smooth_follow_toggle_epoch_ms === 0 ? Date.now() : this.smooth_follow_toggle_epoch_ms;
         
         // would have been a slight delay between request and slerp actually starting

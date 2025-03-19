@@ -98,6 +98,8 @@ class BreezyDesktopExtension {
                 }
             }
 
+            this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
+
             this._setup();
         } catch (e) {
             Globals.logger.log(`[ERROR] BreezyDesktopExtension enable ${e.message}\n${e.stack}`);
@@ -308,7 +310,6 @@ class BreezyDesktopExtension {
                     Meta.disable_unredirect_for_display(global.display);
                 }
 
-                this._add_settings_keybinding('toggle-xr-effect-shortcut', this._toggle_xr_effect.bind(this));
                 this._add_settings_keybinding('recenter-display-shortcut', this._recenter_display.bind(this));
                 this._add_settings_keybinding('toggle-display-distance-shortcut', this._virtual_displays_actor._change_distance.bind(this._virtual_displays_actor));
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
@@ -560,7 +561,6 @@ class BreezyDesktopExtension {
 
             if (Globals.data_stream.smooth_follow_enabled) this._toggle_follow_mode();
 
-            Main.wm.removeKeybinding('toggle-xr-effect-shortcut');
             Main.wm.removeKeybinding('recenter-display-shortcut');
             Main.wm.removeKeybinding('toggle-display-distance-shortcut');
             Main.wm.removeKeybinding('toggle-follow-shortcut');
@@ -646,6 +646,7 @@ class BreezyDesktopExtension {
                 Globals.data_stream.disconnect(this._breezy_desktop_running_connection);
                 this._breezy_desktop_running_connection = null;
             }
+            Main.wm.removeKeybinding('toggle-xr-effect-shortcut');
             Gio.Settings.unbind(this.settings, 'debug');
             Gio.Settings.unbind(this.settings, 'use-optimal-monitor-config');
             Gio.Settings.unbind(this.settings, 'headset-as-primary');

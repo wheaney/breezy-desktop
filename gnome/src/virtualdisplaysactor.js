@@ -32,7 +32,7 @@ function applyQuaternionToVector(vector, quaternion) {
 const FOCUS_THRESHOLD = 0.95 / 2.0;
 
 // if we leave the monitor with some margin, unfocus even if no other monitor is in focus
-const UNFOCUS_THRESHOLD = 1.2 / 2.0;
+const UNFOCUS_THRESHOLD = 1.1 / 2.0;
 
 /**
  * Find the vector in the array that's closest to the quaternion rotation
@@ -58,12 +58,12 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
     let currentFocusedDistance = Infinity;
 
     // find the vector closest to the rotated look vector
-    monitorVectors.forEach((vector, index) => {
+    monitorVectors.forEach((monitorVector, index) => {
         const monitor = monitorsDetails[index];
         const monitorAspectRatio = monitor.width / monitor.height;
 
         // weight the rotation about the y-axis between the two vectors, by the aspect ratio
-        const vectorUpTheta = Math.atan2(vector[2], vector[0]);
+        const vectorUpTheta = Math.atan2(monitorVector[2], monitorVector[0]);
         const upDelta = lookUpTheta - vectorUpTheta;
         const newLookUpTheta = Math.tan(Math.max(
             -Math.PI, 
@@ -81,9 +81,9 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
         // find the distance between the monitor vector and weighted look vector
         const distance = Math.acos(
             Math.min(1.0, Math.max(-1.0, 
-                vector[0] * weightedLookVector[0] + 
-                vector[1] * weightedLookVector[1] + 
-                vector[2] * weightedLookVector[2]
+                monitorVector[0] * weightedLookVector[0] + 
+                monitorVector[1] * weightedLookVector[1] + 
+                monitorVector[2] * weightedLookVector[2]
             ))
         );
 
@@ -777,7 +777,9 @@ var VirtualDisplaysActor = GObject.registerClass({
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
                 this.focused_monitor_details = null;
-            } else if (this.imu_snapshots && (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
+            } else if (this.imu_snapshots && 
+                       (!this.smooth_follow_enabled || this.focused_monitor_index === -1) && 
+                       (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
                 // since it reflects where the user is looking in relation to the original monitor positions
                 const currentPoseQuat = this.smooth_follow_enabled ? 
