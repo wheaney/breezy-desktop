@@ -19,6 +19,34 @@ const FOCUS_THRESHOLD = 0.95 / 2.0;
 // if we leave the monitor with some margin, unfocus even if no other monitor is in focus
 const UNFOCUS_THRESHOLD = 1.1 / 2.0;
 
+// returns how far the look vector is from the center of the monitor, as a percentage of the monitor's width
+function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
+    const monitorAspectRatio = monitorDetails.width / monitorDetails.height;
+
+    // weight the up distance by the aspect ratio
+    const vectorUpPixels = upAngleToLength(
+        fovDetails.defaultDistanceVerticalRadians,
+        fovDetails.heightPixels,
+        fovDetails.completeScreenDistancePixels,
+        monitorVector[2],
+        monitorVector[0]
+    );
+    const upDeltaPixels = (lookUpPixels - vectorUpPixels) * monitorAspectRatio;
+
+    const vectorWestPixels = westAngleToLength(
+        fovDetails.defaultDistanceHorizontalRadians,
+        fovDetails.widthPixels,
+        fovDetails.completeScreenDistancePixels,
+        monitorVector[1],
+        monitorVector[0]
+    );
+    const westDeltaPixels = lookWestPixels - vectorWestPixels;
+    const totalDeltaPixels = Math.sqrt(upDeltaPixels * upDeltaPixels + westDeltaPixels * westDeltaPixels);
+
+    // threshold is a percentage of width, and height was already properly weighted
+    return totalDeltaPixels / monitorDetails.width;
+}
+
 /**
  * Find the vector in the array that's closest to the quaternion rotation
  * 
@@ -26,12 +54,11 @@ const UNFOCUS_THRESHOLD = 1.1 / 2.0;
  * @param {number[][]} monitorVectors - Array of monitor vectors [x, y, z] to search from
  * @param {number} currentFocusedIndex - Index of the currently focused monitor
  * @param {number} focusedMonitorDistance - Distance to the focused monitor, < 1.0 if zoomed in
- * @param {boolean} smoothFollowEnabled - If true, always keep the current monitor in focus or choose the closest
  * @param {Object} fovDetails - Contains reference widthPixels, heightPixels, horizontal and vertical radians, and pixel distance to the center of the screen
  * @param {Object[]} monitorsDetails - Contains x, y, width, height (coordinates from top-left) for each monitor
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
-function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
+function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, fovDetails, monitorsDetails) {
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);
 
@@ -56,55 +83,46 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
 
     let closestIndex = -1;
     let closestDistance = Infinity;
-    let currentFocusedDistance = Infinity;
+
+    // the currently focused monitor is the most likely to be the closest, check it first and exit early if it is
+    if (currentFocusedIndex !== -1) {
+        const focusedDistance = getMonitorDistance(
+            fovDetails,
+            lookUpPixels,
+            lookWestPixels,
+            monitorVectors[currentFocusedIndex],
+            monitorsDetails[currentFocusedIndex],
+            upConversionFns.angleToLength,
+            westConversionFns.angleToLength
+        ) * focusedMonitorDistance;
+
+        if (focusedDistance < UNFOCUS_THRESHOLD) return currentFocusedIndex;
+    }
 
     // find the vector closest to the rotated look vector
     monitorVectors.forEach((monitorVector, index) => {
-        const monitor = monitorsDetails[index];
-        const monitorAspectRatio = monitor.width / monitor.height;
+        if (index === currentFocusedIndex) return;
 
-        // weight the up distance by the aspect ratio
-        const vectorUpPixels = upConversionFns.angleToLength(
-            fovDetails.defaultDistanceVerticalRadians,
-            fovDetails.heightPixels,
-            fovDetails.completeScreenDistancePixels,
-            monitorVector[2],
-            monitorVector[0]
+        const distance = getMonitorDistance(
+            fovDetails,
+            lookUpPixels,
+            lookWestPixels,
+            monitorVector,
+            monitorsDetails[index],
+            upConversionFns.angleToLength,
+            westConversionFns.angleToLength
         );
-        const upDeltaPixels = (lookUpPixels - vectorUpPixels) * monitorAspectRatio;
 
-        const vectorWestPixels = westConversionFns.angleToLength(
-            fovDetails.defaultDistanceHorizontalRadians,
-            fovDetails.widthPixels,
-            fovDetails.completeScreenDistancePixels,
-            monitorVector[1],
-            monitorVector[0]
-        );
-        const westDeltaPixels = lookWestPixels - vectorWestPixels;
-        const totalDeltaPixels = Math.sqrt(upDeltaPixels * upDeltaPixels + westDeltaPixels * westDeltaPixels);
-
-        // threshold is a percentage of width, and height was already properly weighted
-        const distanceFromCenterSizeRatio = totalDeltaPixels / monitor.width;
-
-        if (currentFocusedIndex === index) {
-            currentFocusedDistance = distanceFromCenterSizeRatio * focusedMonitorDistance;
-        }
-
-        if (distanceFromCenterSizeRatio < closestDistance) {
+        if (distance < closestDistance) {
             closestIndex = index;
-            closestDistance = distanceFromCenterSizeRatio;
+            closestDistance = distance;
         }
     });
 
-    const keepCurrent = currentFocusedIndex !== -1 && (smoothFollowEnabled || currentFocusedDistance < UNFOCUS_THRESHOLD);
-    if (!keepCurrent) {
-        if (smoothFollowEnabled || closestDistance < FOCUS_THRESHOLD) return closestIndex;
+    if (closestDistance < FOCUS_THRESHOLD) return closestIndex;
 
-        // neither the current nor the closest will take focus, unfocus all displays
-        return -1;
-    }
-
-    return currentFocusedIndex;
+    // neither the current nor the closest will take focus, unfocus all displays
+    return -1;
 }
 
 /***
@@ -761,7 +779,9 @@ export const VirtualDisplaysActor = GObject.registerClass({
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
                 this.focused_monitor_details = null;
-            } else if (this.imu_snapshots && (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
+            } else if (this.imu_snapshots && 
+                       (!this.smooth_follow_enabled || this.focused_monitor_index === -1) && 
+                       (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
                 // since it reflects where the user is looking in relation to the original monitor positions
                 const currentPoseQuat = this.smooth_follow_enabled ? 
@@ -773,7 +793,6 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     this.monitor_placements.map(monitorVectors => monitorVectors.centerLook), 
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
-                    this.smooth_follow_enabled,
                     this.fov_details,
                     this._all_monitors
                 );
