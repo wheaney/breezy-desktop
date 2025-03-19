@@ -3,7 +3,6 @@ import Cogl from 'gi://Cogl';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
-import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 
@@ -776,7 +775,9 @@ export const VirtualDisplaysActor = GObject.registerClass({
             if (this.show_banner) {
                 this.focused_monitor_index = -1;
                 this.focused_monitor_details = null;
-            } else if (this.imu_snapshots && (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
+            } else if (this.imu_snapshots && 
+                       (!this.smooth_follow_enabled || this.focused_monitor_index === -1) && 
+                       (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
                 // since it reflects where the user is looking in relation to the original monitor positions
                 const currentPoseQuat = this.smooth_follow_enabled ? 
