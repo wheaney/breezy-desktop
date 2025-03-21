@@ -43,12 +43,13 @@ rm -f $XDG_DATA_HOME/icons/hicolor/*/apps/com.xronlinux.BreezyDesktop.png
 rm -f $XDG_DATA_HOME/locale/*/LC_MESSAGES/breezydesktop.mo
 rm -f $XDG_BIN_HOME/breezydesktop
 
-[ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
-# if for-install
-if [ "$for_install" -eq 1 ]; then
-    sudo ~/.local/bin/xr_driver_uninstall --for-install
-else
-    sudo ~/.local/bin/xr_driver_uninstall
+if [ -e "$XDG_BIN_HOME/xr_driver_uninstall" ]; then
+  [ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
+  if [ "$for_install" -eq 1 ]; then
+      sudo $XDG_BIN_HOME/xr_driver_uninstall --for-install
+  else
+      sudo $XDG_BIN_HOME/xr_driver_uninstall
+  fi
 fi
 
 
