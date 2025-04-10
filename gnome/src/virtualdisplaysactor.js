@@ -42,10 +42,12 @@ const UNFOCUS_THRESHOLD = 1.1 / 2.0;
  * @param {number} currentFocusedIndex - Index of the currently focused monitor
  * @param {number} focusedMonitorDistance - Distance to the focused monitor, < 1.0 if zoomed in
  * @param {boolean} smoothFollowEnabled - If true, always keep the current monitor in focus or choose the closest
+ * @param {boolean} smoothFollowEnabled - If true, always keep the current monitor in focus or choose the closest
  * @param {Object} fovDetails - Contains reference widthPixels, heightPixels, horizontal and vertical radians, and pixel distance to the center of the screen
  * @param {Object[]} monitorsDetails - Contains x, y, width, height (coordinates from top-left) for each monitor
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
+function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
 function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);

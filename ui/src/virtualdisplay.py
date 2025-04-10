@@ -4,7 +4,7 @@ import argparse
 import logging
 import sys
 import signal
-from .lib import pydbus
+import pydbus
 import gi
 import time
     
