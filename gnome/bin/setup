@@ -22,14 +22,14 @@ check_command "python" "python3"
 PYTHON_GI_CHECK="import gi; gi.require_version('Gtk', '4.0'); gi.require_version('Adw', '1'); gi.require_version('Gio', '2.0'); gi.require_version('GLib', '2.0'); gi.require_version('GObject', '2.0'); gi.require_version('Gst', '1.0'); from gi.repository import Gtk, Adw, Gio, GLib, GObject, Gst"
 
 if ! { python3 -c "$PYTHON_GI_CHECK" 2>/dev/null || python -c "$PYTHON_GI_CHECK" 2>/dev/null; }; then
-    printf "\033[1;31mERROR:\033[0m Python GObject libraries are missing\n"
-    printf "Please install the required Python GObject dependencies: GTK4, libadwaita, and GStreamer libraries:\n"
-    printf "If you're using a Python installation from a package manager, you may need to install the following packages:\n"
-    printf "\tFor Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-4.0 libadwaita-1-0 gir1.2-adw-1 gir1.2-glib-2.0 gir1.2-gobject-2.0 gir1.2-gstreamer-1.0\n"
-    printf "\tFor Fedora: sudo dnf install python3-gobject python3-gstreamer1 gtk4 libadwaita\n"
-    printf "\tFor Arch Linux: sudo pacman -S python-gobject gst-python gtk4 libadwaita\n"
-    printf "\nIf you continue to have issues, rerun the setup with BREEZY_IGNORE_PYTHON_ERRORS=1 to skip this check.\n\n"
     if [ -z "$BREEZY_IGNORE_PYTHON_ERRORS" ]; then
+        printf "\033[1;31mERROR:\033[0m Python GObject libraries are missing\n"
+        printf "Please install the required Python GObject dependencies: GTK4, libadwaita, and GStreamer libraries:\n"
+        printf "If you're using a Python installation from a package manager, you may need to install the following packages:\n"
+        printf "\tFor Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-4.0 libadwaita-1-0 gir1.2-adw-1 gir1.2-glib-2.0 gir1.2-gobject-2.0 gir1.2-gstreamer-1.0\n"
+        printf "\tFor Fedora: sudo dnf install python3-gobject python3-gstreamer1 gtk4 libadwaita\n"
+        printf "\tFor Arch Linux: sudo pacman -S python-gobject gst-python gtk4 libadwaita\n"
+        printf "\nIf you continue to have issues, rerun the setup with BREEZY_IGNORE_PYTHON_ERRORS=1 to skip this check.\n\n"
         exit 1
     else
         printf "\033[1;33mWARNING:\033[0m Ignoring Python dependency failures. "
