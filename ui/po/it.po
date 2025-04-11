@@ -30,7 +30,6 @@ msgid "This feature is not currently supported for your device."
 msgstr "Questa funzione non è attualmente supportata sul tuo dispositivo."
 
 #: src/connecteddevice.py:145
-#, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Distanza del display con focus"
 
@@ -39,7 +38,6 @@ msgid "Use a closer value so the display zooms in when you look at it."
 msgstr "Usa un valore più vicino, così che il display si avvicini quando lo guardi."
 
 #: src/connecteddevice.py:153
-#, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Imposta la distanza di tutti i display"
 
@@ -54,12 +52,10 @@ msgid ""
 msgstr "Non è possibile aggiungere display virtuali su questo dispositivo. Sono richiesti Wayland e xdg-desktop-portal."
 
 #: src/connecteddevice.py:304
-#, fuzzy
 msgid "Focused display"
 msgstr "Distanza del display col focus"
 
 #: src/connecteddevice.py:310
-#, fuzzy
 msgid "All displays"
 msgstr "Tutti i display"
 
@@ -228,7 +224,6 @@ msgid "Follow mode"
 msgstr "Modalità di inseguimento"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
 msgstr "Mantieni il display col focus vicino al centro del tuo campo visivo."
 
@@ -250,7 +245,6 @@ msgid ""
 msgstr "Disabilita automaticamente tutti i display fisici quando l'effetto XR è abilitato."
 
 #: src/gtk/connected-device.ui:104
-#, fuzzy
 msgid "Virtual displays"
 msgstr "Display virtuali"
 
@@ -271,7 +265,6 @@ msgid "Remove custom resolution"
 msgstr "Rimuovi risoluzione personalizzata"
 
 #: src/gtk/connected-device.ui:156
-#, fuzzy
 msgid "Rearrange displays"
 msgstr "Riarrangia i Display"
 
@@ -280,7 +273,6 @@ msgid "Adjustments"
 msgstr "Regolazioni"
 
 #: src/gtk/connected-device.ui:178
-#, fuzzy
 msgid "Display distances"
 msgstr "Distanze del display"
 
@@ -304,7 +296,6 @@ msgid "How far away you can look before the display follows."
 msgstr "Quanto lontano puoi guardare prima che il display ti segua."
 
 #: src/gtk/connected-device.ui:258
-#, fuzzy
 msgid "Display angling"
 msgstr "Angolazione del display"
 
@@ -330,7 +321,6 @@ msgid "Flat"
 msgstr "Piatto"
 
 #: src/gtk/connected-device.ui:286
-#, fuzzy
 msgid "Display spacing"
 msgstr "Spaziatura del display"
 
@@ -400,12 +390,10 @@ msgid "Pin the virtual display to the current position."
 msgstr "Fissa il display virtuale alla posizione attuale."
 
 #: src/gtk/connected-device.ui:451
-#, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "Scorciatoia per attivare/disattivare lo zoom sul focus"
 
 #: src/gtk/connected-device.ui:452
-#, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "Attivazione/disattivazione rapida della modalità di zoom sul focus."
 
@@ -472,7 +460,6 @@ msgstr ""
 "collegati."
 
 #: src/gtk/connected-device.ui:603
-#, fuzzy
 msgid "Remove virtual displays on disable"
 msgstr "Rimuovi il display virtuale quando disabilitato"
 
@@ -489,7 +476,6 @@ msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr "Abilita il doppio tocco per ricentrare e il triplo tocco per ricalibrare."
 
 #: src/gtk/connected-device.ui:625
-#, fuzzy
 msgid "All displays follow mode"
 msgstr "Modalità inseguimento su tutti i display"
 
@@ -739,7 +725,6 @@ msgstr "Informazioni su BreezyDesktop"
 #~ "collegati, se la modalità widescreen è attiva. Potrebbe causare "
 #~ "instabilità."
 
-#, fuzzy
 #~ msgid "Set Unfocused Displays Distance"
 #~ msgstr "Imposta la distanza dei display senza focus"
 
