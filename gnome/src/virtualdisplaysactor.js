@@ -794,6 +794,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     this.monitor_placements.map(monitorVectors => monitorVectors.centerLook), 
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
+                    this.smooth_follow_enabled,
                     this.fov_details,
                     this._all_monitors
                 );
