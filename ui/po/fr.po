@@ -45,14 +45,14 @@ msgstr "Définir la distance d'affichage de tous les écrans"
 
 #: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr "Utiliser une valeur plus éloignée afin que les écrans dézooment"
+msgstr "Utiliser une valeur plus éloignée afin que les écrans dézooment "
 "lorsqu'on ne les regarde plus."
 
 #: src/connecteddevice.py:270
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
-msgstr "Impossible d'ajouter des écrans virtuels sur cet appareil."
+msgstr "Impossible d'ajouter des écrans virtuels sur cet appareil. "
 "Wayland et xdg-desktop-portal sont nécessaires."
 
 #: src/connecteddevice.py:304
@@ -222,7 +222,7 @@ msgid ""
 "section.\n"
 "                        "
 msgstr ""
-"Fait automatiquement avancer l'écran lorsqu'on le regarde."
+"Fait automatiquement avancer l'écran lorsqu'on le regarde. "
 "Réglez votre niveau de zoom et de dézoom dans la section Ajustements.\n"
 "                        "
 
@@ -249,7 +249,7 @@ msgstr "Désactiver les écrans physiques"
 #: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr "Désactive automatiquement tous les écrans physiques lorsque"
+msgstr "Désactive automatiquement tous les écrans physiques lorsque "
 "le mode XR est activé."
 
 #: src/gtk/connected-device.ui:104
