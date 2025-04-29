@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-03-16 22:26-0700\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
-"Last-Translator:  <wayne@xronlinux.com>\n"
+"Last-Translator:  <fsciarra62@gmail.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
@@ -30,50 +30,46 @@ msgid "This feature is not currently supported for your device."
 msgstr "Questa funzione non è attualmente supportata sul tuo dispositivo."
 
 #: src/connecteddevice.py:145
-#, fuzzy
 msgid "Set Focused Display Distance"
-msgstr "Distanza del display"
+msgstr "Distanza del display con focus"
 
 #: src/connecteddevice.py:146
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr ""
+msgstr "Usa un valore più vicino, così che il display si avvicini quando lo guardi."
 
 #: src/connecteddevice.py:153
-#, fuzzy
 msgid "Set All Displays Distance"
-msgstr "Distanza del display"
+msgstr "Imposta la distanza di tutti i display"
 
 #: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr ""
+msgstr "Usa un valore più distante così che i display si allontanino quando distogli lo sguardo."
 
 #: src/connecteddevice.py:270
 msgid ""
 "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
 "portal are required."
-msgstr ""
+msgstr "Non è possibile aggiungere display virtuali su questo dispositivo. Sono richiesti Wayland e xdg-desktop-portal."
 
 #: src/connecteddevice.py:304
-#, fuzzy
 msgid "Focused display"
-msgstr "Distanza del display"
+msgstr "Distanza del display col focus"
 
 #: src/connecteddevice.py:310
-#, fuzzy
 msgid "All displays"
-msgstr "Display curvo"
+msgstr "Tutti i display"
 
 #: src/displaydistancedialogcontent.py:41
 msgid "closer"
-msgstr ""
+msgstr "più vicino"
 
 #: src/displaydistancedialogcontent.py:45
 msgid "fullscreen"
-msgstr ""
+msgstr "schermo intero"
 
 #: src/displaydistancedialogcontent.py:48
 msgid "farther"
-msgstr ""
+msgstr "più lontano"
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -213,7 +209,7 @@ msgstr "Abilita l'effetto XR di Breezy Desktop."
 
 #: src/gtk/connected-device.ui:56
 msgid "Zoom on focus"
-msgstr ""
+msgstr "Zoom sul focus"
 
 #: src/gtk/connected-device.ui:57
 msgid ""
@@ -221,64 +217,60 @@ msgid ""
 "Set your preferred focused and unfocused distances in the Adjustments "
 "section.\n"
 "                        "
-msgstr ""
+msgstr "Imposta la tua distanza preferita per i display con focus e non nella sezione Regolazioni."
 
 #: src/gtk/connected-device.ui:70
 msgid "Follow mode"
 msgstr "Modalità di inseguimento"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
-msgstr "Mantieni il display virtuale vicino al centro del tuo campo visivo."
+msgstr "Mantieni il display col focus vicino al centro del tuo campo visivo."
 
 #: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
 msgid "Disable physical displays"
-msgstr ""
+msgstr "Disabilita display fisici"
 
 #: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr ""
+msgstr "Disabilita automaticamente tutti i display fisici quando l'effetto XR è abilitato."
 
 #: src/gtk/connected-device.ui:104
-#, fuzzy
 msgid "Virtual displays"
-msgstr "Display curvo"
+msgstr "Display virtuali"
 
 #: src/gtk/connected-device.ui:120
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: src/gtk/connected-device.ui:121
 msgid "1440p"
-msgstr ""
+msgstr "1440p"
 
 #: src/gtk/connected-device.ui:122
 msgid "Add custom"
-msgstr ""
+msgstr "Aggiungere personalizzato"
 
 #: src/gtk/connected-device.ui:136
 msgid "Remove custom resolution"
-msgstr ""
+msgstr "Rimuovi risoluzione personalizzata"
 
 #: src/gtk/connected-device.ui:156
-#, fuzzy
 msgid "Rearrange displays"
-msgstr "Display curvo"
+msgstr "Riarrangia i Display"
 
 #: src/gtk/connected-device.ui:174
 msgid "Adjustments"
 msgstr "Regolazioni"
 
 #: src/gtk/connected-device.ui:178
-#, fuzzy
 msgid "Display distances"
-msgstr "Distanza del display"
+msgstr "Distanze del display"
 
 #: src/gtk/connected-device.ui:179
 msgid "Set how close you want displays to appear."
-msgstr ""
+msgstr "Imposta quanto vicino vuoi che appaiano i display"
 
 #: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
 #: src/gtk/connected-device.ui:413 src/gtk/connected-device.ui:442
@@ -296,75 +288,73 @@ msgid "How far away you can look before the display follows."
 msgstr "Quanto lontano puoi guardare prima che il display ti segua."
 
 #: src/gtk/connected-device.ui:258
-#, fuzzy
 msgid "Display angling"
-msgstr "Dimensione del display"
+msgstr "Angolazione del display"
 
 #: src/gtk/connected-device.ui:259
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr ""
+msgstr "Quando ci sonn display multipli, scegli come dovrebbero angolarsi davanti a te."
 
 #: src/gtk/connected-device.ui:273
 msgid "Automatic"
-msgstr ""
+msgstr "Automatico"
 
 #: src/gtk/connected-device.ui:274
 msgid "Side-angled"
-msgstr ""
+msgstr "Angolazione su un lato"
 
 #: src/gtk/connected-device.ui:275
 msgid "Top-angled"
-msgstr ""
+msgstr "Angolazione in alto"
 
 #: src/gtk/connected-device.ui:276
 msgid "Flat"
-msgstr ""
+msgstr "Piatto"
 
 #: src/gtk/connected-device.ui:286
-#, fuzzy
 msgid "Display spacing"
-msgstr "Dimensione del display"
+msgstr "Spaziatura del display"
 
 #: src/gtk/connected-device.ui:287
 msgid "Put empty space between displays, when there are multiple."
-msgstr ""
+msgstr "Inserisci spazio vuoto tra i display, quando ce ne sono molteplici."
 
 #: src/gtk/connected-device.ui:317
 msgid "Viewport horizontal offset"
-msgstr ""
+msgstr "Spostamento orizzontale della visuale"
 
 #: src/gtk/connected-device.ui:318
 msgid "Move the viewport to the left or right of its default position."
-msgstr ""
+msgstr "Muovi la visuale a sinistra o a destra rispetto alla sua posizione di default."
 
 #: src/gtk/connected-device.ui:335
 msgid "left"
-msgstr ""
+msgstr "sinistra"
 
 #: src/gtk/connected-device.ui:337 src/gtk/connected-device.ui:367
 msgid "center"
-msgstr ""
+msgstr "centro"
 
 #: src/gtk/connected-device.ui:339
 msgid "right"
-msgstr ""
+msgstr "destra"
 
 #: src/gtk/connected-device.ui:347
 msgid "Viewport vertical offset"
-msgstr ""
+msgstr "Spostamento verticale della visuale"
 
 #: src/gtk/connected-device.ui:348
 msgid "Move the viewport up or down from its default position."
-msgstr ""
+msgstr "Muovi la visuale su o giù rispetto alla sua posizione di default."
 
 #: src/gtk/connected-device.ui:365
 msgid "down"
-msgstr ""
+msgstr "giù"
 
 #: src/gtk/connected-device.ui:369
 msgid "up"
-msgstr ""
+msgstr "su"
 
 #: src/gtk/connected-device.ui:384 src/gtk/connected-device.ui:390
 msgid "Keyboard Shortcuts"
@@ -392,14 +382,12 @@ msgid "Pin the virtual display to the current position."
 msgstr "Fissa il display virtuale alla posizione attuale."
 
 #: src/gtk/connected-device.ui:451
-#, fuzzy
 msgid "Toggle zoom on focus shortcut"
-msgstr "Scorciatoia per attivare/disattivare la modalità di inseguimento"
+msgstr "Scorciatoia per attivare/disattivare lo zoom sul focus"
 
 #: src/gtk/connected-device.ui:452
-#, fuzzy
 msgid "Quickly toggle zoom on focus mode."
-msgstr "Attivazione/disattivazione rapida della modalità di inseguimento."
+msgstr "Attivazione/disattivazione rapida della modalità di zoom sul focus."
 
 #: src/gtk/connected-device.ui:480
 msgid "Toggle follow mode shortcut"
@@ -411,11 +399,11 @@ msgstr "Attivazione/disattivazione rapida della modalità di inseguimento."
 
 #: src/gtk/connected-device.ui:509
 msgid "Summon mouse cursor shortcut"
-msgstr ""
+msgstr "Scorciatoia per richiamare il cursore del mouse "
 
 #: src/gtk/connected-device.ui:510
 msgid "Bring the mouse cursor to the center of the focused display."
-msgstr ""
+msgstr "Porta il cursore del mouse al centro del display col focus."
 
 #: src/gtk/connected-device.ui:545 src/gtk/connected-device.ui:555
 msgid "Advanced Settings"
@@ -445,13 +433,13 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:581
 msgid "Center on glasses' display"
-msgstr ""
+msgstr "Centra sui display degli occhiali"
 
 #: src/gtk/connected-device.ui:582
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
-msgstr ""
+msgstr "Centra la visuale sul display degli occhiali, anche se il display non è nel mezzo."
 
 #: src/gtk/connected-device.ui:592
 msgid "Always primary display"
@@ -464,50 +452,48 @@ msgstr ""
 "collegati."
 
 #: src/gtk/connected-device.ui:603
-#, fuzzy
 msgid "Remove virtual displays on disable"
-msgstr "Display curvo"
+msgstr "Rimuovi il display virtuale quando disabilitato"
 
 #: src/gtk/connected-device.ui:604
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr ""
+msgstr "Rimuovi automaticamente i display virtuali quando l'effetto XR è disabilitato."
 
 #: src/gtk/connected-device.ui:614
 msgid "Enable multi-tap detection"
-msgstr ""
+msgstr "Abilita il riconoscimento del tocco multiplo"
 
 #: src/gtk/connected-device.ui:615
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr ""
+msgstr "Abilita il doppio tocco per ricentrare e il triplo tocco per ricalibrare."
 
 #: src/gtk/connected-device.ui:625
-#, fuzzy
 msgid "All displays follow mode"
-msgstr "Display curvo"
+msgstr "Modalità inseguimento su tutti i display"
 
 #: src/gtk/connected-device.ui:626
 msgid "Follow mode moves all displays, not just the focused one."
-msgstr ""
+msgstr "La modalità inseguimento muove tutti i display, non solo quello col focus."
 
 #: src/gtk/connected-device.ui:642
 msgid "Follow mode movement tracking"
-msgstr ""
+msgstr "Tracciamento del movimento nella modalità inseguimento"
 
 #: src/gtk/connected-device.ui:643
 msgid "Choose which movements should be tracked in follow mode."
-msgstr ""
+msgstr "Scegli quale movimento deve essere tracciato nella modalità inseguimento."
 
 #: src/gtk/connected-device.ui:658
 msgid "Horizontal"
-msgstr ""
+msgstr "Orizzontale"
 
 #: src/gtk/connected-device.ui:678
 msgid "Vertical"
-msgstr ""
+msgstr "Verticale"
 
 #: src/gtk/connected-device.ui:698
 msgid "Tilt/roll"
-msgstr ""
+msgstr "Inclina/ruota"
 
 #: src/gtk/connected-device.ui:716
 msgid "Movement look-ahead"
@@ -540,27 +526,27 @@ msgstr ""
 
 #: src/gtk/custom-resolution-dialog-content.ui:9
 msgid "Width"
-msgstr ""
+msgstr "Larghezza"
 
 #: src/gtk/custom-resolution-dialog-content.ui:42
 msgid "Height"
-msgstr ""
+msgstr "Altezza"
 
 #: src/gtk/custom-resolution-dialog.ui:5
 msgid "Add a Custom Resolution"
-msgstr ""
+msgstr "Aggiungi una Risoluzione Personalizzata"
 
 #: src/gtk/custom-resolution-dialog.ui:10
 msgid "Add"
-msgstr ""
+msgstr "Aggiungi"
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Show full range"
-msgstr ""
+msgstr "Visualizza gamma completa"
 
 #: src/gtk/display-distance-dialog.ui:18
 msgid "Done"
-msgstr ""
+msgstr "Fatto"
 
 #: src/gtk/failed-verification.ui:13
 msgid "Breezy Desktop GNOME invalid setup"
@@ -577,7 +563,7 @@ msgstr ""
 
 #: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
-msgstr "Donare"
+msgstr "Fai una Donazione"
 
 #: src/gtk/license-dialog-content.ui:31
 msgid "Request a token"
@@ -597,7 +583,7 @@ msgstr "Nessun dispositivo connesso"
 
 #: src/gtk/no-device.ui:14
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr "Breezy Desktop non ha rilevato nessun dispositivo XR supportato"
+msgstr "Breezy Desktop non ha rilevato nessun dispositivo XR supportato."
 
 #: src/gtk/no-device.ui:23
 msgid "Auto-enable XR effect"
@@ -609,7 +595,7 @@ msgid ""
 "connected."
 msgstr ""
 "Abilita automaticamente l'effetto XR di Breezy Desktop quando vengono "
-"connessi degli occhiali supportati"
+"connessi degli occhiali supportati."
 
 #: src/gtk/no-driver.ui:13
 msgid "No driver running"
@@ -731,9 +717,8 @@ msgstr "Informazioni su BreezyDesktop"
 #~ "collegati, se la modalità widescreen è attiva. Potrebbe causare "
 #~ "instabilità."
 
-#, fuzzy
 #~ msgid "Set Unfocused Displays Distance"
-#~ msgstr "Distanza del display"
+#~ msgstr "Imposta la distanza dei display senza focus"
 
 #~ msgid "Widescreen mode"
 #~ msgstr "Modalità widescreen"
