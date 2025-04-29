@@ -22,7 +22,13 @@
 import os
 import sys
 
-lib_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
+xdg_data_home = os.getenv('XDG_DATA_HOME', os.path.join(os.path.expanduser('~'), '.local', 'share'))
+appdir = os.getenv('APPDIR', xdg_data_home) 
+locale_dir = os.path.join(appdir, 'locale')
+pkgdatadir = os.path.join(appdir, 'breezydesktop')
+sys.path.insert(1, pkgdatadir)
+
+lib_dir = os.path.join(pkgdatadir, 'breezydesktop', 'lib')
 sys.path.insert(0, lib_dir)
 
 import signal
@@ -30,12 +36,6 @@ import locale
 import gettext
 
 VERSION = '@VERSION@'
-
-xdg_data_home = os.getenv('XDG_DATA_HOME', os.path.join(os.path.expanduser('~'), '.local', 'share'))
-appdir = os.getenv('APPDIR', xdg_data_home) 
-locale_dir = os.path.join(appdir, 'locale')
-pkgdatadir = os.path.join(appdir, 'breezydesktop')
-sys.path.insert(1, pkgdatadir)
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 locale.textdomain('breezydesktop')
