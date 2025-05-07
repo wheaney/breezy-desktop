@@ -37,6 +37,21 @@ if ! { python3 -c "$PYTHON_GI_CHECK" 2>/dev/null || python -c "$PYTHON_GI_CHECK"
     fi
 fi
 
+if ! gst-inspect-1.0 pipewiresrc &>/dev/null; then
+    if [ -z "$BREEZY_IGNORE_GST_ERRORS" ]; then
+        printf "\033[1;31mERROR:\033[0m Pipewire GStreamer plugin not found\n"
+        printf "Please install the required Pipewire GStreamer plugin:\n"
+        printf "\tFor Debian/Ubuntu: sudo apt install gstreamer1.0-pipewire\n"
+        printf "\tFor Fedora: sudo dnf install pipewire-gstreamer\n"
+        printf "\tFor Arch Linux: sudo pacman -S gst-plugin-pipewire\n"
+        printf "\nIf you continue to have issues, rerun the setup with BREEZY_IGNORE_GST_ERRORS=1 to skip this check.\n\n"
+        exit 1
+    else
+        printf "\033[1;33mWARNING:\033[0m Ignoring GStreamer dependency failures. "
+        printf "Be aware that virtual display functionality may be disabled.\n\n"
+    fi
+fi
+
 if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
     printf "\033[1;33mWARNING:\033[0m Windowing system is %s\n" "$XDG_SESSION_TYPE"
     printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires GNOME on Wayland\n"

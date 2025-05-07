@@ -77,8 +77,12 @@ def _on_display_closed():
 def create_display(width, height, framerate):
     global virtual_display_instance
 
-    virtual_display_instance = VirtualDisplay(width, height, framerate, _on_display_closed)
-    virtual_display_instance.create()
+    try:
+        virtual_display_instance = VirtualDisplay(width, height, framerate, _on_display_closed)
+        virtual_display_instance.create()
+    except Exception as e:
+        logger.error(f"Error creating virtual display: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     from breezydesktop import virtualdisplay
