@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:26-0700\n"
+"POT-Creation-Date: 2025-05-07 12:40-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -49,8 +49,8 @@ msgstr "遠くに設定すると視線の外れたディスプレイがズーム
 
 #: src/connecteddevice.py:270
 msgid ""
-"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
-"portal are required."
+"Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
+"and the pipewire GStreamer plugin are required."
 msgstr "仮想ディスプレイが追加できません。"
 
 #: src/connecteddevice.py:304
@@ -710,6 +710,11 @@ msgstr "強制リセット"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Breezy Desktopについて"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+#~ "portal are required."
+#~ msgstr "仮想ディスプレイが追加できません。"
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "高速SBSモード切り替え"

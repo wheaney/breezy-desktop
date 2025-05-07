@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:26-0700\n"
+"POT-Creation-Date: 2025-05-07 12:40-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -35,8 +35,9 @@ msgstr "Setze fokussierte Bildschirmentfernung"
 
 #: src/connecteddevice.py:146
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr "Nutze einen Näher Wert um den Bildschirm zu vergößern, "
-"wenn der Bildschirm angesehen wird."
+msgstr ""
+"Nutze einen Näher Wert um den Bildschirm zu vergößern, wenn der Bildschirm "
+"angesehen wird."
 
 #: src/connecteddevice.py:153
 msgid "Set All Displays Distance"
@@ -44,12 +45,14 @@ msgstr "Setze alle Bildschirmentfernungen"
 
 #: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr "Nutze einen Entfernter Wert um den Bildschirm zu verkleinern, wenn diese nicht angesehen werden."
+msgstr ""
+"Nutze einen Entfernter Wert um den Bildschirm zu verkleinern, wenn diese "
+"nicht angesehen werden."
 
 #: src/connecteddevice.py:270
 msgid ""
-"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
-"portal are required."
+"Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
+"and the pipewire GStreamer plugin are required."
 msgstr ""
 "Virtuelle Bildschirme können nicht hinzugefügt werden."
 "Wayland und xdg-desktop-portal werden benötigt"
@@ -222,8 +225,8 @@ msgid ""
 "                        "
 msgstr ""
 "Bewege automatisch einen Bildschirm näher, wenn Sie ihn ansehen.\n"
-"Setzen Sie Ihren bevorzugten fokussierten und nicht fokussierten Abstand "
-"im Anpassungen Bereich.\n"
+"Setzen Sie Ihren bevorzugten fokussierten und nicht fokussierten Abstand im "
+"Anpassungen Bereich.\n"
 "                        "
 
 #: src/gtk/connected-device.ui:70
@@ -242,7 +245,8 @@ msgstr "Physische Bildschirme deaktivieren"
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr ""
-"Deaktiviere automatisch alle physikalischen Bildschirme, wenn der XR Effekt aktiviert ist."
+"Deaktiviere automatisch alle physikalischen Bildschirme, wenn der XR Effekt "
+"aktiviert ist."
 
 #: src/gtk/connected-device.ui:104
 msgid "Virtual displays"
@@ -302,8 +306,7 @@ msgstr "Bildschirmgröße"
 #: src/gtk/connected-device.ui:259
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr ""
-"Stelle ein, wie mehrere Bildschirme angewinkelt werden sollen."
+msgstr "Stelle ein, wie mehrere Bildschirme angewinkelt werden sollen."
 
 #: src/gtk/connected-device.ui:273
 msgid "Automatic"
@@ -327,7 +330,8 @@ msgstr "Bildschirmgröße"
 
 #: src/gtk/connected-device.ui:287
 msgid "Put empty space between displays, when there are multiple."
-msgstr "Setze einen leeren Bereich zwischen Bildschirme, wenn mehrere vorhanden sind."
+msgstr ""
+"Setze einen leeren Bereich zwischen Bildschirme, wenn mehrere vorhanden sind."
 
 #: src/gtk/connected-device.ui:317
 msgid "Viewport horizontal offset"
@@ -355,7 +359,8 @@ msgstr "Vertikaler Anzeigebereich Ausgleich"
 
 #: src/gtk/connected-device.ui:348
 msgid "Move the viewport up or down from its default position."
-msgstr "Bewege den Anzeigebreich nach oberhalb oder unterhalb der Anfangsposition."
+msgstr ""
+"Bewege den Anzeigebreich nach oberhalb oder unterhalb der Anfangsposition."
 
 #: src/gtk/connected-device.ui:365
 msgid "down"
@@ -449,8 +454,8 @@ msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr ""
-"Zentriere den Anzeigebereich auf den Brillenbildschirm, selbst wenn der Bildschirm "
-"nicht mittig ist."
+"Zentriere den Anzeigebereich auf den Brillenbildschirm, selbst wenn der "
+"Bildschirm nicht mittig ist."
 
 #: src/gtk/connected-device.ui:592
 msgid "Always primary display"
@@ -468,7 +473,9 @@ msgstr "Gebogener Bildschirm"
 
 #: src/gtk/connected-device.ui:604
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr "Entferne virtuelle Bildschirme automatisch, wenn der XR Effekt deaktiviert ist."
+msgstr ""
+"Entferne virtuelle Bildschirme automatisch, wenn der XR Effekt deaktiviert "
+"ist."
 
 #: src/gtk/connected-device.ui:614
 msgid "Enable multi-tap detection"
@@ -476,8 +483,9 @@ msgstr "Aktiviere Multi Tap Erkennung"
 
 #: src/gtk/connected-device.ui:615
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr "Aktviert die Doppelberührung zum rezentrieren und Dreifach-"
-"berührung zum Kalibrieren."
+msgstr ""
+"Aktviert die Doppelberührung zum rezentrieren und Dreifach-berührung zum "
+"Kalibrieren."
 
 #: src/gtk/connected-device.ui:625
 msgid "All displays follow mode"
@@ -718,6 +726,13 @@ msgstr "Zurrücksetzung erwzingen"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Über BreezyDesktop"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+#~ "portal are required."
+#~ msgstr ""
+#~ "Virtuelle Bildschirme können nicht hinzugefügt werden.Wayland und xdg-"
+#~ "desktop-portal werden benötigt"
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "Schnelles SBS-Modus-Wechseln"
