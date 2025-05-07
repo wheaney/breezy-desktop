@@ -267,7 +267,7 @@ class ConnectedDevice(Gtk.Box):
 
         if not is_screencast_available() or not self.is_wayland:
             self.virtual_displays_row.set_subtitle(
-                _("Unable to add virtual displays on this machine. Wayland and xdg-desktop-portal are required."))
+                _("Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, and the pipewire GStreamer plugin are required."))
             self.add_virtual_display_button.set_sensitive(False)
             self.add_virtual_display_menu.set_sensitive(False)
         

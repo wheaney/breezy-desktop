@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:26-0700\n"
+"POT-Creation-Date: 2025-05-07 12:40-0700\n"
 "PO-Revision-Date: 2024-08-17 10:08-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -48,8 +48,8 @@ msgstr ""
 
 #: src/connecteddevice.py:270
 msgid ""
-"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
-"portal are required."
+"Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
+"and the pipewire GStreamer plugin are required."
 msgstr ""
 
 #: src/connecteddevice.py:304

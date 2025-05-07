@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:26-0700\n"
+"POT-Creation-Date: 2025-05-07 12:40-0700\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -37,7 +37,8 @@ msgstr "Définir la distance de l'écran cible"
 
 #: src/connecteddevice.py:146
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr "Utiliser une valeur plus proche pour que l'écran zoom lorsqu'on le regarde."
+msgstr ""
+"Utiliser une valeur plus proche pour que l'écran zoom lorsqu'on le regarde."
 
 #: src/connecteddevice.py:153
 msgid "Set All Displays Distance"
@@ -45,13 +46,14 @@ msgstr "Définir la distance d'affichage de tous les écrans"
 
 #: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr "Utiliser une valeur plus éloignée afin que les écrans dézooment "
-"lorsqu'on ne les regarde plus."
+msgstr ""
+"Utiliser une valeur plus éloignée afin que les écrans dézooment lorsqu'on ne "
+"les regarde plus."
 
 #: src/connecteddevice.py:270
 msgid ""
-"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
-"portal are required."
+"Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
+"and the pipewire GStreamer plugin are required."
 msgstr "Impossible d'ajouter des écrans virtuels sur cet appareil. "
 "Wayland et xdg-desktop-portal sont nécessaires."
 
@@ -222,8 +224,8 @@ msgid ""
 "section.\n"
 "                        "
 msgstr ""
-"Fait automatiquement avancer l'écran lorsqu'on le regarde. "
-"Réglez votre niveau de zoom et de dézoom dans la section Ajustements.\n"
+"Fait automatiquement avancer l'écran lorsqu'on le regarde. Réglez votre "
+"niveau de zoom et de dézoom dans la section Ajustements.\n"
 "                        "
 
 #: src/gtk/connected-device.ui:70
@@ -249,8 +251,9 @@ msgstr "Désactiver les écrans physiques"
 #: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr "Désactive automatiquement tous les écrans physiques lorsque "
-"le mode XR est activé."
+msgstr ""
+"Désactive automatiquement tous les écrans physiques lorsque le mode XR est "
+"activé."
 
 #: src/gtk/connected-device.ui:104
 msgid "Virtual displays"
@@ -311,7 +314,8 @@ msgstr "Orientation des écrans"
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr ""
-"Lorsqu'il y a plusieur sécrans, définissez comment ils devraient être orientés."
+"Lorsqu'il y a plusieur sécrans, définissez comment ils devraient être "
+"orientés."
 
 #: src/gtk/connected-device.ui:273
 msgid "Automatic"
@@ -343,7 +347,9 @@ msgstr "Décalage horizontal de l'affichage"
 
 #: src/gtk/connected-device.ui:318
 msgid "Move the viewport to the left or right of its default position."
-msgstr "Décale l'affichage des écrans vers la gauche ou la droite de la position par défaut."
+msgstr ""
+"Décale l'affichage des écrans vers la gauche ou la droite de la position par "
+"défaut."
 
 #: src/gtk/connected-device.ui:335
 msgid "left"
@@ -363,7 +369,9 @@ msgstr "Décalage vertical de l'affichage"
 
 #: src/gtk/connected-device.ui:348
 msgid "Move the viewport up or down from its default position."
-msgstr "Décale l'affichage des écrans au dessus ou au dessous de la position par défaut."
+msgstr ""
+"Décale l'affichage des écrans au dessus ou au dessous de la position par "
+"défaut."
 
 #: src/gtk/connected-device.ui:365
 msgid "down"
@@ -419,7 +427,8 @@ msgstr "Raccourci de téléportation de la souris"
 
 #: src/gtk/connected-device.ui:510
 msgid "Bring the mouse cursor to the center of the focused display."
-msgstr "Ramène automatiquement la souris au centre de l'écran que vous regardez."
+msgstr ""
+"Ramène automatiquement la souris au centre de l'écran que vous regardez."
 
 #: src/gtk/connected-device.ui:545 src/gtk/connected-device.ui:555
 msgid "Advanced Settings"
@@ -457,7 +466,8 @@ msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr ""
-"Garde l'écran principal au centre de la vue, même si l'écran n'est pas au milieu."
+"Garde l'écran principal au centre de la vue, même si l'écran n'est pas au "
+"milieu."
 
 #: src/gtk/connected-device.ui:592
 msgid "Always primary display"
@@ -475,7 +485,9 @@ msgstr "Supprimer les écrans virtuels sur déconnection"
 
 #: src/gtk/connected-device.ui:604
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr "Supprime automatiquement les écrans virtuels lorsque l'effet XR est désactivé."
+msgstr ""
+"Supprime automatiquement les écrans virtuels lorsque l'effet XR est "
+"désactivé."
 
 #: src/gtk/connected-device.ui:614
 msgid "Enable multi-tap detection"
@@ -491,7 +503,8 @@ msgstr "Tous les écrans en mode suivi"
 
 #: src/gtk/connected-device.ui:626
 msgid "Follow mode moves all displays, not just the focused one."
-msgstr "Le mode suivi déplace tous les écrans, pas seulement celui que l'on regarde."
+msgstr ""
+"Le mode suivi déplace tous les écrans, pas seulement celui que l'on regarde."
 
 #: src/gtk/connected-device.ui:642
 msgid "Follow mode movement tracking"
@@ -723,6 +736,13 @@ msgstr "Réinitialiser"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "À propos de BreezyDesktop"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+#~ "portal are required."
+#~ msgstr ""
+#~ "Impossible d'ajouter des écrans virtuels sur cet appareil. Wayland et xdg-"
+#~ "desktop-portal sont nécessaires."
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "Bascule rapide vers le mode SBS"

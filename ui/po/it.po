@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-16 22:26-0700\n"
+"POT-Creation-Date: 2025-05-07 12:40-0700\n"
 "PO-Revision-Date: 2024-08-02 21:14-0700\n"
 "Last-Translator:  <fsciarra62@gmail.com>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -35,7 +35,8 @@ msgstr "Distanza del display con focus"
 
 #: src/connecteddevice.py:146
 msgid "Use a closer value so the display zooms in when you look at it."
-msgstr "Usa un valore più vicino, così che il display si avvicini quando lo guardi."
+msgstr ""
+"Usa un valore più vicino, così che il display si avvicini quando lo guardi."
 
 #: src/connecteddevice.py:153
 msgid "Set All Displays Distance"
@@ -43,12 +44,14 @@ msgstr "Imposta la distanza di tutti i display"
 
 #: src/connecteddevice.py:154
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr "Usa un valore più distante così che i display si allontanino quando distogli lo sguardo."
+msgstr ""
+"Usa un valore più distante così che i display si allontanino quando distogli "
+"lo sguardo."
 
 #: src/connecteddevice.py:270
 msgid ""
-"Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
-"portal are required."
+"Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
+"and the pipewire GStreamer plugin are required."
 msgstr "Non è possibile aggiungere display virtuali su questo dispositivo. Sono richiesti Wayland e xdg-desktop-portal."
 
 #: src/connecteddevice.py:304
@@ -217,7 +220,9 @@ msgid ""
 "Set your preferred focused and unfocused distances in the Adjustments "
 "section.\n"
 "                        "
-msgstr "Imposta la tua distanza preferita per i display con focus e non nella sezione Regolazioni."
+msgstr ""
+"Imposta la tua distanza preferita per i display con focus e non nella "
+"sezione Regolazioni."
 
 #: src/gtk/connected-device.ui:70
 msgid "Follow mode"
@@ -242,7 +247,9 @@ msgstr "Disabilita display fisici"
 #: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr "Disabilita automaticamente tutti i display fisici quando l'effetto XR è abilitato."
+msgstr ""
+"Disabilita automaticamente tutti i display fisici quando l'effetto XR è "
+"abilitato."
 
 #: src/gtk/connected-device.ui:104
 msgid "Virtual displays"
@@ -302,7 +309,9 @@ msgstr "Angolazione del display"
 #: src/gtk/connected-device.ui:259
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr "Quando ci sonn display multipli, scegli come dovrebbero angolarsi davanti a te."
+msgstr ""
+"Quando ci sonn display multipli, scegli come dovrebbero angolarsi davanti a "
+"te."
 
 #: src/gtk/connected-device.ui:273
 msgid "Automatic"
@@ -334,7 +343,9 @@ msgstr "Spostamento orizzontale della visuale"
 
 #: src/gtk/connected-device.ui:318
 msgid "Move the viewport to the left or right of its default position."
-msgstr "Muovi la visuale a sinistra o a destra rispetto alla sua posizione di default."
+msgstr ""
+"Muovi la visuale a sinistra o a destra rispetto alla sua posizione di "
+"default."
 
 #: src/gtk/connected-device.ui:335
 msgid "left"
@@ -447,7 +458,9 @@ msgstr "Centra sui display degli occhiali"
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
-msgstr "Centra la visuale sul display degli occhiali, anche se il display non è nel mezzo."
+msgstr ""
+"Centra la visuale sul display degli occhiali, anche se il display non è nel "
+"mezzo."
 
 #: src/gtk/connected-device.ui:592
 msgid "Always primary display"
@@ -465,7 +478,9 @@ msgstr "Rimuovi il display virtuale quando disabilitato"
 
 #: src/gtk/connected-device.ui:604
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr "Rimuovi automaticamente i display virtuali quando l'effetto XR è disabilitato."
+msgstr ""
+"Rimuovi automaticamente i display virtuali quando l'effetto XR è "
+"disabilitato."
 
 #: src/gtk/connected-device.ui:614
 msgid "Enable multi-tap detection"
@@ -473,7 +488,8 @@ msgstr "Abilita il riconoscimento del tocco multiplo"
 
 #: src/gtk/connected-device.ui:615
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
-msgstr "Abilita il doppio tocco per ricentrare e il triplo tocco per ricalibrare."
+msgstr ""
+"Abilita il doppio tocco per ricentrare e il triplo tocco per ricalibrare."
 
 #: src/gtk/connected-device.ui:625
 msgid "All displays follow mode"
@@ -481,7 +497,8 @@ msgstr "Modalità inseguimento su tutti i display"
 
 #: src/gtk/connected-device.ui:626
 msgid "Follow mode moves all displays, not just the focused one."
-msgstr "La modalità inseguimento muove tutti i display, non solo quello col focus."
+msgstr ""
+"La modalità inseguimento muove tutti i display, non solo quello col focus."
 
 #: src/gtk/connected-device.ui:642
 msgid "Follow mode movement tracking"
@@ -489,7 +506,8 @@ msgstr "Tracciamento del movimento nella modalità inseguimento"
 
 #: src/gtk/connected-device.ui:643
 msgid "Choose which movements should be tracked in follow mode."
-msgstr "Scegli quale movimento deve essere tracciato nella modalità inseguimento."
+msgstr ""
+"Scegli quale movimento deve essere tracciato nella modalità inseguimento."
 
 #: src/gtk/connected-device.ui:658
 msgid "Horizontal"
@@ -713,6 +731,13 @@ msgstr "Reset forzato"
 #: src/gtk/window.ui:99
 msgid "About BreezyDesktop"
 msgstr "Informazioni su BreezyDesktop"
+
+#~ msgid ""
+#~ "Unable to add virtual displays on this machine. Wayland and xdg-desktop-"
+#~ "portal are required."
+#~ msgstr ""
+#~ "Non è possibile aggiungere display virtuali su questo dispositivo. Sono "
+#~ "richiesti Wayland e xdg-desktop-portal."
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "Passaggio rapido alla modalità SBS"

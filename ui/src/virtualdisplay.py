@@ -81,20 +81,34 @@ class VirtualDisplay:
             self.terminate()
 
     def _on_pipewire_stream_added(self, node_id):
-        self.pipeline = Gst.parse_launch(gst_pipeline_format % (node_id, self.framerate, self.width, self.height))
-        self.pipeline.set_state(Gst.State.PLAYING)
-        self.pipeline.get_bus().connect('message', self._on_message)
-        self.pipeline.set_state(Gst.State.PAUSED)
+        try:
+            self.pipeline = Gst.parse_launch(gst_pipeline_format % (node_id, self.framerate, self.width, self.height))
+            self.pipeline.set_state(Gst.State.PLAYING)
+            self.pipeline.get_bus().connect('message', self._on_message)
+            self.pipeline.set_state(Gst.State.PAUSED)
+        except Exception as e:
+            logger.error("Failed to create pipeline: %s" % e)
+            self.terminate()
 
 def is_screencast_available():
     try:
         bus = pydbus.SessionBus()
-        # Try to get the ScreenCast interface
         screen_cast = bus.get(screen_cast_iface, '/org/gnome/Mutter/ScreenCast')
-        return True
     except Exception as e:
         logger.warning(f"ScreenCast portal not available: {e}")
         return False
+    
+    try:
+        Gst.init(None)
+        element = Gst.ElementFactory.make("pipewiresrc", "test-pipewire")
+        if element is None:
+            logger.warning("pipewiresrc GStreamer element not available")
+            return False
+    except Exception as e:
+        logger.warning(f"Failed to check pipewiresrc element: {e}")
+        return False
+        
+    return True
 
 
 
