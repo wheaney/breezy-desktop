@@ -1,0 +1,18 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "vlad.zahorodnii@kde.org",
+                "Name": "Vlad Zahorodnii"
+            }
+        ],
+        "Category": "Window Management",
+        "Description": "Arrange desktops in a virtual cube",
+        "EnabledByDefault": false,
+        "Id": "cube",
+        "License": "GPL",
+        "Name": "Cube"
+    },
+    "X-KDE-ConfigModule": "kwin_cube_config",
+    "X-KWin-Border-Activate": true
+}

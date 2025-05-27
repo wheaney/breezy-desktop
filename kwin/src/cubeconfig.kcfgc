@@ -1,0 +1,4 @@
+File=cubeconfig.kcfg
+ClassName=CubeConfig
+Singleton=true
+Mutators=true
