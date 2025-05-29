@@ -8,6 +8,7 @@
 #include "cubeconfig.h"
 
 #include <QAction>
+#include <QFile>
 #include <QQuickItem>
 #include <QTimer>
 
@@ -46,6 +47,11 @@ CubeEffect::CubeEffect()
 
 
     reconfigure(ReconfigureAll);
+
+    m_xrRotationTimer = new QTimer(this);
+    m_xrRotationTimer->setInterval(16); // ~60Hz
+    connect(m_xrRotationTimer, &QTimer::timeout, this, &CubeEffect::updateXrRotation);
+    m_xrRotationTimer->start();
 }
 
 void CubeEffect::reconfigure(ReconfigureFlags)
@@ -269,6 +275,26 @@ void CubeEffect::setBackgroundColor(const QColor &color)
     if (m_backgroundColor != color) {
         m_backgroundColor = color;
         Q_EMIT backgroundColorChanged();
+    }
+}
+
+QQuaternion CubeEffect::xrRotation() const {
+    return m_xrRotation;
+}
+
+void CubeEffect::updateXrRotation() {
+    // Example: Read quaternion from /dev/shm/breezy_xr_quat (float32[4], binary)
+    QFile shmFile("/dev/shm/breezy_xr_quat");
+    if (shmFile.open(QIODevice::ReadOnly)) {
+        float data[4];
+        if (shmFile.read(reinterpret_cast<char*>(data), sizeof(data)) == sizeof(data)) {
+            QQuaternion quat(data[3], data[0], data[1], data[2]); // w, x, y, z
+            if (quat != m_xrRotation) {
+                m_xrRotation = quat;
+                Q_EMIT xrRotationChanged();
+            }
+        }
+        shmFile.close();
     }
 }
 

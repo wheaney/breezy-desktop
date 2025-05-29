@@ -25,6 +25,7 @@ class CubeEffect : public QuickSceneEffect
     Q_PROPERTY(QUrl skybox READ skybox NOTIFY skyboxChanged)
     Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
+    Q_PROPERTY(QQuaternion xrRotation READ xrRotation NOTIFY xrRotationChanged)
 
 public:
     enum class BackgroundMode {
@@ -64,10 +65,13 @@ public:
     QColor backgroundColor() const;
     void setBackgroundColor(const QColor &color);
 
+    QQuaternion xrRotation() const;
+
 public Q_SLOTS:
     void activate();
     void deactivate();
     void toggle();
+    void updateXrRotation();
 
 Q_SIGNALS:
     void cubeFaceDisplacementChanged();
@@ -78,6 +82,7 @@ Q_SIGNALS:
     void skyboxChanged();
     void backgroundModeChanged();
     void backgroundColorChanged();
+    void xrRotationChanged();
 
 protected:
     QVariantMap initialProperties(EffectScreen *screen) override;
@@ -98,6 +103,8 @@ private:
     int m_animationDuration = 200;
     bool m_mouseInvertedX = true;
     bool m_mouseInvertedY = true;
+    QQuaternion m_xrRotation;
+    QTimer *m_xrRotationTimer = nullptr;
 };
 
 } // namespace KWin

@@ -93,12 +93,20 @@ Item {
         camera.rotation = root.rotation;
     }
 
+    // Add property to receive XR rotation from effect
+    property quaternion xrRotation: effect.xrRotation
+    property bool useXrRotation: true // Set to true to use XR rotation when available
+
     Timer {
         interval: 16
         repeat: true
-        running: root.busy
+        running: true
         onTriggered: {
-            processInputs();
+            if (useXrRotation && xrRotation.length() > 0) {
+                root.rotation = xrRotation;
+            } else if (root.busy) {
+                processInputs();
+            }
         }
     }
 
