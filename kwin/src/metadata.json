@@ -2,17 +2,16 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "vlad.zahorodnii@kde.org",
-                "Name": "Vlad Zahorodnii"
+                "Email": "wayne@xronlinux.com",
+                "Name": "Wayne Heaney"
             }
         ],
-        "Category": "Window Management",
-        "Description": "Arrange desktops in a virtual cube",
-        "EnabledByDefault": false,
-        "Id": "cube",
+        "Category": "XR",
+        "Description": "Breezy Desktop XR Effect",
+        "EnabledByDefault": true,
         "License": "GPL",
-        "Name": "Cube"
+        "Name": "Breezy Desktop XR"
     },
-    "X-KDE-ConfigModule": "kwin_cube_config",
+    "X-KDE-ConfigModule": "breezy_desktop_config",
     "X-KWin-Border-Activate": true
 }

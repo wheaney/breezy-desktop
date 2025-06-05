@@ -20,7 +20,7 @@
 K_PLUGIN_CLASS(CubeEffectConfig)
 
 CubeEffectConfig::CubeEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args)
-    : KCModule(parent, data, args)
+    : KCModule(parent, data)
 {
     ui.setupUi(widget());
     addConfig(CubeConfig::self(), widget());

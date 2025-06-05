@@ -4,14 +4,15 @@
 
 add_subdirectory(kcm)
 
-kcoreaddons_add_plugin(kwin4_effect_cube INSTALL_NAMESPACE "kwin/effects/plugins/")
-target_sources(kwin4_effect_cube PRIVATE
+kcoreaddons_add_plugin(breezy_desktop_effect INSTALL_NAMESPACE "kwin/effects/plugins/")
+target_sources(breezy_desktop_effect PRIVATE
     cubeeffect.cpp
     main.cpp
 )
-kconfig_add_kcfg_files(kwin4_effect_cube cubeconfig.kcfgc)
+kconfig_add_kcfg_files(breezy_desktop_effect cubeconfig.kcfgc)
 
-target_link_libraries(kwin4_effect_cube
+target_include_directories(breezy_desktop_effect PRIVATE /usr/include/kwin)
+target_link_libraries(breezy_desktop_effect
     Qt6::Core
     Qt6::Gui
     Qt6::Quick
@@ -23,7 +24,7 @@ target_link_libraries(kwin4_effect_cube
     KF6::I18n
     KF6::WindowSystem
 
-    kwineffects
+    KWin::kwin
 )
 
 install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/cube)

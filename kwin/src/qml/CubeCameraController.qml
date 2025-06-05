@@ -83,14 +83,17 @@ Item {
     }
 
     function updateCamera() {
-        const eulerRotation = root.rotation.toEulerAngles();
-        const theta = (eulerRotation.x + 90) * Math.PI / 180;
-        const phi = eulerRotation.y * Math.PI / 180;
+        // convert NWU to EUS by passing root.rotation values: w, -y, z, -x
+        let effectiveRotation = Qt.quaternion(root.rotation.scalar, -root.rotation.y, root.rotation.z, -root.rotation.x);
+        
+        const eulerRotation = effectiveRotation.toEulerAngles();
+        const theta = 90 * Math.PI / 180;
+        const phi = 0.0;
 
         camera.position = Qt.vector3d(radius * Math.sin(phi) * Math.sin(theta),
                                       radius * Math.cos(theta),
                                       radius * Math.cos(phi) * Math.sin(theta));
-        camera.rotation = root.rotation;
+        camera.rotation = effectiveRotation;
     }
 
     // Add property to receive XR rotation from effect

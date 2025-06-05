@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <libkwineffects/kwinquickeffect.h>
+#include <effect/quickeffect.h>
 
+#include <QAction>
 #include <QKeySequence>
 #include <QQuaternion>
 
@@ -85,7 +86,7 @@ Q_SIGNALS:
     void xrRotationChanged();
 
 protected:
-    QVariantMap initialProperties(EffectScreen *screen) override;
+    QVariantMap initialProperties(Output *screen) override;
 
 private:
     void realDeactivate();
