@@ -46,7 +46,7 @@ elif command -v pacman >/dev/null 2>&1; then
     gst_pipewire_found=$(pacman -Qq gst-plugin-pipewire 2>/dev/null | wc -l)
 elif command -v rpm >/dev/null 2>&1; then
     # RPM-based (Fedora, RHEL, openSUSE, etc.)
-    gst_pipewire_found=$((rpm -q gstreamer1-pipewire &>/dev/null && echo "found") | wc -l)
+    gst_pipewire_found=$((rpm -q pipewire-gstreamer &>/dev/null && echo "found") | wc -l)
 fi
 
 if [ "$gst_pipewire_found" -eq 0 ]; then
