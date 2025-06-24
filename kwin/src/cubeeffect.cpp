@@ -153,9 +153,6 @@ void CubeEffect::activate()
     if (effects->isScreenLocked()) {
         return;
     }
-    if (effects->desktops().size() < 3) {
-        return;
-    }
 
     setRunning(true);
 }

@@ -16,22 +16,23 @@ Node {
     readonly property real faceDistance: 0.5 * faceSize.width / Math.tan(angleTick * Math.PI / 360) + faceDisplacement;
     readonly property real angleTick: 360 / faceRepeater.count
 
-    function desktopAt(azimuth) {
+    function screenAt(azimuth) {
         let index = Math.round(azimuth / angleTick) % faceRepeater.count;
         if (index < 0) {
             index += faceRepeater.count;
         }
-        return faceRepeater.objectAt(index).desktop;
+        return faceRepeater.objectAt(index).screen;
     }
 
-    function desktopAzimuth(desktop) {
-        return cube.angleTick * (desktop.x11DesktopNumber - 1);
+    function screenAzimuth(screen) {
+        return cube.angleTick * screen.index;
     }
 
     Repeater3D {
         id: faceRepeater
-        model: KWinComponents.VirtualDesktopModel {}
+        model: KWinComponents.Workspace.screens.length
         delegate: CubeFace {
+            property var screen: KWinComponents.Workspace.screens[index]
             faceSize: cube.faceSize
             scale: Qt.vector3d(faceSize.width / 100, faceSize.height / 100, 1)
             eulerRotation.y: cube.angleTick * index

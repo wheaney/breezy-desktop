@@ -10,7 +10,7 @@ import QtQuick3D
 Model {
     id: face
 
-    required property QtObject desktop
+    required property QtObject screen
     required property int index
     required property size faceSize
 
@@ -21,7 +21,7 @@ Model {
             lighting: DefaultMaterial.NoLighting
             diffuseMap: Texture {
                 sourceItem: DesktopView {
-                    desktop: face.desktop
+                    screen: face.screen
                     width: faceSize.width
                     height: faceSize.height
                 }
