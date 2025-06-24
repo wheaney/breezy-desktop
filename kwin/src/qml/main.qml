@@ -31,7 +31,7 @@ Item {
 
     function switchToSelected() {
         const eulerRotation = cameraController.rotation.toEulerAngles();
-        const desktop = cube.desktopAt(eulerRotation.y);
+        const desktop = cube.screenAt(eulerRotation.y);
         KWinComponents.Workspace.currentDesktop = desktop;
         effect.deactivate();
     }
@@ -135,7 +135,7 @@ Item {
                 if (rotationAnimation.running) {
                     return;
                 }
-                rotation = Quaternion.fromEulerAngles(0, cube.desktopAzimuth(desktop), 0);
+                rotation = Quaternion.fromEulerAngles(0, cube.screenAzimuth(desktop), 0);
             }
         }
     }

@@ -32,7 +32,7 @@ Node {
         id: faceRepeater
         model: KWinComponents.Workspace.screens.length
         delegate: CubeFace {
-            property var screen: KWinComponents.Workspace.screens[index]
+            screen: KWinComponents.Workspace.screens[index]
             faceSize: cube.faceSize
             scale: Qt.vector3d(faceSize.width / 100, faceSize.height / 100, 1)
             eulerRotation.y: cube.angleTick * index

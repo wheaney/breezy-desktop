@@ -333,11 +333,6 @@ void CubeEffect::updateXrRotation() {
     if (!enabled) {
         return;
     }
-    qCCritical(KWIN_XR) << "\t\t\tBreezy" << "version:" << version 
-                        << " enabledFlag:" << enabledFlag 
-                        << " currentTimeMs:" << currentTimeMs
-                        << " imuDateMs:" << imuDateMs;
-
     
     // Check for reset state (identity quaternion)
     const bool imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && 
@@ -346,13 +341,11 @@ void CubeEffect::updateXrRotation() {
     if (imuResetState) {
         return;
     }
-    qCCritical(KWIN_XR) << "\t\t\tBreezy - here 5";
     
     // Create quaternion (w, x, y, z)
     QQuaternion quat(imuData[3], imuData[0], imuData[1], imuData[2]);
     
     if (quat != m_xrRotation) {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - here 6";
         m_xrRotation = quat;
         Q_EMIT xrRotationChanged();
     }
