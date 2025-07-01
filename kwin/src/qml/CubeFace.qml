@@ -12,7 +12,6 @@ Model {
 
     required property QtObject screen
     required property int index
-    required property size faceSize
 
     source: "#Rectangle"
     materials: [
@@ -22,8 +21,8 @@ Model {
             diffuseMap: Texture {
                 sourceItem: DesktopView {
                     screen: face.screen
-                    width: faceSize.width
-                    height: faceSize.height
+                    width: face.screen.geometry.width
+                    height: face.screen.geometry.height
                 }
             }
         }

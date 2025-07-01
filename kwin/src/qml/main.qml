@@ -30,10 +30,10 @@ Item {
     }
 
     function switchToSelected() {
-        const eulerRotation = cameraController.rotation.toEulerAngles();
-        const desktop = cube.screenAt(eulerRotation.y);
-        KWinComponents.Workspace.currentDesktop = desktop;
-        effect.deactivate();
+        // const eulerRotation = cameraController.rotation.toEulerAngles();
+        // const desktop = cube.screenAt(eulerRotation.y);
+        // KWinComponents.Workspace.currentDesktop = desktop;
+        // effect.deactivate();
     }
 
     View3D {
@@ -69,12 +69,16 @@ Item {
             }
         }
 
-        PerspectiveCamera { id: camera }
+        PerspectiveCamera { 
+            id: camera
+            fieldOfView: 22.55
+        }
 
         Cube {
             id: cube
-            faceDisplacement: effect.cubeFaceDisplacement
-            faceSize: Qt.size(root.width, root.height)
+            viewportFOVHorizontal: 40.09
+            viewportWidth: 1920
+            viewportHeight: 1080
         }
 
         CubeCameraController {
@@ -90,14 +94,14 @@ Item {
                     name: "close"
                     PropertyChanges {
                         target: cameraController
-                        radius: cube.faceDistance + 0.5 * cube.faceSize.height / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
+                        radius: 0.0 + 0.5 * cube.viewportHeight / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
                     }
                 },
                 State {
                     name: "distant"
                     PropertyChanges {
                         target: cameraController
-                        radius: cube.faceDistance * effect.distanceFactor + 0.5 * cube.faceSize.height / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
+                        radius: 0.0 * effect.distanceFactor + 0.5 * cube.viewportHeight / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
                     }
                 }
             ]
@@ -117,25 +121,11 @@ Item {
                 }
             }
 
-            function rotateToLeft() {
-                if (rotationAnimation.running) {
-                    return;
-                }
-                rotation = Quaternion.fromEulerAngles(0, -cube.angleTick, 0).times(rotation);
-            }
-
-            function rotateToRight() {
-                if (rotationAnimation.running) {
-                    return;
-                }
-                rotation = Quaternion.fromEulerAngles(0, cube.angleTick, 0).times(rotation);
-            }
-
             function rotateTo(desktop) {
                 if (rotationAnimation.running) {
                     return;
                 }
-                rotation = Quaternion.fromEulerAngles(0, cube.screenAzimuth(desktop), 0);
+                rotation = Quaternion.fromEulerAngles(0, 0, 0);
             }
         }
     }
@@ -146,8 +136,6 @@ Item {
     }
 
     Keys.onEscapePressed: effect.deactivate();
-    Keys.onLeftPressed: cameraController.rotateToLeft();
-    Keys.onRightPressed: cameraController.rotateToRight();
     Keys.onEnterPressed: root.switchToSelected();
     Keys.onReturnPressed: root.switchToSelected();
     Keys.onSpacePressed: root.switchToSelected();
