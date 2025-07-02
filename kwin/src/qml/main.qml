@@ -11,6 +11,7 @@ import org.kde.kwin.effect.cube
 
 Item {
     id: root
+    antialiasing: true
     focus: true
 
     required property QtObject effect
@@ -19,14 +20,10 @@ Item {
     property bool animationEnabled: false
 
     function start() {
-        cameraController.rotateTo(KWinComponents.Workspace.currentDesktop);
         root.animationEnabled = true;
-        cameraController.state = "distant";
     }
 
     function stop() {
-        cameraController.rotateTo(KWinComponents.Workspace.currentDesktop);
-        cameraController.state = "close";
     }
 
     function switchToSelected() {
@@ -84,27 +81,8 @@ Item {
         CubeCameraController {
             id: cameraController
             anchors.fill: parent
-            state: "close"
             camera: camera
-            xInvert: effect.mouseInvertedX
-            yInvert: effect.mouseInvertedY
-
-            states: [
-                State {
-                    name: "close"
-                    PropertyChanges {
-                        target: cameraController
-                        radius: 0.0 + 0.5 * cube.viewportHeight / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
-                    }
-                },
-                State {
-                    name: "distant"
-                    PropertyChanges {
-                        target: cameraController
-                        radius: 0.0 * effect.distanceFactor + 0.5 * cube.viewportHeight / Math.tan(0.5 * camera.fieldOfView * Math.PI / 180)
-                    }
-                }
-            ]
+            radius: 0.5 * cube.viewportHeight / Math.tan(camera.fieldOfView * Math.PI / 360)
 
             Behavior on rotation {
                 enabled: !cameraController.busy && root.animationEnabled
@@ -129,16 +107,6 @@ Item {
             }
         }
     }
-
-    MouseArea {
-        anchors.fill: view
-        onClicked: root.switchToSelected();
-    }
-
-    Keys.onEscapePressed: effect.deactivate();
-    Keys.onEnterPressed: root.switchToSelected();
-    Keys.onReturnPressed: root.switchToSelected();
-    Keys.onSpacePressed: root.switchToSelected();
 
     Component.onCompleted: start();
 }
