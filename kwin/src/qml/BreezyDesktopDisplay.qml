@@ -1,14 +1,8 @@
-/*
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
 import QtQuick
 import QtQuick3D
 
 Model {
-    id: face
+    id: display
 
     required property QtObject screen
     required property int index
@@ -20,9 +14,9 @@ Model {
             lighting: DefaultMaterial.NoLighting
             diffuseMap: Texture {
                 sourceItem: DesktopView {
-                    screen: face.screen
-                    width: face.screen.geometry.width
-                    height: face.screen.geometry.height
+                    screen: display.screen
+                    width: display.screen.geometry.width
+                    height: display.screen.geometry.height
                 }
             }
         }

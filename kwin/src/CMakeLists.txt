@@ -1,10 +1,6 @@
-# SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
 kcoreaddons_add_plugin(breezy_desktop_effect INSTALL_NAMESPACE "kwin/effects/plugins/")
 target_sources(breezy_desktop_effect PRIVATE
-    cubeeffect.cpp
+    breezydesktopeffect.cpp
     main.cpp
 )
 
@@ -22,4 +18,4 @@ target_link_libraries(breezy_desktop_effect
     KWin::kwin
 )
 
-install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/cube)
+install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)

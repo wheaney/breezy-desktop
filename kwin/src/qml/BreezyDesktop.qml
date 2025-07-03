@@ -1,17 +1,9 @@
-/*
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
 import QtQuick
 import QtQuick3D
 import org.kde.kwin as KWinComponents
 
 
 Node {
-    id: cube
-
     readonly property var supportedModels: [
         "VITURE",
         "nreal air",
@@ -61,9 +53,8 @@ Node {
     }
 
     Repeater3D {
-        id: faceRepeater
         model: screens.length
-        delegate: CubeFace {
+        delegate: BreezyDesktopDisplay {
             screen: screens[index]
 
             property real screenRotation: {

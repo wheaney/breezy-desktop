@@ -1,13 +1,7 @@
-/*
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
 import QtQuick
 import QtQuick3D
 import org.kde.kwin as KWinComponents
-import org.kde.kwin.effect.cube
+import org.kde.kwin.effect.breezy_desktop
 
 Item {
     id: root
@@ -26,13 +20,6 @@ Item {
     function stop() {
     }
 
-    function switchToSelected() {
-        // const eulerRotation = cameraController.rotation.toEulerAngles();
-        // const desktop = cube.screenAt(eulerRotation.y);
-        // KWinComponents.Workspace.currentDesktop = desktop;
-        // effect.deactivate();
-    }
-
     View3D {
         id: view
         anchors.fill: parent
@@ -42,18 +29,18 @@ Item {
             fieldOfView: 22.55
         }
 
-        Cube {
-            id: cube
+        BreezyDesktop {
+            id: breezyDesktop
             viewportFOVHorizontal: 40.09
             viewportWidth: 1920
             viewportHeight: 1080
         }
 
-        CubeCameraController {
+        CameraController {
             id: cameraController
             anchors.fill: parent
             camera: camera
-            radius: 0.5 * cube.viewportHeight / Math.tan(camera.fieldOfView * Math.PI / 360)
+            radius: 0.5 * breezyDesktop.viewportHeight / Math.tan(camera.fieldOfView * Math.PI / 360)
 
             Behavior on rotation {
                 enabled: !cameraController.busy && root.animationEnabled

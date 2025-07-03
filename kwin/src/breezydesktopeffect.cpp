@@ -1,10 +1,4 @@
-/*
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
-#include "cubeeffect.h"
+#include "breezydesktopeffect.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
 
@@ -22,41 +16,43 @@ Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 namespace KWin
 {
 
-CubeEffect::CubeEffect()
+BreezyDesktopEffect::BreezyDesktopEffect()
     : m_shutdownTimer(new QTimer(this))
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
-    qmlRegisterUncreatableType<CubeEffect>("org.kde.kwin.effect.cube", 1, 0, "CubeEffect", QStringLiteral("Cube cannot be created in QML"));
+    qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     m_shutdownTimer->setSingleShot(true);
-    connect(m_shutdownTimer, &QTimer::timeout, this, &CubeEffect::realDeactivate);
-    connect(effects, &EffectsHandler::screenAboutToLock, this, &CubeEffect::realDeactivate);
+    connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
+    connect(effects, &EffectsHandler::screenAboutToLock, this, &BreezyDesktopEffect::realDeactivate);
 
-    const QKeySequence defaultToggleShortcut = Qt::META | Qt::Key_C;
+    const QKeySequence defaultToggleShortcut = Qt::META | Qt::Key_B;
     m_toggleAction = new QAction(this);
-    m_toggleAction->setObjectName(QStringLiteral("Cube"));
-    m_toggleAction->setText(i18n("Toggle Cube"));
+    m_toggleAction->setObjectName(QStringLiteral("BreezyDesktop"));
+    m_toggleAction->setText(i18n("Toggle BreezyDesktop"));
     KGlobalAccel::self()->setDefaultShortcut(m_toggleAction, {defaultToggleShortcut});
     KGlobalAccel::self()->setShortcut(m_toggleAction, {defaultToggleShortcut});
     m_toggleShortcut = KGlobalAccel::self()->shortcut(m_toggleAction);
-    connect(m_toggleAction, &QAction::triggered, this, &CubeEffect::toggle);
+    connect(m_toggleAction, &QAction::triggered, this, &BreezyDesktopEffect::toggle);
 
     connect(KGlobalAccel::self(), &KGlobalAccel::globalShortcutChanged, this, [this](QAction *action, const QKeySequence &seq) {
-        if (action->objectName() == QStringLiteral("Cube")) {
+        if (action->objectName() == QStringLiteral("BreezyDesktop")) {
             m_toggleShortcut.clear();
             m_toggleShortcut.append(seq);
         }
     });
 
-    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/cube/qml/main.qml"))));
+    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
     m_xrRotationTimer = new QTimer(this);
     m_xrRotationTimer->setInterval(16); // ~60Hz
-    connect(m_xrRotationTimer, &QTimer::timeout, this, &CubeEffect::updateXrRotation);
+    connect(m_xrRotationTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateXrRotation);
     m_xrRotationTimer->start();
+
+    toggle();
 }
 
-QVariantMap CubeEffect::initialProperties(Output *screen)
+QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
 {
     return QVariantMap{
         {QStringLiteral("effect"), QVariant::fromValue(this)},
@@ -64,32 +60,12 @@ QVariantMap CubeEffect::initialProperties(Output *screen)
     };
 }
 
-int CubeEffect::requestedEffectChainPosition() const
+int BreezyDesktopEffect::requestedEffectChainPosition() const
 {
     return 70;
 }
 
-void CubeEffect::grabbedKeyboardEvent(QKeyEvent *e)
-{
-    if (e->type() == QEvent::KeyPress) {
-        if (m_toggleShortcut.contains(e->key() | e->modifiers())) {
-            toggle();
-            return;
-        }
-    }
-    QuickSceneEffect::grabbedKeyboardEvent(e);
-}
-
-bool CubeEffect::borderActivated(ElectricBorder border)
-{
-    if (m_borderActivate.contains(border)) {
-        toggle();
-        return true;
-    }
-    return false;
-}
-
-void CubeEffect::toggle()
+void BreezyDesktopEffect::toggle()
 {
     if (isRunning()) {
         deactivate();
@@ -99,7 +75,7 @@ void CubeEffect::toggle()
     }
 }
 
-void CubeEffect::activate()
+void BreezyDesktopEffect::activate()
 {
     if (effects->isScreenLocked()) {
         return;
@@ -114,7 +90,7 @@ void CubeEffect::activate()
     effects->stopMouseInterception(this);
 }
 
-void CubeEffect::deactivate()
+void BreezyDesktopEffect::deactivate()
 {
     if (m_shutdownTimer->isActive()) {
         return;
@@ -130,51 +106,51 @@ void CubeEffect::deactivate()
     m_shutdownTimer->start(animationDuration());
 }
 
-void CubeEffect::realDeactivate()
+void BreezyDesktopEffect::realDeactivate()
 {
     setRunning(false);
 }
 
-int CubeEffect::animationDuration() const
+int BreezyDesktopEffect::animationDuration() const
 {
     return 200;
 }
 
-qreal CubeEffect::cubeFaceDisplacement() const
+qreal BreezyDesktopEffect::faceDisplacement() const
 {
     return 100;
 }
 
-qreal CubeEffect::distanceFactor() const
+qreal BreezyDesktopEffect::distanceFactor() const
 {
     return 1.5;
 }
 
-bool CubeEffect::mouseInvertedX() const
+bool BreezyDesktopEffect::mouseInvertedX() const
 {
     return false;
 }
 
-bool CubeEffect::mouseInvertedY() const
+bool BreezyDesktopEffect::mouseInvertedY() const
 {
     return false;
 }
 
-CubeEffect::BackgroundMode CubeEffect::backgroundMode() const
+BreezyDesktopEffect::BackgroundMode BreezyDesktopEffect::backgroundMode() const
 {
     return BackgroundMode::Color;
 }
 
-QColor CubeEffect::backgroundColor() const
+QColor BreezyDesktopEffect::backgroundColor() const
 {
     return QColor(Qt::black);
 }
 
-QQuaternion CubeEffect::xrRotation() const {
+QQuaternion BreezyDesktopEffect::xrRotation() const {
     return m_xrRotation;
 }
 
-void CubeEffect::updateXrRotation() {
+void BreezyDesktopEffect::updateXrRotation() {
     const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
     QFile shmFile(shmPath);
     
@@ -219,6 +195,11 @@ void CubeEffect::updateXrRotation() {
     const bool enabled = (enabledFlag != 0) && (version == expectedVersion) && validData;
     
     if (!enabled) {
+        if (isRunning()) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate due to disabled";
+            deactivate();
+        }
+
         return;
     }
     
@@ -227,6 +208,11 @@ void CubeEffect::updateXrRotation() {
                                imuData[2] == 0.0f && imuData[3] == 1.0f);
     
     if (imuResetState) {
+        if (isRunning()) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate due to reset state";
+            deactivate();
+        }
+
         return;
     }
     
@@ -235,6 +221,12 @@ void CubeEffect::updateXrRotation() {
     
     if (quat != m_xrRotation) {
         m_xrRotation = quat;
+        
+        if (!isRunning()) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
+            activate();
+        }
+
         Q_EMIT xrRotationChanged();
     }
 }
