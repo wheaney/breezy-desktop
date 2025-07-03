@@ -37,35 +37,6 @@ Item {
         id: view
         anchors.fill: parent
 
-        Loader {
-            id: colorSceneEnvironment
-            active: effect.backgroundMode == CubeEffect.BackgroundMode.Color
-            sourceComponent: SceneEnvironment {
-                clearColor: effect.backgroundColor
-                backgroundMode: SceneEnvironment.Color
-            }
-        }
-
-        Loader {
-            id: skyboxSceneEnvironment
-            active: effect.backgroundMode == CubeEffect.BackgroundMode.Skybox
-            sourceComponent: SceneEnvironment {
-                backgroundMode: SceneEnvironment.SkyBox
-                lightProbe: Texture {
-                    source: effect.skybox
-                }
-            }
-        }
-
-        environment: {
-            switch (effect.backgroundMode) {
-            case CubeEffect.BackgroundMode.Skybox:
-                return skyboxSceneEnvironment.item;
-            case CubeEffect.BackgroundMode.Color:
-                return colorSceneEnvironment.item;
-            }
-        }
-
         PerspectiveCamera { 
             id: camera
             fieldOfView: 22.55

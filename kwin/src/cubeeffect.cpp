@@ -5,7 +5,6 @@
 */
 
 #include "cubeeffect.h"
-#include "cubeconfig.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
 
@@ -51,58 +50,10 @@ CubeEffect::CubeEffect()
 
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/cube/qml/main.qml"))));
 
-
-    reconfigure(ReconfigureAll);
-
     m_xrRotationTimer = new QTimer(this);
     m_xrRotationTimer->setInterval(16); // ~60Hz
     connect(m_xrRotationTimer, &QTimer::timeout, this, &CubeEffect::updateXrRotation);
     m_xrRotationTimer->start();
-}
-
-void CubeEffect::reconfigure(ReconfigureFlags)
-{
-    CubeConfig::self()->read();
-    setAnimationDuration(animationTime(std::chrono::milliseconds(200)));
-    setCubeFaceDisplacement(CubeConfig::cubeFaceDisplacement());
-    setDistanceFactor(CubeConfig::distanceFactor() / 100.0);
-    setMouseInvertedX(CubeConfig::mouseInvertedX());
-    setMouseInvertedY(CubeConfig::mouseInvertedY());
-    setSkybox(CubeConfig::skyBox());
-    setBackgroundColor(CubeConfig::backgroundColor());
-
-    switch (CubeConfig::background()) {
-    case CubeConfig::EnumBackground::Skybox:
-        setBackgroundMode(BackgroundMode::Skybox);
-        break;
-    case CubeConfig::EnumBackground::Color:
-    default:
-        setBackgroundMode(BackgroundMode::Color);
-        break;
-    }
-
-    for (const ElectricBorder &border : std::as_const(m_borderActivate)) {
-        effects->unreserveElectricBorder(border, this);
-    }
-
-    for (const ElectricBorder &border : std::as_const(m_touchBorderActivate)) {
-        effects->unregisterTouchBorder(border, m_toggleAction);
-    }
-
-    m_borderActivate.clear();
-    m_touchBorderActivate.clear();
-
-    const QList<int> activateBorders = CubeConfig::borderActivate();
-    for (const int &border : activateBorders) {
-        m_borderActivate.append(ElectricBorder(border));
-        effects->reserveElectricBorder(ElectricBorder(border), this);
-    }
-
-    const QList<int> touchActivateBorders = CubeConfig::touchBorderActivate();
-    for (const int &border : touchActivateBorders) {
-        m_touchBorderActivate.append(ElectricBorder(border));
-        effects->registerTouchBorder(ElectricBorder(border), m_toggleAction);
-    }
 }
 
 QVariantMap CubeEffect::initialProperties(Output *screen)
@@ -186,106 +137,37 @@ void CubeEffect::realDeactivate()
 
 int CubeEffect::animationDuration() const
 {
-    return m_animationDuration;
-}
-
-void CubeEffect::setAnimationDuration(int duration)
-{
-    if (m_animationDuration != duration) {
-        m_animationDuration = duration;
-        Q_EMIT animationDurationChanged();
-    }
+    return 200;
 }
 
 qreal CubeEffect::cubeFaceDisplacement() const
 {
-    return m_cubeFaceDisplacement;
-}
-
-void CubeEffect::setCubeFaceDisplacement(qreal displacement)
-{
-    if (m_cubeFaceDisplacement != displacement) {
-        m_cubeFaceDisplacement = displacement;
-        Q_EMIT cubeFaceDisplacementChanged();
-    }
+    return 100;
 }
 
 qreal CubeEffect::distanceFactor() const
 {
-    return m_distanceFactor;
-}
-
-void CubeEffect::setDistanceFactor(qreal factor)
-{
-    if (m_distanceFactor != factor) {
-        m_distanceFactor = factor;
-        Q_EMIT distanceFactorChanged();
-    }
+    return 1.5;
 }
 
 bool CubeEffect::mouseInvertedX() const
 {
-    return m_mouseInvertedX;
-}
-
-void CubeEffect::setMouseInvertedX(bool inverted)
-{
-    if (m_mouseInvertedX != inverted) {
-        m_mouseInvertedX = inverted;
-        Q_EMIT mouseInvertedXChanged();
-    }
+    return false;
 }
 
 bool CubeEffect::mouseInvertedY() const
 {
-    return m_mouseInvertedY;
-}
-
-void CubeEffect::setMouseInvertedY(bool inverted)
-{
-    if (m_mouseInvertedY != inverted) {
-        m_mouseInvertedY = inverted;
-        Q_EMIT mouseInvertedYChanged();
-    }
+    return false;
 }
 
 CubeEffect::BackgroundMode CubeEffect::backgroundMode() const
 {
-    return m_backgroundMode;
-}
-
-void CubeEffect::setBackgroundMode(BackgroundMode mode)
-{
-    if (m_backgroundMode != mode) {
-        m_backgroundMode = mode;
-        Q_EMIT backgroundModeChanged();
-    }
-}
-
-QUrl CubeEffect::skybox() const
-{
-    return m_skybox;
-}
-
-void CubeEffect::setSkybox(const QUrl &url)
-{
-    if (m_skybox != url) {
-        m_skybox = url;
-        Q_EMIT skyboxChanged();
-    }
+    return BackgroundMode::Color;
 }
 
 QColor CubeEffect::backgroundColor() const
 {
-    return m_backgroundColor;
-}
-
-void CubeEffect::setBackgroundColor(const QColor &color)
-{
-    if (m_backgroundColor != color) {
-        m_backgroundColor = color;
-        Q_EMIT backgroundColorChanged();
-    }
+    return QColor(Qt::black);
 }
 
 QQuaternion CubeEffect::xrRotation() const {
