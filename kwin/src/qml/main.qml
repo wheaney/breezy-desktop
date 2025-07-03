@@ -12,7 +12,7 @@ import org.kde.kwin.effect.cube
 Item {
     id: root
     antialiasing: true
-    focus: true
+    focus: false
 
     required property QtObject effect
     required property QtObject targetScreen

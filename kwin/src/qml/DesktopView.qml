@@ -15,6 +15,7 @@ Item {
     Repeater {
         model: KWinComponents.WindowFilterModel {
             activity: KWinComponents.Workspace.currentActivity
+            desktop: KWinComponents.Workspace.currentDesktop
             screenName: desktopView.screen.name
             windowModel: KWinComponents.WindowModel {}
         }

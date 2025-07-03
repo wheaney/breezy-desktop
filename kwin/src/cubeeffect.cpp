@@ -155,6 +155,12 @@ void CubeEffect::activate()
     }
 
     setRunning(true);
+
+    // QuickSceneEffect grabs the keyboard and mouse input, which pulls focus away from the active window
+    // and doesn't allow for interaction with anything on the desktop. These two calls fix that.
+    // TODO - move away from QuickSceneEffect
+    effects->ungrabKeyboard();
+    effects->stopMouseInterception(this);
 }
 
 void CubeEffect::deactivate()
