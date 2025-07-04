@@ -1,6 +1,9 @@
 #include "breezydesktopeffect.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
+#include "opengl/glutils.h"
+#include "core/rendertarget.h"
+#include "core/renderviewport.h"
 
 #include <QAction>
 #include <QFile>
@@ -12,6 +15,8 @@
 #include <KLocalizedString>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
+
+using namespace std::chrono_literals;
 
 namespace KWin
 {
@@ -88,6 +93,8 @@ void BreezyDesktopEffect::activate()
     // TODO - move away from QuickSceneEffect
     effects->ungrabKeyboard();
     effects->stopMouseInterception(this);
+
+    hideCursor();
 }
 
 void BreezyDesktopEffect::deactivate()
@@ -104,6 +111,7 @@ void BreezyDesktopEffect::deactivate()
     }
 
     m_shutdownTimer->start(animationDuration());
+    showCursor();
 }
 
 void BreezyDesktopEffect::realDeactivate()
@@ -231,4 +239,89 @@ void BreezyDesktopEffect::updateXrRotation() {
     }
 }
 
+// show and hide cursor logic pulled from ZoomEffect
+GLTexture *BreezyDesktopEffect::ensureCursorTexture()
+{
+    if (!m_cursorTexture || m_cursorTextureDirty) {
+        m_cursorTexture.reset();
+        m_cursorTextureDirty = false;
+        const auto cursor = effects->cursorImage();
+        if (!cursor.image().isNull()) {
+            m_cursorTexture = GLTexture::upload(cursor.image());
+            if (!m_cursorTexture) {
+                return nullptr;
+            }
+            m_cursorTexture->setWrapMode(GL_CLAMP_TO_EDGE);
+        }
+    }
+    return m_cursorTexture.get();
+}
+
+void BreezyDesktopEffect::markCursorTextureDirty()
+{
+    m_cursorTextureDirty = true;
+}
+
+void BreezyDesktopEffect::showCursor()
+{
+    if (m_isMouseHidden) {
+        disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::markCursorTextureDirty);
+        // show the previously hidden mouse-pointer again and free the loaded texture/picture.
+        effects->showCursor();
+        m_cursorTexture.reset();
+        m_isMouseHidden = false;
+    }
+}
+
+void BreezyDesktopEffect::hideCursor()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor";
+    if (!m_isMouseHidden) {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - ensure cursor texture";
+        // try to load the cursor-theme into a OpenGL texture and if successful then hide the mouse-pointer
+        GLTexture *texture = nullptr;
+        if (effects->isOpenGLCompositing()) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - OpenGL compositing";
+            texture = ensureCursorTexture();
+        }
+        if (texture) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - hiding cursor";
+            effects->hideCursor();
+            connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::markCursorTextureDirty);
+            m_isMouseHidden = true;
+        }
+    }
+}
+
+void BreezyDesktopEffect::paintScreen(const RenderTarget &renderTarget, const RenderViewport &viewport, int mask, const QRegion &region, Output *screen)
+{    
+    GLTexture *cursorTexture = ensureCursorTexture();
+    if (cursorTexture) {
+        const auto cursor = effects->cursorImage();
+        QSizeF cursorSize = QSizeF(cursor.image().size()) / cursor.image().devicePixelRatio();
+        
+        // Ensure cursor size doesn't exceed texture dimensions
+        const QSize textureSize = cursorTexture->size();
+        cursorSize = cursorSize.boundedTo(QSizeF(textureSize));
+
+        const QPointF p = (effects->cursorPos() - cursor.hotSpot());
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        auto s = ShaderManager::instance()->pushShader(ShaderTrait::MapTexture | ShaderTrait::TransformColorspace);
+        s->setColorspaceUniforms(ColorDescription::sRGB, renderTarget.colorDescription(), RenderingIntent::Perceptual);
+        QMatrix4x4 mvp = viewport.projectionMatrix();
+        mvp.translate(p.x(), p.y());
+        s->setUniform(GLShader::Mat4Uniform::ModelViewProjectionMatrix, mvp);
+        cursorTexture->render(cursorSize);
+        ShaderManager::instance()->popShader();
+        glDisable(GL_BLEND);
+    }
+    QuickSceneEffect::paintScreen(renderTarget, viewport, mask, region, screen);
+}
+
+
+
 } // namespace KWin
+
+#include "moc_breezydesktopeffect.cpp"
