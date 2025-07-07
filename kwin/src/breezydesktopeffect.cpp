@@ -13,6 +13,7 @@
 
 #include <KGlobalAccel>
 #include <KLocalizedString>
+#include <qt/QtCore/qbuffer.h>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -47,6 +48,9 @@ BreezyDesktopEffect::BreezyDesktopEffect()
         }
     });
 
+    connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
+    updateCursorImage();
+
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
     m_xrRotationTimer = new QTimer(this);
@@ -54,14 +58,17 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     connect(m_xrRotationTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateXrRotation);
     m_xrRotationTimer->start();
 
-    toggle();
+    m_cursorUpdateTimer = new QTimer(this);
+    connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
+    m_cursorUpdateTimer->setInterval(16); // ~60Hz
+    m_cursorUpdateTimer->start();
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
 {
     return QVariantMap{
         {QStringLiteral("effect"), QVariant::fromValue(this)},
-        {QStringLiteral("targetScreen"), QVariant::fromValue(screen)},
+        {QStringLiteral("targetScreen"), QVariant::fromValue(screen)}
     };
 }
 
@@ -111,6 +118,8 @@ void BreezyDesktopEffect::deactivate()
     }
 
     m_shutdownTimer->start(animationDuration());
+    disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
+    m_cursorUpdateTimer->stop();
     showCursor();
 }
 
@@ -239,89 +248,58 @@ void BreezyDesktopEffect::updateXrRotation() {
     }
 }
 
-// show and hide cursor logic pulled from ZoomEffect
-GLTexture *BreezyDesktopEffect::ensureCursorTexture()
+QString BreezyDesktopEffect::cursorImageSource() const
 {
-    if (!m_cursorTexture || m_cursorTextureDirty) {
-        m_cursorTexture.reset();
-        m_cursorTextureDirty = false;
-        const auto cursor = effects->cursorImage();
-        if (!cursor.image().isNull()) {
-            m_cursorTexture = GLTexture::upload(cursor.image());
-            if (!m_cursorTexture) {
-                return nullptr;
-            }
-            m_cursorTexture->setWrapMode(GL_CLAMP_TO_EDGE);
-        }
-    }
-    return m_cursorTexture.get();
+    return m_cursorImageSource;
 }
 
-void BreezyDesktopEffect::markCursorTextureDirty()
+QPointF BreezyDesktopEffect::cursorPos() const
 {
-    m_cursorTextureDirty = true;
+    return m_cursorPos;
 }
 
 void BreezyDesktopEffect::showCursor()
 {
     if (m_isMouseHidden) {
-        disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::markCursorTextureDirty);
-        // show the previously hidden mouse-pointer again and free the loaded texture/picture.
         effects->showCursor();
-        m_cursorTexture.reset();
         m_isMouseHidden = false;
     }
 }
 
 void BreezyDesktopEffect::hideCursor()
 {
-    qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor";
     if (!m_isMouseHidden) {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - ensure cursor texture";
-        // try to load the cursor-theme into a OpenGL texture and if successful then hide the mouse-pointer
-        GLTexture *texture = nullptr;
-        if (effects->isOpenGLCompositing()) {
-            qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - OpenGL compositing";
-            texture = ensureCursorTexture();
-        }
-        if (texture) {
-            qCCritical(KWIN_XR) << "\t\t\tBreezy - hide cursor - hiding cursor";
-            effects->hideCursor();
-            connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::markCursorTextureDirty);
-            m_isMouseHidden = true;
-        }
+        updateCursorImage();
+        effects->hideCursor();
+        m_isMouseHidden = true;
     }
 }
 
-void BreezyDesktopEffect::paintScreen(const RenderTarget &renderTarget, const RenderViewport &viewport, int mask, const QRegion &region, Output *screen)
-{    
-    GLTexture *cursorTexture = ensureCursorTexture();
-    if (cursorTexture) {
-        const auto cursor = effects->cursorImage();
-        QSizeF cursorSize = QSizeF(cursor.image().size()) / cursor.image().devicePixelRatio();
-        
-        // Ensure cursor size doesn't exceed texture dimensions
-        const QSize textureSize = cursorTexture->size();
-        cursorSize = cursorSize.boundedTo(QSizeF(textureSize));
+void BreezyDesktopEffect::updateCursorImage()
+{
+    const auto cursor = effects->cursorImage();
+    if (!cursor.image().isNull()) {
+        QByteArray data;
+        QBuffer buffer(&data);
+        buffer.open(QIODevice::WriteOnly);
+        cursor.image().save(&buffer, "PNG");
 
-        const QPointF p = (effects->cursorPos() - cursor.hotSpot());
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        auto s = ShaderManager::instance()->pushShader(ShaderTrait::MapTexture | ShaderTrait::TransformColorspace);
-        s->setColorspaceUniforms(ColorDescription::sRGB, renderTarget.colorDescription(), RenderingIntent::Perceptual);
-        QMatrix4x4 mvp = viewport.projectionMatrix();
-        mvp.translate(p.x(), p.y());
-        s->setUniform(GLShader::Mat4Uniform::ModelViewProjectionMatrix, mvp);
-        cursorTexture->render(cursorSize);
-        ShaderManager::instance()->popShader();
-        glDisable(GL_BLEND);
+        m_cursorImageSource = QStringLiteral("data:image/png;base64,%1").arg(QString::fromLatin1(data.toBase64()));
+    } else {
+        m_cursorImageSource = QString();
     }
-    QuickSceneEffect::paintScreen(renderTarget, viewport, mask, region, screen);
+    Q_EMIT cursorImageChanged();
 }
 
-
-
-} // namespace KWin
+void BreezyDesktopEffect::updateCursorPos()
+{
+    // Update cursor position from effects
+    QPointF newPos = effects->cursorPos();
+    if (m_cursorPos != newPos) {
+        m_cursorPos = newPos;
+        Q_EMIT cursorPosChanged();
+    }
+}
+}
 
 #include "moc_breezydesktopeffect.cpp"

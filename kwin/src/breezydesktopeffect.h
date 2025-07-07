@@ -3,14 +3,12 @@
 #include <effect/quickeffect.h>
 
 #include <QAction>
+#include <QImage>
 #include <QKeySequence>
 #include <QQuaternion>
 
 namespace KWin
 {
-    class GLTexture;
-    class GLShader;
-
     class BreezyDesktopEffect : public QuickSceneEffect
     {
         Q_OBJECT
@@ -22,6 +20,8 @@ namespace KWin
         Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
         Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
         Q_PROPERTY(QQuaternion xrRotation READ xrRotation NOTIFY xrRotationChanged)
+        Q_PROPERTY(QString cursorImageSource READ cursorImageSource NOTIFY cursorImageChanged)
+        Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
 
     public:
         enum class BackgroundMode
@@ -33,8 +33,6 @@ namespace KWin
 
         BreezyDesktopEffect();
 
-        void paintScreen(const RenderTarget &renderTarget, const RenderViewport &viewport, int mask, const QRegion &region, Output *screen) override;
-
         int requestedEffectChainPosition() const override;
 
         int animationDuration() const;
@@ -44,11 +42,11 @@ namespace KWin
         bool mouseInvertedY() const;
         BackgroundMode backgroundMode() const;
         QColor backgroundColor() const;
+        QString cursorImageSource() const;
+        QPointF cursorPos() const;
 
         void showCursor();
         void hideCursor();
-        GLTexture *ensureCursorTexture();
-        void markCursorTextureDirty();
 
         QQuaternion xrRotation() const;
 
@@ -57,6 +55,8 @@ namespace KWin
         void deactivate();
         void toggle();
         void updateXrRotation();
+        void updateCursorImage();
+        void updateCursorPos();
 
     Q_SIGNALS:
         void faceDisplacementChanged();
@@ -68,6 +68,8 @@ namespace KWin
         void backgroundModeChanged();
         void backgroundColorChanged();
         void xrRotationChanged();
+        void cursorImageChanged();
+        void cursorPosChanged();
 
     protected:
         QVariantMap initialProperties(Output *screen) override;
@@ -80,12 +82,13 @@ namespace KWin
         QList<QKeySequence> m_toggleShortcut;
         QList<ElectricBorder> m_borderActivate;
         QList<ElectricBorder> m_touchBorderActivate;
-        std::unique_ptr<GLTexture> m_cursorTexture;
-        bool m_cursorTextureDirty = false;
+        QString m_cursorImageSource;
         bool m_isMouseHidden = false;
 
         QQuaternion m_xrRotation;
         QTimer *m_xrRotationTimer = nullptr;
+        QPointF m_cursorPos;
+        QTimer *m_cursorUpdateTimer = nullptr;
     };
 
 } // namespace KWin
