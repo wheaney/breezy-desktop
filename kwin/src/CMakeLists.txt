@@ -19,3 +19,4 @@ target_link_libraries(breezy_desktop_effect
 )
 
 install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
+install(FILES metadata.json DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)

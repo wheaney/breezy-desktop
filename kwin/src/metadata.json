@@ -1,4 +1,5 @@
 {
+    "KPackageStructure": "KWin/Effect",
     "KPlugin": {
         "Authors": [
             {
@@ -6,11 +7,14 @@
                 "Name": "Wayne Heaney"
             }
         ],
-        "Category": "XR",
+        "Category": "Tools",
         "Description": "Breezy Desktop XR Effect",
         "EnabledByDefault": true,
         "License": "GPL",
-        "Name": "Breezy Desktop XR"
+        "Name": "Breezy Desktop XR",
+        "ServiceTypes": [
+            "KWin/Effect"
+        ]
     },
-    "X-KWin-Border-Activate": true
+    "X-Plasma-API-Minimum-Version": "6.0"
 }
