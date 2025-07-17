@@ -7,6 +7,7 @@
 
 #include <QAction>
 #include <QFile>
+#include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QQuickItem>
 #include <QTimer>
@@ -53,10 +54,11 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
-    m_xrRotationTimer = new QTimer(this);
-    m_xrRotationTimer->setInterval(16); // ~60Hz
-    connect(m_xrRotationTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateXrRotation);
-    m_xrRotationTimer->start();
+    // Monitor the IMU file for changes
+    const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
+    m_xrRotationFileWatcher = new QFileSystemWatcher(this);
+    m_xrRotationFileWatcher->addPath(shmPath);
+    connect(m_xrRotationFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateXrRotation);
 
     m_cursorUpdateTimer = new QTimer(this);
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);

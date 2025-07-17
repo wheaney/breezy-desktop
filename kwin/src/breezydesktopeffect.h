@@ -3,6 +3,7 @@
 #include <effect/quickeffect.h>
 
 #include <QAction>
+#include <QFileSystemWatcher>
 #include <QImage>
 #include <QKeySequence>
 #include <QQuaternion>
@@ -86,7 +87,7 @@ namespace KWin
         bool m_isMouseHidden = false;
 
         QQuaternion m_xrRotation;
-        QTimer *m_xrRotationTimer = nullptr;
+        QFileSystemWatcher *m_xrRotationFileWatcher = nullptr;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
     };
