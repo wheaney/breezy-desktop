@@ -34,6 +34,8 @@ namespace KWin
 
         BreezyDesktopEffect();
 
+        void reconfigure(ReconfigureFlags) override;
+
         int requestedEffectChainPosition() const override;
 
         int animationDuration() const;

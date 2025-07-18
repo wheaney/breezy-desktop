@@ -26,6 +26,8 @@ include(cmake/qtversion.cmake)
 
 # required frameworks by Core
 find_package(KF${QT_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS
+    Config
+    ConfigWidgets
     CoreAddons
     GlobalAccel
     I18n

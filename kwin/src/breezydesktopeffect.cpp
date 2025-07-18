@@ -1,4 +1,5 @@
 #include "breezydesktopeffect.h"
+#include "cubeconfig.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
 #include "opengl/glutils.h"
@@ -51,6 +52,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
+    reconfigure(ReconfigureAll);
 
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
@@ -64,6 +66,11 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
     m_cursorUpdateTimer->setInterval(16); // ~60Hz
     m_cursorUpdateTimer->start();
+}
+
+void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
+{
+    CubeConfig::self()->read();
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
