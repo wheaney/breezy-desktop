@@ -20,7 +20,10 @@ namespace KWin
         Q_PROPERTY(bool mouseInvertedY READ mouseInvertedY NOTIFY mouseInvertedYChanged)
         Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
         Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
-        Q_PROPERTY(QQuaternion xrRotation READ xrRotation NOTIFY xrRotationChanged)
+        Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
+        Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs NOTIFY imuRotationsChanged)
+        Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp NOTIFY imuRotationsChanged)
+        Q_PROPERTY(quint8 lookAheadConstant READ lookAheadConstant NOTIFY imuRotationsChanged)
         Q_PROPERTY(QString cursorImageSource READ cursorImageSource NOTIFY cursorImageChanged)
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
 
@@ -51,13 +54,16 @@ namespace KWin
         void showCursor();
         void hideCursor();
 
-        QQuaternion xrRotation() const;
+        QList<QQuaternion> imuRotations() const;
+        quint32 imuTimeElapsedMs() const;
+        quint64 imuTimestamp() const;
+        qreal lookAheadConstant() const;
 
     public Q_SLOTS:
         void activate();
         void deactivate();
         void toggle();
-        void updateXrRotation();
+        void updateImuRotation();
         void updateCursorImage();
         void updateCursorPos();
 
@@ -70,7 +76,7 @@ namespace KWin
         void skyboxChanged();
         void backgroundModeChanged();
         void backgroundColorChanged();
-        void xrRotationChanged();
+        void imuRotationsChanged();
         void cursorImageChanged();
         void cursorPosChanged();
 
@@ -88,8 +94,11 @@ namespace KWin
         QString m_cursorImageSource;
         bool m_isMouseHidden = false;
 
-        QQuaternion m_xrRotation;
-        QFileSystemWatcher *m_xrRotationFileWatcher = nullptr;
+        QList<QQuaternion> m_imuRotations;
+        quint32 m_imuTimeElapsedMs;
+        quint64 m_imuTimestamp;
+        qreal m_lookAheadConstant = 10.0;
+        QFileSystemWatcher *m_imuRotationFileWatcher = nullptr;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
     };

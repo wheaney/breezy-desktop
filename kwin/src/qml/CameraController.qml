@@ -6,7 +6,7 @@ Item {
 
     required property Camera camera
 
-    property quaternion rotation: Quaternion.fromEulerAngles(0, 0, 0)
+    property vector3d rotation: Qt.vector3d(0, 0, 0)
     property real radius: 2000
 
     property real speed: 1
@@ -20,30 +20,64 @@ Item {
     onRadiusChanged: root.updateCamera();
 
     function updateCamera() {
-        // convert NWU to EUS by passing root.rotation values: w, -y, z, -x
-        let effectiveRotation = Qt.quaternion(root.rotation.scalar, -root.rotation.y, root.rotation.z, -root.rotation.x);
-        
-        const eulerRotation = effectiveRotation.toEulerAngles();
         const theta = 90 * Math.PI / 180;
         const phi = 0.0;
 
         camera.position = Qt.vector3d(radius * Math.sin(phi) * Math.sin(theta),
                                       radius * Math.cos(theta),
                                       radius * Math.cos(phi) * Math.sin(theta));
-        camera.rotation = effectiveRotation;
+        camera.eulerRotation = root.rotation;
     }
 
-    // Add property to receive XR rotation from effect
-    property quaternion xrRotation: effect.xrRotation
-    property bool useXrRotation: true // Set to true to use XR rotation when available
+    // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
+    function lookAheadMS(imuDateMs, lookAheadConstant, override) {
+        // how stale the imu data is
+        const dataAge = Date.now() - imuDateMs;
 
-    Timer {
-        interval: 16
-        repeat: true
+        return (override === -1 ? lookAheadConstant : override) + dataAge;
+    }
+
+    function applyLookAhead(quatT0, quatT1, elapsedTimeMs, lookAheadMs) {
+        console.log(`Applying look-ahead with ${elapsedTimeMs} and ${lookAheadMs}`);
+        // convert both quats to euler angles
+        const eulerT0 = quatT0.toEulerAngles();
+        const eulerT1 = quatT1.toEulerAngles();
+
+        // compute the rate of change of the angles based on the elapsed time
+        const deltaX = (eulerT0.x - eulerT1.x);
+        const deltaY = (eulerT0.y - eulerT1.y);
+        const deltaZ = (eulerT0.z - eulerT1.z);
+
+        // how much of the delta to apply based on the look-ahead time
+        const timeConstant = lookAheadMs / elapsedTimeMs;
+
+        // compute the look-ahead angles and convert NWU to EUS by passing root.rotation values: -y, z, -x
+        return Qt.vector3d(
+            -eulerT0.y + deltaY * timeConstant,
+            eulerT0.z + deltaZ * timeConstant,
+            -eulerT0.x + deltaX * timeConstant
+        );
+    }
+
+    // Add property to receive IMU rotation snapshots from effect
+    property var imuRotations: effect.imuRotations
+    property int imuTimeElapsedMs: effect.imuTimeElapsedMs
+    property double imuTimestamp: effect.imuTimestamp  
+    property double lookAheadConstant: effect.lookAheadConstant
+    property bool useImuRotation: true // Set to true to use XR rotation when available
+
+    FrameAnimation {
         running: true
         onTriggered: {
-            if (useXrRotation && xrRotation.length() > 0) {
-                root.rotation = xrRotation;
+            console.log("FrameAnimation triggered, updating camera rotation");
+            if (root.useImuRotation && root.imuRotations && root.imuRotations.length > 0) {
+                console.log("Using IMU rotation for camera control");
+                root.rotation = applyLookAhead(
+                    root.imuRotations[0],
+                    root.imuRotations[1],
+                    root.imuTimeElapsedMs,
+                    lookAheadMS(root.imuTimestamp, root.lookAheadConstant, -1)
+                );
             }
         }
     }

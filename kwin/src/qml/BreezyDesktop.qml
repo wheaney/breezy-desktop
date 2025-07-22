@@ -20,9 +20,10 @@ Node {
     required property real viewportWidth
     required property real viewportHeight
     property real distance: viewportWidth / (2 * Math.tan(Math.PI * viewportFOVHorizontal / 360))
-    property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
-        return supportedModels.includes(screen.model);
-    })
+    property var screens: KWinComponents.Workspace.screens
+    // .filter(function(screen) {
+    //     return supportedModels.includes(screen.model);
+    // })
 
     // x value for placing the viewport in the middle of all screens
     property real screensXMid: {
