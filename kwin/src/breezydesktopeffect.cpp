@@ -245,10 +245,11 @@ void BreezyDesktopEffect::updateImuRotation() {
         return;
     }
 
-    QQuaternion quatT0(imuData[3], imuData[0], imuData[1], imuData[2]);
+    // convert NWU to EUS by passing root.rotation values: -y, z, -x
+    QQuaternion quatT0(imuData[3], -imuData[1], imuData[2], -imuData[0]);
 
     memcpy(imuData, data + 109 + sizeof(imuData), sizeof(imuData));
-    QQuaternion quatT1(imuData[3], imuData[0], imuData[1], imuData[2]);
+    QQuaternion quatT1(imuData[3], -imuData[1], imuData[2], -imuData[0]);
 
     // set imuRotations to the last two rotations, leave out the elapsed time
     m_imuRotations.clear();

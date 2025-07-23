@@ -6,7 +6,6 @@ Item {
 
     required property Camera camera
 
-    property vector3d rotation: Qt.vector3d(0, 0, 0)
     property real radius: 2000
 
     property real speed: 1
@@ -16,17 +15,16 @@ Item {
     implicitWidth: parent.width
     implicitHeight: parent.height
 
-    onRotationChanged: root.updateCamera();
-    onRadiusChanged: root.updateCamera();
+    // onRadiusChanged: root.updateCamera();
 
-    function updateCamera() {
+    function updateCamera(rotation) {
         const theta = 90 * Math.PI / 180;
         const phi = 0.0;
 
         camera.position = Qt.vector3d(radius * Math.sin(phi) * Math.sin(theta),
                                       radius * Math.cos(theta),
                                       radius * Math.cos(phi) * Math.sin(theta));
-        camera.eulerRotation = root.rotation;
+        camera.eulerRotation = rotation;
     }
 
     // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
@@ -38,7 +36,6 @@ Item {
     }
 
     function applyLookAhead(quatT0, quatT1, elapsedTimeMs, lookAheadMs) {
-        console.log(`Applying look-ahead with ${elapsedTimeMs} and ${lookAheadMs}`);
         // convert both quats to euler angles
         const eulerT0 = quatT0.toEulerAngles();
         const eulerT1 = quatT1.toEulerAngles();
@@ -51,11 +48,10 @@ Item {
         // how much of the delta to apply based on the look-ahead time
         const timeConstant = lookAheadMs / elapsedTimeMs;
 
-        // compute the look-ahead angles and convert NWU to EUS by passing root.rotation values: -y, z, -x
         return Qt.vector3d(
-            -eulerT0.y + deltaY * timeConstant,
+            eulerT0.x + deltaX * timeConstant,
+            eulerT0.y + deltaY * timeConstant,
             eulerT0.z + deltaZ * timeConstant,
-            -eulerT0.x + deltaX * timeConstant
         );
     }
 
@@ -69,15 +65,13 @@ Item {
     FrameAnimation {
         running: true
         onTriggered: {
-            console.log("FrameAnimation triggered, updating camera rotation");
             if (root.useImuRotation && root.imuRotations && root.imuRotations.length > 0) {
-                console.log("Using IMU rotation for camera control");
-                root.rotation = applyLookAhead(
+                updateCamera(applyLookAhead(
                     root.imuRotations[0],
                     root.imuRotations[1],
                     root.imuTimeElapsedMs,
                     lookAheadMS(root.imuTimestamp, root.lookAheadConstant, -1)
-                );
+                ));
             }
         }
     }
