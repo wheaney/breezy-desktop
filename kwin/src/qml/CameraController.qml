@@ -7,15 +7,19 @@ Item {
     required property Camera camera
 
     property real radius: 2000
-
-    property real speed: 1
-    property real xSpeed: 0.1
-    property real ySpeed: 0.1
+    property var imuRotations: effect.imuRotations
+    property int imuTimeElapsedMs: effect.imuTimeElapsedMs
+    property double imuTimestamp: effect.imuTimestamp  
+    property var lookAheadConfig: effect.lookAheadConfig
+    property var displayResolution: effect.displayResolution
+    property real diagonalFOV: effect.diagonalFOV
+    property real lensDistanceRatio: effect.lensDistanceRatio
+    property bool sbsEnabled: effect.sbsEnabled
+    property bool customBannerEnabled: effect.customBannerEnabled
+    property bool useImuRotation: true // Set to true to use XR rotation when available
 
     implicitWidth: parent.width
     implicitHeight: parent.height
-
-    // onRadiusChanged: root.updateCamera();
 
     function updateCamera(rotation) {
         const theta = 90 * Math.PI / 180;
@@ -55,12 +59,15 @@ Item {
         );
     }
 
-    // Add property to receive IMU rotation snapshots from effect
-    property var imuRotations: effect.imuRotations
-    property int imuTimeElapsedMs: effect.imuTimeElapsedMs
-    property double imuTimestamp: effect.imuTimestamp  
-    property double lookAheadConstant: effect.lookAheadConstant
-    property bool useImuRotation: true // Set to true to use XR rotation when available
+    function updateFOV() {
+        const aspectRatio = displayResolution[0] / displayResolution[1];
+        camera.fieldOfView = 2 * Math.atan(Math.tan(diagonalFOV * Math.PI / 360) / Math.sqrt(1 + aspectRatio * aspectRatio)) * 180 / Math.PI;
+        radius = 0.5 * displayResolution[1] / Math.tan(camera.fieldOfView * Math.PI / 360);
+    }
+
+    onRadiusChanged: updateCamera(camera.eulerRotation);
+    onDisplayResolutionChanged: updateFOV();
+    onDiagonalFOVChanged: updateFOV();
 
     FrameAnimation {
         running: true
@@ -70,7 +77,7 @@ Item {
                     root.imuRotations[0],
                     root.imuRotations[1],
                     root.imuTimeElapsedMs,
-                    lookAheadMS(root.imuTimestamp, root.lookAheadConstant, -1)
+                    lookAheadMS(root.imuTimestamp, root.lookAheadConfig[0], -1)
                 ));
             }
         }

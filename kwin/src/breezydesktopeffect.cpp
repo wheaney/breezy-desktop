@@ -19,7 +19,40 @@
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
-using namespace std::chrono_literals;
+namespace DataView
+{
+    // Helper constants and functions for shared memory buffer offsets
+    constexpr int UINT8_SIZE = sizeof(uint8_t);
+    constexpr int BOOL_SIZE = UINT8_SIZE;
+    constexpr int UINT_SIZE = sizeof(uint32_t);
+    constexpr int FLOAT_SIZE = sizeof(float);
+
+    // DataView info: [offset, size, count]
+    constexpr int OFFSET_INDEX = 0;
+    constexpr int SIZE_INDEX = 1;
+    constexpr int COUNT_INDEX = 2;
+
+    // Computes the end offset, exclusive
+    constexpr int dataViewEnd(const int info[3]) {
+        return info[OFFSET_INDEX] + info[SIZE_INDEX] * info[COUNT_INDEX];
+    }
+
+    constexpr int VERSION[3] = {0, UINT8_SIZE, 1};
+    constexpr int ENABLED[3] = {dataViewEnd(VERSION), BOOL_SIZE, 1};
+    constexpr int LOOK_AHEAD_CFG[3] = {dataViewEnd(ENABLED), FLOAT_SIZE, 4};
+    constexpr int DISPLAY_RES[3] = {dataViewEnd(LOOK_AHEAD_CFG), UINT_SIZE, 2};
+    constexpr int DISPLAY_FOV[3] = {dataViewEnd(DISPLAY_RES), FLOAT_SIZE, 1};
+    constexpr int LENS_DISTANCE_RATIO[3] = {dataViewEnd(DISPLAY_FOV), FLOAT_SIZE, 1};
+    constexpr int SBS_ENABLED[3] = {dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1};
+    constexpr int CUSTOM_BANNER_ENABLED[3] = {dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1};
+    constexpr int SMOOTH_FOLLOW_ENABLED[3] = {dataViewEnd(CUSTOM_BANNER_ENABLED), BOOL_SIZE, 1};
+    constexpr int SMOOTH_FOLLOW_ORIGIN_DATA[3] = {dataViewEnd(SMOOTH_FOLLOW_ENABLED), FLOAT_SIZE, 16};
+    constexpr int IMU_DATE_MS[3] = {dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), UINT_SIZE, 2};
+    constexpr int IMU_QUAT_ENTRIES = 4;
+    constexpr int IMU_QUAT_DATA[3] = {dataViewEnd(IMU_DATE_MS), FLOAT_SIZE, 4 * IMU_QUAT_ENTRIES};
+    constexpr int IMU_PARITY_BYTE[3] = {dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1};
+    constexpr int LENGTH = dataViewEnd(IMU_PARITY_BYTE);
+}
 
 namespace KWin
 {
@@ -129,6 +162,10 @@ void BreezyDesktopEffect::deactivate()
         return;
     }
 
+    disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
+    m_cursorUpdateTimer->stop();
+    showCursor();
+    
     const QList<Output *> screens = effects->screens();
     for (Output *screen : screens) {
         if (QuickSceneView *view = viewForScreen(screen)) {
@@ -137,9 +174,6 @@ void BreezyDesktopEffect::deactivate()
     }
 
     m_shutdownTimer->start(animationDuration());
-    disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
-    m_cursorUpdateTimer->stop();
-    showCursor();
 }
 
 void BreezyDesktopEffect::realDeactivate()
@@ -152,33 +186,19 @@ int BreezyDesktopEffect::animationDuration() const
     return 200;
 }
 
-qreal BreezyDesktopEffect::faceDisplacement() const
-{
+qreal BreezyDesktopEffect::faceDisplacement() const {
     return 100;
 }
 
-qreal BreezyDesktopEffect::distanceFactor() const
-{
+qreal BreezyDesktopEffect::distanceFactor() const {
     return 1.5;
 }
 
-bool BreezyDesktopEffect::mouseInvertedX() const
-{
-    return false;
-}
-
-bool BreezyDesktopEffect::mouseInvertedY() const
-{
-    return false;
-}
-
-BreezyDesktopEffect::BackgroundMode BreezyDesktopEffect::backgroundMode() const
-{
+BreezyDesktopEffect::BackgroundMode BreezyDesktopEffect::backgroundMode() const {
     return BackgroundMode::Color;
 }
 
-QColor BreezyDesktopEffect::backgroundColor() const
-{
+QColor BreezyDesktopEffect::backgroundColor() const {
     return QColor(Qt::black);
 }
 
@@ -194,11 +214,32 @@ quint64 BreezyDesktopEffect::imuTimestamp() const {
     return m_imuTimestamp;
 }
 
-qreal BreezyDesktopEffect::lookAheadConstant() const {
-    return m_lookAheadConstant;
+QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
+    return m_lookAheadConfig;
+}
+
+QList<quint32> BreezyDesktopEffect::displayResolution() const {
+    return m_displayResolution;
+}
+
+qreal BreezyDesktopEffect::diagonalFOV() const {
+    return m_diagonalFOV;
+}
+
+qreal BreezyDesktopEffect::lensDistanceRatio() const {
+    return m_lensDistanceRatio;
+}
+
+bool BreezyDesktopEffect::sbsEnabled() const {
+    return m_sbsEnabled;
+}
+
+bool BreezyDesktopEffect::customBannerEnabled() const {
+    return m_customBannerEnabled;
 }
 
 // TODO - can this be something callable from the camera qml code, so it's pulled only when needed?
+static qint64 lastConfigUpdate = 0;
 void BreezyDesktopEffect::updateImuRotation() {
     const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
     QFile shmFile(shmPath);
@@ -211,20 +252,52 @@ void BreezyDesktopEffect::updateImuRotation() {
         return;
     }
     const char* data = buffer.constData();
-    quint8 version = static_cast<quint8>(data[0]);
-    quint8 enabledFlag = static_cast<quint8>(data[1]);
-    float lookAheadCnst;
-    memcpy(&lookAheadCnst, data + 2, sizeof(float));
-    float displayFov;
-    memcpy(&displayFov, data + 26, sizeof(float));
-    quint64 imuDateMs;
-    memcpy(&imuDateMs, data + 101, sizeof(quint64));
+    uint8_t version = static_cast<uint8_t>(data[0]);
+    uint8_t enabledFlag = static_cast<uint8_t>(data[1]);
+    uint64_t imuDateMs;
+    memcpy(&imuDateMs, data + DataView::IMU_DATE_MS[DataView::OFFSET_INDEX], sizeof(imuDateMs));
     imuDateMs = qFromLittleEndian(imuDateMs);
-    
-    const quint64 currentTimeMs = QDateTime::currentMSecsSinceEpoch();
+
+    const qint64 currentTimeMs = QDateTime::currentMSecsSinceEpoch();
+    const bool updateConfig = lastConfigUpdate == 0 || currentTimeMs - lastConfigUpdate > 1000;
+
+    if (updateConfig) {
+        float lookAheadConfig[4];
+        memcpy(&lookAheadConfig[0], data + DataView::LOOK_AHEAD_CFG[DataView::OFFSET_INDEX], sizeof(lookAheadConfig));
+        m_lookAheadConfig.clear();
+        m_lookAheadConfig.append(lookAheadConfig[0]);
+        m_lookAheadConfig.append(lookAheadConfig[1]);
+        m_lookAheadConfig.append(lookAheadConfig[2]);
+        m_lookAheadConfig.append(lookAheadConfig[3]);
+
+        uint32_t displayResolution[2];
+        memcpy(&displayResolution[0], data + DataView::DISPLAY_RES[DataView::OFFSET_INDEX], sizeof(displayResolution));
+        m_displayResolution.clear();
+        m_displayResolution.append(displayResolution[0]);
+        m_displayResolution.append(displayResolution[1]);
+
+        float displayFov = 0.0f;
+        memcpy(&displayFov, data + DataView::DISPLAY_FOV[DataView::OFFSET_INDEX], sizeof(displayFov));
+        m_diagonalFOV = displayFov;
+
+        float lensDistanceRatio = 0.0f;
+        memcpy(&lensDistanceRatio, data + DataView::LENS_DISTANCE_RATIO[DataView::OFFSET_INDEX], sizeof(lensDistanceRatio));
+        m_lensDistanceRatio = lensDistanceRatio;
+
+        uint8_t sbsEnabled = false;
+        memcpy(&sbsEnabled, data + DataView::SBS_ENABLED[DataView::OFFSET_INDEX], sizeof(sbsEnabled));
+        m_sbsEnabled = (sbsEnabled != 0);
+
+        uint8_t customBannerEnabled = false;
+        memcpy(&customBannerEnabled, data + DataView::CUSTOM_BANNER_ENABLED[DataView::OFFSET_INDEX], sizeof(customBannerEnabled));
+        m_customBannerEnabled = (customBannerEnabled != 0);
+        
+        lastConfigUpdate = currentTimeMs;
+    }
+
     const bool validKeepAlive = (currentTimeMs - imuDateMs) < 5000;
-    const bool validData = validKeepAlive && displayFov != 0.0f;
-    const quint8 expectedVersion = 4;
+    const bool validData = validKeepAlive && m_diagonalFOV != 0.0f;
+    const uint8_t expectedVersion = 4;
     const bool enabled = (enabledFlag != 0) && (version == expectedVersion) && validData;
     if (!enabled) {
         if (isRunning()) {
@@ -233,9 +306,10 @@ void BreezyDesktopEffect::updateImuRotation() {
         }
         return;
     }
+    if (updateConfig) Q_EMIT devicePropertiesChanged();
 
-    float imuData[4];
-    memcpy(imuData, data + 109, sizeof(imuData));
+    float imuData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
+    memcpy(imuData, data + DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX], sizeof(imuData));
     const bool imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
     if (imuResetState) {
         if (isRunning()) {
@@ -248,21 +322,23 @@ void BreezyDesktopEffect::updateImuRotation() {
     // convert NWU to EUS by passing root.rotation values: -y, z, -x
     QQuaternion quatT0(imuData[3], -imuData[1], imuData[2], -imuData[0]);
 
-    memcpy(imuData, data + 109 + sizeof(imuData), sizeof(imuData));
-    QQuaternion quatT1(imuData[3], -imuData[1], imuData[2], -imuData[0]);
+    int imuDataOffset = DataView::IMU_QUAT_ENTRIES;
+    QQuaternion quatT1(imuData[imuDataOffset + 3], -imuData[imuDataOffset + 1], imuData[imuDataOffset + 2], -imuData[imuDataOffset + 0]);
+
+    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
+    // skip the 3rd quaternion
 
     // set imuRotations to the last two rotations, leave out the elapsed time
     m_imuRotations.clear();
     m_imuRotations.append(quatT0);
     m_imuRotations.append(quatT1);
 
-    // 3rd row is imuData at the 3rd timestamp, that is unused, 4th row contains the timestamps
-    memcpy(imuData, data + 109 + sizeof(imuData) * 3, sizeof(imuData));
+    // 4th row isn't actually a quaternion, it contains the timestamps for each of the 3 quaternions
     // elapsed time between T0 and T1 is: imuData[0] - imuData[1]
-    m_imuTimeElapsedMs = static_cast<quint32>(imuData[0] - imuData[1]);
+    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
+    m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
 
     m_imuTimestamp = imuDateMs;
-    m_lookAheadConstant = lookAheadCnst;
     if (!isRunning()) {
         qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
         activate();
@@ -282,19 +358,13 @@ QPointF BreezyDesktopEffect::cursorPos() const
 
 void BreezyDesktopEffect::showCursor()
 {
-    if (m_isMouseHidden) {
-        effects->showCursor();
-        m_isMouseHidden = false;
-    }
+    effects->showCursor();
 }
 
 void BreezyDesktopEffect::hideCursor()
 {
-    if (!m_isMouseHidden) {
-        updateCursorImage();
-        effects->hideCursor();
-        m_isMouseHidden = true;
-    }
+    updateCursorImage();
+    effects->hideCursor();
 }
 
 void BreezyDesktopEffect::updateCursorImage()
