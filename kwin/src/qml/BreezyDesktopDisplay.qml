@@ -5,6 +5,7 @@ Model {
     id: display
 
     required property QtObject screen
+    required property var monitorPlacement
     required property int index
 
     source: "#Rectangle"
