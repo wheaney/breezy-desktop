@@ -18,6 +18,7 @@ namespace KWin
         Q_PROPERTY(qreal distanceFactor READ distanceFactor NOTIFY distanceFactorChanged)
         Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
         Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
+        Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuRotationsChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
         Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs NOTIFY imuRotationsChanged)
         Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp NOTIFY imuRotationsChanged)
@@ -52,6 +53,7 @@ namespace KWin
         QString cursorImageSource() const;
         QPointF cursorPos() const;
 
+        bool imuResetState() const;
         QList<qreal> lookAheadConfig() const;
         QList<quint32> displayResolution() const;
         qreal diagonalFOV() const;
@@ -99,6 +101,7 @@ namespace KWin
         QList<ElectricBorder> m_touchBorderActivate;
         QString m_cursorImageSource;
 
+        bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;
         quint64 m_imuTimestamp;

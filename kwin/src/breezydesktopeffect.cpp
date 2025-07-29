@@ -202,6 +202,10 @@ QColor BreezyDesktopEffect::backgroundColor() const {
     return QColor(Qt::black);
 }
 
+bool BreezyDesktopEffect::imuResetState() const {
+    return m_imuResetState;
+}
+
 QList<QQuaternion> BreezyDesktopEffect::imuRotations() const {
     return m_imuRotations;
 }
@@ -310,14 +314,7 @@ void BreezyDesktopEffect::updateImuRotation() {
 
     float imuData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
     memcpy(imuData, data + DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX], sizeof(imuData));
-    const bool imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
-    if (imuResetState) {
-        if (isRunning()) {
-            qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate due to reset state";
-            deactivate();
-        }
-        return;
-    }
+    m_imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
 
     // convert NWU to EUS by passing root.rotation values: -y, z, -x
     QQuaternion quatT0(imuData[3], -imuData[1], imuData[2], -imuData[0]);
@@ -326,7 +323,9 @@ void BreezyDesktopEffect::updateImuRotation() {
     QQuaternion quatT1(imuData[imuDataOffset + 3], -imuData[imuDataOffset + 1], imuData[imuDataOffset + 2], -imuData[imuDataOffset + 0]);
 
     imuDataOffset += DataView::IMU_QUAT_ENTRIES;
+
     // skip the 3rd quaternion
+    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
 
     // set imuRotations to the last two rotations, leave out the elapsed time
     m_imuRotations.clear();
@@ -335,7 +334,6 @@ void BreezyDesktopEffect::updateImuRotation() {
 
     // 4th row isn't actually a quaternion, it contains the timestamps for each of the 3 quaternions
     // elapsed time between T0 and T1 is: imuData[0] - imuData[1]
-    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
     m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
 
     m_imuTimestamp = imuDateMs;

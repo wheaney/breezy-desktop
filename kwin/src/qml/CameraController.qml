@@ -6,7 +6,6 @@ Item {
 
     required property Camera camera
 
-    property real radius: 2000
     property var imuRotations: effect.imuRotations
     property int imuTimeElapsedMs: effect.imuTimeElapsedMs
     property double imuTimestamp: effect.imuTimestamp  
@@ -22,12 +21,6 @@ Item {
     implicitHeight: parent.height
 
     function updateCamera(rotation) {
-        const theta = 90 * Math.PI / 180;
-        const phi = 0.0;
-
-        camera.position = Qt.vector3d(radius * Math.sin(phi) * Math.sin(theta),
-                                      radius * Math.cos(theta),
-                                      radius * Math.cos(phi) * Math.sin(theta));
         camera.eulerRotation = rotation;
     }
 
@@ -62,10 +55,8 @@ Item {
     function updateFOV() {
         const aspectRatio = displayResolution[0] / displayResolution[1];
         camera.fieldOfView = 2 * Math.atan(Math.tan(diagonalFOV * Math.PI / 360) / Math.sqrt(1 + aspectRatio * aspectRatio)) * 180 / Math.PI;
-        radius = 0.5 * displayResolution[1] / Math.tan(camera.fieldOfView * Math.PI / 360);
     }
 
-    onRadiusChanged: updateCamera(camera.eulerRotation);
     onDisplayResolutionChanged: updateFOV();
     onDiagonalFOVChanged: updateFOV();
 

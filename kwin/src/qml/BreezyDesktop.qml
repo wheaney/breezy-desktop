@@ -16,10 +16,15 @@ Node {
         "Rokid Air"
     ]
 
-    required property real viewportFOVHorizontal
-    required property real viewportWidth
-    required property real viewportHeight
-    property real distance: viewportWidth / (2 * Math.tan(Math.PI * viewportFOVHorizontal / 360))
+    property real viewportDiagonalFOV: effect.diagonalFOV
+    property var viewportResolution: effect.displayResolution
+    property real viewportHorizontalFOV: {
+        const aspectRatio = viewportResolution[0] / viewportResolution[1];
+        return viewportDiagonalFOV * aspectRatio / Math.sqrt(aspectRatio * aspectRatio + 1);
+    }
+    property real viewportCenterRadius: {
+        return viewportResolution[0] / (2 * Math.tan(Math.PI * viewportHorizontalFOV / 360))
+    }
     property var screens: KWinComponents.Workspace.screens
     // .filter(function(screen) {
     //     return supportedModels.includes(screen.model);
@@ -36,7 +41,7 @@ Node {
             xMax = Math.max(xMax, geometry.x + geometry.width);
         }
 
-        return (xMin + xMax) / 2 - (viewportWidth / 2);
+        return (xMin + xMax) / 2 - (viewportResolution[0] / 2);
     }
 
     // y value for placing the viewport in the middle of all screens
@@ -50,7 +55,7 @@ Node {
             yMax = Math.max(yMax, geometry.y + geometry.height);
         }
 
-        return (yMin + yMax) / 2 - (viewportHeight / 2);
+        return (yMin + yMax) / 2 - (viewportResolution[1] / 2);
     }
 
     Repeater3D {
@@ -60,24 +65,26 @@ Node {
 
             property real screenRotation: {
                 const geometry = screen.geometry;
-                const rot = (viewportFOVHorizontal / viewportWidth) * (geometry.x - screensXMid);
-                console.log(`\t\t\tBreezy - screenRotation ${geometry.x} ${geometry.width} ${rot}`);
+                const rot = (viewportHorizontalFOV / viewportResolution[0]) * (geometry.x - screensXMid);
                 return -rot;
             }
 
             property vector3d screenScale: {
                 const geometry = screen.geometry;
+
+                // apparently the default model unit size is 100x100, so we scale it up to the screen size
                 return Qt.vector3d(geometry.width / 100, geometry.height / 100, 1);
             }
 
             scale: screenScale
             eulerRotation.y: screenRotation
-            position: {
-                console.log(`\t\t\tBreezy - position ${distance} ${screenRotation}`);
+            position: {                
+                // rotate about the Y (up) axis, to create a horizontal movement
                 const transform = Qt.matrix4x4();
                 transform.rotate(screenRotation, Qt.vector3d(0, 1, 0));
-                const position = Qt.vector3d(0, 0, -distance);
-                return transform.times(position).minus(position);
+
+                // camera looks along the negative Z axis
+                return transform.times(Qt.vector3d(0, 0, -viewportCenterRadius));
             }
         }
     }
