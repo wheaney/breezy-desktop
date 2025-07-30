@@ -26,7 +26,20 @@ QtObject {
         return 1.0;
     }
 
-    function fovDetails(viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio) {
+    function actualWrapScheme(screens, viewportWidth, viewportHeight) {
+        const minX = Math.min(...screens.map(screen => screen.geometry.x));
+        const maxX = Math.max(...screens.map(screen => screen.geometry.x + screen.geometry.width));
+        const minY = Math.min(...screens.map(screen => screen.geometry.y));
+        const maxY = Math.max(...screens.map(screen => screen.geometry.y + screen.geometry.height));
+
+        if ((maxX - minX) / viewportWidth >= (maxY - minY) / viewportHeight) {
+            return 'horizontal';
+        } else {
+            return 'vertical';
+        }
+    }
+
+    function fovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio) {
         const aspect = viewportWidth / viewportHeight;
         const fovRadians = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
         const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / displayDistanceDefault());
@@ -47,7 +60,7 @@ QtObject {
             defaultDistanceHorizontalRadians,
             lensDistancePixels,
             completeScreenDistancePixels,
-            monitorWrappingScheme: 'horizontal', // or 'vertical' or 'none'
+            monitorWrappingScheme: actualWrapScheme(screens, viewportWidth, viewportHeight),
             curvedDisplay: false // or true
         };
     }
