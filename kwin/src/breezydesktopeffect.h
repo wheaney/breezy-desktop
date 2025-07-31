@@ -18,6 +18,7 @@ namespace KWin
         Q_PROPERTY(qreal distanceFactor READ distanceFactor NOTIFY distanceFactorChanged)
         Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
         Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
+        Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuRotationsChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
         Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs NOTIFY imuRotationsChanged)
@@ -53,6 +54,10 @@ namespace KWin
         QString cursorImageSource() const;
         QPointF cursorPos() const;
 
+        bool isEnabled() const;
+        QList<QQuaternion> imuRotations() const;
+        quint32 imuTimeElapsedMs() const;
+        quint64 imuTimestamp() const;
         bool imuResetState() const;
         QList<qreal> lookAheadConfig() const;
         QList<quint32> displayResolution() const;
@@ -63,10 +68,6 @@ namespace KWin
 
         void showCursor();
         void hideCursor();
-
-        QList<QQuaternion> imuRotations() const;
-        quint32 imuTimeElapsedMs() const;
-        quint64 imuTimestamp() const;
 
     public Q_SLOTS:
         void activate();
@@ -83,6 +84,7 @@ namespace KWin
         void skyboxChanged();
         void backgroundModeChanged();
         void backgroundColorChanged();
+        void enabledStateChanged();
         void imuRotationsChanged();
         void cursorImageChanged();
         void cursorPosChanged();
@@ -93,6 +95,7 @@ namespace KWin
 
     private:
         void realDeactivate();
+        bool checkParityByte(const char* data);
 
         QTimer *m_shutdownTimer;
         QAction *m_toggleAction = nullptr;
@@ -101,17 +104,19 @@ namespace KWin
         QList<ElectricBorder> m_touchBorderActivate;
         QString m_cursorImageSource;
 
+        bool m_enabled = false;
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;
-        quint64 m_imuTimestamp;
+        quint64 m_imuTimestamp = 0;
         QList<qreal> m_lookAheadConfig;
         QList<quint32> m_displayResolution;
         qreal m_diagonalFOV;
         qreal m_lensDistanceRatio;
         bool m_sbsEnabled;
         bool m_customBannerEnabled;
-        QFileSystemWatcher *m_imuRotationFileWatcher = nullptr;
+        QFileSystemWatcher *m_shmFileWatcher = nullptr;
+        QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
     };

@@ -11,22 +11,12 @@ Item {
     required property QtObject effect
     required property QtObject targetScreen
 
-    property bool animationEnabled: false
-
-    function start() {
-        root.animationEnabled = true;
-    }
-
-    function stop() {
-    }
-
     View3D {
-        id: view
         anchors.fill: parent
         environment: SceneEnvironment {
             antialiasingMode: SceneEnvironment.MSAA
         }
-
+        
         PerspectiveCamera { 
             id: camera
             frustumCullingEnabled: false
@@ -42,6 +32,6 @@ Item {
             camera: camera
         }
     }
-
+    
     Component.onCompleted: start();
 }

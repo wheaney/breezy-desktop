@@ -21,6 +21,9 @@ Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
 namespace DataView
 {
+    const QString SHM_DIR = QStringLiteral("/dev/shm");
+    const QString SHM_PATH = SHM_DIR + QStringLiteral("/breezy_desktop_imu");
+
     // Helper constants and functions for shared memory buffer offsets
     constexpr int UINT8_SIZE = sizeof(uint8_t);
     constexpr int BOOL_SIZE = UINT8_SIZE;
@@ -63,10 +66,6 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
-    m_shutdownTimer->setSingleShot(true);
-    connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
-    connect(effects, &EffectsHandler::screenAboutToLock, this, &BreezyDesktopEffect::realDeactivate);
-
     const QKeySequence defaultToggleShortcut = Qt::META | Qt::Key_B;
     m_toggleAction = new QAction(this);
     m_toggleAction->setObjectName(QStringLiteral("BreezyDesktop"));
@@ -90,20 +89,30 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
     // Monitor the IMU file for changes, even if it doesn't exist at startup
-    const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
-    const QString shmDir = QStringLiteral("/dev/shm");
-    m_imuRotationFileWatcher = new QFileSystemWatcher(this);
-    if (QFile::exists(shmPath)) {
-        m_imuRotationFileWatcher->addPath(shmPath);
-    } else {
-        m_imuRotationFileWatcher->addPath(shmDir);
-        connect(m_imuRotationFileWatcher, &QFileSystemWatcher::directoryChanged, this, [this, shmPath](const QString &) {
-            if (QFile::exists(shmPath) && !m_imuRotationFileWatcher->files().contains(shmPath)) {
-                m_imuRotationFileWatcher->addPath(shmPath);
-            }
-        });
-    }
-    connect(m_imuRotationFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateImuRotation);
+    m_shmDirectoryWatcher = new QFileSystemWatcher(this);
+    m_shmDirectoryWatcher->addPath(DataView::SHM_DIR);
+
+    m_shmFileWatcher = new QFileSystemWatcher(this);
+
+    // Setup file watcher with recreation detection
+    auto setupFileWatcher = [this]() {
+        if (QFile::exists(DataView::SHM_PATH) && (
+            m_imuTimestamp == 0 || 
+            QDateTime::currentMSecsSinceEpoch() - m_imuTimestamp > 50 || // file may have been deleted and recreated
+            !m_shmFileWatcher->files().contains(DataView::SHM_PATH)
+        )) {
+            m_shmFileWatcher->removePath(DataView::SHM_PATH);
+            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateImuRotation);
+            m_shmFileWatcher->addPath(DataView::SHM_PATH);
+            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateImuRotation);
+        }
+    };
+
+    // Handle directory changes (file creation/recreation)
+    connect(m_shmDirectoryWatcher, &QFileSystemWatcher::directoryChanged, this, setupFileWatcher);
+
+    // Initial setup
+    setupFileWatcher();
 
     m_cursorUpdateTimer = new QTimer(this);
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
@@ -131,21 +140,17 @@ int BreezyDesktopEffect::requestedEffectChainPosition() const
 
 void BreezyDesktopEffect::toggle()
 {
-    if (isRunning()) {
-        deactivate();
-    } else {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
-        activate();
-    }
+    // TODO update this to use a persistent on/off value
 }
 
 void BreezyDesktopEffect::activate()
 {
-    if (effects->isScreenLocked()) {
-        return;
-    }
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
 
-    setRunning(true);
+    if (!isRunning()) setRunning(true);
+
+    connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
+    m_cursorUpdateTimer->start();
 
     // QuickSceneEffect grabs the keyboard and mouse input, which pulls focus away from the active window
     // and doesn't allow for interaction with anything on the desktop. These two calls fix that.
@@ -158,10 +163,7 @@ void BreezyDesktopEffect::activate()
 
 void BreezyDesktopEffect::deactivate()
 {
-    if (m_shutdownTimer->isActive()) {
-        return;
-    }
-
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
@@ -173,11 +175,12 @@ void BreezyDesktopEffect::deactivate()
         }
     }
 
-    m_shutdownTimer->start(animationDuration());
+    realDeactivate();
 }
 
 void BreezyDesktopEffect::realDeactivate()
 {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
     setRunning(false);
 }
 
@@ -200,6 +203,10 @@ BreezyDesktopEffect::BackgroundMode BreezyDesktopEffect::backgroundMode() const 
 
 QColor BreezyDesktopEffect::backgroundColor() const {
     return QColor(Qt::black);
+}
+
+bool BreezyDesktopEffect::isEnabled() const {
+    return m_enabled;
 }
 
 bool BreezyDesktopEffect::imuResetState() const {
@@ -242,9 +249,27 @@ bool BreezyDesktopEffect::customBannerEnabled() const {
     return m_customBannerEnabled;
 }
 
+bool BreezyDesktopEffect::checkParityByte(const char* data) {
+    const uint8_t parityByte = static_cast<uint8_t>(data[DataView::IMU_PARITY_BYTE[DataView::OFFSET_INDEX]]);
+    uint8_t parity = 0;
+
+    const int dateBytes = DataView::IMU_DATE_MS[DataView::COUNT_INDEX] * DataView::IMU_DATE_MS[DataView::SIZE_INDEX];
+    for (int i = 0; i < dateBytes; ++i) {
+        parity ^= static_cast<uint8_t>(data[DataView::IMU_DATE_MS[DataView::OFFSET_INDEX] + i]);
+    }
+
+    const int quatBytes = DataView::IMU_QUAT_DATA[DataView::COUNT_INDEX] * DataView::IMU_QUAT_DATA[DataView::SIZE_INDEX];
+    for (int i = 0; i < quatBytes; ++i) {
+        parity ^= static_cast<uint8_t>(data[DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX] + i]);
+    }
+
+    return parityByte == parity;
+}
+
 // TODO - can this be something callable from the camera qml code, so it's pulled only when needed?
 static qint64 lastConfigUpdate = 0;
-void BreezyDesktopEffect::updateImuRotation() {
+static qint64 activatedAt = 0;
+void BreezyDesktopEffect::updateImuRotation() {    
     const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
     QFile shmFile(shmPath);
     if (!shmFile.open(QIODevice::ReadOnly)) {
@@ -252,12 +277,13 @@ void BreezyDesktopEffect::updateImuRotation() {
     }
     QByteArray buffer = shmFile.readAll();
     shmFile.close();
-    if (buffer.size() < 64) {
-        return;
-    }
+    if (buffer.size() != DataView::LENGTH) return;
+
     const char* data = buffer.constData();
-    uint8_t version = static_cast<uint8_t>(data[0]);
-    uint8_t enabledFlag = static_cast<uint8_t>(data[1]);
+    if (!checkParityByte(data)) return;
+
+    uint8_t version = static_cast<uint8_t>(data[DataView::VERSION[DataView::OFFSET_INDEX]]);
+    uint8_t enabledFlag = static_cast<uint8_t>(data[DataView::ENABLED[DataView::OFFSET_INDEX]]);
     uint64_t imuDateMs;
     memcpy(&imuDateMs, data + DataView::IMU_DATE_MS[DataView::OFFSET_INDEX], sizeof(imuDateMs));
     imuDateMs = qFromLittleEndian(imuDateMs);
@@ -302,14 +328,35 @@ void BreezyDesktopEffect::updateImuRotation() {
     const bool validKeepAlive = (currentTimeMs - imuDateMs) < 5000;
     const bool validData = validKeepAlive && m_diagonalFOV != 0.0f;
     const uint8_t expectedVersion = 4;
-    const bool enabled = (enabledFlag != 0) && (version == expectedVersion) && validData;
+    bool enabledFlagSet = (enabledFlag != 0);
+    bool validVersion = (version == expectedVersion);
+    const bool wasEnabled = m_enabled;
+    const bool enabled = enabledFlagSet && validVersion && validData;
     if (!enabled) {
-        if (isRunning()) {
-            qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate due to disabled";
+        // give a grace period after enabling the effect
+        if (wasEnabled && (currentTimeMs - activatedAt > 1000)) {
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - disabling effect; currentTimeMs:" << currentTimeMs
+                                << "imuDateMs:" << imuDateMs
+                                << "enabledFlag:" << enabledFlag
+                                << "version:" << version
+                                << "diagonalFOV:" << m_diagonalFOV;
             deactivate();
+            m_enabled = false;
+            Q_EMIT enabledStateChanged();
+            return;
         }
-        return;
+    } else if (!wasEnabled) {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - enabling effect; currentTimeMs:" << currentTimeMs
+                                << "imuDateMs:" << imuDateMs
+                                << "enabledFlag:" << enabledFlag
+                                << "version:" << version
+                                << "diagonalFOV:" << m_diagonalFOV;
+        activate();
+        m_enabled = true;
+        Q_EMIT enabledStateChanged();
+        activatedAt = currentTimeMs;
     }
+    
     if (updateConfig) Q_EMIT devicePropertiesChanged();
 
     float imuData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
@@ -337,10 +384,6 @@ void BreezyDesktopEffect::updateImuRotation() {
     m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
 
     m_imuTimestamp = imuDateMs;
-    if (!isRunning()) {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
-        activate();
-    }
     Q_EMIT imuRotationsChanged();
 }
 
