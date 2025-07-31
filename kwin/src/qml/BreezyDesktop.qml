@@ -18,6 +18,12 @@ Node {
 
     property real viewportDiagonalFOVDegrees: effect.diagonalFOV
     property var viewportResolution: effect.displayResolution
+    property QtObject targetScreen
+    property bool targetScreenSupported: {
+        return supportedModels.some(function(model) {
+            return targetScreen.model.endsWith(model);
+        });
+    }
     property var screens: KWinComponents.Workspace.screens
     // .filter(function(screen) {
     //     return supportedModels.includes(screen.model);

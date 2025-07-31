@@ -20,15 +20,21 @@ Item {
     implicitWidth: parent.width
     implicitHeight: parent.height
 
+    Displays {
+        id: displays
+    }
+
     function updateCamera(rotation) {
         camera.eulerRotation = rotation;
     }
 
     // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
-    function lookAheadMS(imuDateMs, lookAheadConstant, override) {
+    function lookAheadMS(imuDateMs, lookAheadConfig, override) {
         // how stale the imu data is
         const dataAge = Date.now() - imuDateMs;
 
+        const lookAheadConstant = lookAheadConfig[0];
+        const lookAheadMultiplier = lookAheadConfig[1];
         return (override === -1 ? lookAheadConstant : override) + dataAge;
     }
 
@@ -54,7 +60,10 @@ Item {
 
     function updateFOV() {
         const aspectRatio = displayResolution[0] / displayResolution[1];
-        camera.fieldOfView = 2 * Math.atan(Math.tan(diagonalFOV * Math.PI / 360) / Math.sqrt(1 + aspectRatio * aspectRatio)) * 180 / Math.PI;
+        camera.fieldOfView = displays.radianToDegree(displays.diagonalToCrossFOVs(
+            displays.degreeToRadian(root.diagonalFOV),
+            aspectRatio
+        ).vertical);
     }
 
     onDisplayResolutionChanged: updateFOV();
@@ -68,7 +77,7 @@ Item {
                     root.imuRotations[0],
                     root.imuRotations[1],
                     root.imuTimeElapsedMs,
-                    lookAheadMS(root.imuTimestamp, root.lookAheadConfig[0], -1)
+                    lookAheadMS(root.imuTimestamp, root.lookAheadConfig, -1)
                 ));
             }
         }
