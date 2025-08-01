@@ -5,7 +5,7 @@ target_sources(breezy_desktop_effect PRIVATE
     breezydesktopeffect.cpp
     main.cpp
 )
-kconfig_add_kcfg_files(breezy_desktop_effect cubeconfig.kcfgc)
+kconfig_add_kcfg_files(breezy_desktop_effect breezydesktopconfig.kcfgc)
 
 target_include_directories(breezy_desktop_effect PRIVATE /usr/include/kwin)
 target_link_libraries(breezy_desktop_effect
@@ -23,5 +23,5 @@ target_link_libraries(breezy_desktop_effect
     KWin::kwin
 )
 
-install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
-install(FILES metadata.json DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
+install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)
+install(FILES metadata.json DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)

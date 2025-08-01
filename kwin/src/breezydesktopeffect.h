@@ -13,11 +13,6 @@ namespace KWin
     class BreezyDesktopEffect : public QuickSceneEffect
     {
         Q_OBJECT
-        Q_PROPERTY(int animationDuration READ animationDuration NOTIFY animationDurationChanged)
-        Q_PROPERTY(qreal faceDisplacement READ faceDisplacement NOTIFY faceDisplacementChanged)
-        Q_PROPERTY(qreal distanceFactor READ distanceFactor NOTIFY distanceFactorChanged)
-        Q_PROPERTY(BackgroundMode backgroundMode READ backgroundMode NOTIFY backgroundModeChanged)
-        Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY backgroundColorChanged)
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuRotationsChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
@@ -27,18 +22,13 @@ namespace KWin
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
         Q_PROPERTY(QList<qreal> lookAheadConfig READ lookAheadConfig NOTIFY devicePropertiesChanged)
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
+        Q_PROPERTY(qreal displayDistance READ displayDistance NOTIFY displayDistanceChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool customBannerEnabled READ customBannerEnabled NOTIFY devicePropertiesChanged)
 
     public:
-        enum class BackgroundMode
-        {
-            Color,
-            Skybox,
-        };
-        Q_ENUM(BackgroundMode)
 
         BreezyDesktopEffect();
 
@@ -46,11 +36,6 @@ namespace KWin
 
         int requestedEffectChainPosition() const override;
 
-        int animationDuration() const;
-        qreal faceDisplacement() const;
-        qreal distanceFactor() const;
-        BackgroundMode backgroundMode() const;
-        QColor backgroundColor() const;
         QString cursorImageSource() const;
         QPointF cursorPos() const;
 
@@ -61,6 +46,8 @@ namespace KWin
         bool imuResetState() const;
         QList<qreal> lookAheadConfig() const;
         QList<quint32> displayResolution() const;
+        qreal displayDistance() const;
+        void setDisplayDistance(qreal distance);
         qreal diagonalFOV() const;
         qreal lensDistanceRatio() const;
         bool sbsEnabled() const;
@@ -78,12 +65,7 @@ namespace KWin
         void updateCursorPos();
 
     Q_SIGNALS:
-        void faceDisplacementChanged();
-        void distanceFactorChanged();
-        void animationDurationChanged();
-        void skyboxChanged();
-        void backgroundModeChanged();
-        void backgroundColorChanged();
+        void displayDistanceChanged();
         void enabledStateChanged();
         void imuRotationsChanged();
         void cursorImageChanged();
@@ -119,6 +101,7 @@ namespace KWin
         QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
+        qreal m_displayDistance = 1.05;
     };
 
 } // namespace KWin

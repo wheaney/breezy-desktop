@@ -8,15 +8,15 @@
 
 #include <KCModule>
 
-#include "ui_cubeeffectkcm.h"
+#include "ui_breezydesktopeffectkcm.h"
 
-class CubeEffectConfig : public KCModule
+class BreezyDesktopEffectConfig : public KCModule
 {
     Q_OBJECT
 
 public:
-    CubeEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args);
-    ~CubeEffectConfig() override;
+    BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args);
+    ~BreezyDesktopEffectConfig() override;
 
 public Q_SLOTS:
     void load() override;
@@ -29,5 +29,5 @@ private:
     void updateConfigFromUi();
     void updateUnmanagedState();
 
-    ::Ui::CubeEffectConfig ui;
+    ::Ui::BreezyDesktopEffectConfig ui;
 };

@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-set(breezy_desktop_config_SOURCES cubeeffectkcm.cpp)
-ki18n_wrap_ui(breezy_desktop_config_SOURCES cubeeffectkcm.ui)
+set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp)
+ki18n_wrap_ui(breezy_desktop_config_SOURCES breezydesktopeffectkcm.ui)
 qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kwineffects_interface)
 
 kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "kwin/effects/configs" SOURCES ${breezy_desktop_config_SOURCES})
-kconfig_add_kcfg_files(breezy_desktop_config ../cubeconfig.kcfgc)
+kconfig_add_kcfg_files(breezy_desktop_config ../breezydesktopconfig.kcfgc)
 target_link_libraries(breezy_desktop_config
     KF6::ConfigCore
     KF6::ConfigGui

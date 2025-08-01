@@ -1,6 +1,8 @@
 import QtQuick
 
 QtObject {
+    property real displayDistance: effect.displayDistance
+
     // Converts degrees to radians
     function degreeToRadian(degree) {
         return degree * Math.PI / 180;
@@ -23,7 +25,7 @@ QtObject {
     }
 
     function displayDistanceDefault() {
-        return 1.0;
+        return displayDistance;
     }
 
     function actualWrapScheme(screens, viewportWidth, viewportHeight) {

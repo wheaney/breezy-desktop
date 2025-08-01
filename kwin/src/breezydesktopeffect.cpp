@@ -1,5 +1,5 @@
 #include "breezydesktopeffect.h"
-#include "cubeconfig.h"
+#include "breezydesktopconfig.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
 #include "opengl/glutils.h"
@@ -64,7 +64,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     : m_shutdownTimer(new QTimer(this))
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
-    qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
+    qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop_effect", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     const QKeySequence defaultToggleShortcut = Qt::META | Qt::Key_B;
     m_toggleAction = new QAction(this);
@@ -86,7 +86,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     updateCursorImage();
     reconfigure(ReconfigureAll);
 
-    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
+    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop_effect/qml/main.qml"))));
 
     // Monitor the IMU file for changes, even if it doesn't exist at startup
     m_shmDirectoryWatcher = new QFileSystemWatcher(this);
@@ -122,7 +122,8 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
-    CubeConfig::self()->read();
+    BreezyDesktopConfig::self()->read();
+    setDisplayDistance(BreezyDesktopConfig::displayDistance());
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -167,14 +168,6 @@ void BreezyDesktopEffect::deactivate()
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
-    
-    const QList<Output *> screens = effects->screens();
-    for (Output *screen : screens) {
-        if (QuickSceneView *view = viewForScreen(screen)) {
-            QMetaObject::invokeMethod(view->rootItem(), "stop");
-        }
-    }
-
     realDeactivate();
 }
 
@@ -182,27 +175,6 @@ void BreezyDesktopEffect::realDeactivate()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
     setRunning(false);
-}
-
-int BreezyDesktopEffect::animationDuration() const
-{
-    return 200;
-}
-
-qreal BreezyDesktopEffect::faceDisplacement() const {
-    return 100;
-}
-
-qreal BreezyDesktopEffect::distanceFactor() const {
-    return 1.5;
-}
-
-BreezyDesktopEffect::BackgroundMode BreezyDesktopEffect::backgroundMode() const {
-    return BackgroundMode::Color;
-}
-
-QColor BreezyDesktopEffect::backgroundColor() const {
-    return QColor(Qt::black);
 }
 
 bool BreezyDesktopEffect::isEnabled() const {
@@ -231,6 +203,17 @@ QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
 
 QList<quint32> BreezyDesktopEffect::displayResolution() const {
     return m_displayResolution;
+}
+
+qreal BreezyDesktopEffect::displayDistance() const {
+    return m_displayDistance;
+}
+
+void BreezyDesktopEffect::setDisplayDistance(qreal distance) {
+    if (distance != m_displayDistance) {
+        m_displayDistance = std::clamp(distance, 0.2, 2.5);
+        Q_EMIT displayDistanceChanged();
+    }
 }
 
 qreal BreezyDesktopEffect::diagonalFOV() const {

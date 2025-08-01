@@ -5,8 +5,8 @@
     SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 -->
 <ui version="4.0">
- <class>CubeEffectConfig</class>
- <widget class="QWidget" name="CubeEffectConfig">
+ <class>BreezyDesktopEffectConfig</class>
+ <widget class="QWidget" name="BreezyDesktopEffectConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -23,9 +23,22 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="labelDisplayDistance">
      <property name="text">
-      <string>Cube face displacement:</string>
+      <string>Display Distance:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QDoubleSpinBox" name="kcfg_DisplayDistance">
+     <property name="minimum">
+      <double>0.2</double>
+     </property>
+     <property name="maximum">
+      <double>2.5</double>
+     </property>
+     <property name="singleStep">
+      <double>0.01</double>
      </property>
     </widget>
    </item>

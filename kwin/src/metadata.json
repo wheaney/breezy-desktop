@@ -10,6 +10,7 @@
         "Category": "Tools",
         "Description": "Breezy Desktop XR Effect",
         "EnabledByDefault": true,
+        "Id": "breezy_desktop_effect",
         "License": "GPL",
         "Name": "Breezy Desktop XR",
         "ServiceTypes": [
