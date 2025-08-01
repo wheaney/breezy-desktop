@@ -8,44 +8,80 @@ Item {
     antialiasing: true
     focus: false
 
+    readonly property var supportedModels: [
+        "VITURE",
+        "nreal air",
+        "Air",
+        "Air 2",
+        "Air 2 Pro",
+        "Air 2 Ultra",
+        "SmartGlasses", // TCL/RayNeo
+        "Rokid Max",
+        "Rokid Air"
+    ]
     required property QtObject effect
     required property QtObject targetScreen
 
-    DesktopView {
-        id: desktopView
-        screen: root.targetScreen
-        width: root.targetScreen.geometry.width
-        height: root.targetScreen.geometry.height
+    property real viewportDiagonalFOVDegrees: effect.diagonalFOV
+    property var viewportResolution: effect.displayResolution
+    property var screens: KWinComponents.Workspace.screens
+    // .filter(function(screen) {
+    //     return supportedModels.includes(screen.model);
+    // })
+
+    Displays {
+        id: displays
     }
 
-    View3D {
-        id: view3D
-        anchors.fill: parent
-        environment: SceneEnvironment {
-            antialiasingMode: SceneEnvironment.MSAA
-        }
-        
-        PerspectiveCamera { 
-            id: camera
-            frustumCullingEnabled: false
-        }
+    property var monitorPlacements: {
+        const fovDetails = displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio);
+        const monitorSpacing = 0.0;
+        return displays.monitorsToPlacements(fovDetails, screens.map(screen => screen.geometry), monitorSpacing);
+    }
 
-        BreezyDesktop {
-            id: breezyDesktop
-            targetScreen: root.targetScreen
+    Component {
+        id: desktopViewComponent
+        DesktopView {
+            screen: root.targetScreen
+            width: root.targetScreen.geometry.width
+            height: root.targetScreen.geometry.height
         }
+    }
 
-        CameraController {
-            id: cameraController
+    Component {
+        id: view3DComponent
+        View3D {
             anchors.fill: parent
-            camera: camera
+            environment: SceneEnvironment {
+                antialiasingMode: SceneEnvironment.MSAA
+            }
+            
+            PerspectiveCamera { 
+                id: camera
+                frustumCullingEnabled: false
+            }
+
+            BreezyDesktop {
+                id: breezyDesktop
+            }
+
+            CameraController {
+                id: cameraController
+                anchors.fill: parent
+                camera: camera
+            }
         }
+    }
+
+    Loader {
+        id: viewLoader
+        anchors.fill: parent
     }
     
-    // TODO - make it so the View3D isn't loaded unless it's a supported screen
     Component.onCompleted: {
-        console.log(`Breezy -  initialized with target screen: ${breezyDesktop.targetScreen.model}, supported: ${breezyDesktop.targetScreenSupported}`);
-        view3D.opacity = breezyDesktop.targetScreenSupported ? 1.0 : 0.0;
-        desktopView.opacity = breezyDesktop.targetScreenSupported ? 0.0 : 1.0;
+        const targetScreenSupported = supportedModels.some(model => root.targetScreen.model.endsWith(model));
+        console.log(`Breezy - initialized with target screen: ${root.targetScreen.model}, supported: ${targetScreenSupported}`);
+
+        viewLoader.sourceComponent = targetScreenSupported ? view3DComponent : desktopViewComponent;
     }
 }

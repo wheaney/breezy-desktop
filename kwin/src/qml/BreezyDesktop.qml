@@ -1,33 +1,11 @@
 import QtQuick
 import QtQuick3D
-import org.kde.kwin as KWinComponents
 
 
 Node {
-    readonly property var supportedModels: [
-        "VITURE",
-        "nreal air",
-        "Air",
-        "Air 2",
-        "Air 2 Pro",
-        "Air 2 Ultra",
-        "SmartGlasses", // TCL/RayNeo
-        "Rokid Max",
-        "Rokid Air"
-    ]
-
-    property real viewportDiagonalFOVDegrees: effect.diagonalFOV
     property var viewportResolution: effect.displayResolution
-    property QtObject targetScreen
-    property bool targetScreenSupported: {
-        return supportedModels.some(function(model) {
-            return targetScreen.model.endsWith(model);
-        });
-    }
-    property var screens: KWinComponents.Workspace.screens
-    // .filter(function(screen) {
-    //     return supportedModels.includes(screen.model);
-    // })
+    property var screens: root.screens
+    property var monitorPlacements: root.monitorPlacements
 
     // x value for placing the viewport in the middle of all screens
     property real screensXMid: {
@@ -61,11 +39,6 @@ Node {
         id: displays
     }
 
-    property var monitorPlacements: {
-        const fovDetails = displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio);
-        const monitorSpacing = 0.0;
-        return displays.monitorsToPlacements(fovDetails, screens.map(screen => screen.geometry), monitorSpacing);
-    }
 
     Repeater3D {
         model: screens.length
