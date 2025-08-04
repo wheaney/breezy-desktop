@@ -22,7 +22,8 @@ namespace KWin
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
         Q_PROPERTY(QList<qreal> lookAheadConfig READ lookAheadConfig NOTIFY devicePropertiesChanged)
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
-        Q_PROPERTY(qreal displayDistance READ displayDistance NOTIFY displayDistanceChanged)
+        Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY displayDistanceChanged)
+        Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY displayDistanceChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
@@ -46,8 +47,10 @@ namespace KWin
         bool imuResetState() const;
         QList<qreal> lookAheadConfig() const;
         QList<quint32> displayResolution() const;
-        qreal displayDistance() const;
-        void setDisplayDistance(qreal distance);
+        qreal focusedDisplayDistance() const;
+        void setFocusedDisplayDistance(qreal distance);
+        qreal allDisplaysDistance() const;
+        void setAllDisplaysDistance(qreal distance);
         qreal diagonalFOV() const;
         qreal lensDistanceRatio() const;
         bool sbsEnabled() const;
@@ -101,7 +104,8 @@ namespace KWin
         QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
-        qreal m_displayDistance = 1.05;
+        qreal m_focusedDisplayDistance = 0.85;
+        qreal m_allDisplaysDistance = 1.05;
     };
 
 } // namespace KWin

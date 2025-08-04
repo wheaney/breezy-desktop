@@ -5,11 +5,17 @@
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
     <kcfgfile name="kwinrc"/>
     <group name="Effect-breezy_desktop_effect">
-        <entry name="DisplayDistance" type="Double">
+        <entry name="FocusedDisplayDistance" type="Double">
+            <default>0.85</default>
+            <min>0.2</min>
+            <max>2.5</max>
+            <label>Focused Display Distance</label>
+        </entry>
+        <entry name="AllDisplaysDistance" type="Double">
             <default>1.05</default>
             <min>0.2</min>
             <max>2.5</max>
-            <label>Display Distance</label>
+            <label>All Displays Distance</label>
         </entry>
     </group>
 </kcfg>

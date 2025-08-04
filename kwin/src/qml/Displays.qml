@@ -1,7 +1,8 @@
 import QtQuick
 
 QtObject {
-    property real displayDistance: effect.displayDistance
+    readonly property real focusThreshold: 0.95 / 2.0
+    readonly property real unfocusThreshold: 1.1 / 2.0
 
     // Converts degrees to radians
     function degreeToRadian(degree) {
@@ -10,6 +11,16 @@ QtObject {
 
     function radianToDegree(radian) {
         return radian * 180 / Math.PI;
+    }
+
+    function nwuToEusVector(vector) {
+        // Converts NWU vector to EUS vector
+        return Qt.vector3d(-vector.y, vector.z, -vector.x);
+    }
+
+    function eusToNwuQuat(quaternion) {
+        // Converts EUS quaternion to NWU quaternion
+        return Qt.quaternion(quaternion.scalar, -quaternion.z, -quaternion.x, quaternion.y);
     }
 
     // Converts diagonal FOV in radians and aspect ratio to horizontal and vertical FOVs
@@ -22,10 +33,6 @@ QtObject {
             horizontal: 2 * Math.atan(flatHorizontalFOV / 2),
             vertical: 2 * Math.atan(flatVerticalFOV / 2)
         }
-    }
-
-    function displayDistanceDefault() {
-        return displayDistance;
     }
 
     function actualWrapScheme(screens, viewportWidth, viewportHeight) {
@@ -44,8 +51,8 @@ QtObject {
     function fovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio) {
         const aspect = viewportWidth / viewportHeight;
         const fovRadians = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
-        const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / displayDistanceDefault());
-        const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / displayDistanceDefault());
+        const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / effect.allDisplaysDistance);
+        const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / effect.allDisplaysDistance);
 
         // distance needed for the FOV-sized monitor to fill up the screen
         const fullScreenDistance = viewportHeight / 2 / Math.tan(fovRadians.vertical / 2);
@@ -105,26 +112,6 @@ QtObject {
             }
         }
     })
-
-    // Applies a quaternion to a 3D vector
-    function applyQuaternionToVector(vector, quaternion) {
-        var t = [
-            2.0 * (quaternion[1] * vector[2] - quaternion[2] * vector[1]),
-            2.0 * (quaternion[2] * vector[0] - quaternion[0] * vector[2]),
-            2.0 * (quaternion[0] * vector[1] - quaternion[1] * vector[0])
-        ];
-        return [
-            vector[0] + quaternion[3] * t[0] + quaternion[1] * t[2] - quaternion[2] * t[1],
-            vector[1] + quaternion[3] * t[1] + quaternion[2] * t[0] - quaternion[0] * t[2],
-            vector[2] + quaternion[3] * t[2] + quaternion[0] * t[1] - quaternion[1] * t[0]
-        ];
-    }
-
-    // Normalizes a 3D vector
-    function normalizeVector(vector) {
-        var length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
-        return [vector[0] / length, vector[1] / length, vector[2] / length];
-    }
 
     function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels, lengthToRadianFn) {
         var closestWrapPixel = monitorBeginPixel;
@@ -227,16 +214,16 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: originalIndex,
-                    centerNoRotate: [
+                    centerNoRotate: Qt.vector3d(
                         monitorCenterRadius,
                         0,
                         upCenterPixels
-                    ],
-                    centerLook: normalizeVector([
+                    ),
+                    centerLook: Qt.vector3d(
                         monitorCenterRadius * Math.cos(monitorWrapDetails.center),
                         -monitorCenterRadius * Math.sin(monitorWrapDetails.center),
                         upCenterPixels
-                    ]),
+                    ).normalized(),
                     rotationAngleRadians: {
                         x: 0,
                         y: -monitorWrapDetails.center
@@ -267,16 +254,16 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: originalIndex,
-                    centerNoRotate: [
+                    centerNoRotate: Qt.vector3d(
                         monitorCenterRadius,
                         westCenterPixels,
                         0
-                    ],
-                    centerLook: normalizeVector([
+                    ),
+                    centerLook: Qt.vector3d(
                         monitorCenterRadius * Math.cos(monitorWrapDetails.center),
                         westCenterPixels,
                         -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
-                    ]),
+                    ).normalized(),
                     rotationAngleRadians: {
                         x: -monitorWrapDetails.center,
                         y: 0
@@ -295,16 +282,16 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: index,
-                    centerNoRotate: [
+                    centerNoRotate: Qt.vector3d(
                         fovDetails.completeScreenDistancePixels,
                         westCenterPixels,
                         upCenterPixels
-                    ],
-                    centerLook: normalizeVector([
+                    ),
+                    centerLook: Qt.vector3d(
                         fovDetails.completeScreenDistancePixels,
                         westCenterPixels,
                         upCenterPixels
-                    ]),
+                    ).normalized(),
                     rotationAngleRadians: {
                         x: 0,
                         y: 0
@@ -313,7 +300,108 @@ QtObject {
             });
         }
 
+        // put them back in the original monitor order before returning
         monitorPlacements.sort(function(a, b) { return a.originalIndex - b.originalIndex; });
+        
         return monitorPlacements;
+    }
+
+    // returns how far the look vector is from the center of the monitor, as a percentage of the monitor's width
+    function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
+        var monitorAspectRatio = monitorDetails.width / monitorDetails.height;
+
+        // weight the up distance by the aspect ratio
+        var vectorUpPixels = upAngleToLength(
+            fovDetails.defaultDistanceVerticalRadians,
+            fovDetails.heightPixels,
+            fovDetails.completeScreenDistancePixels,
+            monitorVector.z,
+            monitorVector.x
+        );
+        var upDeltaPixels = (lookUpPixels - vectorUpPixels) * monitorAspectRatio;
+
+        var vectorWestPixels = westAngleToLength(
+            fovDetails.defaultDistanceHorizontalRadians,
+            fovDetails.widthPixels,
+            fovDetails.completeScreenDistancePixels,
+            monitorVector.y,
+            monitorVector.x
+        );
+        var westDeltaPixels = lookWestPixels - vectorWestPixels;
+        var totalDeltaPixels = Math.sqrt(upDeltaPixels * upDeltaPixels + westDeltaPixels * westDeltaPixels);
+
+        // threshold is a percentage of width, and height was already properly weighted
+        return totalDeltaPixels / monitorDetails.width;
+    }
+
+    function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, smoothFollowEnabled, fovDetails, monitorsDetails) {
+        var lookVector = Qt.vector3d(1.0, 0.0, 0.0); // NWU vector pointing to the center of the screen
+        var rotatedLookVector = quaternion.times(lookVector);
+
+        // Use curved or flat conversion functions depending on wrapping scheme
+        var upConversionFns = fovDetails.monitorWrappingScheme === "vertical" ? fovConversionFns.curved : fovConversionFns.flat;
+        var lookUpPixels = upConversionFns.angleToLength(
+            fovDetails.defaultDistanceVerticalRadians,
+            fovDetails.heightPixels,
+            fovDetails.completeScreenDistancePixels,
+            rotatedLookVector.z,
+            rotatedLookVector.x
+        );
+        var westConversionFns = fovDetails.monitorWrappingScheme === "horizontal" ? fovConversionFns.curved : fovConversionFns.flat;
+        var lookWestPixels = westConversionFns.angleToLength(
+            fovDetails.defaultDistanceHorizontalRadians,
+            fovDetails.widthPixels,
+            fovDetails.completeScreenDistancePixels,
+            rotatedLookVector.y,
+            rotatedLookVector.x
+        );
+
+        var closestIndex = -1;
+        var closestDistance = Number.POSITIVE_INFINITY;
+
+        // Check current focused monitor first
+        if (currentFocusedIndex !== -1) {
+            var focusedDistance = getMonitorDistance(
+                fovDetails,
+                lookUpPixels,
+                lookWestPixels,
+                monitorVectors[currentFocusedIndex],
+                monitorsDetails[currentFocusedIndex],
+                upConversionFns.angleToLength,
+                westConversionFns.angleToLength
+            ) * effect.focusedDisplayDistance / effect.allDisplaysDistance;
+
+            console.log(`\t\t\tBreezy - Focused monitor index: ${currentFocusedIndex}, distance: ${focusedDistance}`);
+
+            if (smoothFollowEnabled || focusedDistance < unfocusThreshold)
+                return currentFocusedIndex;
+        }
+
+        // Find the closest monitor
+        for (var i = 0; i < monitorVectors.length; ++i) {
+            if (i === currentFocusedIndex)
+                continue;
+            var distance = getMonitorDistance(
+                fovDetails,
+                lookUpPixels,
+                lookWestPixels,
+                monitorVectors[i],
+                monitorsDetails[i],
+                upConversionFns.angleToLength,
+                westConversionFns.angleToLength
+            );
+            console.log(`\t\t\tBreezy - Monitor index: ${i}, distance: ${distance}`);
+
+            if (distance < closestDistance) {
+                closestIndex = i;
+                closestDistance = distance;
+            }
+        }
+
+        if (smoothFollowEnabled || closestDistance < focusThreshold)
+            return closestIndex;
+
+        // Unfocus all displays
+        return -1;
     }
 }

@@ -23,14 +23,34 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="labelDisplayDistance">
+    <widget class="QLabel" name="labelFocusedDisplayDistance">
      <property name="text">
-      <string>Display Distance:</string>
+      <string>Focused Display Distance:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QDoubleSpinBox" name="kcfg_DisplayDistance">
+    <widget class="QDoubleSpinBox" name="kcfg_FocusedDisplayDistance">
+     <property name="minimum">
+      <double>0.2</double>
+     </property>
+     <property name="maximum">
+      <double>2.5</double>
+     </property>
+     <property name="singleStep">
+      <double>0.01</double>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelAllDisplaysDistance">
+     <property name="text">
+      <string>All Displays Distance:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QDoubleSpinBox" name="kcfg_AllDisplaysDistance">
      <property name="minimum">
       <double>0.2</double>
      </property>

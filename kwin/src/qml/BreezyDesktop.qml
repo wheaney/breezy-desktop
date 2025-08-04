@@ -3,9 +3,14 @@ import QtQuick3D
 
 
 Node {
+    id: breezyDesktop
+    
     property var viewportResolution: effect.displayResolution
     property var screens: root.screens
+    property var fovDetails: root.fovDetails
     property var monitorPlacements: root.monitorPlacements
+    property var imuRotations: effect.imuRotations
+    property int focusedMonitorIndex: -1
 
     // x value for placing the viewport in the middle of all screens
     property real screensXMid: {
@@ -39,7 +44,6 @@ Node {
         id: displays
     }
 
-
     Repeater3D {
         model: screens.length
         delegate: BreezyDesktopDisplay {
@@ -60,13 +64,40 @@ Node {
             eulerRotation.y: screenRotationY
             eulerRotation.x: screenRotationX
             position: {
-                // rotate about the Y (up) axis, to create a horizontal movement
-                const transform = Qt.matrix4x4();
-                transform.rotate(screenRotationY, Qt.vector3d(0, 1, 0));
-                transform.rotate(screenRotationX, Qt.vector3d(1, 0, 0));
-
                 // camera looks along the negative Z axis
-                return transform.times(Qt.vector3d(-monitorPlacement.centerNoRotate[1], monitorPlacement.centerNoRotate[2], -monitorPlacement.centerNoRotate[0]));
+                let positionVector = displays.nwuToEusVector(monitorPlacement.centerNoRotate);
+                if (focusedMonitorIndex === index) {
+                    positionVector = positionVector.times(effect.focusedDisplayDistance / effect.allDisplaysDistance);
+                }
+
+                // position vector is only translated in flat directions, without rotations applied, so apply them here
+                const rotationMatrix = Qt.matrix4x4();
+
+                // only one of these should ever be non-zero, since we only rotate in the direction of the "wrap" preference
+                rotationMatrix.rotate(screenRotationY, Qt.vector3d(0, 1, 0));
+                rotationMatrix.rotate(screenRotationX, Qt.vector3d(1, 0, 0));
+
+                return rotationMatrix.times(positionVector);
+            }
+        }
+    }
+
+    FrameAnimation {
+        running: true
+        onTriggered: {
+            if (breezyDesktop.imuRotations && breezyDesktop.imuRotations.length > 0) {
+                const focusedIndex = displays.findFocusedMonitor(
+                    displays.eusToNwuQuat(breezyDesktop.imuRotations[0]), 
+                    breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
+                    breezyDesktop.focusedMonitorIndex,
+                    false, // TODO smooth follow
+                    breezyDesktop.fovDetails,
+                    breezyDesktop.screens.map(screen => screen.geometry)
+                );
+
+                console.log(`\t\t\tBreezy - Next focused monitor index: ${focusedIndex}`);
+                if (focusedIndex !== breezyDesktop.focusedMonitorIndex) 
+                    breezyDesktop.focusedMonitorIndex = focusedIndex;
             }
         }
     }

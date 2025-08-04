@@ -123,7 +123,8 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
     BreezyDesktopConfig::self()->read();
-    setDisplayDistance(BreezyDesktopConfig::displayDistance());
+    setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance());
+    setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance());
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -205,13 +206,24 @@ QList<quint32> BreezyDesktopEffect::displayResolution() const {
     return m_displayResolution;
 }
 
-qreal BreezyDesktopEffect::displayDistance() const {
-    return m_displayDistance;
+qreal BreezyDesktopEffect::focusedDisplayDistance() const {
+    return m_focusedDisplayDistance;
 }
 
-void BreezyDesktopEffect::setDisplayDistance(qreal distance) {
-    if (distance != m_displayDistance) {
-        m_displayDistance = std::clamp(distance, 0.2, 2.5);
+void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
+    if (distance != m_focusedDisplayDistance) {
+        m_focusedDisplayDistance = std::clamp(distance, 0.2, 2.5);
+        Q_EMIT displayDistanceChanged();
+    }
+}
+
+qreal BreezyDesktopEffect::allDisplaysDistance() const {
+    return m_allDisplaysDistance;
+}
+
+void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
+    if (distance != m_allDisplaysDistance) {
+        m_allDisplaysDistance = std::clamp(distance, 0.2, 2.5);
         Q_EMIT displayDistanceChanged();
     }
 }

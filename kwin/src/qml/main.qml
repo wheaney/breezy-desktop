@@ -33,8 +33,9 @@ Item {
         id: displays
     }
 
+    property var fovDetails: displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio)
+
     property var monitorPlacements: {
-        const fovDetails = displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio);
         const monitorSpacing = 0.0;
         return displays.monitorsToPlacements(fovDetails, screens.map(screen => screen.geometry), monitorSpacing);
     }
@@ -58,7 +59,6 @@ Item {
             
             PerspectiveCamera { 
                 id: camera
-                frustumCullingEnabled: false
             }
 
             BreezyDesktop {

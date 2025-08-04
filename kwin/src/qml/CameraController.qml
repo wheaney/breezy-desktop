@@ -15,7 +15,6 @@ Item {
     property real lensDistanceRatio: effect.lensDistanceRatio
     property bool sbsEnabled: effect.sbsEnabled
     property bool customBannerEnabled: effect.customBannerEnabled
-    property bool useImuRotation: true // Set to true to use XR rotation when available
 
     implicitWidth: parent.width
     implicitHeight: parent.height
@@ -72,7 +71,7 @@ Item {
     FrameAnimation {
         running: true
         onTriggered: {
-            if (root.useImuRotation && root.imuRotations && root.imuRotations.length > 0) {
+            if (root.imuRotations && root.imuRotations.length > 0) {
                 updateCamera(applyLookAhead(
                     root.imuRotations[0],
                     root.imuRotations[1],
