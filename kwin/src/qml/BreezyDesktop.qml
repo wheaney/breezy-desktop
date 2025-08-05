@@ -44,12 +44,20 @@ Node {
         id: displays
     }
 
+    function displayAtIndex(index) {
+        if (index < 0 || index >= screens.length) {
+            return null;
+        }
+        return breezyDesktopDisplays.objectAt(index);
+    }
+
     Repeater3D {
+        id: breezyDesktopDisplays
         model: screens.length
         delegate: BreezyDesktopDisplay {
             screen: screens[index]
             monitorPlacement: monitorPlacements[index]
-
+            property real monitorDistance: effect.allDisplaysDistance
             property real screenRotationY: displays.radianToDegree(monitorPlacement.rotationAngleRadians.y)
             property real screenRotationX: displays.radianToDegree(monitorPlacement.rotationAngleRadians.x)
 
@@ -65,10 +73,9 @@ Node {
             eulerRotation.x: screenRotationX
             position: {
                 // camera looks along the negative Z axis
-                let positionVector = displays.nwuToEusVector(monitorPlacement.centerNoRotate);
-                if (focusedMonitorIndex === index) {
-                    positionVector = positionVector.times(effect.focusedDisplayDistance / effect.allDisplaysDistance);
-                }
+                const positionVector = 
+                    displays.nwuToEusVector(monitorPlacement.centerNoRotate)
+                            .times(monitorDistance / effect.allDisplaysDistance);
 
                 // position vector is only translated in flat directions, without rotations applied, so apply them here
                 const rotationMatrix = Qt.matrix4x4();
@@ -96,9 +103,65 @@ Node {
                 );
 
                 console.log(`\t\t\tBreezy - Next focused monitor index: ${focusedIndex}`);
-                if (focusedIndex !== breezyDesktop.focusedMonitorIndex) 
+                if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
+                    zoomOutAnimation.stop();
+                    zoomInAnimation.stop();
+                    zoomOnFocusSequence.stop();
+                    if (focusedIndex === -1) {
+                        zoomOutAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
+                        zoomOutAnimation.start();
+                    } else {
+                        if (breezyDesktop.focusedMonitorIndex === -1) {
+                            zoomInAnimation.target = breezyDesktop.displayAtIndex(focusedIndex);
+                            zoomInAnimation.start();
+                        } else {
+                            zoomInSeqAnimation.target = breezyDesktop.displayAtIndex(focusedIndex);
+                            zoomOutSeqAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
+                            zoomOnFocusSequence.start();
+                        }
+                    }
                     breezyDesktop.focusedMonitorIndex = focusedIndex;
+                }
             }
+        }
+    }
+
+    NumberAnimation {
+        id: zoomOutAnimation
+        property: "monitorDistance"
+        from: effect.focusedDisplayDistance
+        to: effect.allDisplaysDistance
+        duration: 150
+        running: false
+    }
+
+    NumberAnimation {
+        id: zoomInAnimation
+        property: "monitorDistance"
+        from: effect.allDisplaysDistance
+        to: effect.focusedDisplayDistance
+        duration: 300
+        running: false
+    }
+
+    SequentialAnimation {
+        id: zoomOnFocusSequence
+        running: false
+
+        NumberAnimation {
+            id: zoomOutSeqAnimation
+            property: "monitorDistance"
+            from: effect.focusedDisplayDistance
+            to: effect.allDisplaysDistance
+            duration: 150
+        }
+        PauseAnimation { duration: 50 }
+        NumberAnimation {
+            id: zoomInSeqAnimation
+            property: "monitorDistance"
+            from: effect.allDisplaysDistance
+            to: effect.focusedDisplayDistance
+            duration: 300
         }
     }
 }
