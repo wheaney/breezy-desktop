@@ -13,6 +13,7 @@ Model {
         DefaultMaterial {
             cullMode: Material.NoCulling
             lighting: DefaultMaterial.NoLighting
+            depthDrawMode: Material.AlwaysDepthDraw
             diffuseMap: Texture {
                 sourceItem: DesktopView {
                     screen: display.screen
