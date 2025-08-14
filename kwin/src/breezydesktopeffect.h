@@ -85,8 +85,6 @@ namespace KWin
         QTimer *m_shutdownTimer;
         QAction *m_toggleAction = nullptr;
         QList<QKeySequence> m_toggleShortcut;
-        QList<ElectricBorder> m_borderActivate;
-        QList<ElectricBorder> m_touchBorderActivate;
         QString m_cursorImageSource;
 
         bool m_enabled = false;

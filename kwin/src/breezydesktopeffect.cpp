@@ -66,17 +66,20 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop_effect", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
-    const QKeySequence defaultToggleShortcut = Qt::META | Qt::Key_B;
+    m_shutdownTimer->setSingleShot(true);
+    connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
+
+    const QKeySequence defaultToggleShortcut = Qt::CTRL | Qt::META | Qt::Key_Backslash;
     m_toggleAction = new QAction(this);
-    m_toggleAction->setObjectName(QStringLiteral("BreezyDesktop"));
-    m_toggleAction->setText(i18n("Toggle BreezyDesktop"));
+    m_toggleAction->setObjectName(QStringLiteral("Breezy Desktop"));
+    m_toggleAction->setText(i18n("Toggle Breezy Desktop"));
     KGlobalAccel::self()->setDefaultShortcut(m_toggleAction, {defaultToggleShortcut});
     KGlobalAccel::self()->setShortcut(m_toggleAction, {defaultToggleShortcut});
     m_toggleShortcut = KGlobalAccel::self()->shortcut(m_toggleAction);
     connect(m_toggleAction, &QAction::triggered, this, &BreezyDesktopEffect::toggle);
 
     connect(KGlobalAccel::self(), &KGlobalAccel::globalShortcutChanged, this, [this](QAction *action, const QKeySequence &seq) {
-        if (action->objectName() == QStringLiteral("BreezyDesktop")) {
+        if (action->objectName() == QStringLiteral("Breezy Desktop")) {
             m_toggleShortcut.clear();
             m_toggleShortcut.append(seq);
         }
@@ -123,8 +126,8 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
     BreezyDesktopConfig::self()->read();
-    setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance());
-    setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance());
+    setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
+    setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -142,7 +145,13 @@ int BreezyDesktopEffect::requestedEffectChainPosition() const
 
 void BreezyDesktopEffect::toggle()
 {
-    // TODO update this to use a persistent on/off value
+    if (isRunning()) {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - deactivating";
+        deactivate();
+    } else {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - activating";
+        activate();
+    }
 }
 
 void BreezyDesktopEffect::activate()
@@ -165,11 +174,18 @@ void BreezyDesktopEffect::activate()
 
 void BreezyDesktopEffect::deactivate()
 {
+    if (m_shutdownTimer->isActive()) {
+        return;
+    }
+
     qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
-    realDeactivate();
+
+    // this triggers realDeactivate with a delay so if it's triggered from QML it gives the QML function time to
+    // exit, avoiding a crash
+    m_shutdownTimer->start(250);
 }
 
 void BreezyDesktopEffect::realDeactivate()
@@ -212,7 +228,7 @@ qreal BreezyDesktopEffect::focusedDisplayDistance() const {
 
 void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
     if (distance != m_focusedDisplayDistance) {
-        m_focusedDisplayDistance = std::clamp(distance, 0.2, 2.5);
+        m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
         Q_EMIT displayDistanceChanged();
     }
 }
@@ -223,7 +239,7 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
     if (distance != m_allDisplaysDistance) {
-        m_allDisplaysDistance = std::clamp(distance, 0.2, 2.5);
+        m_allDisplaysDistance = std::clamp(distance, m_focusedDisplayDistance, 2.5);
         Q_EMIT displayDistanceChanged();
     }
 }

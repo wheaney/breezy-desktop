@@ -24,10 +24,27 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 {
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
+
+    auto actionCollection = new KActionCollection(this, QStringLiteral("kwin"));
+    actionCollection->setComponentDisplayName(i18n("KWin"));
+    actionCollection->setConfigGroup(QStringLiteral("breezy_desktop_effect"));
+    actionCollection->setConfigGlobal(true);
+
+    const QKeySequence defaultToggleShortcut = Qt::CTRL | Qt::META | Qt::Key_Backslash;
+    QAction *toggleAction = actionCollection->addAction(QStringLiteral("Breezy Desktop"));
+    toggleAction->setText(i18n("Toggle Breezy Desktop"));
+    toggleAction->setProperty("isConfigurationAction", true);
+    KGlobalAccel::self()->setDefaultShortcut(toggleAction, {defaultToggleShortcut});
+    KGlobalAccel::self()->setShortcut(toggleAction, {defaultToggleShortcut});
+
+    ui.shortcutsEditor->addCollection(actionCollection);
+    connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
 }
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
 {
+    // If save() is called, undo() has no effect.
+    ui.shortcutsEditor->undo();
 }
 
 void BreezyDesktopEffectConfig::load()
@@ -57,6 +74,7 @@ void BreezyDesktopEffectConfig::defaults()
 
 void BreezyDesktopEffectConfig::updateConfigFromUi()
 {
+    ui.shortcutsEditor->save();
 }
 
 void BreezyDesktopEffectConfig::updateUiFromConfig()
@@ -65,6 +83,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
 
 void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
 {
+    ui.shortcutsEditor->allDefault();
 }
 
 void BreezyDesktopEffectConfig::updateUnmanagedState()

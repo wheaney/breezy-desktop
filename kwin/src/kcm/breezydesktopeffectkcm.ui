@@ -30,15 +30,24 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QDoubleSpinBox" name="kcfg_FocusedDisplayDistance">
+    <widget class="QSlider" name="kcfg_FocusedDisplayDistance">
      <property name="minimum">
-      <double>0.2</double>
+      <double>20</double>
      </property>
      <property name="maximum">
-      <double>2.5</double>
+      <double>250</double>
      </property>
-     <property name="singleStep">
-      <double>0.01</double>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <double>20</double>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tracking">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -50,21 +59,46 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QDoubleSpinBox" name="kcfg_AllDisplaysDistance">
+    <widget class="QSlider" name="kcfg_AllDisplaysDistance">
      <property name="minimum">
-      <double>0.2</double>
+      <double>20</double>
      </property>
      <property name="maximum">
-      <double>2.5</double>
+      <double>250</double>
      </property>
-     <property name="singleStep">
-      <double>0.01</double>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBelow</enum>
+     </property>
+     <property name="tickInterval">
+      <double>20</double>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tracking">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KShortcutsEditor</class>
+   <extends>QWidget</extends>
+   <header>kshortcutseditor.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>

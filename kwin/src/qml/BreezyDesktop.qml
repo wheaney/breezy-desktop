@@ -102,7 +102,6 @@ Node {
                     breezyDesktop.screens.map(screen => screen.geometry)
                 );
 
-                console.log(`\t\t\tBreezy - Next focused monitor index: ${focusedIndex}`);
                 if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
                     zoomOutAnimation.stop();
                     zoomInAnimation.stop();
@@ -129,7 +128,6 @@ Node {
     NumberAnimation {
         id: zoomOutAnimation
         property: "monitorDistance"
-        from: effect.focusedDisplayDistance
         to: effect.allDisplaysDistance
         duration: 150
         running: false
@@ -138,7 +136,6 @@ Node {
     NumberAnimation {
         id: zoomInAnimation
         property: "monitorDistance"
-        from: effect.allDisplaysDistance
         to: effect.focusedDisplayDistance
         duration: 300
         running: false
@@ -151,7 +148,6 @@ Node {
         NumberAnimation {
             id: zoomOutSeqAnimation
             property: "monitorDistance"
-            from: effect.focusedDisplayDistance
             to: effect.allDisplaysDistance
             duration: 150
         }
@@ -159,7 +155,6 @@ Node {
         NumberAnimation {
             id: zoomInSeqAnimation
             property: "monitorDistance"
-            from: effect.allDisplaysDistance
             to: effect.focusedDisplayDistance
             duration: 300
         }

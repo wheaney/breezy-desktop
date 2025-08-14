@@ -371,8 +371,6 @@ QtObject {
                 westConversionFns.angleToLength
             ) * effect.focusedDisplayDistance / effect.allDisplaysDistance;
 
-            console.log(`\t\t\tBreezy - Focused monitor index: ${currentFocusedIndex}, distance: ${focusedDistance}`);
-
             if (smoothFollowEnabled || focusedDistance < unfocusThreshold)
                 return currentFocusedIndex;
         }
@@ -390,7 +388,6 @@ QtObject {
                 upConversionFns.angleToLength,
                 westConversionFns.angleToLength
             );
-            console.log(`\t\t\tBreezy - Monitor index: ${i}, distance: ${distance}`);
 
             if (distance < closestDistance) {
                 closestIndex = i;

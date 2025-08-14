@@ -80,8 +80,6 @@ Item {
     
     Component.onCompleted: {
         const targetScreenSupported = supportedModels.some(model => root.targetScreen.model.endsWith(model));
-        console.log(`Breezy - initialized with target screen: ${root.targetScreen.model}, supported: ${targetScreenSupported}`);
-
         viewLoader.sourceComponent = targetScreenSupported ? view3DComponent : desktopViewComponent;
     }
 }
