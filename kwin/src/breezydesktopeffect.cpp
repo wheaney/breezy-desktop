@@ -86,7 +86,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     updateCursorImage();
     reconfigure(ReconfigureAll);
 
-    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop_effect/qml/main.qml"))));
+    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop_effect/contents/ui/main.qml"))));
 
     // Monitor the IMU file for changes, even if it doesn't exist at startup
     m_shmDirectoryWatcher = new QFileSystemWatcher(this);
@@ -123,6 +123,8 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
     BreezyDesktopConfig::self()->read();
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - reconfigure, focusedDisplayDistance:" << BreezyDesktopConfig::focusedDisplayDistance()
+                        << " allDisplaysDistance:" << BreezyDesktopConfig::allDisplaysDistance();
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance());
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance());
 }
@@ -211,6 +213,7 @@ qreal BreezyDesktopEffect::focusedDisplayDistance() const {
 }
 
 void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - setFocusedDisplayDistance:" << distance;
     if (distance != m_focusedDisplayDistance) {
         m_focusedDisplayDistance = std::clamp(distance, 0.2, 2.5);
         Q_EMIT displayDistanceChanged();
@@ -222,6 +225,7 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 }
 
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - setAllDisplaysDistance:" << distance;
     if (distance != m_allDisplaysDistance) {
         m_allDisplaysDistance = std::clamp(distance, 0.2, 2.5);
         Q_EMIT displayDistanceChanged();

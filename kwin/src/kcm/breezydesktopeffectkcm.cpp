@@ -5,9 +5,6 @@
 */
 
 #include "breezydesktopeffectkcm.h"
-#include "breezydesktopconfig.h"
-
-#include <kwineffects_interface.h>
 
 #include <KActionCollection>
 #include <KGlobalAccel>
@@ -15,15 +12,25 @@
 #include <KPluginFactory>
 
 #include <QAction>
+#include <QDBusConnection>
+#include <QDBusMessage>
 #include <QFileDialog>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
 K_PLUGIN_CLASS(BreezyDesktopEffectConfig)
 
-BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args)
+BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data)
     : KCModule(parent, data)
 {
     ui.setupUi(widget());
-    addConfig(BreezyDesktopConfig::self(), widget());
+    
+    QFile xmlFile(QStringLiteral(":/main.xml"));
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - xml file exists:" << xmlFile.exists();
+    KConfigGroup cg = KSharedConfig::openConfig(QStringLiteral("kwinrc"))->group("Effect-breezy_desktop_effect");
+    m_configLoader = new KConfigLoader(cg, &xmlFile, this);
+    addConfig(m_configLoader, widget());
 }
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
@@ -40,12 +47,17 @@ void BreezyDesktopEffectConfig::load()
 void BreezyDesktopEffectConfig::save()
 {
     updateConfigFromUi();
-    BreezyDesktopConfig::self()->save();
+    m_configLoader->save();
+    
     KCModule::save();
     updateUnmanagedState();
 
-    OrgKdeKwinEffectsInterface interface(QStringLiteral("org.kde.KWin"), QStringLiteral("/Effects"), QDBusConnection::sessionBus());
-    interface.reconfigureEffect(QStringLiteral("breezy_desktop_effect"));
+    QDBusMessage reconfigureMessage = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KWin"),
+                                                                     QStringLiteral("/Effects"),
+                                                                     QStringLiteral("org.kde.kwin.Effects"),
+                                                                     QStringLiteral("reconfigureEffect"));
+    reconfigureMessage.setArguments({QStringLiteral("breezy_desktop_effect")});
+    QDBusConnection::sessionBus().call(reconfigureMessage);
 }
 
 void BreezyDesktopEffectConfig::defaults()

@@ -3,7 +3,7 @@
 namespace KWin
 {
 
-KWIN_EFFECT_FACTORY_SUPPORTED(BreezyDesktopEffect, "metadata.json", return BreezyDesktopEffect::supported();)
+KWIN_EFFECT_FACTORY_SUPPORTED(BreezyDesktopEffect, "package/metadata.json", return BreezyDesktopEffect::supported();)
 
 } // namespace KWin
 

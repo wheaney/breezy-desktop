@@ -7,6 +7,7 @@
 #pragma once
 
 #include <KCModule>
+#include <KConfigLoader>
 
 #include "ui_breezydesktopeffectkcm.h"
 
@@ -15,7 +16,7 @@ class BreezyDesktopEffectConfig : public KCModule
     Q_OBJECT
 
 public:
-    BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args);
+    BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data);
     ~BreezyDesktopEffectConfig() override;
 
 public Q_SLOTS:
@@ -30,4 +31,5 @@ private:
     void updateUnmanagedState();
 
     ::Ui::BreezyDesktopEffectConfig ui;
+    KConfigLoader *m_configLoader = nullptr;
 };

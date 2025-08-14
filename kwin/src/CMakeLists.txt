@@ -1,4 +1,5 @@
 add_subdirectory(kcm)
+kpackage_install_package(package breezy_desktop_effect effects kwin)
 
 kcoreaddons_add_plugin(breezy_desktop_effect INSTALL_NAMESPACE "kwin/effects/plugins/")
 target_sources(breezy_desktop_effect PRIVATE
@@ -22,6 +23,3 @@ target_link_libraries(breezy_desktop_effect
 
     KWin::kwin
 )
-
-install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)
-install(FILES metadata.json DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)

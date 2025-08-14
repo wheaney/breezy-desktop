@@ -7,16 +7,13 @@
                 "Name": "Wayne Heaney"
             }
         ],
-        "Category": "Tools",
-        "Description": "Breezy Desktop XR Effect",
+        "Category": "Window Management",
+        "Description": "Breezy Desktop",
         "EnabledByDefault": true,
         "Id": "breezy_desktop_effect",
         "License": "GPL",
-        "Name": "Breezy Desktop XR",
-        "ServiceTypes": [
-            "KWin/Effect"
-        ]
+        "Name": "Breezy Desktop"
     },
-    "X-Plasma-API-Minimum-Version": "6.0",
-    "X-KDE-ConfigModule": "breezy_desktop_config"
+    "X-KDE-ConfigModule": "breezy_desktop_config",
+    "X-KDE-Ordering": 60
 }
