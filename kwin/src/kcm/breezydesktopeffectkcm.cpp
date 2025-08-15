@@ -1,9 +1,4 @@
-/*
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
-*/
-
+#include "shortcuts.h"
 #include "breezydesktopeffectkcm.h"
 #include "breezydesktopconfig.h"
 
@@ -15,7 +10,17 @@
 #include <KPluginFactory>
 
 #include <QAction>
+
 #include <QFileDialog>
+
+void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Shortcut &shortcut)
+{
+    QAction *action = collection->addAction(shortcut.actionName);
+    action->setText(shortcut.actionText);
+    action->setProperty("isConfigurationAction", true);
+    KGlobalAccel::self()->setDefaultShortcut(action, {shortcut.shortcut});
+    KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
+}
 
 K_PLUGIN_CLASS(BreezyDesktopEffectConfig)
 
@@ -30,13 +35,8 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     actionCollection->setConfigGroup(QStringLiteral("breezy_desktop_effect"));
     actionCollection->setConfigGlobal(true);
 
-    const QKeySequence defaultToggleShortcut = Qt::CTRL | Qt::META | Qt::Key_Backslash;
-    QAction *toggleAction = actionCollection->addAction(QStringLiteral("Breezy Desktop"));
-    toggleAction->setText(i18n("Toggle Breezy Desktop"));
-    toggleAction->setProperty("isConfigurationAction", true);
-    KGlobalAccel::self()->setDefaultShortcut(toggleAction, {defaultToggleShortcut});
-    KGlobalAccel::self()->setShortcut(toggleAction, {defaultToggleShortcut});
-
+    addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE);
+    addShortcutAction(actionCollection, BreezyShortcuts::RECENTER);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);

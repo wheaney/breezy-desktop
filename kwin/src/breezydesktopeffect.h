@@ -1,5 +1,6 @@
 #pragma once
 
+#include "kcm/shortcuts.h"
 #include <effect/quickeffect.h>
 
 #include <QAction>
@@ -63,6 +64,7 @@ namespace KWin
         void activate();
         void deactivate();
         void toggle();
+        void recenter();
         void updateImuRotation();
         void updateCursorImage();
         void updateCursorPos();
@@ -81,10 +83,10 @@ namespace KWin
     private:
         void realDeactivate();
         bool checkParityByte(const char* data);
+        void setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, 
+                                 std::function<void()> triggeredFunc);
 
         QTimer *m_shutdownTimer;
-        QAction *m_toggleAction = nullptr;
-        QList<QKeySequence> m_toggleShortcut;
         QString m_cursorImageSource;
 
         bool m_enabled = false;

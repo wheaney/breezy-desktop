@@ -1,3 +1,4 @@
+#include "kcm/shortcuts.h"
 #include "breezydesktopeffect.h"
 #include "breezydesktopconfig.h"
 #include "effect/effect.h"
@@ -6,6 +7,7 @@
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
 
+#include <functional>
 #include <QAction>
 #include <QFile>
 #include <QFileSystemWatcher>
@@ -69,21 +71,14 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     m_shutdownTimer->setSingleShot(true);
     connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
 
-    const QKeySequence defaultToggleShortcut = Qt::CTRL | Qt::META | Qt::Key_Backslash;
-    m_toggleAction = new QAction(this);
-    m_toggleAction->setObjectName(QStringLiteral("Breezy Desktop"));
-    m_toggleAction->setText(i18n("Toggle Breezy Desktop"));
-    KGlobalAccel::self()->setDefaultShortcut(m_toggleAction, {defaultToggleShortcut});
-    KGlobalAccel::self()->setShortcut(m_toggleAction, {defaultToggleShortcut});
-    m_toggleShortcut = KGlobalAccel::self()->shortcut(m_toggleAction);
-    connect(m_toggleAction, &QAction::triggered, this, &BreezyDesktopEffect::toggle);
-
-    connect(KGlobalAccel::self(), &KGlobalAccel::globalShortcutChanged, this, [this](QAction *action, const QKeySequence &seq) {
-        if (action->objectName() == QStringLiteral("Breezy Desktop")) {
-            m_toggleShortcut.clear();
-            m_toggleShortcut.append(seq);
-        }
-    });
+    setupGlobalShortcut(
+        BreezyShortcuts::TOGGLE,
+        [this]() { this->toggle(); }
+    );
+    setupGlobalShortcut(
+        BreezyShortcuts::RECENTER,
+        [this]() { this->recenter(); }
+    );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
@@ -121,6 +116,22 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
     m_cursorUpdateTimer->setInterval(16); // ~60Hz
     m_cursorUpdateTimer->start();
+}
+
+void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, std::function<void()> triggeredFunc) {
+    QAction *action = new QAction(this);
+    action->setObjectName(shortcut.actionName);
+    action->setText(shortcut.actionText);
+    KGlobalAccel::self()->setDefaultShortcut(action, {shortcut.shortcut});
+    KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
+    QList<QKeySequence> shortcutKeys = KGlobalAccel::self()->shortcut(action);
+    connect(action, &QAction::triggered, this, triggeredFunc);
+    connect(KGlobalAccel::self(), &KGlobalAccel::globalShortcutChanged, this, [this, shortcut, &shortcutKeys](QAction *action, const QKeySequence &seq) {
+        if (action->objectName() == shortcut.actionName) {
+            shortcutKeys.clear();
+            shortcutKeys.append(seq);
+        }
+    });
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
@@ -192,6 +203,16 @@ void BreezyDesktopEffect::realDeactivate()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
     setRunning(false);
+}
+
+void BreezyDesktopEffect::recenter()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - recenter";
+    QFile controlFile(QStringLiteral("/dev/shm/xr_driver_control"));
+    if (controlFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        controlFile.write("recenter_screen=true\n");
+        controlFile.close();
+    }
 }
 
 bool BreezyDesktopEffect::isEnabled() const {
