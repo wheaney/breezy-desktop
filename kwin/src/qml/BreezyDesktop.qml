@@ -58,6 +58,7 @@ Node {
             screen: screens[index]
             monitorPlacement: monitorPlacements[index]
             property real monitorDistance: effect.allDisplaysDistance
+            property real targetDistance: effect.allDisplaysDistance
             property real screenRotationY: displays.radianToDegree(monitorPlacement.rotationAngleRadians.y)
             property real screenRotationX: displays.radianToDegree(monitorPlacement.rotationAngleRadians.x)
 
@@ -102,24 +103,33 @@ Node {
                     breezyDesktop.screens.map(screen => screen.geometry)
                 );
 
+                const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
                 if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
                     zoomOutAnimation.stop();
                     zoomInAnimation.stop();
                     zoomOnFocusSequence.stop();
-                    if (focusedIndex === -1) {
+                    if (focusedDisplay === null) {
                         zoomOutAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
+                        zoomOutAnimation.target.targetDistance = zoomOutAnimation.to;
                         zoomOutAnimation.start();
                     } else {
                         if (breezyDesktop.focusedMonitorIndex === -1) {
-                            zoomInAnimation.target = breezyDesktop.displayAtIndex(focusedIndex);
+                            zoomInAnimation.target = focusedDisplay;
+                            focusedDisplay.targetDistance = zoomInAnimation.to;
                             zoomInAnimation.start();
                         } else {
-                            zoomInSeqAnimation.target = breezyDesktop.displayAtIndex(focusedIndex);
+                            zoomInSeqAnimation.target = focusedDisplay;
+                            focusedDisplay.targetDistance = zoomInSeqAnimation.to;
                             zoomOutSeqAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
+                            zoomOutSeqAnimation.target.targetDistance = zoomOutSeqAnimation.to;
                             zoomOnFocusSequence.start();
                         }
                     }
                     breezyDesktop.focusedMonitorIndex = focusedIndex;
+                } else if (focusedDisplay !== null && focusedDisplay.targetDistance !== effect.focusedDisplayDistance) {
+                    // user is changing the focused display distance setting, so just move it to match
+                    focusedDisplay.monitorDistance = effect.focusedDisplayDistance;
+                    focusedDisplay.targetDistance = effect.focusedDisplayDistance;
                 }
             }
         }
