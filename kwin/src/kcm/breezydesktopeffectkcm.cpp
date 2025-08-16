@@ -45,8 +45,6 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
 {
-    // If save() is called, undo() has no effect.
-    ui.shortcutsEditor->undo();
 }
 
 void BreezyDesktopEffectConfig::load()
