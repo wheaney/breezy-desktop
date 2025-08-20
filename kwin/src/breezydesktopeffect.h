@@ -1,6 +1,7 @@
 #pragma once
 
 #include "kcm/shortcuts.h"
+#include "kwaylandclient.h"
 #include <effect/quickeffect.h>
 
 #include <QAction>
@@ -89,6 +90,8 @@ namespace KWin
         QTimer *m_shutdownTimer;
         QString m_cursorImageSource;
 
+        KWin::Wayland::Client *m_waylandClient = nullptr;
+        KWin::Wayland::Stream m_stream;
         bool m_enabled = false;
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;

@@ -3,9 +3,13 @@
 #include "breezydesktopconfig.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
+#include "kwaylandclient.h"
 #include "opengl/glutils.h"
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
+
+#include <kwin/main.h>
+#include <core/outputbackend.h>
 
 #include <functional>
 #include <QAction>
@@ -193,6 +197,10 @@ void BreezyDesktopEffect::deactivate()
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
+    if (m_waylandClient->isStreamingEnabled()) {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivating - stopping streaming";
+        m_waylandClient->stopStreaming(m_stream.nodeId); // Stop any active streaming
+    }
 
     // this triggers realDeactivate with a delay so if it's triggered from QML it gives the QML function time to
     // exit, avoiding a crash
@@ -207,7 +215,25 @@ void BreezyDesktopEffect::realDeactivate()
 
 void BreezyDesktopEffect::recenter()
 {
-    qCCritical(KWIN_XR) << "\t\t\tBreezy - recenter";
+    if (m_waylandClient == nullptr) {
+        m_waylandClient = new KWin::Wayland::Client();
+        m_waylandClient->init();
+    }
+
+    if (m_waylandClient->isConnectionReady() && m_waylandClient->isStreamingAvailable()) {
+        static int displayCounter = 0;
+        QString uniqueDisplayName = QStringLiteral("BreezyDesktopEffect_%1").arg(++displayCounter);
+        QString uniqueDisplayDesc = QStringLiteral("Breezy Desktop Effect %1").arg(displayCounter);
+        m_stream = m_waylandClient->startVirtualDisplay(
+            uniqueDisplayName,
+            uniqueDisplayDesc,
+            QSize(2560, 1440),
+            Screencasting::CursorMode::Hidden
+        );
+    } else {
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - recenter - no streaming enabled";
+    }
+
     QFile controlFile(QStringLiteral("/dev/shm/xr_driver_control"));
     if (controlFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         controlFile.write("recenter_screen=true\n");
@@ -465,6 +491,7 @@ void BreezyDesktopEffect::updateCursorPos()
         Q_EMIT cursorPosChanged();
     }
 }
+
 }
 
 #include "moc_breezydesktopeffect.cpp"
