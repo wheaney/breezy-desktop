@@ -65,6 +65,7 @@ namespace KWin
         void deactivate();
         void toggle();
         void recenter();
+        void addVirtualDisplay(QSize size);
         void updateImuRotation();
         void updateCursorImage();
         void updateCursorPos();
@@ -106,6 +107,7 @@ namespace KWin
         QTimer *m_cursorUpdateTimer = nullptr;
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
+        QList<Output *> m_virtualOutputs;
     };
 
 } // namespace KWin

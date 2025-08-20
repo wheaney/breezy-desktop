@@ -7,6 +7,9 @@
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
 
+#include <kwin/main.h>
+#include <core/outputbackend.h>
+
 #include <functional>
 #include <QAction>
 #include <QFile>
@@ -194,6 +197,11 @@ void BreezyDesktopEffect::deactivate()
     m_cursorUpdateTimer->stop();
     showCursor();
 
+    for (auto output : m_virtualOutputs) {
+        KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
+    }
+    m_virtualOutputs.clear();
+
     // this triggers realDeactivate with a delay so if it's triggered from QML it gives the QML function time to
     // exit, avoiding a crash
     m_shutdownTimer->start(250);
@@ -207,11 +215,25 @@ void BreezyDesktopEffect::realDeactivate()
 
 void BreezyDesktopEffect::recenter()
 {
-    qCCritical(KWIN_XR) << "\t\t\tBreezy - recenter";
     QFile controlFile(QStringLiteral("/dev/shm/xr_driver_control"));
     if (controlFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         controlFile.write("recenter_screen=true\n");
         controlFile.close();
+    }
+}
+
+void BreezyDesktopEffect::addVirtualDisplay(QSize size)
+{
+    // QSize size(2560, 1440);
+    // addVirtualDisplay(size);
+
+    static int virtualDisplayCount = 0;
+    ++virtualDisplayCount;
+    QString name = QStringLiteral("BreezyDesktop_VirtualDisplay_%1x%2_%3").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
+    QString description = QStringLiteral("Breezy Display %1x%2 (%3)").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
+    auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, description, size, 1.0);
+    if (output) {
+        m_virtualOutputs.append(output);
     }
 }
 
