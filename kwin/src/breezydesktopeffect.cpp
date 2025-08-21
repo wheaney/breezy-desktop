@@ -68,6 +68,7 @@ namespace KWin
 BreezyDesktopEffect::BreezyDesktopEffect()
     : m_shutdownTimer(new QTimer(this))
 {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop_effect", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     m_shutdownTimer->setSingleShot(true);
@@ -157,16 +158,18 @@ int BreezyDesktopEffect::requestedEffectChainPosition() const
 void BreezyDesktopEffect::toggle()
 {
     if (isRunning()) {
-        qCInfo(KWIN_XR) << "\t\t\tBreezy - toggle - deactivating";
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - deactivating";
         deactivate();
     } else {
-        qCInfo(KWIN_XR) << "\t\t\tBreezy - toggle - activating";
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - activating";
         activate();
     }
 }
 
 void BreezyDesktopEffect::activate()
 {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
+
     if (!isRunning()) setRunning(true);
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
@@ -174,6 +177,7 @@ void BreezyDesktopEffect::activate()
 
     // QuickSceneEffect grabs the keyboard and mouse input, which pulls focus away from the active window
     // and doesn't allow for interaction with anything on the desktop. These two calls fix that.
+    // TODO - move away from QuickSceneEffect
     effects->ungrabKeyboard();
     effects->stopMouseInterception(this);
 
@@ -186,6 +190,7 @@ void BreezyDesktopEffect::deactivate()
         return;
     }
 
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
@@ -202,6 +207,7 @@ void BreezyDesktopEffect::deactivate()
 
 void BreezyDesktopEffect::realDeactivate()
 {
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
     setRunning(false);
 }
 
@@ -399,7 +405,7 @@ void BreezyDesktopEffect::updateImuRotation() {
     if (!enabled) {
         // give a grace period after enabling the effect
         if (wasEnabled && (currentTimeMs - activatedAt > 1000)) {
-            qCInfo(KWIN_XR) << "\t\t\tBreezy - disabling effect; currentTimeMs:" << currentTimeMs
+            qCCritical(KWIN_XR) << "\t\t\tBreezy - disabling effect; currentTimeMs:" << currentTimeMs
                                 << "imuDateMs:" << imuDateMs
                                 << "enabledFlag:" << enabledFlag
                                 << "version:" << version
@@ -410,7 +416,7 @@ void BreezyDesktopEffect::updateImuRotation() {
             return;
         }
     } else if (!wasEnabled) {
-        qCInfo(KWIN_XR) << "\t\t\tBreezy - enabling effect; currentTimeMs:" << currentTimeMs
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - enabling effect; currentTimeMs:" << currentTimeMs
                                 << "imuDateMs:" << imuDateMs
                                 << "enabledFlag:" << enabledFlag
                                 << "version:" << version
