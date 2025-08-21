@@ -21,76 +21,86 @@
     <height>250</height>
    </size>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="labelFocusedDisplayDistance">
-     <property name="text">
-      <string>Focused Display Distance:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QSlider" name="kcfg_FocusedDisplayDistance">
-     <property name="minimum">
-      <double>20</double>
-     </property>
-     <property name="maximum">
-      <double>250</double>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <double>20</double>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tracking">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="labelAllDisplaysDistance">
-     <property name="text">
-      <string>All Displays Distance:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QSlider" name="kcfg_AllDisplaysDistance">
-     <property name="minimum">
-      <double>20</double>
-     </property>
-     <property name="maximum">
-      <double>250</double>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <double>20</double>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tracking">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-  </layout>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="kcfg_ZoomOnFocusEnabled">
+         <property name="text">
+            <string>Zoom on Focus</string>
+         </property>
+         <property name="checked">
+            <bool>false</bool>
+         </property>
+        </widget>
+     </item>
+     <item row="1" column="0">
+        <widget class="QLabel" name="labelFocusedDisplayDistance">
+         <property name="text">
+            <string>Focused Display Distance:</string>
+         </property>
+        </widget>
+     </item>
+     <item row="1" column="1">
+        <widget class="QSlider" name="kcfg_FocusedDisplayDistance">
+         <property name="minimum">
+            <double>20</double>
+         </property>
+         <property name="maximum">
+            <double>250</double>
+         </property>
+         <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+         </property>
+         <property name="tickInterval">
+            <double>20</double>
+         </property>
+         <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tracking">
+            <bool>true</bool>
+         </property>
+        </widget>
+     </item>
+     <item row="2" column="0">
+        <widget class="QLabel" name="labelAllDisplaysDistance">
+         <property name="text">
+            <string>All Displays Distance:</string>
+         </property>
+        </widget>
+     </item>
+     <item row="2" column="1">
+        <widget class="QSlider" name="kcfg_AllDisplaysDistance">
+         <property name="minimum">
+            <double>20</double>
+         </property>
+         <property name="maximum">
+            <double>250</double>
+         </property>
+         <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+         </property>
+         <property name="tickInterval">
+            <double>20</double>
+         </property>
+         <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tracking">
+            <bool>true</bool>
+         </property>
+        </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+        <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
+         <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+         </property>
+        </widget>
+     </item>
+    </layout>
  </widget>
  <customwidgets>
   <customwidget>

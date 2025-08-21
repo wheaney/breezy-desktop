@@ -2,3 +2,4 @@ File=breezydesktopconfig.kcfg
 ClassName=BreezyDesktopConfig
 Singleton=true
 Mutators=true
+Notifiers=true

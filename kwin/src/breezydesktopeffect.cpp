@@ -82,6 +82,10 @@ BreezyDesktopEffect::BreezyDesktopEffect()
         BreezyShortcuts::RECENTER,
         [this]() { this->recenter(); }
     );
+    setupGlobalShortcut(
+        BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS,
+        [this]() { this->toggleZoomOnFocus(); }
+    );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
@@ -127,14 +131,7 @@ void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &s
     action->setText(shortcut.actionText);
     KGlobalAccel::self()->setDefaultShortcut(action, {shortcut.shortcut});
     KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
-    QList<QKeySequence> shortcutKeys = KGlobalAccel::self()->shortcut(action);
     connect(action, &QAction::triggered, this, triggeredFunc);
-    connect(KGlobalAccel::self(), &KGlobalAccel::globalShortcutChanged, this, [this, shortcut, &shortcutKeys](QAction *action, const QKeySequence &seq) {
-        if (action->objectName() == shortcut.actionName) {
-            shortcutKeys.clear();
-            shortcutKeys.append(seq);
-        }
-    });
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
@@ -142,6 +139,7 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     BreezyDesktopConfig::self()->read();
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
+    setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -222,6 +220,11 @@ void BreezyDesktopEffect::recenter()
     }
 }
 
+void BreezyDesktopEffect::toggleZoomOnFocus()
+{
+    setZoomOnFocusEnabled(!m_zoomOnFocusEnabled);
+}
+
 void BreezyDesktopEffect::addVirtualDisplay(QSize size)
 {
     // QSize size(2560, 1440);
@@ -239,6 +242,19 @@ void BreezyDesktopEffect::addVirtualDisplay(QSize size)
 
 bool BreezyDesktopEffect::isEnabled() const {
     return m_enabled;
+}
+
+bool BreezyDesktopEffect::isZoomOnFocusEnabled() const {
+    return m_zoomOnFocusEnabled;
+}
+
+void BreezyDesktopEffect::setZoomOnFocusEnabled(bool enabled) {
+    if (m_zoomOnFocusEnabled != enabled) {
+        m_zoomOnFocusEnabled = enabled;
+        BreezyDesktopConfig::setZoomOnFocusEnabled(enabled);
+        BreezyDesktopConfig::self()->save();
+        Q_EMIT zoomOnFocusChanged();
+    }
 }
 
 bool BreezyDesktopEffect::imuResetState() const {

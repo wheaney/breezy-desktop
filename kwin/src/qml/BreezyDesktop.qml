@@ -94,20 +94,24 @@ Node {
         running: true
         onTriggered: {
             if (breezyDesktop.imuRotations && breezyDesktop.imuRotations.length > 0) {
-                const focusedIndex = displays.findFocusedMonitor(
-                    displays.eusToNwuQuat(breezyDesktop.imuRotations[0]), 
-                    breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
-                    breezyDesktop.focusedMonitorIndex,
-                    false, // TODO smooth follow
-                    breezyDesktop.fovDetails,
-                    breezyDesktop.screens.map(screen => screen.geometry)
-                );
+                let focusedIndex = -1;
+
+                if (effect.zoomOnFocusEnabled) {
+                    focusedIndex = displays.findFocusedMonitor(
+                        displays.eusToNwuQuat(breezyDesktop.imuRotations[0]), 
+                        breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
+                        breezyDesktop.focusedMonitorIndex,
+                        false, // TODO smooth follow
+                        breezyDesktop.fovDetails,
+                        breezyDesktop.screens.map(screen => screen.geometry)
+                    );
+                }
 
                 const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
                 if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
-                    zoomOutAnimation.stop();
-                    zoomInAnimation.stop();
-                    zoomOnFocusSequence.stop();
+                    // zoomOutAnimation.stop();
+                    // zoomInAnimation.stop();
+                    // zoomOnFocusSequence.stop();
                     if (focusedDisplay === null) {
                         zoomOutAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
                         zoomOutAnimation.target.targetDistance = zoomOutAnimation.to;

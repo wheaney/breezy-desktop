@@ -22,4 +22,10 @@ namespace BreezyShortcuts {
         QStringLiteral("Recenter"),
         QStringLiteral("Recenter")
     };
+
+    const Shortcut TOGGLE_ZOOM_ON_FOCUS = {
+        Qt::CTRL | Qt::META | Qt::Key_0,
+        QStringLiteral("Toggle Zoom on Focus"),
+        QStringLiteral("Toggle Zoom on Focus")
+    };
 }

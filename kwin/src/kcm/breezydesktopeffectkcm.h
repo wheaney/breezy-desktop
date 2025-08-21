@@ -7,8 +7,13 @@
 #pragma once
 
 #include <KCModule>
+#include <KConfigWatcher>
+#include <memory>
 
 #include "ui_breezydesktopeffectkcm.h"
+
+class KConfigWatcher;
+class KConfigGroup;
 
 class BreezyDesktopEffectConfig : public KCModule
 {
@@ -30,4 +35,7 @@ private:
     void updateUnmanagedState();
 
     ::Ui::BreezyDesktopEffectConfig ui;
+
+    KConfigWatcher::Ptr m_configWatcher;
+    bool m_updatingFromConfig = false;
 };

@@ -17,5 +17,10 @@
             <max>250</max>
             <label>All Displays Distance</label>
         </entry>
+        <entry name="ZoomOnFocusEnabled" type="Bool">
+            <default>false</default>
+            <label>Zoom on Focus Enabled</label>
+            <description>Enable zooming in on the focused display.</description>
+        </entry>
     </group>
 </kcfg>

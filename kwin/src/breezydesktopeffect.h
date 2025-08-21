@@ -15,6 +15,7 @@ namespace KWin
     {
         Q_OBJECT
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
+        Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
         Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuRotationsChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
         Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs NOTIFY imuRotationsChanged)
@@ -42,6 +43,8 @@ namespace KWin
         QPointF cursorPos() const;
 
         bool isEnabled() const;
+        bool isZoomOnFocusEnabled() const;
+        void setZoomOnFocusEnabled(bool enabled);
         QList<QQuaternion> imuRotations() const;
         quint32 imuTimeElapsedMs() const;
         quint64 imuTimestamp() const;
@@ -65,6 +68,7 @@ namespace KWin
         void deactivate();
         void toggle();
         void recenter();
+        void toggleZoomOnFocus();
         void addVirtualDisplay(QSize size);
         void updateImuRotation();
         void updateCursorImage();
@@ -73,6 +77,7 @@ namespace KWin
     Q_SIGNALS:
         void displayDistanceChanged();
         void enabledStateChanged();
+        void zoomOnFocusChanged();
         void imuRotationsChanged();
         void cursorImageChanged();
         void cursorPosChanged();
@@ -91,6 +96,7 @@ namespace KWin
         QString m_cursorImageSource;
 
         bool m_enabled = false;
+        bool m_zoomOnFocusEnabled = false;
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;
