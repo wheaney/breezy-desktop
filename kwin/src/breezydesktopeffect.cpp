@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <QAction>
+#include <QBuffer>
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
@@ -20,7 +21,6 @@
 
 #include <KGlobalAccel>
 #include <KLocalizedString>
-#include <qt/QtCore/qbuffer.h>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 

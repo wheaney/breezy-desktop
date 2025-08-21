@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+ARCH=${ARCH:-$(uname -m)}
+echo "Building Breezy KWin plugin for $ARCH"
+
+BUILD_PATH=build
+mkdir $BUILD_PATH
+
+pushd $BUILD_PATH
+cmake ..
+make
+cpack -G TGZ
+popd
+
+mkdir -p out
+cp $BUILD_PATH/breezy_desktop_kwin_plugin.tar.gz out/breezyKWin-$ARCH.tar.gz
+
+# build artifacts are needed for IDE header awareness with generated code
+# rm -rf $BUILD_PATH
