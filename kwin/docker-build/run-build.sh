@@ -19,4 +19,4 @@ if [[ "$1" == "aarch64" || -z "$1"  ]]; then
 fi
 
 # build directory structure is all owned by root because of docker, delete it all now
-sudo rm -rf build/
+sudo chown -R $USER:$GROUP build/

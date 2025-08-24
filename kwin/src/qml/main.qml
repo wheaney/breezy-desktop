@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick3D
 import org.kde.kwin as KWinComponents
-import org.kde.kwin.effect.breezy_desktop_effect
+import org.kde.kwin.effect.breezy_desktop
 
 Item {
     id: root

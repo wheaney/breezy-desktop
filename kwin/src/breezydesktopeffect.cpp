@@ -69,7 +69,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     : m_shutdownTimer(new QTimer(this))
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
-    qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop_effect", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
+    qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     m_shutdownTimer->setSingleShot(true);
     connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
@@ -91,7 +91,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     updateCursorImage();
     reconfigure(ReconfigureAll);
 
-    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop_effect/qml/main.qml"))));
+    setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
     // Monitor the IMU file for changes, even if it doesn't exist at startup
     m_shmDirectoryWatcher = new QFileSystemWatcher(this);
@@ -234,7 +234,7 @@ void BreezyDesktopEffect::addVirtualDisplay(QSize size)
     ++virtualDisplayCount;
     QString name = QStringLiteral("BreezyDesktop_VirtualDisplay_%1x%2_%3").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
     QString description = QStringLiteral("Breezy Display %1x%2 (%3)").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
-    auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, description, size, 1.0);
+    auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, size, 1.0);
     if (output) {
         m_virtualOutputs.append(output);
     }

@@ -4,7 +4,7 @@
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
     <kcfgfile name="kwinrc"/>
-    <group name="Effect-breezy_desktop_effect">
+    <group name="Effect-breezy_desktop">
         <entry name="FocusedDisplayDistance" type="Int">
             <default>85</default>
             <min>20</min>

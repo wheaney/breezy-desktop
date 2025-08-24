@@ -17,7 +17,7 @@
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
-static const char EFFECT_GROUP[] = "Effect-breezy_desktop_effect";
+static const char EFFECT_GROUP[] = "Effect-breezy_desktop";
 
 void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Shortcut &shortcut)
 {
@@ -54,7 +54,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 
     auto actionCollection = new KActionCollection(this, QStringLiteral("kwin"));
     actionCollection->setComponentDisplayName(i18n("KWin"));
-    actionCollection->setConfigGroup(QStringLiteral("breezy_desktop_effect"));
+    actionCollection->setConfigGroup(QStringLiteral("breezy_desktop"));
     actionCollection->setConfigGlobal(true);
 
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE);
@@ -88,7 +88,7 @@ void BreezyDesktopEffectConfig::save()
     updateUnmanagedState();
 
     OrgKdeKwinEffectsInterface interface(QStringLiteral("org.kde.KWin"), QStringLiteral("/Effects"), QDBusConnection::sessionBus());
-    interface.reconfigureEffect(QStringLiteral("breezy_desktop_effect"));
+    interface.reconfigureEffect(QStringLiteral("breezy_desktop"));
 }
 
 void BreezyDesktopEffectConfig::defaults()

@@ -7,6 +7,7 @@ ARCH=${ARCH:-$(uname -m)}
 echo "Building Breezy KWin plugin for $ARCH"
 
 BUILD_PATH=build
+rm -rf $BUILD_PATH
 mkdir $BUILD_PATH
 
 pushd $BUILD_PATH
@@ -16,7 +17,4 @@ cpack -G TGZ
 popd
 
 mkdir -p out
-cp $BUILD_PATH/breezy_desktop_kwin_plugin.tar.gz out/breezyKWin-$ARCH.tar.gz
-
-# build artifacts are needed for IDE header awareness with generated code
-# rm -rf $BUILD_PATH
+cp $BUILD_PATH/breezy_desktop.tar.gz out/breezyKWinPlugin-$ARCH.tar.gz

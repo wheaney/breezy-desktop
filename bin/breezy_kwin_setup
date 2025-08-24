@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# This setup script should do the minimum work required to download the release package, unzip it, and kick off the
+# setup script contained within.
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
+        exit 1
+    fi
+}
+
+check_command "curl"
+
+ARCH=$(uname -m)
+FILE_NAME="breezyKWin-$ARCH.tar.gz"
+LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
+echo "Performing setup for KWin ($ARCH)"
+
+start_dir=$(pwd)
+
+# create temp directory
+tmp_dir=$(mktemp -d -t breezy-kwin-XXXXXXXXXX)
+pushd $tmp_dir > /dev/null
+echo "Created temp directory: ${tmp_dir}"
+
+binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$FILE_NAME"
+if [ "$1" = "-v" ]
+then
+  metrics_version="$2"
+  binary_path_arg="$3"
+elif [ "$1" = "--tag" ] && [ -n "$2" ]
+then
+  binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$FILE_NAME"
+else
+  binary_path_arg="$1"
+fi
+
+if [ -z "$binary_path_arg" ]
+then
+  # download and unzip the binary
+  echo "Downloading to: ${tmp_dir}/$FILE_NAME"
+  curl -L "$binary_download_url" > "$FILE_NAME"
+else
+  FILE_NAME=$(basename $binary_path_arg)
+  if [[ "$binary_path_arg" = /* ]]; then
+    abs_path="$binary_path_arg"
+  else
+    # Convert relative path to absolute path
+    abs_path=$(realpath "$start_dir/$binary_path_arg")
+  fi
+  cp $abs_path $tmp_dir
+fi
+
+echo "Extracting to: ${tmp_dir}/breezy_kwin"
+tar -xf $FILE_NAME
+
+pushd breezy_kwin > /dev/null
+
+# run the setup script that comes with this release
+bin/setup $metrics_version
+
+echo "Deleting temp directory: ${tmp_dir}"
+rm -rf $tmp_dir
+cd "$(dirs -l -0)" && dirs -c

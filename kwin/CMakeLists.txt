@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(breezy_desktop_kwin_plugin VERSION 0.0.1 LANGUAGES CXX)
+project(breezy_desktop VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

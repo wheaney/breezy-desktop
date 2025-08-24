@@ -1,14 +1,14 @@
 add_subdirectory(kcm)
 
-kcoreaddons_add_plugin(breezy_desktop_effect INSTALL_NAMESPACE "kwin/effects/plugins/")
-target_sources(breezy_desktop_effect PRIVATE
+kcoreaddons_add_plugin(breezy_desktop INSTALL_NAMESPACE "kwin/effects/plugins/")
+target_sources(breezy_desktop PRIVATE
     breezydesktopeffect.cpp
     main.cpp
 )
-kconfig_add_kcfg_files(breezy_desktop_effect breezydesktopconfig.kcfgc)
+kconfig_add_kcfg_files(breezy_desktop breezydesktopconfig.kcfgc)
 
-target_include_directories(breezy_desktop_effect PRIVATE /usr/include/kwin)
-target_link_libraries(breezy_desktop_effect
+target_include_directories(breezy_desktop PRIVATE /usr/include/kwin)
+target_link_libraries(breezy_desktop
     Qt6::Core
     Qt6::Gui
     Qt6::Quick
@@ -23,5 +23,4 @@ target_link_libraries(breezy_desktop_effect
     KWin::kwin
 )
 
-install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)
-install(FILES metadata.json DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop_effect)
+install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)

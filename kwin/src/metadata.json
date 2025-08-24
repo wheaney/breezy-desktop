@@ -10,13 +10,9 @@
         "Category": "Tools",
         "Description": "Breezy Desktop XR Effect",
         "EnabledByDefault": true,
-        "Id": "breezy_desktop_effect",
+        "Id": "breezy_desktop",
         "License": "GPL",
-        "Name": "Breezy Desktop XR",
-        "ServiceTypes": [
-            "KWin/Effect"
-        ]
+        "Name": "Breezy Desktop XR"
     },
-    "X-Plasma-API-Minimum-Version": "6.0",
     "X-KDE-ConfigModule": "breezy_desktop_config"
 }

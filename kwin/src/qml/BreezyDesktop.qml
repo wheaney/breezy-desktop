@@ -90,7 +90,9 @@ Node {
         }
     }
 
-    FrameAnimation {
+    Timer {
+        interval: 500 // 500ms - 2x per second to avoid running this check too frequently
+        repeat: true
         running: true
         onTriggered: {
             if (breezyDesktop.imuRotations && breezyDesktop.imuRotations.length > 0) {
