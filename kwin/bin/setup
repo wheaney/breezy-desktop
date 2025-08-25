@@ -45,13 +45,23 @@ UA_EVENT_VERSION="$1"
 tar -xf $(pwd)/breezyKWinPlugin.tar.gz
 pushd breezy_desktop/usr > /dev/null
 
+# locate the lib path that ends with qt6/plugins (handles multiarch dirs)
+QT_PLUGIN_DIR_RELATIVE=$(find lib -type d -path '*/qt6/plugins' -print -quit 2>/dev/null || true)
+if [ -z "$QT_PLUGIN_DIR_RELATIVE" ]; then
+  QT_PLUGIN_DIR_RELATIVE="lib/qt6/plugins"
+fi
+
 # directory structure matches XDG, so just recursive copy
-$SUDO cp -r . "$USER_HOME/.local/"
+chmod -R 755 .
+cp -r . "$USER_HOME/.local/"
+
 popd
+
+cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
 
 # Install QT_PLUGIN_PATH snippet into ~/.bash_profile if not present
 BASH_PROFILE="$HOME/.bash_profile"
-QT_PLUGIN_DIR="$HOME/.local/lib/qt6/plugins"
+QT_PLUGIN_DIR="$HOME/.local/$QT_PLUGIN_DIR_RELATIVE"
 QT_PLUGIN_EXPORT="export QT_PLUGIN_PATH=\"$QT_PLUGIN_DIR\""
 if [[ ! -f "$BASH_PROFILE" ]] || ! grep -Fq "$QT_PLUGIN_EXPORT" "$BASH_PROFILE" 2>/dev/null; then
   mkdir -p "$(dirname "$BASH_PROFILE")"

@@ -3,7 +3,7 @@
 #    docker run --rm -t -v ./:/source -v --platform linux/amd64 "breezy-kwin:amd64"
 #    docker run --rm -t -v ./:/source -v --platform linux/arm64 "breezy-kwin:arm64"
 
-FROM --platform=$TARGETPLATFORM ghcr.io/steamdeckhomebrew/holo-base:3.7@sha256:8da120a3e89c750abd0090c0aab86d543a55d667c3002c8d64960f7fd82ccdd6
+FROM --platform=$TARGETPLATFORM archlinux:base-20250817.0.405639@sha256:31f0749bdb81517dc8f379feac0a3860b097f1da1f53c8315c1bae0817d6c0a1
 
 ARG TARGETPLATFORM
 RUN echo "Target platform: $TARGETPLATFORM"

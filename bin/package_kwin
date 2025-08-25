@@ -4,15 +4,20 @@
 set -e
 
 ARCH=${ARCH:-$(uname -m)}
+BUILD_ARCH=$ARCH
+if [ -n "${STEAMOS+x}" ]; then
+    ARCH="x86_64"
+    BUILD_ARCH="steamos"
+fi
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath $SCRIPT_DIR/..)
 XR_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
 
-echo "Building Breezy KWin for $ARCH"
+echo "Building Breezy KWin for $BUILD_ARCH"
 KWIN_DIR=$ROOT_DIR/kwin
-BUILD_FILE_NAME=breezyKWin-$ARCH.tar.gz
+BUILD_FILE_NAME=breezyKWin-$BUILD_ARCH.tar.gz
 
 TMP_DIR=$(mktemp -d -t breezy-kwin-XXXXXXXXXX)
 PACKAGE_DIR=$TMP_DIR/breezy_kwin
@@ -56,9 +61,9 @@ cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
 pushd $KWIN_DIR
 docker-build/init.sh
-docker-build/run-build.sh $ARCH
+docker-build/run-build.sh $BUILD_ARCH
 popd
-cp $KWIN_DIR/out/breezyKWinPlugin-$ARCH.tar.gz $PACKAGE_DIR/breezyKWinPlugin.tar.gz
+cp $KWIN_DIR/out/breezyKWinPlugin-$BUILD_ARCH.tar.gz $PACKAGE_DIR/breezyKWinPlugin.tar.gz
 
 pushd $TMP_DIR
 tar -zcvf $BUILD_FILE_NAME breezy_kwin

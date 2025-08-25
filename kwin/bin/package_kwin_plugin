@@ -4,6 +4,9 @@
 set -e
 
 ARCH=${ARCH:-$(uname -m)}
+if [ -n "${STEAMOS+x}" ]; then
+    ARCH="steamos"
+fi
 echo "Building Breezy KWin plugin for $ARCH"
 
 BUILD_PATH=build

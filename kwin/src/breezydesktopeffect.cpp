@@ -233,8 +233,12 @@ void BreezyDesktopEffect::addVirtualDisplay(QSize size)
     static int virtualDisplayCount = 0;
     ++virtualDisplayCount;
     QString name = QStringLiteral("BreezyDesktop_VirtualDisplay_%1x%2_%3").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
-    QString description = QStringLiteral("Breezy Display %1x%2 (%3)").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
-    auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, size, 1.0);
+    #if defined(KWIN_VERSION_ENCODED) && KWIN_VERSION_ENCODED > 60290
+        QString description = QStringLiteral("Breezy Display %1x%2 (%3)").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
+        auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, description, size, 1.0);
+    #else
+        auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, size, 1.0);
+    #endif
     if (output) {
         m_virtualOutputs.append(output);
     }
