@@ -45,6 +45,8 @@ UA_EVENT_VERSION="$1"
 tar -xf $(pwd)/breezyKWinPlugin.tar.gz
 pushd breezy_desktop/usr > /dev/null
 
+echo "Copying KWin plugin files to $USER_HOME/.local/{lib,share}"
+
 # locate the lib path that ends with qt6/plugins (handles multiarch dirs)
 QT_PLUGIN_DIR_RELATIVE=$(find lib -type d -path '*/qt6/plugins' -print -quit 2>/dev/null || true)
 if [ -z "$QT_PLUGIN_DIR_RELATIVE" ]; then
@@ -55,7 +57,7 @@ fi
 chmod -R 755 .
 cp -r . "$USER_HOME/.local/"
 
-popd
+popd > /dev/null
 
 cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
 
@@ -64,6 +66,7 @@ BASH_PROFILE="$HOME/.bash_profile"
 QT_PLUGIN_DIR="$HOME/.local/$QT_PLUGIN_DIR_RELATIVE"
 QT_PLUGIN_EXPORT="export QT_PLUGIN_PATH=\"$QT_PLUGIN_DIR\""
 if [[ ! -f "$BASH_PROFILE" ]] || ! grep -Fq "$QT_PLUGIN_EXPORT" "$BASH_PROFILE" 2>/dev/null; then
+  echo "Adding QT_PLUGIN_PATH to $BASH_PROFILE"
   mkdir -p "$(dirname "$BASH_PROFILE")"
   cat >> "$BASH_PROFILE" <<EOF
 

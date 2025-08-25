@@ -21,6 +21,12 @@ check_command() {
 check_command "curl"
 
 ARCH=$(uname -m)
+if [ -f /etc/os-release ]; then
+  . /etc/os-release
+  if [ "$ID" == "steamos" ]; then
+    ARCH="steamos"
+  fi
+fi
 FILE_NAME="breezyKWin-$ARCH.tar.gz"
 LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
 echo "Performing setup for KWin ($ARCH)"
