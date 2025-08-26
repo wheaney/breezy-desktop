@@ -66,6 +66,7 @@ namespace KWin
     public Q_SLOTS:
         void activate();
         void deactivate();
+        void enableDriver();
         void toggle();
         void recenter();
         void toggleZoomOnFocus();

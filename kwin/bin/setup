@@ -80,7 +80,7 @@ EOF
 fi
 
 # set up the XR driver using the local binary
-echo "Installing xrDriver"
+echo "Installing xrDriver (requires sudo)"
 echo "BEGIN - xr_driver_setup"
 if [ -z "$1" ]
 then
@@ -90,3 +90,5 @@ else
 fi
 
 echo "END - xr_driver_setup"
+
+printf "\n\033[1;33m!!! IMPORTANT !!!\033[0m You must log out and back in, then enable Breezy Desktop from the Desktop Effects in System Settings\n\n"
