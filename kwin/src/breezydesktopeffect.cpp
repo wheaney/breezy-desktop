@@ -1,11 +1,13 @@
+
+#include "core/rendertarget.h"
+#include "core/renderviewport.h"
 #include "kcm/shortcuts.h"
 #include "breezydesktopeffect.h"
 #include "breezydesktopconfig.h"
 #include "effect/effect.h"
 #include "effect/effecthandler.h"
 #include "opengl/glutils.h"
-#include "core/rendertarget.h"
-#include "core/renderviewport.h"
+#include "xrdriveripc.h"
 
 #include <kwin/main.h>
 #include <core/outputbackend.h>
@@ -80,11 +82,17 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     );
     setupGlobalShortcut(
         BreezyShortcuts::RECENTER,
-        [this]() { this->recenter(); }
+        [this]() { 
+            XRDriverIPCBridge::instance().writeControlFlags({
+                {"recenter_screen", true}
+            });
+         }
     );
     setupGlobalShortcut(
         BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS,
-        [this]() { this->toggleZoomOnFocus(); }
+        [this]() { 
+            this->setZoomOnFocusEnabled(!m_zoomOnFocusEnabled);
+        }
     );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
@@ -209,80 +217,17 @@ void BreezyDesktopEffect::deactivate()
 void BreezyDesktopEffect::enableDriver()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - enableDriver";
-    QByteArray homeEnv = qgetenv("HOME");
-    QString program = QString::fromUtf8(homeEnv) + QStringLiteral("/.local/bin/xr_driver_cli");
-
-    // Helper lambda to start the second call
-    auto setBreezyDesktopMode = [this, program]() {
-        QProcess *proc2 = new QProcess(this);
-        proc2->setProgram(program);
-        proc2->setArguments({QStringLiteral("-bd")}); // change the mode to Breezy Desktop
-        proc2->setProcessChannelMode(QProcess::MergedChannels);
-
-        connect(proc2, &QProcess::readyReadStandardOutput, this, [proc2]() {
-            const QByteArray out = proc2->readAllStandardOutput();
-            if (!out.isEmpty()) {
-                qCInfo(KWIN_XR) << "xr_driver_cli -bd:" << out;
-            }
-        });
-        connect(proc2, &QProcess::errorOccurred, this, [proc2](QProcess::ProcessError err) {
-            qCCritical(KWIN_XR) << "xr_driver_cli -bd error" << err << proc2->errorString();
-        });
-        connect(proc2, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
-                this, [this, proc2](int code, QProcess::ExitStatus status) {
-            qCInfo(KWIN_XR) << "xr_driver_cli -bd exited" << code << "status" << status;
-            proc2->deleteLater();
-        });
-
-        proc2->start();
-    };
-
-    QProcess *proc1 = new QProcess(this);
-    proc1->setProgram(program);
-    proc1->setArguments({QStringLiteral("-e")}); // enable flag
-    proc1->setProcessChannelMode(QProcess::MergedChannels);
-
-    connect(proc1, &QProcess::readyReadStandardOutput, this, [proc1]() {
-        const QByteArray out = proc1->readAllStandardOutput();
-        if (!out.isEmpty()) {
-            qCInfo(KWIN_XR) << "xr_driver_cli -e:" << out;
-        }
+    XRDriverIPCBridge::instance().writeConfig({
+        {"disabled", false},
+        {"output_mode", "external_only"},
+        {"external_mode", "breezy_desktop"}
     });
-    connect(proc1, &QProcess::errorOccurred, this, [proc1](QProcess::ProcessError err) {
-        qCCritical(KWIN_XR) << "xr_driver_cli -e error" << err << proc1->errorString();
-    });
-    connect(proc1, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [proc1, setBreezyDesktopMode](int code, QProcess::ExitStatus status) {
-        qCInfo(KWIN_XR) << "xr_driver_cli -e exited" << code << "status" << status;
-        proc1->deleteLater();
-        if (status == QProcess::NormalExit && code == 0) {
-            setBreezyDesktopMode();
-        } else {
-            qCCritical(KWIN_XR) << "First call failed; not starting second.";
-        }
-    });
-
-    proc1->start();
 }
 
 void BreezyDesktopEffect::realDeactivate()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
     setRunning(false);
-}
-
-void BreezyDesktopEffect::recenter()
-{
-    QFile controlFile(QStringLiteral("/dev/shm/xr_driver_control"));
-    if (controlFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        controlFile.write("recenter_screen=true\n");
-        controlFile.close();
-    }
-}
-
-void BreezyDesktopEffect::toggleZoomOnFocus()
-{
-    setZoomOnFocusEnabled(!m_zoomOnFocusEnabled);
 }
 
 void BreezyDesktopEffect::addVirtualDisplay(QSize size)

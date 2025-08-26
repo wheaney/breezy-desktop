@@ -30,6 +30,9 @@ RUN pacman -Sy --noconfirm --needed \
     kwindowsystem \
     kwin \
  && pacman -Scc --noconfirm
+ RUN pacman -Sy --noconfirm --needed \
+    python \
+ && pacman -Scc --noconfirm
 
 WORKDIR /source
 

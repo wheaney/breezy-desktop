@@ -1,3 +1,4 @@
+add_subdirectory(xrdriveripc)
 add_subdirectory(kcm)
 
 kcoreaddons_add_plugin(breezy_desktop INSTALL_NAMESPACE "kwin/effects/plugins/")
@@ -38,6 +39,7 @@ target_compile_definitions(breezy_desktop PRIVATE
         KWIN_VERSION_ENCODED=${KWIN_VERSION_ENCODED}
 )
 target_include_directories(breezy_desktop PRIVATE /usr/include/kwin)
+target_include_directories(breezy_desktop PRIVATE xrdriveripc)
 target_link_libraries(breezy_desktop
     Qt6::Core
     Qt6::Gui
@@ -51,6 +53,9 @@ target_link_libraries(breezy_desktop
     KF6::WindowSystem
 
     KWin::kwin
+
+    xr_driver_ipc
 )
+
 
 install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)

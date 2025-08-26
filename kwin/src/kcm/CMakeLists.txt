@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
 set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp)
 ki18n_wrap_ui(breezy_desktop_config_SOURCES breezydesktopeffectkcm.ui)
 qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kwineffects_interface)
@@ -17,4 +13,6 @@ target_link_libraries(breezy_desktop_config
     KF6::I18n
     KF6::KCMUtils
     KF6::XmlGui
+
+    xr_driver_ipc
 )

@@ -68,8 +68,6 @@ namespace KWin
         void deactivate();
         void enableDriver();
         void toggle();
-        void recenter();
-        void toggleZoomOnFocus();
         void addVirtualDisplay(QSize size);
         void updateImuRotation();
         void updateCursorImage();
