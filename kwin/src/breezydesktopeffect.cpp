@@ -561,7 +561,8 @@ void BreezyDesktopEffect::updateCursorImage()
 void BreezyDesktopEffect::updateCursorPos()
 {
     // Update cursor position from effects
-    QPointF newPos = effects->cursorPos();
+    const auto cursor = effects->cursorImage();
+    QPointF newPos = effects->cursorPos() - cursor.hotSpot();
     if (m_cursorPos != newPos) {
         m_cursorPos = newPos;
         Q_EMIT cursorPosChanged();

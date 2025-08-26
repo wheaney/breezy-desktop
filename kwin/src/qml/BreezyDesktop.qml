@@ -12,34 +12,6 @@ Node {
     property var imuRotations: effect.imuRotations
     property int focusedMonitorIndex: -1
 
-    // x value for placing the viewport in the middle of all screens
-    property real screensXMid: {
-        let xMin = Number.MAX_VALUE;
-        let xMax = Number.MIN_VALUE;
-
-        for (let i = 0; i < screens.length; i++) {
-            const geometry = screens[i].geometry;
-            xMin = Math.min(xMin, geometry.x);
-            xMax = Math.max(xMax, geometry.x + geometry.width);
-        }
-
-        return (xMin + xMax) / 2 - (viewportResolution[0] / 2);
-    }
-
-    // y value for placing the viewport in the middle of all screens
-    property real screensYMid: {
-        let yMin = Number.MAX_VALUE;
-        let yMax = Number.MIN_VALUE;
-
-        for (let i = 0; i < screens.length; i++) {
-            const geometry = screens[i].geometry;
-            yMin = Math.min(yMin, geometry.y);
-            yMax = Math.max(yMax, geometry.y + geometry.height);
-        }
-
-        return (yMin + yMax) / 2 - (viewportResolution[1] / 2);
-    }
-
     Displays {
         id: displays
     }

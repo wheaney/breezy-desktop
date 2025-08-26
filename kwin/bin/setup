@@ -59,6 +59,7 @@ cp -r . "$USER_HOME/.local/"
 
 popd > /dev/null
 
+mkdir -p $XDG_BIN_HOME
 cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
 
 # Install QT_PLUGIN_PATH snippet into ~/.bash_profile if not present
