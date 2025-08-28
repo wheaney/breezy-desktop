@@ -306,11 +306,8 @@ QtObject {
         return monitorPlacements;
     }
 
-    // returns how far the look vector is from the center of the monitor, as a percentage of the monitor's width
+    // returns how far the look vector is from the center of the monitor, as a percentage of the monitor's dimensions
     function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
-        var monitorAspectRatio = monitorDetails.width / monitorDetails.height;
-
-        // weight the up distance by the aspect ratio
         var vectorUpPixels = upAngleToLength(
             fovDetails.defaultDistanceVerticalRadians,
             fovDetails.heightPixels,
@@ -318,7 +315,7 @@ QtObject {
             monitorVector.z,
             monitorVector.x
         );
-        var upDeltaPixels = (lookUpPixels - vectorUpPixels) * monitorAspectRatio;
+        var upPercentage = Math.abs(lookUpPixels - vectorUpPixels) / monitorDetails.height;
 
         var vectorWestPixels = westAngleToLength(
             fovDetails.defaultDistanceHorizontalRadians,
@@ -327,11 +324,10 @@ QtObject {
             monitorVector.y,
             monitorVector.x
         );
-        var westDeltaPixels = lookWestPixels - vectorWestPixels;
-        var totalDeltaPixels = Math.sqrt(upDeltaPixels * upDeltaPixels + westDeltaPixels * westDeltaPixels);
+        var westPercentage = Math.abs(lookWestPixels - vectorWestPixels) / monitorDetails.width;
 
-        // threshold is a percentage of width, and height was already properly weighted
-        return totalDeltaPixels / monitorDetails.width;
+        // how close we are to any edge is the largest of the two percentages
+        return Math.max(upPercentage, westPercentage);
     }
 
     function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, smoothFollowEnabled, fovDetails, monitorsDetails) {
@@ -356,9 +352,6 @@ QtObject {
             rotatedLookVector.x
         );
 
-        var closestIndex = -1;
-        var closestDistance = Number.POSITIVE_INFINITY;
-
         // Check current focused monitor first
         if (currentFocusedIndex !== -1) {
             var focusedDistance = getMonitorDistance(
@@ -374,6 +367,9 @@ QtObject {
             if (smoothFollowEnabled || focusedDistance < unfocusThreshold)
                 return currentFocusedIndex;
         }
+
+        var closestIndex = -1;
+        var closestDistance = Number.POSITIVE_INFINITY;
 
         // Find the closest monitor
         for (var i = 0; i < monitorVectors.length; ++i) {

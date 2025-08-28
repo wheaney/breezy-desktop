@@ -83,9 +83,6 @@ Node {
 
                 const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
                 if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
-                    // zoomOutAnimation.stop();
-                    // zoomInAnimation.stop();
-                    // zoomOnFocusSequence.stop();
                     if (focusedDisplay === null) {
                         zoomOutAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
                         zoomOutAnimation.target.targetDistance = zoomOutAnimation.to;
