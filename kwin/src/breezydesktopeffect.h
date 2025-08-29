@@ -26,6 +26,7 @@ namespace KWin
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY displayDistanceChanged)
         Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY displayDistanceChanged)
+        Q_PROPERTY(qreal displaySpacing READ displaySpacing NOTIFY displaySpacingChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
@@ -55,6 +56,8 @@ namespace KWin
         void setFocusedDisplayDistance(qreal distance);
         qreal allDisplaysDistance() const;
         void setAllDisplaysDistance(qreal distance);
+        qreal displaySpacing() const;
+        void setDisplaySpacing(qreal spacing);
         qreal diagonalFOV() const;
         qreal lensDistanceRatio() const;
         bool sbsEnabled() const;
@@ -75,6 +78,7 @@ namespace KWin
 
     Q_SIGNALS:
         void displayDistanceChanged();
+        void displaySpacingChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void imuRotationsChanged();
@@ -112,6 +116,7 @@ namespace KWin
         QTimer *m_cursorUpdateTimer = nullptr;
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
+        qreal m_displaySpacing = 0.0;
         QList<Output *> m_virtualOutputs;
     };
 

@@ -22,5 +22,12 @@
             <label>Zoom on Focus Enabled</label>
             <description>Enable zooming in on the focused display.</description>
         </entry>
+        <entry name="DisplaySpacing" type="Int">
+            <default>0</default>
+            <min>0</min>
+            <max>100</max>
+            <label>Display Spacing</label>
+            <description>How far apart the displays are visually (not logically)</description>
+        </entry>
     </group>
 </kcfg>

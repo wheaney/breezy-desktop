@@ -64,7 +64,6 @@ Item {
     property var fovDetails: displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio)
 
     property var monitorPlacements: {
-        const monitorSpacing = 0.0;
         const adjustedGeometries = screens.map(screen => {
             const g = screen.geometry;
             return {
@@ -74,7 +73,7 @@ Item {
                 height: g.height
             };
         });
-        return displays.monitorsToPlacements(fovDetails, adjustedGeometries, monitorSpacing);
+        return displays.monitorsToPlacements(fovDetails, adjustedGeometries, effect.displaySpacing);
     }
 
     Component {
