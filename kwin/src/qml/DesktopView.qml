@@ -25,15 +25,13 @@ Item {
     }
 
     Repeater {
-        model: KWinComponents.WindowFilterModel {
-            activity: KWinComponents.Workspace.currentActivity
-            desktop: KWinComponents.Workspace.currentDesktop
-            windowModel: KWinComponents.WindowModel {}
-        }
+        model: KWinComponents.WindowModel {}
 
         KWinComponents.WindowThumbnail {
             // Only show if window overlaps this screen (any amount) and not minimized.
-            readonly property bool onThisScreen: desktopView.overlapsScreen(model.window, desktopView.screen.geometry)
+            readonly property bool onThisActivity: model.window.activities.length === 0 || model.window.activities.includes(KWinComponents.Workspace.currentActivity)
+            readonly property bool onThisDesktop: onThisActivity && (model.window.onAllDesktops || model.window.desktops.includes(KWinComponents.Workspace.currentDesktop))
+            readonly property bool onThisScreen: onThisDesktop && desktopView.overlapsScreen(model.window, desktopView.screen.geometry)
 
             wId: model.window.internalId
             x: model.window.x - desktopView.screen.geometry.x
@@ -42,6 +40,7 @@ Item {
             visible: onThisScreen && !model.window.minimized
         }
     }
+    
     Image {
         id: cursorImg
         source: effect.cursorImageSource
