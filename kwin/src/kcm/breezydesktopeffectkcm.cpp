@@ -1,6 +1,7 @@
 #include "shortcuts.h"
 #include "breezydesktopeffectkcm.h"
 #include "breezydesktopconfig.h"
+#include "labeledslider.h"
 
 #include <kwineffects_interface.h>
 
@@ -30,7 +31,7 @@ void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Sho
 
 K_PLUGIN_CLASS(BreezyDesktopEffectConfig)
 
-BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data, const QVariantList &args)
+BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data)
     : KCModule(parent, data)
 {
     ui.setupUi(widget());
@@ -39,7 +40,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     m_configWatcher = KConfigWatcher::create(BreezyDesktopConfig::self()->sharedConfig());
     if (m_configWatcher) {
         connect(m_configWatcher.data(), &KConfigWatcher::configChanged, this,
-                [this](const KConfigGroup &group, const QByteArrayList &names) {
+                [this](const KConfigGroup &group) {
                     if (m_updatingFromConfig) {
                         return;
                     }

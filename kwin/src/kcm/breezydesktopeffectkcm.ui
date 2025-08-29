@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    SPDX-FileCopyrightText: 2022 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-
-    SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
--->
 <ui version="4.0">
  <class>BreezyDesktopEffectConfig</class>
  <widget class="QWidget" name="BreezyDesktopEffectConfig">
@@ -40,18 +35,15 @@
         </widget>
      </item>
      <item row="1" column="1">
-        <widget class="QSlider" name="kcfg_FocusedDisplayDistance">
-         <property name="minimum">
-            <double>20</double>
-         </property>
-         <property name="maximum">
-            <double>250</double>
+        <widget class="LabeledSlider" name="kcfg_FocusedDisplayDistance">
+         <property name="decimalShift">
+            <double>2</double>
          </property>
          <property name="tickPosition">
             <enum>QSlider::TicksBelow</enum>
          </property>
          <property name="tickInterval">
-            <double>20</double>
+            <double>25</double>
          </property>
          <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -69,18 +61,15 @@
         </widget>
      </item>
      <item row="2" column="1">
-        <widget class="QSlider" name="kcfg_AllDisplaysDistance">
-         <property name="minimum">
-            <double>20</double>
-         </property>
-         <property name="maximum">
-            <double>250</double>
+        <widget class="LabeledSlider" name="kcfg_AllDisplaysDistance">
+         <property name="decimalShift">
+            <double>2</double>
          </property>
          <property name="tickPosition">
             <enum>QSlider::TicksBelow</enum>
          </property>
          <property name="tickInterval">
-            <double>20</double>
+            <double>25</double>
          </property>
          <property name="orientation">
             <enum>Qt::Horizontal</enum>

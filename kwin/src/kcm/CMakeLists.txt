@@ -1,4 +1,4 @@
-set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp)
+set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp labeledslider.cpp)
 ki18n_wrap_ui(breezy_desktop_config_SOURCES breezydesktopeffectkcm.ui)
 qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kwineffects_interface)
 
