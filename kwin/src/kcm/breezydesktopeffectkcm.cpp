@@ -92,6 +92,7 @@ void BreezyDesktopEffectConfig::save()
     updateConfigFromUi();
     BreezyDesktopConfig::self()->save();
     KCModule::save();
+    ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
     m_updatingFromConfig = false;
     updateUnmanagedState();
 
@@ -117,6 +118,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_AllDisplaysDistance->setValue(BreezyDesktopConfig::self()->allDisplaysDistance());
     ui.kcfg_DisplaySpacing->setValue(BreezyDesktopConfig::self()->displaySpacing());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
+    ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
 }
 
 void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
