@@ -94,6 +94,7 @@ namespace KWin
         bool checkParityByte(const char* data);
         void setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, 
                                  std::function<void()> triggeredFunc);
+        void recenter();
 
         QTimer *m_shutdownTimer;
         QString m_cursorImageSource;

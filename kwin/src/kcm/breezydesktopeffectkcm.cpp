@@ -2,6 +2,7 @@
 #include "breezydesktopeffectkcm.h"
 #include "breezydesktopconfig.h"
 #include "labeledslider.h"
+#include "xrdriveripc.h"
 
 #include <kwineffects_interface.h>
 
@@ -36,6 +37,11 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 {
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
+
+    m_statePollTimer.setInterval(2000);
+    m_statePollTimer.setTimerType(Qt::CoarseTimer);
+    connect(&m_statePollTimer, &QTimer::timeout, this, &BreezyDesktopEffectConfig::pollDriverState);
+    m_statePollTimer.start();
     
     m_configWatcher = KConfigWatcher::create(BreezyDesktopConfig::self()->sharedConfig());
     if (m_configWatcher) {
@@ -120,6 +126,24 @@ void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
 
 void BreezyDesktopEffectConfig::updateUnmanagedState()
 {
+}
+
+void BreezyDesktopEffectConfig::pollDriverState()
+{
+    auto &bridge = XRDriverIPC::instance();
+    auto stateOpt = bridge.retrieveDriverState();
+    const XRDict &state = stateOpt.value();
+
+    m_connectedDeviceBrand = QString::fromStdString(XRDriverIPC::string(state, XRStateEntry::ConnectedDeviceBrand));
+    m_connectedDeviceModel = QString::fromStdString(XRDriverIPC::string(state, XRStateEntry::ConnectedDeviceModel));
+
+    const bool wasDeviceConnected = m_deviceConnected;
+    m_deviceConnected = !m_connectedDeviceBrand.isEmpty() && !m_connectedDeviceModel.isEmpty();
+    if (m_deviceConnected != wasDeviceConnected) {
+        ui.labelDeviceConnectionStatus->setText(m_deviceConnected ? 
+            QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) : 
+            QStringLiteral("No device connected"));
+    }
 }
 
 #include "breezydesktopeffectkcm.moc"

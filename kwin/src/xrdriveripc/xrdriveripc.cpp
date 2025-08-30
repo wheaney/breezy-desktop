@@ -11,8 +11,8 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
-XRDriverIPCBridge &XRDriverIPCBridge::instance() {
-	static XRDriverIPCBridge inst;
+XRDriverIPC &XRDriverIPC::instance() {
+	static XRDriverIPC inst;
 	if (!inst.m_initialized) {
 		QString installedFile = QStandardPaths::locate(
 			QStandardPaths::GenericDataLocation,
@@ -27,7 +27,15 @@ XRDriverIPCBridge &XRDriverIPCBridge::instance() {
 	return inst;
 }
 
-std::string XRDriverIPCBridge::configHome() const {
+std::string XRDriverIPC::string(const XRDict &dict, const std::string &key) {
+	auto it = dict.find(key);
+	if (it != dict.end() && std::holds_alternative<std::string>(it->second)) {
+		return std::get<std::string>(it->second);
+	}
+	return {};
+}
+
+std::string XRDriverIPC::configHome() const {
 	QString configHome = QString::fromUtf8(qgetenv("XDG_CONFIG_HOME"));
 	if (configHome.isEmpty()) {
 		QString homeDir = QString::fromUtf8(qgetenv("HOME"));
@@ -36,7 +44,7 @@ std::string XRDriverIPCBridge::configHome() const {
 	return configHome.toStdString();
 }
 
-QByteArray XRDriverIPCBridge::invokePython(const QString &method,
+QByteArray XRDriverIPC::invokePython(const QString &method,
 										   const QByteArray &payloadJson,
 										   const QString &singleArg) const {
 	QProcess proc;
@@ -82,7 +90,7 @@ static XRDict jsonToXRDict(const QJsonObject &obj) {
 	return out;
 }
 
-std::optional<XRDict> XRDriverIPCBridge::retrieveConfig() {
+std::optional<XRDict> XRDriverIPC::retrieveConfig() {
 	QByteArray out = invokePython(QStringLiteral("retrieve_config"), {}, QStringLiteral("1"));
 	if (out.isEmpty()) return std::nullopt;
 	QJsonParseError err; auto doc = QJsonDocument::fromJson(out, &err);
@@ -90,7 +98,7 @@ std::optional<XRDict> XRDriverIPCBridge::retrieveConfig() {
 	return jsonToXRDict(doc.object());
 }
 
-std::optional<XRDict> XRDriverIPCBridge::retrieveDriverState() {
+std::optional<XRDict> XRDriverIPC::retrieveDriverState() {
 	QByteArray out = invokePython(QStringLiteral("retrieve_driver_state"), {}, {});
 	if (out.isEmpty()) return std::nullopt;
 	QJsonParseError err; auto doc = QJsonDocument::fromJson(out, &err);
@@ -98,7 +106,7 @@ std::optional<XRDict> XRDriverIPCBridge::retrieveDriverState() {
 	return jsonToXRDict(doc.object());
 }
 
-bool XRDriverIPCBridge::writeConfig(const XRDict &configUpdate) {
+bool XRDriverIPC::writeConfig(const XRDict &configUpdate) {
 	QJsonObject obj;
 	for (const auto &kv : configUpdate) {
 		const std::string &k = kv.first; const XRValue &v = kv.second;
@@ -112,21 +120,21 @@ bool XRDriverIPCBridge::writeConfig(const XRDict &configUpdate) {
 	return !out.isEmpty();
 }
 
-bool XRDriverIPCBridge::writeControlFlags(const std::map<std::string, bool> &flags) {
+bool XRDriverIPC::writeControlFlags(const std::map<std::string, bool> &flags) {
 	QJsonObject obj; for (const auto &kv : flags) obj.insert(QString::fromStdString(kv.first), kv.second);
 	QByteArray payload = QJsonDocument(obj).toJson(QJsonDocument::Compact);
 	QByteArray out = invokePython(QStringLiteral("write_control_flags"), payload, {});
 	return !out.isEmpty();
 }
 
-bool XRDriverIPCBridge::requestToken(const std::string &email) {
+bool XRDriverIPC::requestToken(const std::string &email) {
 	QByteArray out = invokePython(QStringLiteral("request_token"), {}, QString::fromStdString(email));
 	if (out.isEmpty()) return false;
 	auto value = QJsonValue(QString::fromStdString(out.toStdString()));
 	return value.isBool() ? value.toBool() : false;
 }
 
-bool XRDriverIPCBridge::verifyToken(const std::string &token) {
+bool XRDriverIPC::verifyToken(const std::string &token) {
 	QByteArray out = invokePython(QStringLiteral("verify_token"), {}, QString::fromStdString(token));
 	if (out.isEmpty()) return false;
 	auto value = QJsonValue(QString::fromStdString(out.toStdString()));

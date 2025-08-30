@@ -2,39 +2,42 @@
 <ui version="4.0">
  <class>BreezyDesktopEffectConfig</class>
  <widget class="QWidget" name="BreezyDesktopEffectConfig">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>455</width>
-    <height>361</height>
-   </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>250</height>
-   </size>
-  </property>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0" colspan="2">
+   <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="labelDeviceConnectionStatus">
+         <property name="text">
+            <string>No device connected</string>
+         </property>
+         <property name="alignment">
+            <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+         </property>
+         <property name="font">
+            <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            </font>
+         </property>
+         </widget>
+      </item>
+      <item row="1" column="0">
         <widget class="QCheckBox" name="kcfg_ZoomOnFocusEnabled">
          <property name="text">
-            <string>Zoom on Focus</string>
+           <string>Zoom on Focus</string>
          </property>
          <property name="checked">
-            <bool>false</bool>
+           <bool>false</bool>
          </property>
         </widget>
-     </item>
-     <item row="1" column="0">
+      </item>
+     <item row="2" column="0">
         <widget class="QLabel" name="labelFocusedDisplayDistance">
          <property name="text">
             <string>Focused Display Distance:</string>
          </property>
         </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
         <widget class="LabeledSlider" name="kcfg_FocusedDisplayDistance">
          <property name="decimalShift">
             <double>2</double>
@@ -53,14 +56,14 @@
          </property>
         </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
         <widget class="QLabel" name="labelAllDisplaysDistance">
          <property name="text">
             <string>All Displays Distance:</string>
          </property>
         </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
         <widget class="LabeledSlider" name="kcfg_AllDisplaysDistance">
          <property name="decimalShift">
             <double>2</double>
@@ -79,14 +82,14 @@
          </property>
         </widget>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
         <widget class="QLabel" name="labelDisplaySpacing">
          <property name="text">
           <string>Display Spacing:</string>
          </property>
         </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
         <widget class="QSlider" name="kcfg_DisplaySpacing">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -96,7 +99,7 @@
          </property>
         </widget>
      </item>
-     <item row="4" column="0" colspan="2">
+     <item row="5" column="0" colspan="2">
         <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
          <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">

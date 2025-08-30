@@ -82,11 +82,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     );
     setupGlobalShortcut(
         BreezyShortcuts::RECENTER,
-        [this]() { 
-            XRDriverIPCBridge::instance().writeControlFlags({
-                {"recenter_screen", true}
-            });
-         }
+        [this]() { this->recenter(); }
     );
     setupGlobalShortcut(
         BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS,
@@ -144,6 +140,12 @@ void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &s
     connect(action, &QAction::triggered, this, triggeredFunc);
 }
 
+void BreezyDesktopEffect::recenter() {
+    XRDriverIPC::instance().writeControlFlags({
+        {"recenter_screen", true}
+    });
+}
+
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
     BreezyDesktopConfig::self()->read();
@@ -192,6 +194,7 @@ void BreezyDesktopEffect::activate()
     effects->stopMouseInterception(this);
 
     hideCursor();
+    recenter();
 }
 
 void BreezyDesktopEffect::deactivate()
@@ -218,7 +221,7 @@ void BreezyDesktopEffect::deactivate()
 void BreezyDesktopEffect::enableDriver()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - enableDriver";
-    XRDriverIPCBridge::instance().writeConfig({
+    XRDriverIPC::instance().writeConfig({
         {"disabled", false},
         {"output_mode", "external_only"},
         {"external_mode", "breezy_desktop"}
