@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "KWin/Effect",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "wayne@xronlinux.com",
+                "Name": "Wayne Heaney"
+            }
+        ],
+        "Category": "Tools",
+        "Description": "Breezy Desktop XR Effect",
+        "EnabledByDefault": true,
+        "License": "GPL",
+        "Name": "Breezy Desktop XR"
+    },
+    "X-KDE-ConfigModule": "breezy_desktop_config"
+}

@@ -4,3 +4,4 @@ __pycache__
 gschemas.compiled
 out/
 *.po~
+kwin/src/xrdriveripc/xrdriveripc.py
