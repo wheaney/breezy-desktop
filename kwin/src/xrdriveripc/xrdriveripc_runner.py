@@ -13,6 +13,13 @@ import os
 import sys
 import traceback
 
+class Logger:
+	def info(self, *args, **kwargs):
+		pass
+
+	def error(self, *args, **kwargs):
+		pass
+
 
 def main() -> int:
 	# Ensure the current directory (where xrdriveripc.py lives) is in sys.path
@@ -32,7 +39,7 @@ def main() -> int:
 		return 2
 
 	config_home = os.environ.get("BREEZY_CONFIG_HOME")
-	inst = xrdriveripc.XRDriverIPC(config_home=config_home)
+	inst = xrdriveripc.XRDriverIPC(logger=Logger(), config_home=config_home)
 
 	arg = os.environ.get("BREEZY_ARG")
 	payload_raw = os.environ.get("BREEZY_PAYLOAD")

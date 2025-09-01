@@ -16,3 +16,8 @@ target_link_libraries(breezy_desktop_config
 
     xr_driver_ipc
 )
+
+# Ensure the version macro is available to the KCM as well (defined in parent CMakeLists)
+if(BREEZY_DESKTOP_VERSION)
+    target_compile_definitions(breezy_desktop_config PRIVATE BREEZY_DESKTOP_VERSION_STR=\"${BREEZY_DESKTOP_VERSION}\")
+endif()

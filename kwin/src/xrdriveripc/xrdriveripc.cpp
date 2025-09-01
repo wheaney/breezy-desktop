@@ -27,14 +27,6 @@ XRDriverIPC &XRDriverIPC::instance() {
 	return inst;
 }
 
-std::string XRDriverIPC::string(const XRDict &dict, const std::string &key) {
-	auto it = dict.find(key);
-	if (it != dict.end() && std::holds_alternative<std::string>(it->second)) {
-		return std::get<std::string>(it->second);
-	}
-	return {};
-}
-
 std::string XRDriverIPC::configHome() const {
 	QString configHome = QString::fromUtf8(qgetenv("XDG_CONFIG_HOME"));
 	if (configHome.isEmpty()) {
@@ -75,47 +67,24 @@ QByteArray XRDriverIPC::invokePython(const QString &method,
 	return proc.readAllStandardOutput().trimmed();
 }
 
-static XRDict jsonToXRDict(const QJsonObject &obj) {
-	XRDict out;
-	for (auto it = obj.begin(); it != obj.end(); ++it) {
-		const QString &k = it.key();
-		const QJsonValue &v = it.value();
-		if (v.isBool()) out[k.toStdString()] = v.toBool();
-		else if (v.isDouble() && std::floor(v.toDouble()) == v.toDouble())
-			out[k.toStdString()] = (int)v.toDouble();
-		else if (v.isDouble()) out[k.toStdString()] = v.toDouble();
-		else if (v.isString()) out[k.toStdString()] = v.toString().toStdString();
-		else out[k.toStdString()] = std::monostate{};
-	}
-	return out;
-}
-
-std::optional<XRDict> XRDriverIPC::retrieveConfig() {
+std::optional<QJsonObject> XRDriverIPC::retrieveConfig() {
 	QByteArray out = invokePython(QStringLiteral("retrieve_config"), {}, QStringLiteral("1"));
 	if (out.isEmpty()) return std::nullopt;
 	QJsonParseError err; auto doc = QJsonDocument::fromJson(out, &err);
 	if (err.error != QJsonParseError::NoError || !doc.isObject()) return std::nullopt;
-	return jsonToXRDict(doc.object());
+	return doc.object();
 }
 
-std::optional<XRDict> XRDriverIPC::retrieveDriverState() {
+std::optional<QJsonObject> XRDriverIPC::retrieveDriverState() {
 	QByteArray out = invokePython(QStringLiteral("retrieve_driver_state"), {}, {});
 	if (out.isEmpty()) return std::nullopt;
 	QJsonParseError err; auto doc = QJsonDocument::fromJson(out, &err);
 	if (err.error != QJsonParseError::NoError || !doc.isObject()) return std::nullopt;
-	return jsonToXRDict(doc.object());
+	return doc.object();
 }
 
-bool XRDriverIPC::writeConfig(const XRDict &configUpdate) {
-	QJsonObject obj;
-	for (const auto &kv : configUpdate) {
-		const std::string &k = kv.first; const XRValue &v = kv.second;
-		if (std::holds_alternative<bool>(v)) obj.insert(QString::fromStdString(k), std::get<bool>(v));
-		else if (std::holds_alternative<int>(v)) obj.insert(QString::fromStdString(k), std::get<int>(v));
-		else if (std::holds_alternative<double>(v)) obj.insert(QString::fromStdString(k), std::get<double>(v));
-		else if (std::holds_alternative<std::string>(v)) obj.insert(QString::fromStdString(k), QString::fromStdString(std::get<std::string>(v)));
-	}
-	QByteArray payload = QJsonDocument(obj).toJson(QJsonDocument::Compact);
+bool XRDriverIPC::writeConfig(const QJsonObject &configUpdate) {
+	QByteArray payload = QJsonDocument(configUpdate).toJson(QJsonDocument::Compact);
 	QByteArray out = invokePython(QStringLiteral("write_config"), payload, {});
 	return !out.isEmpty();
 }
@@ -130,13 +99,13 @@ bool XRDriverIPC::writeControlFlags(const std::map<std::string, bool> &flags) {
 bool XRDriverIPC::requestToken(const std::string &email) {
 	QByteArray out = invokePython(QStringLiteral("request_token"), {}, QString::fromStdString(email));
 	if (out.isEmpty()) return false;
-	auto value = QJsonValue(QString::fromStdString(out.toStdString()));
-	return value.isBool() ? value.toBool() : false;
+	QString result = QString::fromUtf8(out).trimmed().toLower();
+    return result == QStringLiteral("true");
 }
 
 bool XRDriverIPC::verifyToken(const std::string &token) {
 	QByteArray out = invokePython(QStringLiteral("verify_token"), {}, QString::fromStdString(token));
 	if (out.isEmpty()) return false;
-	auto value = QJsonValue(QString::fromStdString(out.toStdString()));
-	return value.isBool() ? value.toBool() : false;
+	QString result = QString::fromUtf8(out).trimmed().toLower();
+    return result == QStringLiteral("true");
 }

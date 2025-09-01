@@ -141,6 +141,167 @@
        </item>
       </layout>
      </widget>
+   <widget class="QWidget" name="tabLicenseDetails">
+    <attribute name="title">
+     <string>&amp;License Details</string>
+    </attribute>
+   <layout class="QVBoxLayout" name="verticalLayoutLicense">
+    <item>
+     <widget class="QLabel" name="labelLicenseSummary">
+      <property name="text">
+      <string/>
+      </property>
+      <property name="wordWrap">
+      <bool>true</bool>
+      </property>
+      <property name="visible">
+      <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+    <widget class="QGroupBox" name="groupBoxEmail">
+       <property name="title">
+      <string>Request a token</string>
+       </property>
+   <layout class="QGridLayout" name="gridLayoutEmail">
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="lineEditLicenseEmail">
+        <property name="placeholderText">
+         <string>you@example.com</string>
+        </property>
+       </widget>
+      </item>
+   <item row="0" column="1">
+    <widget class="QPushButton" name="buttonSubmitEmail">
+     <property name="text">
+      <string>Submit</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="labelEmailStatus">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBoxToken">
+       <property name="title">
+      <string>Verify token</string>
+       </property>
+   <layout class="QGridLayout" name="gridLayoutToken">
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="lineEditLicenseToken"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="buttonSubmitToken">
+      <property name="text">
+       <string>Verify</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QLabel" name="labelTokenStatus">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="visible">
+       <bool>false</bool>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacerLicense">
+       <property name="orientation">
+      <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="tabAbout">
+    <attribute name="title">
+     <string>&amp;About</string>
+    </attribute>
+    <layout class="QVBoxLayout" name="verticalLayoutAbout">
+     <item>
+      <widget class="QLabel" name="labelAppNameVersion">
+       <property name="text">
+      <string>Breezy Desktop Effect - v0.0.0</string>
+       </property>
+       <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+       </property>
+       <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel">
+       <property name="text">
+      <string>Author: Wayne Heaney &lt;wayne@xronlinux.com&gt;</string>
+       </property>
+       <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel">
+       <property name="text">
+      <string>License: GPL-3.0</string>
+       </property>
+       <property name="alignment">
+      <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+       </property>
+       <property name="wordWrap">
+      <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacerAbout">
+       <property name="orientation">
+      <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
     </widget>
    </item>
   </layout>

@@ -30,6 +30,10 @@ private:
     void updateConfigFromUi();
     void updateUnmanagedState();
     void pollDriverState();
+    void refreshLicenseUi(const QJsonObject &rootObj);
+    void showStatus(QLabel *label, bool success, const QString &message);
+    void setRequestInProgress(std::initializer_list<QObject*> widgets, bool inProgress);
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     ::Ui::BreezyDesktopEffectConfig ui;
 
@@ -39,4 +43,5 @@ private:
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
     QTimer m_statePollTimer; // periodic driver state polling
+    bool m_licenseLoading = false;
 };

@@ -5,3 +5,5 @@ gschemas.compiled
 out/
 *.po~
 kwin/src/xrdriveripc/xrdriveripc.py
+kwin/VERSION
+kwin/build-test/

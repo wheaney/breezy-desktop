@@ -1,4 +1,11 @@
 add_subdirectory(xrdriveripc)
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION" BREEZY_DESKTOP_VERSION_RAW)
+if(NOT BREEZY_DESKTOP_VERSION_RAW)
+    set(BREEZY_DESKTOP_VERSION_RAW "dev")
+endif()
+string(STRIP "${BREEZY_DESKTOP_VERSION_RAW}" BREEZY_DESKTOP_VERSION)
+
 add_subdirectory(kcm)
 
 kcoreaddons_add_plugin(breezy_desktop INSTALL_NAMESPACE "kwin/effects/plugins/")
@@ -32,11 +39,12 @@ math(EXPR KWIN_VERSION_ENCODED "${KWIN_VERSION_MAJOR} * 10000 + ${KWIN_VERSION_M
 
 # Export as compile definitions. Keep the original string macro as well.
 target_compile_definitions(breezy_desktop PRIVATE
-        KWIN_VERSION_STR=\"${KWin_VERSION}\"
-        KWIN_VERSION_MAJOR=${KWIN_VERSION_MAJOR}
-        KWIN_VERSION_MINOR=${KWIN_VERSION_MINOR}
-        KWIN_VERSION_PATCH=${KWIN_VERSION_PATCH}
-        KWIN_VERSION_ENCODED=${KWIN_VERSION_ENCODED}
+    KWIN_VERSION_STR=\"${KWin_VERSION}\"
+    KWIN_VERSION_MAJOR=${KWIN_VERSION_MAJOR}
+    KWIN_VERSION_MINOR=${KWIN_VERSION_MINOR}
+    KWIN_VERSION_PATCH=${KWIN_VERSION_PATCH}
+    KWIN_VERSION_ENCODED=${KWIN_VERSION_ENCODED}
+    BREEZY_DESKTOP_VERSION_STR=\"${BREEZY_DESKTOP_VERSION}\"
 )
 target_include_directories(breezy_desktop PRIVATE /usr/include/kwin)
 target_include_directories(breezy_desktop PRIVATE xrdriveripc)

@@ -62,6 +62,7 @@ cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 # alternative to symlinking, since the Docker build can't resolve to the parent directory
 # this file is in .gitignore so it doesn't get duplicated
 cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py $KWIN_DIR/src/xrdriveripc/xrdriveripc.py
+cp VERSION $KWIN_DIR
 
 pushd $KWIN_DIR
 docker-build/init.sh
