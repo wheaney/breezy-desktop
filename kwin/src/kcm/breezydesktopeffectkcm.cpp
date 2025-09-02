@@ -18,7 +18,6 @@
 #include <QHeaderView>
 #include <QPushButton>
 #include <QLineEdit>
-#include <QProgressBar>
 #include <QLabel>
 #include <QJsonValue>
 #include <QJsonArray>

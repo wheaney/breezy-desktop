@@ -52,9 +52,52 @@ fi
 
 if [ -z "$binary_path_arg" ]
 then
-  # download and unzip the binary
-  echo "Downloading to: ${tmp_dir}/$FILE_NAME"
-  curl -L "$binary_download_url" > "$FILE_NAME"
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$binary_download_url" || echo "000")
+
+  if [[ "$http_code" =~ ^(2|3) ]]; then
+    echo "Downloading to: ${tmp_dir}/$FILE_NAME"
+    curl -L "$binary_download_url" -o "$FILE_NAME"
+  else
+    check_command "git"
+
+    # handle -v / --tag like the rest of the script
+    if [ "$1" = "--tag" ] && [ -n "$2" ]; then
+      requested_tag="$2"
+    fi
+
+    # resolve tag: prefer requested_tag, then LATEST_RELEASE if already fetched, else query GitHub API
+    if [ -n "$requested_tag" ]; then
+      tag="$requested_tag"
+    else
+      tag=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest" \
+            | grep -m1 '"tag_name":' \
+            | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/')
+    fi
+
+    if [ -z "$tag" ]; then
+      echo "Failed to determine latest tag for wheaney/breezy-desktop" 1>&2
+      exit 1
+    fi
+
+    echo "Cloning wheaney/breezy-desktop (tag: ${tag})"
+    if git clone --depth 1 --branch "$tag" "https://github.com/wheaney/breezy-desktop.git" breezy-desktop 2>/dev/null; then
+      pushd breezy-desktop > /dev/null
+    else
+      git clone "https://github.com/wheaney/breezy-desktop.git" breezy-desktop
+      pushd breezy-desktop > /dev/null
+      git checkout "$tag"
+    fi
+
+    echo "Downloading git submodules"
+    git submodule sync --recursive || true
+    git submodule update --init --recursive modules/XRLinuxDriver
+    git submodule update --init --recursive ui/modules/PyXRLinuxDriverIPC
+
+    LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver
+    FILE_NAME="breezyKWin-$ARCH.tar.gz"
+    cp "out/$FILE_NAME" "$tmp_dir"
+    popd > /dev/null
+  fi
 else
   FILE_NAME=$(basename $binary_path_arg)
   if [[ "$binary_path_arg" = /* ]]; then

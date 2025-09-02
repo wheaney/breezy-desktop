@@ -31,6 +31,7 @@ EFFECT_ID="breezy_desktop"
 EFFECT_DIR="$XDG_DATA_HOME/kwin/effects/$EFFECT_ID"
 PLUGIN_SO="$LIB_HOME/qt6/plugins/kwin/effects/plugins/${EFFECT_ID}.so"
 CONFIG_SO="$LIB_HOME/qt6/plugins/kwin/effects/configs/${EFFECT_ID}_config.so"
+BREEZY_LIBRARY_DIR="$LIB_HOME/breezy_kwin"
 
 if [[ -d "$EFFECT_DIR" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $EFFECT_DIR and its contents"
@@ -45,6 +46,11 @@ fi
 if [[ -f "$CONFIG_SO" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $CONFIG_SO"
     $SUDO rm -f "$CONFIG_SO"
+fi
+
+if [[ -d "$BREEZY_LIBRARY_DIR" ]]; then
+    [ "$for_install" -eq 0 ] && echo "Removing $BREEZY_LIBRARY_DIR and its contents"
+    $SUDO rm -rf "$BREEZY_LIBRARY_DIR"
 fi
 
 if [[ -e "$XDG_BIN_HOME/xr_driver_uninstall" && "$for_install" -eq 0 ]]; then
