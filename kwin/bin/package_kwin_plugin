@@ -22,11 +22,11 @@ BUILD_PATH=build
 rm -rf $BUILD_PATH
 mkdir $BUILD_PATH
 
-pushd $BUILD_PATH
+pushd $BUILD_PATH > /dev/null
 cmake ..
 make
 cpack -G TGZ
-popd
+popd > /dev/null
 
 mkdir -p out
 cp $BUILD_PATH/breezy_desktop.tar.gz out/breezyKWinPlugin-$ARCH.tar.gz

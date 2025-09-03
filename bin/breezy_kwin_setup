@@ -27,7 +27,7 @@ print_missing_dependencies() {
   echo "Install the corresponding packages with your package manager, then rerun this setup:"
   echo "  Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y extra-cmake-modules kf6-kconfig-dev kf6-kconfigwidgets-dev kf6-kcoreaddons-dev kf6-kcmutils-dev"
   echo "  Fedora/RHEL:   sudo dnf install -y extra-cmake-modules kf6-kconfig kf6-kconfigwidgets kf6-kcoreaddons kf6-kcmutils"
-  echo "  Arch:  sudo pacman -S --needed extra-cmake-modules kf6"
+  echo "  Arch:          sudo pacman -S --needed extra-cmake-modules kf6"
   echo ""
   printf "\n\033[1;33mIf you continue to see this issue\033[0m run with PRINT_FULL_STDERR=1 and attach the full output to a bug report.\n"
   exit 1
@@ -117,7 +117,7 @@ then
     pkgkwin_stderr=$(LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1)
     pkgkwin_rc=$?
     set -e
-    if echo "$pkgkwin_stderr" | grep -q "Could NOT find"; then
+    if echo "$pkgkwin_stderr" | grep -qi "could not find"; then
       if [ -z "${PRINT_FULL_STDERR+x}" ]; then
         print_missing_dependencies
         exit 1

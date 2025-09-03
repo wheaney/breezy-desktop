@@ -39,8 +39,8 @@ if [ "$1" == "--download-driver" ]; then
   chmod +x "$PACKAGE_DIR/bin/xr_driver_setup"
 
   echo "Downloaded XRLinuxDriver binary and setup script, with hashes:"
-  echo "xrDriver-$ARCH.tar.gz: $(sha256sum "$PACKAGE_DIR/xrDriver.tar.gz")"
-  echo "xr_driver_setup: $(sha256sum "$PACKAGE_DIR/bin/xr_driver_setup")"
+  printf '\txrDriver-%s.tar.gz: %s\n' "$ARCH" "$(sha256sum "$PACKAGE_DIR/xrDriver.tar.gz" | sort | sha256sum | sed 's/ .*//')"
+  printf '\txr_driver_setup: %s\n' "$(sha256sum "$PACKAGE_DIR/bin/xr_driver_setup" | sort | sha256sum | sed 's/ .*//')"
 else
   if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ] || [ "$1" == "--rebuild-all" ]; then
     # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -48,23 +48,23 @@ else
       cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
     fi
 
-    pushd $XR_DRIVER_DIR
+    pushd $XR_DRIVER_DIR > /dev/null
 
     # strange issue where the base library produces a .so file if the build is not cleaned
     rm -rf build/
 
     docker-build/init.sh
     docker-build/run-build.sh $ARCH
-    popd
+    popd > /dev/null
   fi
 
   XR_DRIVER_TMP_DIR=$(mktemp -d -t xr-driver-XXXXXXXXXX)
-  pushd $XR_DRIVER_TMP_DIR
+  pushd $XR_DRIVER_TMP_DIR > /dev/null
   cp $XR_DRIVER_BINARY $XR_DRIVER_TMP_DIR/xrDriver.tar.gz
   tar -xf $XR_DRIVER_TMP_DIR/xrDriver.tar.gz
 
   XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
-  popd
+  popd > /dev/null
   rm -rf $XR_DRIVER_TMP_DIR
 
   cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
@@ -76,20 +76,19 @@ fi
 cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py $KWIN_DIR/src/xrdriveripc/xrdriveripc.py
 cp VERSION $KWIN_DIR
 
-pushd $KWIN_DIR
+pushd $KWIN_DIR > /dev/null
 if [ -z "${LOCAL_BUILD_SYSTEM+x}" ]; then
   docker-build/init.sh
   docker-build/run-build.sh "$BUILD_ARCH"
 else
-  echo "LOCAL_BUILD_SYSTEM set; skipping Docker build"
   bin/package_kwin_plugin
 fi
-popd
+popd > /dev/null
 cp $KWIN_DIR/out/breezyKWinPlugin-$BUILD_ARCH.tar.gz $PACKAGE_DIR/breezyKWinPlugin.tar.gz
 
-pushd $TMP_DIR
+pushd $TMP_DIR > /dev/null
 tar -zcvf $BUILD_FILE_NAME breezy_kwin
-popd
+popd > /dev/null
 
 mkdir -p out
 if [ -e "out/$BUILD_FILE_NAME" ]; then
