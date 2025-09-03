@@ -120,7 +120,7 @@ Node {
         duration: 150
         running: false
         onFinished: {
-            const unfocusedDisplay = zoomInAnimation.target;
+            const unfocusedDisplay = zoomOutAnimation.target;
             if (unfocusedDisplay) {
                 unfocusedDisplay.monitorDistance = Qt.binding(function() { return effect.allDisplaysDistance; });
             }

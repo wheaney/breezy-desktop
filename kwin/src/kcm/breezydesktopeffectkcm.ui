@@ -112,59 +112,46 @@
          </property>
         </widget>
        </item>
-      <item row="4" column="0">
-        <widget class="QLabel" name="labelDisplayHorizontalOffset">
-        <property name="text">
-          <string>Display Horizontal Offset:</string>
-        </property>
-        </widget>
-      </item>
-      <item row="4" column="1">
-        <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
-        <property name="decimalShift">
-          <double>2</double>
-        </property>
-        <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
-        </property>
-        <property name="tickInterval">
-          <double>50</double>
-        </property>
-        <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="tracking">
-          <bool>true</bool>
-        </property>
-        </widget>
-      </item>
-      <item row="5" column="0">
-        <widget class="QLabel" name="labelDisplayVerticalOffset">
-        <property name="text">
-          <string>Display Vertical Offset:</string>
-        </property>
-        </widget>
-      </item>
-      <item row="5" column="1">
-        <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
-        <property name="decimalShift">
-          <double>2</double>
-        </property>
-        <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
-        </property>
-        <property name="tickInterval">
-          <double>50</double>
-        </property>
-        <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="tracking">
-          <bool>true</bool>
-        </property>
-        </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
+        <item row="4" column="0">
+          <widget class="QLabel" name="labelVirtualDisplays">
+            <property name="text">
+              <string>Add Virtual Display:</string>
+            </property>
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <property name="enabled">
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
+        <item row="4" column="1">
+          <widget class="QWidget" name="widgetVirtualDisplayButtons">
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <property name="enabled">
+              <bool>false</bool>
+            </property>
+            <layout class="QHBoxLayout" name="layoutVirtualDisplayButtons">
+              <item>
+                <widget class="QPushButton" name="buttonAdd1080p">
+                  <property name="text">
+                    <string>+ 1080p</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="buttonAdd1440p">
+                  <property name="text">
+                    <string>+ 1440p</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+        </item>
+      <item row="5" column="0" colspan="2">
         <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -210,6 +197,58 @@
               <string>Flat</string>
             </property>
           </item>
+          </widget>
+        </item>
+        <item row="1" column="0">
+          <widget class="QLabel" name="labelDisplayHorizontalOffset">
+          <property name="text">
+            <string>Display Horizontal Offset:</string>
+          </property>
+          </widget>
+        </item>
+        <item row="1" column="1">
+          <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
+          <property name="decimalShift">
+            <double>2</double>
+          </property>
+          <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+            <double>50</double>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tracking">
+            <bool>true</bool>
+          </property>
+          </widget>
+        </item>
+        <item row="2" column="0">
+          <widget class="QLabel" name="labelDisplayVerticalOffset">
+          <property name="text">
+            <string>Display Vertical Offset:</string>
+          </property>
+          </widget>
+        </item>
+        <item row="2" column="1">
+          <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
+          <property name="decimalShift">
+            <double>2</double>
+          </property>
+          <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+            <double>50</double>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tracking">
+            <bool>true</bool>
+          </property>
           </widget>
         </item>
       </layout>

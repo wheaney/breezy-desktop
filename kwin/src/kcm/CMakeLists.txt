@@ -5,6 +5,7 @@ qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kw
 kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "kwin/effects/configs" SOURCES ${breezy_desktop_config_SOURCES})
 kconfig_add_kcfg_files(breezy_desktop_config ../breezydesktopconfig.kcfgc)
 target_link_libraries(breezy_desktop_config
+    Qt6::DBus
     KF6::ConfigCore
     KF6::ConfigGui
     KF6::ConfigWidgets

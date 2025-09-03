@@ -52,6 +52,7 @@ target_link_libraries(breezy_desktop
     Qt6::Core
     Qt6::Gui
     Qt6::Quick
+    Qt6::DBus
 
     KF6::ConfigCore
     KF6::ConfigGui

@@ -119,14 +119,11 @@ then
     pkgkwin_rc=$?
     set -e
     if [ "$pkgkwin_rc" -ne 0 ]; then
-      if echo "$pkgkwin_stderr" | grep -qi "could not find"; then
-        if [ -z "${PRINT_FULL_STDERR+x}" ]; then
-          print_missing_dependencies "$0"
-        else
-          echo "$pkgkwin_stderr"
-        fi
+      if echo "$pkgkwin_stderr" | grep -qi "could not find" && [ -z "${PRINT_FULL_STDERR+x}" ]; then
+        print_missing_dependencies "$0"
+      else
+        echo "$pkgkwin_stderr"
       fi
-      echo ""
       echo "Error: Breezy Desktop build failed with exit code $pkgkwin_rc"
       exit $pkgkwin_rc
     fi

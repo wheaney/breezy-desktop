@@ -20,11 +20,35 @@
 #include <QLoggingCategory>
 #include <QQuickItem>
 #include <QTimer>
+#include <QDBusConnection>
 
 #include <KGlobalAccel>
 #include <KLocalizedString>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
+
+// A small DBus adaptor to expose effect controls to the KCM.
+// Service is provided by KWin (org.kde.KWin). We only register an object path.
+// Interface: com.xronlinux.BreezyDesktop, Path: /com/xronlinux/BreezyDesktop
+namespace {
+class BreezyDesktopDBusAdaptor : public QObject {
+    Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "com.xronlinux.BreezyDesktop")
+public:
+    explicit BreezyDesktopDBusAdaptor(KWin::BreezyDesktopEffect *effect)
+        : QObject(effect), m_effect(effect) {}
+
+public Q_SLOTS:
+    void AddVirtualDisplay(int width, int height) {
+        QMetaObject::invokeMethod(m_effect, [this, width, height]() {
+            m_effect->addVirtualDisplay(QSize(width, height));
+        }, Qt::QueuedConnection);
+    }
+
+private:
+    KWin::BreezyDesktopEffect *m_effect;
+};
+} // namespace
 
 namespace DataView
 {
@@ -129,6 +153,16 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     m_cursorUpdateTimer->start();
 
     enableDriver();
+
+    // Register DBus object under KWin's session bus name
+    auto *adaptor = new BreezyDesktopDBusAdaptor(this);
+    const bool dbusOk = QDBusConnection::sessionBus().registerObject(
+        QStringLiteral("/com/xronlinux/BreezyDesktop"),
+        adaptor,
+        QDBusConnection::ExportAllSlots);
+    if (!dbusOk) {
+        qCWarning(KWIN_XR) << "Failed to register DBus object /com/xronlinux/BreezyDesktop";
+    }
 }
 
 void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, std::function<void()> triggeredFunc) {
@@ -550,4 +584,4 @@ void BreezyDesktopEffect::updateCursorPos()
 }
 }
 
-#include "moc_breezydesktopeffect.cpp"
+#include "breezydesktopeffect.moc"

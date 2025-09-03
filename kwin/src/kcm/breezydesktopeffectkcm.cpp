@@ -14,6 +14,7 @@
 #include <KPluginFactory>
 
 #include <QAction>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLabel>
@@ -21,6 +22,8 @@
 #include <QJsonArray>
 #include <QPushButton>
 #include <QComboBox>
+#include <QDBusInterface>
+#include <QDBusConnection>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -42,6 +45,20 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 {
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
+
+    // Show/enable Virtual Display controls only when we're on Wayland
+    const bool isWaylandSession = QGuiApplication::platformName().contains(QStringLiteral("wayland"), Qt::CaseInsensitive)
+        || qEnvironmentVariable("XDG_SESSION_TYPE").compare(QStringLiteral("wayland"), Qt::CaseInsensitive) == 0;
+    if (isWaylandSession) {
+        if (auto lbl = widget()->findChild<QLabel*>(QStringLiteral("labelVirtualDisplays"))) {
+            lbl->setVisible(true);
+            lbl->setEnabled(true);
+        }
+        if (auto row = widget()->findChild<QWidget*>(QStringLiteral("widgetVirtualDisplayButtons"))) {
+            row->setVisible(true);
+            row->setEnabled(true);
+        }
+    }
 
     m_statePollTimer.setInterval(2000);
     m_statePollTimer.setTimerType(Qt::CoarseTimer);
@@ -117,6 +134,28 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
         if (auto tokenEdit = widget()->findChild<QLineEdit*>("lineEditLicenseToken")) {
             tokenEdit->installEventFilter(this);
         }
+    }
+
+    // Wire Add Virtual Display buttons via DBus to the effect
+    auto callAddVirtualDisplay = [](int w, int h) {
+        QDBusInterface iface(
+            QStringLiteral("org.kde.KWin"),
+            QStringLiteral("/com/xronlinux/BreezyDesktop"),
+            QStringLiteral("com.xronlinux.BreezyDesktop"),
+            QDBusConnection::sessionBus());
+        if (iface.isValid()) {
+            iface.call(QDBus::NoBlock, QStringLiteral("AddVirtualDisplay"), w, h);
+        }
+    };
+    if (auto btn1080p = widget()->findChild<QPushButton*>("buttonAdd1080p")) {
+        connect(btn1080p, &QPushButton::clicked, this, [callAddVirtualDisplay]() {
+            callAddVirtualDisplay(1920, 1080);
+        });
+    }
+    if (auto btn1440p = widget()->findChild<QPushButton*>("buttonAdd1440p")) {
+        connect(btn1440p, &QPushButton::clicked, this, [callAddVirtualDisplay]() {
+            callAddVirtualDisplay(2560, 1440);
+        });
     }
 }
 
