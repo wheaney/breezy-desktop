@@ -118,17 +118,16 @@ then
     pkgkwin_stderr=$(LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1)
     pkgkwin_rc=$?
     set -e
-    if echo "$pkgkwin_stderr" | grep -qi "could not find"; then
-      if [ -z "${PRINT_FULL_STDERR+x}" ]; then
-        print_missing_dependencies "$0"
-        exit 1
-      else
-        echo "$pkgkwin_stderr"
-      fi
-    fi
     if [ "$pkgkwin_rc" -ne 0 ]; then
-      echo "$pkgkwin_stderr"
-      echo "Error: build failed with exit code $pkgkwin_rc"
+      if echo "$pkgkwin_stderr" | grep -qi "could not find"; then
+        if [ -z "${PRINT_FULL_STDERR+x}" ]; then
+          print_missing_dependencies "$0"
+        else
+          echo "$pkgkwin_stderr"
+        fi
+      fi
+      echo ""
+      echo "Error: Breezy Desktop build failed with exit code $pkgkwin_rc"
       exit $pkgkwin_rc
     fi
     FILE_NAME="breezyKWin-$ARCH.tar.gz"

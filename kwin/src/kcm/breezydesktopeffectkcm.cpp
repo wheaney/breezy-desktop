@@ -191,9 +191,9 @@ void BreezyDesktopEffectConfig::pollDriverState()
 
     const bool wasDeviceConnected = m_deviceConnected;
     m_deviceConnected = !m_connectedDeviceBrand.isEmpty() && !m_connectedDeviceModel.isEmpty();
-    if (m_deviceConnected != wasDeviceConnected) {
-        ui.labelDeviceConnectionStatus->setText(m_deviceConnected ? 
-            QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) : 
+    if (ui.labelDeviceConnectionStatus->text().isEmpty() || m_deviceConnected != wasDeviceConnected) {
+        ui.labelDeviceConnectionStatus->setText(m_deviceConnected ?
+            QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) :
             QStringLiteral("No device connected"));
     }
 

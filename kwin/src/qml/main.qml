@@ -17,6 +17,7 @@ Item {
         "Air 2 Ultra",
         "SmartGlasses", // TCL/RayNeo
         "Rokid Max",
+        "Rokid Max 2",
         "Rokid Air"
     ]
     required property QtObject effect

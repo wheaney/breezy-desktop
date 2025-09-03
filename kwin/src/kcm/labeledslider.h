@@ -134,11 +134,13 @@ private:
             return QString::number(raw);
         }
         int divisor = 1;
-        for (int i = 0; i < m_decimalShift; ++i) divisor *= 10; // small loop, m_decimalShift capped
+        for (int i = 0; i < m_decimalShift; ++i) divisor *= 10;
         int whole = raw / divisor;
         int frac = std::abs(raw % divisor);
         QString fracStr = QString::number(frac).rightJustified(m_decimalShift, QLatin1Char('0'));
-        return QString::number(whole) + QLatin1Char('.') + fracStr;
+        QString result = QString::number(std::abs(whole)) + QLatin1Char('.') + fracStr;
+        if (raw < 0) result.prepend(QLatin1Char('-'));
+        return result;
     }
 
     bool m_showValueBubble = true;

@@ -2,14 +2,11 @@
 <ui version="4.0">
  <class>BreezyDesktopEffectConfig</class>
  <widget class="QWidget" name="BreezyDesktopEffectConfig">
-  <property name="minimumWidth">
-   <number>800</number>
-  </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-        <widget class="QLabel" name="labelDeviceConnectionStatus">
-         <property name="text">
-            <string>No device connected</string>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+      <widget class="QLabel" name="labelDeviceConnectionStatus">
+       <property name="text">
+          <string></string>
          </property>
          <property name="alignment">
             <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
