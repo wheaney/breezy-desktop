@@ -27,6 +27,9 @@ namespace KWin
         Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY focusedDisplayDistanceChanged)
         Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY allDisplaysDistanceChanged)
         Q_PROPERTY(qreal displaySpacing READ displaySpacing NOTIFY displaySpacingChanged)
+        Q_PROPERTY(qreal displayHorizontalOffset READ displayHorizontalOffset NOTIFY displayOffsetChanged)
+        Q_PROPERTY(qreal displayVerticalOffset READ displayVerticalOffset NOTIFY displayOffsetChanged)
+        Q_PROPERTY(int displayWrappingScheme READ displayWrappingScheme NOTIFY displayWrappingSchemeChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
@@ -58,6 +61,9 @@ namespace KWin
         void setAllDisplaysDistance(qreal distance);
         qreal displaySpacing() const;
         void setDisplaySpacing(qreal spacing);
+        qreal displayHorizontalOffset() const;
+        qreal displayVerticalOffset() const;
+        int displayWrappingScheme() const;
         qreal diagonalFOV() const;
         qreal lensDistanceRatio() const;
         bool sbsEnabled() const;
@@ -80,6 +86,8 @@ namespace KWin
         void focusedDisplayDistanceChanged();
         void allDisplaysDistanceChanged();
         void displaySpacingChanged();
+        void displayOffsetChanged();
+        void displayWrappingSchemeChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void imuRotationsChanged();
@@ -119,6 +127,9 @@ namespace KWin
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
         qreal m_displaySpacing = 0.0;
+        qreal m_displayHorizontalOffset = 0.0;
+        qreal m_displayVerticalOffset = 0.0;
+        int m_displayWrappingScheme = 0; // 0=auto,1=horizontal,2=vertical,3=flat
         QList<Output *> m_virtualOutputs;
     };
 

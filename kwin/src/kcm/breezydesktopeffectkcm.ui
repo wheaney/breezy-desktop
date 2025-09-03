@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>BreezyDesktopEffectConfig</class>
  <widget class="QWidget" name="BreezyDesktopEffectConfig">
+  <property name="minimumWidth">
+   <number>800</number>
+  </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
         <widget class="QLabel" name="labelDeviceConnectionStatus">
@@ -32,7 +35,7 @@
       <attribute name="title">
        <string>&amp;General</string>
       </attribute>
-    <layout class="QFormLayout" name="formLayout">
+   <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
         <widget class="QCheckBox" name="kcfg_ZoomOnFocusEnabled">
          <property name="text">
@@ -112,7 +115,59 @@
          </property>
         </widget>
        </item>
-     <item row="4" column="0" colspan="2">
+      <item row="4" column="0">
+        <widget class="QLabel" name="labelDisplayHorizontalOffset">
+        <property name="text">
+          <string>Display Horizontal Offset:</string>
+        </property>
+        </widget>
+      </item>
+      <item row="4" column="1">
+        <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
+        <property name="decimalShift">
+          <double>2</double>
+        </property>
+        <property name="tickPosition">
+          <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+          <double>50</double>
+        </property>
+        <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tracking">
+          <bool>true</bool>
+        </property>
+        </widget>
+      </item>
+      <item row="5" column="0">
+        <widget class="QLabel" name="labelDisplayVerticalOffset">
+        <property name="text">
+          <string>Display Vertical Offset:</string>
+        </property>
+        </widget>
+      </item>
+      <item row="5" column="1">
+        <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
+        <property name="decimalShift">
+          <double>2</double>
+        </property>
+        <property name="tickPosition">
+          <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+          <double>50</double>
+        </property>
+        <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tracking">
+          <bool>true</bool>
+        </property>
+        </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
         <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -128,17 +183,38 @@
       <attribute name="title">
        <string>&amp;Advanced</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayoutAdvanced">
-       <item>
-        <widget class="QLabel" name="labelAdvancedPlaceholder">
-         <property name="text">
-          <string>Advanced settings will appear here.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
+      <layout class="QFormLayout" name="formAdvanced">
+        <item row="0" column="0">
+          <widget class="QLabel" name="labelDisplayWrappingScheme">
+          <property name="text">
+            <string>Display Wrapping Scheme:</string>
+          </property>
+          </widget>
+        </item>
+        <item row="0" column="1">
+          <widget class="QComboBox" name="kcfg_DisplayWrappingScheme">
+          <item>
+            <property name="text">
+              <string>Auto</string>
+            </property>
+          </item>
+          <item>
+            <property name="text">
+              <string>Horizontal</string>
+            </property>
+          </item>
+          <item>
+            <property name="text">
+              <string>Vertical</string>
+            </property>
+          </item>
+          <item>
+            <property name="text">
+              <string>Flat</string>
+            </property>
+          </item>
+          </widget>
+        </item>
       </layout>
      </widget>
    <widget class="QWidget" name="tabLicenseDetails">

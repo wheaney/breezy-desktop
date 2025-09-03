@@ -153,6 +153,14 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
     setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
+    qreal horiz = BreezyDesktopConfig::displayHorizontalOffset() / 100.0f;
+    qreal vert = BreezyDesktopConfig::displayVerticalOffset() / 100.0f;
+    int wrap = BreezyDesktopConfig::displayWrappingScheme();
+    bool changed = false;
+    if (!qFuzzyCompare(m_displayHorizontalOffset, horiz)) { m_displayHorizontalOffset = horiz; changed = true; }
+    if (!qFuzzyCompare(m_displayVerticalOffset, vert)) { m_displayVerticalOffset = vert; changed = true; }
+    if (m_displayWrappingScheme != wrap) { m_displayWrappingScheme = wrap; Q_EMIT displayWrappingSchemeChanged(); }
+    if (changed) Q_EMIT displayOffsetChanged();
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -325,6 +333,18 @@ void BreezyDesktopEffect::setDisplaySpacing(qreal spacing) {
         m_displaySpacing = spacing;
         Q_EMIT displaySpacingChanged();
     }
+}
+
+qreal BreezyDesktopEffect::displayHorizontalOffset() const {
+    return m_displayHorizontalOffset;
+}
+
+qreal BreezyDesktopEffect::displayVerticalOffset() const {
+    return m_displayVerticalOffset;
+}
+
+int BreezyDesktopEffect::displayWrappingScheme() const {
+    return m_displayWrappingScheme;
 }
 
 qreal BreezyDesktopEffect::diagonalFOV() const {

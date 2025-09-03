@@ -61,14 +61,24 @@ Item {
         id: displays
     }
 
-    property var fovDetails: displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio, effect.allDisplaysDistance)
+    property var fovDetails: displays.fovDetails(
+        screens,
+        viewportResolution[0],
+        viewportResolution[1],
+        viewportDiagonalFOVDegrees,
+        effect.lensDistanceRatio,
+        effect.allDisplaysDistance,
+        effect.displayWrappingScheme
+    )
 
     property var monitorPlacements: {
+        const dx = effect.displayHorizontalOffset * viewportResolution[0];
+        const dy = effect.displayVerticalOffset * viewportResolution[1];
         const adjustedGeometries = screens.map(screen => {
             const g = screen.geometry;
             return {
-                x: g.x - screensXMid,
-                y: g.y - screensYMid,
+                x: g.x - screensXMid + dx,
+                y: g.y - screensYMid + dy,
                 width: g.width,
                 height: g.height
             };

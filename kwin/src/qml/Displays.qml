@@ -48,11 +48,11 @@ QtObject {
         }
     }
 
-    function fovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistanace) {
+    function fovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice) {
         const aspect = viewportWidth / viewportHeight;
         const fovRadians = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
-        const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / defaultDisplayDistanace);
-        const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / defaultDisplayDistanace);
+        const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / defaultDisplayDistance);
+        const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / defaultDisplayDistance);
 
         // distance needed for the FOV-sized monitor to fill up the screen
         const fullScreenDistance = viewportHeight / 2 / Math.tan(fovRadians.vertical / 2);
@@ -62,6 +62,11 @@ QtObject {
         const lensToScreenDistance = viewportHeight / 2 / Math.tan(defaultDistanceVerticalRadians / 2);
         const completeScreenDistancePixels = lensToScreenDistance + lensDistancePixels;
 
+        let monitorWrappingScheme = actualWrapScheme(screens, viewportWidth, viewportHeight);
+        if (wrappingChoice === 1) monitorWrappingScheme = 'horizontal';
+        else if (wrappingChoice === 2) monitorWrappingScheme = 'vertical';
+        else if (wrappingChoice === 3) monitorWrappingScheme = 'flat';
+
         return {
             widthPixels: viewportWidth,
             heightPixels: viewportHeight,
@@ -69,7 +74,7 @@ QtObject {
             defaultDistanceHorizontalRadians,
             lensDistancePixels,
             completeScreenDistancePixels,
-            monitorWrappingScheme: actualWrapScheme(screens, viewportWidth, viewportHeight),
+            monitorWrappingScheme: monitorWrappingScheme,
             curvedDisplay: false // or true
         };
     }

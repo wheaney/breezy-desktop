@@ -29,5 +29,26 @@
             <label>Display Spacing</label>
             <description>How far apart the displays are visually (not logically)</description>
         </entry>
+        <entry name="DisplayHorizontalOffset" type="Int">
+            <default>0</default>
+            <min>-250</min>
+            <max>250</max>
+            <label>Display Horizontal Offset</label>
+            <description>Horizontal offset as a percent of the viewport width (-2.50 to 2.50)</description>
+        </entry>
+        <entry name="DisplayVerticalOffset" type="Int">
+            <default>0</default>
+            <min>-250</min>
+            <max>250</max>
+            <label>Display Vertical Offset</label>
+            <description>Vertical offset as a percent of the viewport height (-2.50 to 2.50)</description>
+        </entry>
+        <entry name="DisplayWrappingScheme" type="Int">
+            <default>0</default>
+            <min>0</min>
+            <max>3</max>
+            <label>Display Wrapping Scheme</label>
+            <description>How to arrange monitors: 0=Auto, 1=Horizontal, 2=Vertical, 3=Flat</description>
+        </entry>
     </group>
 </kcfg>

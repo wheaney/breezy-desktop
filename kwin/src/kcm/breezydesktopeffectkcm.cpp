@@ -14,16 +14,13 @@
 #include <KPluginFactory>
 
 #include <QAction>
-#include <QTableWidget>
-#include <QHeaderView>
-#include <QPushButton>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QLabel>
 #include <QJsonValue>
 #include <QJsonArray>
-
-#include <QFileDialog>
-#include <QKeyEvent>
+#include <QPushButton>
+#include <QComboBox>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -80,6 +77,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_DisplayHorizontalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_DisplayVerticalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_DisplayWrappingScheme, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -163,6 +163,9 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_FocusedDisplayDistance->setValue(BreezyDesktopConfig::self()->focusedDisplayDistance());
     ui.kcfg_AllDisplaysDistance->setValue(BreezyDesktopConfig::self()->allDisplaysDistance());
     ui.kcfg_DisplaySpacing->setValue(BreezyDesktopConfig::self()->displaySpacing());
+    ui.kcfg_DisplayHorizontalOffset->setValue(BreezyDesktopConfig::self()->displayHorizontalOffset());
+    ui.kcfg_DisplayVerticalOffset->setValue(BreezyDesktopConfig::self()->displayVerticalOffset());
+    ui.kcfg_DisplayWrappingScheme->setCurrentIndex(BreezyDesktopConfig::self()->displayWrappingScheme());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
     ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
 }
