@@ -25,10 +25,10 @@ Node {
 
     Repeater3D {
         id: breezyDesktopDisplays
-        model: screens.length
+        model: breezyDesktop.screens.length
         delegate: BreezyDesktopDisplay {
-            screen: screens[index]
-            monitorPlacement: monitorPlacements[index]
+            screen: breezyDesktop.screens[index]
+            monitorPlacement: breezyDesktop.monitorPlacements[index]
             property real monitorDistance: effect.allDisplaysDistance
             property real targetDistance: effect.allDisplaysDistance
             property real screenRotationY: displays.radianToDegree(monitorPlacement.rotationAngleRadians.y)
@@ -81,30 +81,45 @@ Node {
                     );
                 }
 
-                const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
                 if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
+                    const unfocusedIndex = breezyDesktop.focusedMonitorIndex;
+                    const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
+                    const allDisplaysDistanceBinding = Qt.binding(function() { return effect.allDisplaysDistance; });
+                    const focusedDisplayDistanceBinding = Qt.binding(function() { return effect.focusedDisplayDistance; });
                     if (focusedDisplay === null) {
-                        zoomOutAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
-                        zoomOutAnimation.target.targetDistance = zoomOutAnimation.to;
+                        const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
+                        zoomOutAnimation.target = unfocusedDisplay;
+                        zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
+                        zoomOutAnimation.onFinished.connect(function() {
+                            unfocusedDisplay.monitorDistance = allDisplaysDistanceBinding;
+                        });
                         zoomOutAnimation.start();
                     } else {
-                        if (breezyDesktop.focusedMonitorIndex === -1) {
+                        if (unfocusedIndex === -1) {
                             zoomInAnimation.target = focusedDisplay;
-                            focusedDisplay.targetDistance = zoomInAnimation.to;
+                            focusedDisplay.targetDistance = effect.focusedDisplayDistance;
+                            zoomInAnimation.onFinished.connect(function() {
+                                focusedDisplay.monitorDistance = focusedDisplayDistanceBinding;
+                            });
                             zoomInAnimation.start();
                         } else {
+                            const focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
                             zoomInSeqAnimation.target = focusedDisplay;
-                            focusedDisplay.targetDistance = zoomInSeqAnimation.to;
-                            zoomOutSeqAnimation.target = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
-                            zoomOutSeqAnimation.target.targetDistance = zoomOutSeqAnimation.to;
+                            focusedDisplay.targetDistance = effect.focusedDisplayDistance;
+
+                            const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
+                            zoomOutSeqAnimation.target = unfocusedDisplay;
+                            zoomOutSeqAnimation.target.targetDistance = effect.allDisplaysDistance;
+                            
+                            zoomOnFocusSequence.onFinished.connect(function() {
+                                focusedDisplay.monitorDistance = focusedDisplayDistanceBinding;
+                                unfocusedDisplay.monitorDistance = allDisplaysDistanceBinding;
+                            });
+
                             zoomOnFocusSequence.start();
                         }
                     }
                     breezyDesktop.focusedMonitorIndex = focusedIndex;
-                } else if (focusedDisplay !== null && focusedDisplay.targetDistance !== effect.focusedDisplayDistance) {
-                    // user is changing the focused display distance setting, so just move it to match
-                    focusedDisplay.monitorDistance = effect.focusedDisplayDistance;
-                    focusedDisplay.targetDistance = effect.focusedDisplayDistance;
                 }
             }
         }

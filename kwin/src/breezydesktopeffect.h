@@ -24,8 +24,8 @@ namespace KWin
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
         Q_PROPERTY(QList<qreal> lookAheadConfig READ lookAheadConfig NOTIFY devicePropertiesChanged)
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
-        Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY displayDistanceChanged)
-        Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY displayDistanceChanged)
+        Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY focusedDisplayDistanceChanged)
+        Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY allDisplaysDistanceChanged)
         Q_PROPERTY(qreal displaySpacing READ displaySpacing NOTIFY displaySpacingChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
@@ -77,7 +77,8 @@ namespace KWin
         void updateCursorPos();
 
     Q_SIGNALS:
-        void displayDistanceChanged();
+        void focusedDisplayDistanceChanged();
+        void allDisplaysDistanceChanged();
         void displaySpacingChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();

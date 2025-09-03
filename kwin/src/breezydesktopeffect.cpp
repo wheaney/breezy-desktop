@@ -301,7 +301,7 @@ qreal BreezyDesktopEffect::focusedDisplayDistance() const {
 void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
     if (distance != m_focusedDisplayDistance) {
         m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
-        Q_EMIT displayDistanceChanged();
+        Q_EMIT focusedDisplayDistanceChanged();
     }
 }
 
@@ -312,7 +312,7 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
     if (distance != m_allDisplaysDistance) {
         m_allDisplaysDistance = std::clamp(distance, m_focusedDisplayDistance, 2.5);
-        Q_EMIT displayDistanceChanged();
+        Q_EMIT allDisplaysDistanceChanged();
     }
 }
 

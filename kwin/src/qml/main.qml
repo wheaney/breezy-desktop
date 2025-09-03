@@ -61,7 +61,7 @@ Item {
         id: displays
     }
 
-    property var fovDetails: displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio)
+    property var fovDetails: displays.fovDetails(screens, viewportResolution[0], viewportResolution[1], viewportDiagonalFOVDegrees, effect.lensDistanceRatio, effect.allDisplaysDistance)
 
     property var monitorPlacements: {
         const adjustedGeometries = screens.map(screen => {
