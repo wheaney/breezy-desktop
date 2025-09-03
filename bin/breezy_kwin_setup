@@ -25,11 +25,12 @@ print_missing_dependencies() {
   printf "\n\033[1;31mMissing required components\033[0m\n"
   echo ""
   echo "Install the corresponding packages with your package manager, then rerun this setup:"
-  echo "  Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y extra-cmake-modules kf6-kconfig-dev kf6-kconfigwidgets-dev kf6-kcoreaddons-dev kf6-kcmutils-dev"
+  echo "  Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y extra-cmake-modules libkwin-dev qt6-base-dev qt6-declarative-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev libkf6kcmutils-dev"
   echo "  Fedora/RHEL:   sudo dnf install -y extra-cmake-modules kf6-kconfig kf6-kconfigwidgets kf6-kcoreaddons kf6-kcmutils"
-  echo "  Arch:          sudo pacman -S --needed extra-cmake-modules kf6"
+  echo "  Arch:          sudo pacman -S --needed extra-cmake-modules kf6 qt6-base qt6-declarative"
   echo ""
-  printf "\n\033[1;33mIf you continue to see this issue\033[0m run with PRINT_FULL_STDERR=1 and attach the full output to a bug report.\n"
+  printf "\n\033[1;33mIf you continue to see this issue\033[0m rerun as follows and attach the full output to a bug report:\n"
+  printf "\n\tPRINT_FULL_STDERR=1 %s\n" "$0"
   exit 1
 }
 
@@ -119,7 +120,7 @@ then
     set -e
     if echo "$pkgkwin_stderr" | grep -qi "could not find"; then
       if [ -z "${PRINT_FULL_STDERR+x}" ]; then
-        print_missing_dependencies
+        print_missing_dependencies "$0"
         exit 1
       else
         echo "$pkgkwin_stderr"
