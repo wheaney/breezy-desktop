@@ -67,18 +67,14 @@ Item {
 
     onDisplayResolutionChanged: updateFOV();
     onDiagonalFOVChanged: updateFOV();
-
-    FrameAnimation {
-        running: true
-        onTriggered: {
-            if (root.imuRotations && root.imuRotations.length > 0) {
-                updateCamera(applyLookAhead(
-                    root.imuRotations[0],
-                    root.imuRotations[1],
-                    root.imuTimeElapsedMs,
-                    lookAheadMS(root.imuTimestamp, root.lookAheadConfig, -1)
-                ));
-            }
+    onImuRotationsChanged: {
+        if (root.imuRotations && root.imuRotations.length > 0) {
+            updateCamera(applyLookAhead(
+                root.imuRotations[0],
+                root.imuRotations[1],
+                root.imuTimeElapsedMs,
+                lookAheadMS(root.imuTimestamp, root.lookAheadConfig, -1)
+            ));
         }
     }
 }
