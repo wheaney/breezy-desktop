@@ -65,18 +65,26 @@ cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
 # Install QT_PLUGIN_PATH snippet into ~/.bash_profile if not present
 BASH_PROFILE="$HOME/.bash_profile"
 QT_PLUGIN_DIR="$HOME/.local/$QT_PLUGIN_DIR_RELATIVE"
-QT_PLUGIN_EXPORT="export QT_PLUGIN_PATH=\"$QT_PLUGIN_DIR\""
+QT_PLUGIN_EXPORT="export QT_PLUGIN_PATH=\"$QT_PLUGIN_DIR:\$QT_PLUGIN_PATH\""
 if [[ ! -f "$BASH_PROFILE" ]] || ! grep -Fq "$QT_PLUGIN_EXPORT" "$BASH_PROFILE" 2>/dev/null; then
   echo "Adding QT_PLUGIN_PATH to $BASH_PROFILE"
   mkdir -p "$(dirname "$BASH_PROFILE")"
   cat >> "$BASH_PROFILE" <<EOF
 
 # Added by Breezy Desktop installer: QT plugin path setup
-if [ -n "\$QT_PLUGIN_PATH" ]; then
-    export QT_PLUGIN_PATH="$QT_PLUGIN_DIR:\$QT_PLUGIN_PATH"
-else
-    export QT_PLUGIN_PATH="$QT_PLUGIN_DIR"
+$QT_PLUGIN_EXPORT
+export QT_DEBUG_PLUGINS=1
+EOF
 fi
+
+PLASMA_ENV_SCRIPT="$HOME/.config/plasma-workspace/env/breezy_desktop.sh"
+if [[ ! -f "$PLASMA_ENV_SCRIPT" ]]; then
+  echo "Adding QT_PLUGIN_PATH to $PLASMA_ENV_SCRIPT"
+  mkdir -p "$(dirname "$PLASMA_ENV_SCRIPT")"
+  cat >> "$PLASMA_ENV_SCRIPT" <<EOF
+
+# Added by Breezy Desktop installer: QT plugin path setup
+$QT_PLUGIN_EXPORT
 export QT_DEBUG_PLUGINS=1
 EOF
 fi
