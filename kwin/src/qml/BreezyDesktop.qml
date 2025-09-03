@@ -90,31 +90,19 @@ Node {
                         const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
                         zoomOutAnimation.target = unfocusedDisplay;
                         zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
-                        zoomOutAnimation.onFinished.connect(function() {
-                            unfocusedDisplay.monitorDistance = allDisplaysDistanceBinding;
-                        });
                         zoomOutAnimation.start();
                     } else {
                         if (unfocusedIndex === -1) {
                             zoomInAnimation.target = focusedDisplay;
                             focusedDisplay.targetDistance = effect.focusedDisplayDistance;
-                            zoomInAnimation.onFinished.connect(function() {
-                                focusedDisplay.monitorDistance = focusedDisplayDistanceBinding;
-                            });
                             zoomInAnimation.start();
                         } else {
-                            const focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
                             zoomInSeqAnimation.target = focusedDisplay;
                             focusedDisplay.targetDistance = effect.focusedDisplayDistance;
 
                             const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
                             zoomOutSeqAnimation.target = unfocusedDisplay;
                             zoomOutSeqAnimation.target.targetDistance = effect.allDisplaysDistance;
-                            
-                            zoomOnFocusSequence.onFinished.connect(function() {
-                                focusedDisplay.monitorDistance = focusedDisplayDistanceBinding;
-                                unfocusedDisplay.monitorDistance = allDisplaysDistanceBinding;
-                            });
 
                             zoomOnFocusSequence.start();
                         }
@@ -131,6 +119,12 @@ Node {
         to: effect.allDisplaysDistance
         duration: 150
         running: false
+        onFinished: {
+            const unfocusedDisplay = zoomInAnimation.target;
+            if (unfocusedDisplay) {
+                unfocusedDisplay.monitorDistance = Qt.binding(function() { return effect.allDisplaysDistance; });
+            }
+        }
     }
 
     NumberAnimation {
@@ -139,11 +133,27 @@ Node {
         to: effect.focusedDisplayDistance
         duration: 300
         running: false
+        onFinished: {
+            const focusedDisplay = zoomInAnimation.target;
+            if (focusedDisplay) {
+                focusedDisplay.monitorDistance = Qt.binding(function() { return effect.focusedDisplayDistance; });
+            }
+        }
     }
 
     SequentialAnimation {
         id: zoomOnFocusSequence
         running: false
+        onFinished: {
+            const focusedDisplay = zoomInSeqAnimation.target;
+            if (focusedDisplay) {
+                focusedDisplay.monitorDistance = Qt.binding(function() { return effect.focusedDisplayDistance; });
+            }
+            const unfocusedDisplay = zoomOutSeqAnimation.target;
+            if (unfocusedDisplay) {
+                unfocusedDisplay.monitorDistance = Qt.binding(function() { return effect.allDisplaysDistance; });
+            }
+        }
 
         NumberAnimation {
             id: zoomOutSeqAnimation
