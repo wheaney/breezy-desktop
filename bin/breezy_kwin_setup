@@ -30,7 +30,7 @@ print_missing_dependencies() {
   echo "  Arch:          sudo pacman -S --needed extra-cmake-modules kf6 qt6-base qt6-declarative"
   echo ""
   printf "\n\033[1;33mIf you continue to see this issue\033[0m rerun as follows and attach the full output to a bug report:\n"
-  printf "\n\tPRINT_FULL_STDERR=1 %s\n" "$0"
+  printf "\n\tPRINT_FULL_STDERR=1 %s\n" "$0 $*"
   exit 1
 }
 
@@ -120,7 +120,7 @@ then
     set -e
     if [ "$pkgkwin_rc" -ne 0 ]; then
       if echo "$pkgkwin_stderr" | grep -qi "could not find" && [ -z "${PRINT_FULL_STDERR+x}" ]; then
-        print_missing_dependencies "$0"
+        print_missing_dependencies "$*"
       else
         echo "$pkgkwin_stderr"
       fi
