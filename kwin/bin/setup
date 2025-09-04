@@ -48,7 +48,7 @@ pushd breezy_desktop/usr > /dev/null
 echo "Copying KWin plugin files to $USER_HOME/.local/{lib,share}"
 
 # locate the lib path that ends with qt6/plugins (handles multiarch dirs)
-QT_PLUGIN_DIR_RELATIVE=$(find lib -type d -path '*/qt6/plugins' -print -quit 2>/dev/null || true)
+QT_PLUGIN_DIR_RELATIVE=$(find lib* -type d -path '*/qt6/plugins' -print -quit 2>/dev/null || true)
 if [ -z "$QT_PLUGIN_DIR_RELATIVE" ]; then
   QT_PLUGIN_DIR_RELATIVE="lib/qt6/plugins"
 fi
