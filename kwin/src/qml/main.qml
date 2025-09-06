@@ -89,11 +89,7 @@ Item {
 
     Component {
         id: desktopViewComponent
-        DesktopView {
-            screen: root.targetScreen
-            width: root.targetScreen.geometry.width
-            height: root.targetScreen.geometry.height
-        }
+        SingleDesktopView {}
     }
 
     Component {

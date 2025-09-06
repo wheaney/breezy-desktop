@@ -540,6 +540,11 @@ QString BreezyDesktopEffect::cursorImageSource() const
     return m_cursorImageSource;
 }
 
+QSize BreezyDesktopEffect::cursorImageSize() const
+{
+    return m_cursorImageSize;
+}
+
 QPointF BreezyDesktopEffect::cursorPos() const
 {
     return m_cursorPos;
@@ -566,10 +571,12 @@ void BreezyDesktopEffect::updateCursorImage()
         cursor.image().save(&buffer, "PNG");
 
         m_cursorImageSource = QStringLiteral("data:image/png;base64,%1").arg(QString::fromLatin1(data.toBase64()));
+        m_cursorImageSize = cursor.image().size();
     } else {
         m_cursorImageSource = QString();
+        m_cursorImageSize = QSize();
     }
-    Q_EMIT cursorImageChanged();
+    Q_EMIT cursorImageSourceChanged();
 }
 
 void BreezyDesktopEffect::updateCursorPos()

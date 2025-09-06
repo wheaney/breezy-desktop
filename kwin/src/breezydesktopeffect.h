@@ -16,11 +16,12 @@ namespace KWin
         Q_OBJECT
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
-        Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuRotationsChanged)
-        Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations NOTIFY imuRotationsChanged)
-        Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs NOTIFY imuRotationsChanged)
-        Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp NOTIFY imuRotationsChanged)
-        Q_PROPERTY(QString cursorImageSource READ cursorImageSource NOTIFY cursorImageChanged)
+        Q_PROPERTY(bool imuResetState READ imuResetState)
+        Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations)
+        Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs)
+        Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp)
+        Q_PROPERTY(QString cursorImageSource READ cursorImageSource NOTIFY cursorImageSourceChanged)
+        Q_PROPERTY(QSize cursorImageSize READ cursorImageSize NOTIFY cursorImageSourceChanged)
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
         Q_PROPERTY(QList<qreal> lookAheadConfig READ lookAheadConfig NOTIFY devicePropertiesChanged)
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
@@ -44,6 +45,7 @@ namespace KWin
         int requestedEffectChainPosition() const override;
 
         QString cursorImageSource() const;
+        QSize cursorImageSize() const;
         QPointF cursorPos() const;
 
         bool isEnabled() const;
@@ -91,7 +93,7 @@ namespace KWin
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void imuRotationsChanged();
-        void cursorImageChanged();
+        void cursorImageSourceChanged();
         void cursorPosChanged();
         void devicePropertiesChanged();
 
@@ -107,6 +109,7 @@ namespace KWin
 
         QTimer *m_shutdownTimer;
         QString m_cursorImageSource;
+        QSize m_cursorImageSize;
 
         bool m_enabled = false;
         bool m_zoomOnFocusEnabled = false;

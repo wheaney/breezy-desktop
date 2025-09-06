@@ -9,7 +9,6 @@ Node {
     property var screens: root.screens
     property var fovDetails: root.fovDetails
     property var monitorPlacements: root.monitorPlacements
-    property var imuRotations: effect.imuRotations
     property int focusedMonitorIndex: -1
 
     Displays {
@@ -29,10 +28,17 @@ Node {
         delegate: BreezyDesktopDisplay {
             screen: breezyDesktop.screens[index]
             monitorPlacement: breezyDesktop.monitorPlacements[index]
+            
             property real monitorDistance: effect.allDisplaysDistance
             property real targetDistance: effect.allDisplaysDistance
             property real screenRotationY: displays.radianToDegree(monitorPlacement.rotationAngleRadians.y)
             property real screenRotationX: displays.radianToDegree(monitorPlacement.rotationAngleRadians.x)
+            property matrix4x4 rotationMatrix: {
+                const matrix = Qt.matrix4x4();
+                matrix.rotate(screenRotationY, Qt.vector3d(0, 1, 0));
+                matrix.rotate(screenRotationX, Qt.vector3d(1, 0, 0));
+                return matrix;
+            }
 
             property vector3d screenScale: {
                 const geometry = screen.geometry;
@@ -45,19 +51,12 @@ Node {
             eulerRotation.y: screenRotationY
             eulerRotation.x: screenRotationX
             position: {
-                // camera looks along the negative Z axis
-                const positionVector = 
-                    displays.nwuToEusVector(monitorPlacement.centerNoRotate)
-                            .times(monitorDistance / effect.allDisplaysDistance);
+                const displayNwu = 
+                    monitorPlacement.centerNoRotate
+                                    .times(monitorDistance / effect.allDisplaysDistance);
 
-                // position vector is only translated in flat directions, without rotations applied, so apply them here
-                const rotationMatrix = Qt.matrix4x4();
 
-                // only one of these should ever be non-zero, since we only rotate in the direction of the "wrap" preference
-                rotationMatrix.rotate(screenRotationY, Qt.vector3d(0, 1, 0));
-                rotationMatrix.rotate(screenRotationX, Qt.vector3d(1, 0, 0));
-
-                return rotationMatrix.times(positionVector);
+                return rotationMatrix.times(displays.nwuToEusVector(displayNwu));
             }
         }
     }
@@ -67,12 +66,12 @@ Node {
         repeat: true
         running: true
         onTriggered: {
-            if (breezyDesktop.imuRotations && breezyDesktop.imuRotations.length > 0) {
+            if (effect.imuRotations && effect.imuRotations.length > 0) {
                 let focusedIndex = -1;
 
                 if (effect.zoomOnFocusEnabled) {
                     focusedIndex = displays.findFocusedMonitor(
-                        displays.eusToNwuQuat(breezyDesktop.imuRotations[0]), 
+                        displays.eusToNwuQuat(effect.imuRotations[0]), 
                         breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                         breezyDesktop.focusedMonitorIndex,
                         false, // TODO smooth follow

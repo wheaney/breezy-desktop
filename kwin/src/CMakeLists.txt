@@ -68,3 +68,5 @@ target_link_libraries(breezy_desktop
 
 
 install(DIRECTORY qml DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop)
+install(FILES qml/cursorOverlay.frag DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop/qml)
+install(FILES qml/cursorOverlay.vert DESTINATION ${KDE_INSTALL_DATADIR}/kwin/effects/breezy_desktop/qml)

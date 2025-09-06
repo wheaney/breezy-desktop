@@ -6,10 +6,6 @@ Item {
 
     required property Camera camera
 
-    property var imuRotations: effect.imuRotations
-    property int imuTimeElapsedMs: effect.imuTimeElapsedMs
-    property double imuTimestamp: effect.imuTimestamp  
-    property var lookAheadConfig: effect.lookAheadConfig
     property var displayResolution: effect.displayResolution
     property real diagonalFOV: effect.diagonalFOV
     property real lensDistanceRatio: effect.lensDistanceRatio
@@ -67,14 +63,18 @@ Item {
 
     onDisplayResolutionChanged: updateFOV();
     onDiagonalFOVChanged: updateFOV();
-    onImuRotationsChanged: {
-        if (root.imuRotations && root.imuRotations.length > 0) {
-            updateCamera(applyLookAhead(
-                root.imuRotations[0],
-                root.imuRotations[1],
-                root.imuTimeElapsedMs,
-                lookAheadMS(root.imuTimestamp, root.lookAheadConfig, -1)
-            ));
+
+    FrameAnimation {
+        running: true
+        onTriggered: {
+            if (effect.imuRotations && effect.imuRotations.length > 0) {
+                updateCamera(applyLookAhead(
+                    effect.imuRotations[0],
+                    effect.imuRotations[1],
+                    effect.imuTimeElapsedMs,
+                    lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, -1)
+                ));
+            }
         }
     }
 }

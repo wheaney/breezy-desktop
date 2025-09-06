@@ -40,18 +40,4 @@ Item {
             visible: onThisScreen && !model.window.minimized
         }
     }
-    
-    Image {
-        id: cursorImg
-        source: effect.cursorImageSource
-        cache: false
-        visible: true // TODO - cursor position bounds check?
-        x: effect.cursorPos.x - desktopView.screen.geometry.x
-        y: effect.cursorPos.y - desktopView.screen.geometry.y
-        z: 9999 // ensure on top
-        anchors.centerIn: undefined
-
-        layer.enabled: true
-        layer.smooth: true
-    }
 }
