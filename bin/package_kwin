@@ -75,6 +75,7 @@ fi
 # this file is in .gitignore so it doesn't get duplicated
 cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py $KWIN_DIR/src/xrdriveripc/xrdriveripc.py
 cp VERSION $KWIN_DIR
+cp modules/sombrero/*.png $KWIN_DIR/src/qml
 
 pushd $KWIN_DIR > /dev/null
 if [ -z "${LOCAL_BUILD_SYSTEM+x}" ]; then

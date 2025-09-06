@@ -87,9 +87,16 @@ Item {
         return displays.monitorsToPlacements(fovDetails, adjustedGeometries, effect.displaySpacing);
     }
 
+    property bool targetScreenSupported: supportedModels.some(model => root.targetScreen.model.endsWith(model))
+    property bool imuResetState: effect.imuResetState
+    property bool isEnabled: effect.isEnabled
+
     Component {
         id: desktopViewComponent
-        SingleDesktopView {}
+        SingleDesktopView {
+            supportsXR: targetScreenSupported
+            showCalibratingBanner: isEnabled && imuResetState
+        }
     }
 
     Component {
@@ -121,9 +128,21 @@ Item {
         id: viewLoader
         anchors.fill: parent
     }
+
+    function checkLoadedComponent() {
+        const show3DView = targetScreenSupported && isEnabled && !imuResetState;
+        viewLoader.sourceComponent = show3DView ? view3DComponent : desktopViewComponent;
+    }
+
+    onImuResetStateChanged: {
+        checkLoadedComponent();
+    }
+
+    onIsEnabledChanged: {
+        checkLoadedComponent();
+    }
     
     Component.onCompleted: {
-        const targetScreenSupported = supportedModels.some(model => root.targetScreen.model.endsWith(model));
-        viewLoader.sourceComponent = targetScreenSupported ? view3DComponent : desktopViewComponent;
+        checkLoadedComponent();
     }
 }

@@ -16,7 +16,7 @@ namespace KWin
         Q_OBJECT
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
-        Q_PROPERTY(bool imuResetState READ imuResetState)
+        Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuResetStateChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations)
         Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs)
         Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp)
@@ -92,7 +92,7 @@ namespace KWin
         void displayWrappingSchemeChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
-        void imuRotationsChanged();
+        void imuResetStateChanged();
         void cursorImageSourceChanged();
         void cursorPosChanged();
         void devicePropertiesChanged();

@@ -509,7 +509,11 @@ void BreezyDesktopEffect::updateImuRotation() {
 
     float imuData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
     memcpy(imuData, data + DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX], sizeof(imuData));
+    bool wasImuResetState = m_imuResetState;
     m_imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
+    if (m_imuResetState != wasImuResetState) {
+        Q_EMIT imuResetStateChanged();
+    }
 
     // convert NWU to EUS by passing root.rotation values: -y, z, -x
     QQuaternion quatT0(imuData[3], -imuData[1], imuData[2], -imuData[0]);
@@ -532,7 +536,6 @@ void BreezyDesktopEffect::updateImuRotation() {
     m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
 
     m_imuTimestamp = imuDateMs;
-    Q_EMIT imuRotationsChanged();
 }
 
 QString BreezyDesktopEffect::cursorImageSource() const

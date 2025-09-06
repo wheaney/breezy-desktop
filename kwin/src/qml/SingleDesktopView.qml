@@ -3,6 +3,8 @@ import QtQuick
 Item {
     id: singleDesktopView
     property point cursorPos: effect.cursorPos
+    property bool supportsXR: false
+    property bool showCalibratingBanner: false
 
     function cursorInBounds() {
         const x = cursorPos.x
@@ -15,6 +17,7 @@ Item {
     }
 
     DesktopView {
+        id: desktopViewComponent
         screen: targetScreen
         width: targetScreen.geometry.width
         height: targetScreen.geometry.height
@@ -25,6 +28,13 @@ Item {
         x: 0
         y: 0
         z: 9999 // ensure on top
+    }
+
+    Image {
+        source: effect.customBannerEnabled ? "custom_banner.png" : "calibrating.png"
+        visible: supportsXR && showCalibratingBanner
+        anchors.horizontalCenter: desktopViewComponent.horizontalCenter
+        anchors.bottom: desktopViewComponent.bottom
     }
 
     onCursorPosChanged: {
