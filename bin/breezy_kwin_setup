@@ -108,6 +108,7 @@ then
       echo "Downloading git submodules"
       git submodule sync --recursive || true
       git submodule update --init modules/XRLinuxDriver
+      git submodule update --init modules/sombrero
       git submodule update --init ui/modules/PyXRLinuxDriverIPC
     else
       pushd $start_dir > /dev/null
