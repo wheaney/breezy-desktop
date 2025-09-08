@@ -203,10 +203,12 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     qreal horiz = BreezyDesktopConfig::displayHorizontalOffset() / 100.0f;
     qreal vert = BreezyDesktopConfig::displayVerticalOffset() / 100.0f;
     int wrap = BreezyDesktopConfig::displayWrappingScheme();
+    int aaQuality = BreezyDesktopConfig::antialiasingQuality();
     bool changed = false;
     if (!qFuzzyCompare(m_displayHorizontalOffset, horiz)) { m_displayHorizontalOffset = horiz; changed = true; }
     if (!qFuzzyCompare(m_displayVerticalOffset, vert)) { m_displayVerticalOffset = vert; changed = true; }
     if (m_displayWrappingScheme != wrap) { m_displayWrappingScheme = wrap; Q_EMIT displayWrappingSchemeChanged(); }
+    if (m_antialiasingQuality != aaQuality) { m_antialiasingQuality = aaQuality; Q_EMIT antialiasingQualityChanged(); }
     if (changed) Q_EMIT displayOffsetChanged();
 }
 
@@ -406,6 +408,10 @@ bool BreezyDesktopEffect::sbsEnabled() const {
 
 bool BreezyDesktopEffect::customBannerEnabled() const {
     return m_customBannerEnabled;
+}
+
+int BreezyDesktopEffect::antialiasingQuality() const {
+    return m_antialiasingQuality;
 }
 
 bool BreezyDesktopEffect::checkParityByte(const char* data) {

@@ -50,5 +50,12 @@
             <label>Display Wrapping Scheme</label>
             <description>How to arrange monitors: 0=Auto, 1=Horizontal, 2=Vertical, 3=Flat</description>
         </entry>
+        <entry name="AntialiasingQuality" type="Int">
+            <default>3</default>
+            <min>0</min>
+            <max>3</max>
+            <label>Antialiasing Quality</label>
+            <description>0=None, 1=Medium, 2=High, 3=Very High</description>
+        </entry>
     </group>
 </kcfg>

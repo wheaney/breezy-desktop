@@ -104,8 +104,10 @@ Item {
         View3D {
             anchors.fill: parent
             environment: SceneEnvironment {
-                antialiasingMode: SceneEnvironment.SSAA
-                antialiasingQuality: SceneEnvironment.VeryHigh
+                antialiasingMode: root.effect.antialiasingQuality === 0 ? SceneEnvironment.NoAA : SceneEnvironment.SSAA
+                antialiasingQuality: root.effect.antialiasingQuality === 0 ? SceneEnvironment.Medium : (
+                    root.effect.antialiasingQuality === 1 ? SceneEnvironment.Medium : (
+                    root.effect.antialiasingQuality === 2 ? SceneEnvironment.High : SceneEnvironment.VeryHigh))
             }
             
             PerspectiveCamera { 
