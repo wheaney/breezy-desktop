@@ -204,11 +204,13 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     qreal vert = BreezyDesktopConfig::displayVerticalOffset() / 100.0f;
     int wrap = BreezyDesktopConfig::displayWrappingScheme();
     int aaQuality = BreezyDesktopConfig::antialiasingQuality();
+    bool removeVD = BreezyDesktopConfig::removeVirtualDisplaysOnDisable();
     bool changed = false;
     if (!qFuzzyCompare(m_displayHorizontalOffset, horiz)) { m_displayHorizontalOffset = horiz; changed = true; }
     if (!qFuzzyCompare(m_displayVerticalOffset, vert)) { m_displayVerticalOffset = vert; changed = true; }
     if (m_displayWrappingScheme != wrap) { m_displayWrappingScheme = wrap; Q_EMIT displayWrappingSchemeChanged(); }
     if (m_antialiasingQuality != aaQuality) { m_antialiasingQuality = aaQuality; Q_EMIT antialiasingQualityChanged(); }
+    if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (changed) Q_EMIT displayOffsetChanged();
 }
 
@@ -260,10 +262,12 @@ void BreezyDesktopEffect::deactivate()
     m_cursorUpdateTimer->stop();
     showCursor();
 
-    for (auto output : m_virtualOutputs) {
-        KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
+    if (m_removeVirtualDisplaysOnDisable) {
+        for (auto output : m_virtualOutputs) {
+            KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
+        }
+        m_virtualOutputs.clear();
     }
-    m_virtualOutputs.clear();
 
     setRunning(false);
 }
@@ -412,6 +416,10 @@ bool BreezyDesktopEffect::customBannerEnabled() const {
 
 int BreezyDesktopEffect::antialiasingQuality() const {
     return m_antialiasingQuality;
+}
+
+bool BreezyDesktopEffect::removeVirtualDisplaysOnDisable() const {
+    return m_removeVirtualDisplaysOnDisable;
 }
 
 bool BreezyDesktopEffect::checkParityByte(const char* data) {

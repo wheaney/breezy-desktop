@@ -57,5 +57,10 @@
             <label>Antialiasing Quality</label>
             <description>0=None, 1=Medium, 2=High, 3=Very High</description>
         </entry>
+        <entry name="RemoveVirtualDisplaysOnDisable" type="Bool">
+            <default>true</default>
+            <label>Remove virtual displays on disable</label>
+            <description>Whether to remove any virtual displays when the effect is disabled</description>
+        </entry>
     </group>
 </kcfg>

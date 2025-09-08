@@ -60,6 +60,10 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             row->setVisible(true);
             row->setEnabled(true);
         }
+        if (auto chk = widget()->findChild<QWidget*>(QStringLiteral("kcfg_RemoveVirtualDisplaysOnDisable"))) {
+            chk->setVisible(true);
+            chk->setEnabled(true);
+        }
     }
 
     m_statePollTimer.setInterval(2000);
@@ -93,6 +97,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
+    connect(ui.kcfg_ZoomOnFocusEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -100,6 +105,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_DisplayVerticalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayWrappingScheme, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AntialiasingQuality, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_RemoveVirtualDisplaysOnDisable, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -219,6 +225,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_DisplayVerticalOffset->setValue(BreezyDesktopConfig::self()->displayVerticalOffset());
     ui.kcfg_DisplayWrappingScheme->setCurrentIndex(BreezyDesktopConfig::self()->displayWrappingScheme());
     ui.kcfg_AntialiasingQuality->setCurrentIndex(BreezyDesktopConfig::self()->antialiasingQuality());
+    ui.kcfg_RemoveVirtualDisplaysOnDisable->setChecked(BreezyDesktopConfig::self()->removeVirtualDisplaysOnDisable());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
     ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
 }

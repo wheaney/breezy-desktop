@@ -308,6 +308,20 @@
           </property>
           </widget>
         </item>
+        <item row="4" column="0" colspan="2">
+          <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <property name="enabled">
+              <bool>false</bool>
+            </property>
+            <property name="text">
+              <string>Remove virtual displays on disable</string>
+            </property>
+            <property name="checked"><bool>true</bool></property>
+          </widget>
+        </item>
       </layout>
      </widget>
    <widget class="QWidget" name="tabLicenseDetails">
@@ -321,10 +335,10 @@
       <string/>
       </property>
       <property name="wordWrap">
-      <bool>true</bool>
+        <bool>true</bool>
       </property>
       <property name="visible">
-      <bool>true</bool>
+        <bool>true</bool>
       </property>
      </widget>
     </item>

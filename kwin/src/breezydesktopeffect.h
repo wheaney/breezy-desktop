@@ -36,6 +36,7 @@ namespace KWin
         Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
         Q_PROPERTY(bool customBannerEnabled READ customBannerEnabled NOTIFY devicePropertiesChanged)
         Q_PROPERTY(int antialiasingQuality READ antialiasingQuality NOTIFY antialiasingQualityChanged)
+        Q_PROPERTY(bool removeVirtualDisplaysOnDisable READ removeVirtualDisplaysOnDisable NOTIFY removeVirtualDisplaysOnDisableChanged)
 
     public:
 
@@ -73,6 +74,7 @@ namespace KWin
         bool sbsEnabled() const;
         bool customBannerEnabled() const;
         int antialiasingQuality() const;
+        bool removeVirtualDisplaysOnDisable() const;
 
         void showCursor();
         void hideCursor();
@@ -101,6 +103,7 @@ namespace KWin
         void cursorPosChanged();
         void devicePropertiesChanged();
         void antialiasingQualityChanged();
+        void removeVirtualDisplaysOnDisableChanged();
 
     protected:
         QVariantMap initialProperties(Output *screen) override;
@@ -138,6 +141,7 @@ namespace KWin
         qreal m_displayVerticalOffset = 0.0;
         int m_displayWrappingScheme = 0; // 0=auto,1=horizontal,2=vertical,3=flat
         int m_antialiasingQuality = 3; // 0=None, 1=Medium, 2=High, 3=VeryHigh
+        bool m_removeVirtualDisplaysOnDisable = true;
         QList<Output *> m_virtualOutputs;
     };
 
