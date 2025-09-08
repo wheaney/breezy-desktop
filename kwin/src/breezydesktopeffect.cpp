@@ -92,13 +92,9 @@ namespace KWin
 {
 
 BreezyDesktopEffect::BreezyDesktopEffect()
-    : m_shutdownTimer(new QTimer(this))
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
-
-    m_shutdownTimer->setSingleShot(true);
-    connect(m_shutdownTimer, &QTimer::timeout, this, &BreezyDesktopEffect::realDeactivate);
 
     setupGlobalShortcut(
         BreezyShortcuts::TOGGLE,
@@ -163,6 +159,23 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     if (!dbusOk) {
         qCWarning(KWIN_XR) << "Failed to register DBus object /com/xronlinux/BreezyDesktop";
     }
+}
+
+BreezyDesktopEffect::~BreezyDesktopEffect()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - destructor";
+    if (m_shmFileWatcher) {
+        if (!DataView::SHM_PATH.isEmpty()) {
+            m_shmFileWatcher->removePath(DataView::SHM_PATH);
+        }
+        m_shmFileWatcher->deleteLater();
+        m_shmFileWatcher = nullptr;
+    }
+    if (m_shmDirectoryWatcher) {
+        m_shmDirectoryWatcher->deleteLater();
+        m_shmDirectoryWatcher = nullptr;
+    }
+    deactivate();
 }
 
 void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, std::function<void()> triggeredFunc) {
@@ -241,10 +254,6 @@ void BreezyDesktopEffect::activate()
 
 void BreezyDesktopEffect::deactivate()
 {
-    if (m_shutdownTimer->isActive()) {
-        return;
-    }
-
     qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
@@ -255,9 +264,7 @@ void BreezyDesktopEffect::deactivate()
     }
     m_virtualOutputs.clear();
 
-    // this triggers realDeactivate with a delay so if it's triggered from QML it gives the QML function time to
-    // exit, avoiding a crash
-    m_shutdownTimer->start(250);
+    setRunning(false);
 }
 
 void BreezyDesktopEffect::enableDriver()
@@ -268,12 +275,6 @@ void BreezyDesktopEffect::enableDriver()
     obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
     obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
     XRDriverIPC::instance().writeConfig(obj);
-}
-
-void BreezyDesktopEffect::realDeactivate()
-{
-    qCCritical(KWIN_XR) << "\t\t\tBreezy - realDeactivate";
-    setRunning(false);
 }
 
 void BreezyDesktopEffect::addVirtualDisplay(QSize size)

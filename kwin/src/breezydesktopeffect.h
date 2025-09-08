@@ -39,6 +39,7 @@ namespace KWin
     public:
 
         BreezyDesktopEffect();
+        ~BreezyDesktopEffect() override;
 
         void reconfigure(ReconfigureFlags) override;
 
@@ -101,13 +102,12 @@ namespace KWin
         QVariantMap initialProperties(Output *screen) override;
 
     private:
-        void realDeactivate();
+        void teardown();
         bool checkParityByte(const char* data);
         void setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, 
                                  std::function<void()> triggeredFunc);
         void recenter();
 
-        QTimer *m_shutdownTimer;
         QString m_cursorImageSource;
         QSize m_cursorImageSize;
 
