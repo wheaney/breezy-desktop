@@ -25,6 +25,8 @@ public Q_SLOTS:
     void defaults() override;
 
 private:
+    void enableDriver();
+    void disableDriver();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();

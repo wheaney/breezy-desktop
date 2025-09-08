@@ -20,7 +20,9 @@
 #include <QLabel>
 #include <QJsonValue>
 #include <QJsonArray>
-#include <QPushButton>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QProcess>
 #include <QComboBox>
 #include <QDBusInterface>
 #include <QDBusConnection>
@@ -157,6 +159,16 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             callAddVirtualDisplay(2560, 1440);
         });
     }
+
+    // General tab: Open KDE Displays Settings
+    if (auto btnDisplays = widget()->findChild<QPushButton*>(QStringLiteral("buttonOpenDisplaysSettings"))) {
+        connect(btnDisplays, &QPushButton::clicked, this, [this]() {
+            // Try launching the KScreen KCM
+            if (!QProcess::startDetached(QStringLiteral("kcmshell6"), {QStringLiteral("kcm_kscreen")})) {
+                QDesktopServices::openUrl(QUrl(QStringLiteral("systemsettings://kcm_kscreen")));
+            }
+        });
+    }
 }
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
@@ -216,6 +228,25 @@ void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
 
 void BreezyDesktopEffectConfig::updateUnmanagedState()
 {
+}
+
+void BreezyDesktopEffectConfig::enableDriver()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy config - enableDriver";
+    QJsonObject obj;
+    obj.insert(QStringLiteral("disabled"), false);
+    obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
+    obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
+    XRDriverIPC::instance().writeConfig(obj);
+}
+
+void BreezyDesktopEffectConfig::disableDriver()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy config - disableDriver";
+    QJsonObject obj;
+    obj.insert(QStringLiteral("disabled"), true);
+    obj.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
+    XRDriverIPC::instance().writeConfig(obj);
 }
 
 void BreezyDesktopEffectConfig::pollDriverState()
@@ -304,12 +335,15 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     if (!tab) return;
     auto labelSummary = tab->findChild<QLabel*>("labelLicenseSummary");
     if (!labelSummary) return;
+    auto donate = tab->findChild<QLabel*>("labelDonateLink");
+    auto globalWarn = widget()->findChild<QLabel*>("labelGlobalLicenseWarning");
 
     QString status = tr("disabled");
     QString renewalDescriptor = QStringLiteral("");
     auto uiView = rootObj.value(QStringLiteral("ui_view")).toObject();
     auto license = uiView.value(QStringLiteral("license")).toObject();
-    bool warningState = true;
+    bool warningState = false;
+    bool expired = false;
     if (!license.isEmpty()) {
         auto tiers = license.value(QStringLiteral("tiers")).toObject();
         QJsonValue prodTier = tiers.value(QStringLiteral("subscriber"));
@@ -349,23 +383,48 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
             } else {
                 QJsonValue isEnabled = prodFeatureObj.value(QStringLiteral("is_enabled"));
                 QJsonValue isTrial = prodFeatureObj.value(QStringLiteral("is_trial"));
-                if (isEnabled.toBool() && isTrial.toBool()) {
-                    status = tr("in trial");
-                    auto secsVal = prodFeatureObj.value(QStringLiteral("funds_needed_in_seconds"));
-                    if (secsVal.isDouble()) {
-                        qint64 secs = static_cast<qint64>(secsVal.toDouble());
-                        QString remaining = secondsToRemainingString(secs);
-                        warningState = !remaining.isEmpty();
-                        if (warningState) {
-                            QString timeDescriptor = tr("%1 remaining").arg(remaining);
-                            renewalDescriptor = tr(" (%1)").arg(timeDescriptor);
+                if (isEnabled.toBool()) {
+                    if (isTrial.toBool()) {
+                        status = tr("in trial");
+                        auto secsVal = prodFeatureObj.value(QStringLiteral("funds_needed_in_seconds"));
+                        if (secsVal.isDouble()) {
+                            qint64 secs = static_cast<qint64>(secsVal.toDouble());
+                            QString remaining = secondsToRemainingString(secs);
+                            warningState = !remaining.isEmpty();
+                            if (warningState) {
+                                QString timeDescriptor = tr("%1 remaining").arg(remaining);
+                                renewalDescriptor = tr(" (%1)").arg(timeDescriptor);
+                            }
                         }
                     }
+                } else {
+                    expired = true;
                 }
             }
         }
     }
-    labelSummary->setText(tr("Productivity Tier features are %1%2").arg(status, renewalDescriptor));
+    const QString message = tr("Productivity Tier features are %1%2").arg(status, renewalDescriptor);
+    labelSummary->setText(message);
+
+    if (donate) donate->setVisible(warningState || expired);
+
+    if (globalWarn) {
+        if (warningState || expired) {
+            globalWarn->setText(message + (expired ? tr(" — effect disabled") : QString()));
+            globalWarn->setVisible(true);
+        } else {
+            globalWarn->clear();
+            globalWarn->setVisible(false);
+        }
+    }
+
+    if (expired) {
+        if (ui.tabWidget) ui.tabWidget->setEnabled(false);
+        OrgKdeKwinEffectsInterface interface(QStringLiteral("org.kde.KWin"), QStringLiteral("/Effects"), QDBusConnection::sessionBus());
+        interface.unloadEffect(QStringLiteral("breezy_desktop"));
+    } else {
+        if (ui.tabWidget) ui.tabWidget->setEnabled(true);
+    }
 }
 
 #include "breezydesktopeffectkcm.moc"

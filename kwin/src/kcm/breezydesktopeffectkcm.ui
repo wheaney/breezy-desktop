@@ -21,6 +21,25 @@
         </widget>
      </item>
      <item>
+       <widget class="QLabel" name="labelGlobalLicenseWarning">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(200,0,0); font-weight: bold;</string>
+        </property>
+       </widget>
+     </item>
+     <item>
         <widget class="QTabWidget" name="tabWidget">
      <property name="tabPosition">
       <enum>QTabWidget::North</enum>
@@ -148,10 +167,17 @@
                   </property>
                 </widget>
               </item>
+              <item>
+                <widget class="QPushButton" name="buttonOpenDisplaysSettings">
+                  <property name="text">
+                  <string>Rearrange displays</string>
+                  </property>
+                </widget>
+              </item>
             </layout>
           </widget>
         </item>
-      <item row="5" column="0" colspan="2">
+       <item row="5" column="0" colspan="2">
         <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -271,6 +297,22 @@
       </property>
      </widget>
     </item>
+  <item>
+   <widget class="QLabel" name="labelDonateLink">
+    <property name="text">
+     <string>&lt;a href=&quot;https://ko-fi.com/wheaney&quot;&gt;Renew or support on Ko‑fi&lt;/a&gt;</string>
+    </property>
+    <property name="openExternalLinks">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+  </item>
     <item>
     <widget class="QGroupBox" name="groupBoxEmail">
        <property name="title">

@@ -226,11 +226,11 @@ int BreezyDesktopEffect::requestedEffectChainPosition() const
 void BreezyDesktopEffect::toggle()
 {
     if (isRunning()) {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - deactivating";
-        deactivate();
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - disabling";
+        disableDriver();
     } else {
-        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - activating";
-        activate();
+        qCCritical(KWIN_XR) << "\t\t\tBreezy - toggle - enabling";
+        enableDriver();
     }
 }
 
@@ -277,11 +277,17 @@ void BreezyDesktopEffect::enableDriver()
     XRDriverIPC::instance().writeConfig(obj);
 }
 
+void BreezyDesktopEffect::disableDriver()
+{
+    qCCritical(KWIN_XR) << "\t\t\tBreezy - disableDriver";
+    QJsonObject obj;
+    obj.insert(QStringLiteral("disabled"), true);
+    obj.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
+    XRDriverIPC::instance().writeConfig(obj);
+}
+
 void BreezyDesktopEffect::addVirtualDisplay(QSize size)
 {
-    // QSize size(2560, 1440);
-    // addVirtualDisplay(size);
-
     static int virtualDisplayCount = 0;
     ++virtualDisplayCount;
     QString name = QStringLiteral("BreezyDesktop_VirtualDisplay_%1x%2_%3").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);

@@ -79,6 +79,7 @@ namespace KWin
         void activate();
         void deactivate();
         void enableDriver();
+        void disableDriver();
         void toggle();
         void addVirtualDisplay(QSize size);
         void updateImuRotation();
