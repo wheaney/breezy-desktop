@@ -249,7 +249,6 @@ void BreezyDesktopEffect::activate()
     effects->stopMouseInterception(this);
 
     hideCursor();
-    recenter();
 }
 
 void BreezyDesktopEffect::deactivate()
@@ -313,6 +312,10 @@ bool BreezyDesktopEffect::isZoomOnFocusEnabled() const {
 void BreezyDesktopEffect::setZoomOnFocusEnabled(bool enabled) {
     if (m_zoomOnFocusEnabled != enabled) {
         m_zoomOnFocusEnabled = enabled;
+        if (m_zoomOnFocusEnabled && m_focusedDisplayDistance > m_allDisplaysDistance) {
+            setFocusedDisplayDistance(m_allDisplaysDistance);
+            BreezyDesktopConfig::setFocusedDisplayDistance(static_cast<int>(m_focusedDisplayDistance * 100.0f));
+        }
         BreezyDesktopConfig::setZoomOnFocusEnabled(enabled);
         BreezyDesktopConfig::self()->save();
         Q_EMIT zoomOnFocusChanged();
@@ -360,7 +363,8 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
     if (distance != m_allDisplaysDistance) {
-        m_allDisplaysDistance = std::clamp(distance, m_focusedDisplayDistance, 2.5);
+        qreal min = m_zoomOnFocusEnabled ? m_focusedDisplayDistance : 0.2;
+        m_allDisplaysDistance = std::clamp(distance, min, 2.5);
         Q_EMIT allDisplaysDistanceChanged();
     }
 }
@@ -519,6 +523,7 @@ void BreezyDesktopEffect::updateImuRotation() {
     bool wasImuResetState = m_imuResetState;
     m_imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
     if (m_imuResetState != wasImuResetState) {
+        if (m_imuResetState) recenter();
         Q_EMIT imuResetStateChanged();
     }
 
