@@ -97,6 +97,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
+    connect(ui.kcfg_EffectEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateDriverEnabled);
     connect(ui.kcfg_ZoomOnFocusEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -239,22 +240,17 @@ void BreezyDesktopEffectConfig::updateUnmanagedState()
 {
 }
 
-void BreezyDesktopEffectConfig::enableDriver()
+void BreezyDesktopEffectConfig::updateDriverEnabled()
 {
-    qCCritical(KWIN_XR) << "\t\t\tBreezy config - enableDriver";
     QJsonObject obj;
-    obj.insert(QStringLiteral("disabled"), false);
-    obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
-    obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
-    XRDriverIPC::instance().writeConfig(obj);
-}
-
-void BreezyDesktopEffectConfig::disableDriver()
-{
-    qCCritical(KWIN_XR) << "\t\t\tBreezy config - disableDriver";
-    QJsonObject obj;
-    obj.insert(QStringLiteral("disabled"), true);
-    obj.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
+    if (ui.kcfg_EffectEnabled->isChecked()) {
+        obj.insert(QStringLiteral("disabled"), false);
+        obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
+        obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
+    } else {
+        obj.insert(QStringLiteral("disabled"), true);
+        obj.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
+    }
     XRDriverIPC::instance().writeConfig(obj);
 }
 
@@ -262,9 +258,9 @@ void BreezyDesktopEffectConfig::pollDriverState()
 {
     auto &bridge = XRDriverIPC::instance();
     auto stateJsonOpt = bridge.retrieveDriverState();
-    if (!stateJsonOpt) return;
+    auto configJsonOpt = bridge.retrieveConfig();
+    if (!stateJsonOpt || !configJsonOpt) return;
     auto stateJson = stateJsonOpt.value();
-
     m_connectedDeviceBrand = stateJson.value(QStringLiteral("connected_device_brand")).toString();
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
 
@@ -275,6 +271,15 @@ void BreezyDesktopEffectConfig::pollDriverState()
             QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) :
             QStringLiteral("No device connected"));
     }
+
+    auto configJson = configJsonOpt.value();
+    bool driverDisabled = configJson.value(QStringLiteral("disabled")).toBool();
+    QString driverOutputMode = configJson.value(QStringLiteral("output_mode")).toString();
+    QJsonArray driverExternalMode = configJson.value(QStringLiteral("external_mode")).toArray();
+    bool effectEnabled = !driverDisabled &&
+                         driverOutputMode == QStringLiteral("external_only") &&
+                         driverExternalMode.contains(QJsonValue(QStringLiteral("breezy_desktop")));
+    if (ui.kcfg_EffectEnabled->isChecked() != effectEnabled) ui.kcfg_EffectEnabled->setChecked(effectEnabled);
 
     refreshLicenseUi(stateJson);
 }
