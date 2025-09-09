@@ -148,8 +148,6 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     m_cursorUpdateTimer->setInterval(16); // ~60Hz
     m_cursorUpdateTimer->start();
 
-    enableDriver();
-
     // Register DBus object under KWin's session bus name
     auto *adaptor = new BreezyDesktopDBusAdaptor(this);
     const bool dbusOk = QDBusConnection::sessionBus().registerObject(
@@ -275,11 +273,11 @@ void BreezyDesktopEffect::deactivate()
 void BreezyDesktopEffect::enableDriver()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - enableDriver";
-    QJsonObject obj;
-    obj.insert(QStringLiteral("disabled"), false);
-    obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
-    obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
-    XRDriverIPC::instance().writeConfig(obj);
+        QJsonObject obj;
+        obj.insert(QStringLiteral("disabled"), false);
+        obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
+        obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
+        XRDriverIPC::instance().writeConfig(obj);
 }
 
 void BreezyDesktopEffect::disableDriver()
