@@ -30,6 +30,7 @@ private:
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();
     void updateUnmanagedState();
+    bool driverEnabled();
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void showStatus(QLabel *label, bool success, const QString &message);

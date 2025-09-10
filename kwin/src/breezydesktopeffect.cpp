@@ -273,20 +273,27 @@ void BreezyDesktopEffect::deactivate()
 void BreezyDesktopEffect::enableDriver()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - enableDriver";
-    QJsonObject obj;
-    obj.insert(QStringLiteral("disabled"), false);
-    obj.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
-    obj.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
-    XRDriverIPC::instance().writeConfig(obj);
+    QJsonObject newConfig = QJsonObject();
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    if (configJsonOpt) {
+        newConfig = configJsonOpt.value();
+    }
+    newConfig.insert(QStringLiteral("disabled"), false);
+    newConfig.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
+    newConfig.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 void BreezyDesktopEffect::disableDriver()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - disableDriver";
-    QJsonObject obj;
-    obj.insert(QStringLiteral("disabled"), true);
-    obj.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
-    XRDriverIPC::instance().writeConfig(obj);
+    QJsonObject newConfig = QJsonObject();
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    if (configJsonOpt) {
+        newConfig = configJsonOpt.value();
+    }
+    newConfig.insert(QStringLiteral("external_mode"), QStringLiteral("none"));
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 void BreezyDesktopEffect::addVirtualDisplay(QSize size)

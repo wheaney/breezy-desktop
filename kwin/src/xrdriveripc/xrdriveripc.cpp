@@ -68,7 +68,7 @@ QByteArray XRDriverIPC::invokePython(const QString &method,
 }
 
 std::optional<QJsonObject> XRDriverIPC::retrieveConfig() {
-	QByteArray out = invokePython(QStringLiteral("retrieve_config"), {}, QStringLiteral("1"));
+	QByteArray out = invokePython(QStringLiteral("retrieve_config"), {}, QStringLiteral("0"));
 	if (out.isEmpty()) return std::nullopt;
 	QJsonParseError err; auto doc = QJsonDocument::fromJson(out, &err);
 	if (err.error != QJsonParseError::NoError || !doc.isObject()) return std::nullopt;
