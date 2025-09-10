@@ -8,6 +8,18 @@ fi
 # we don't want the uninstall script to be able to cause a failure if being triggered by the setup script
 [ "$for_install" -eq 0 ] && set -e
 
+if command -v qdbus >/dev/null 2>&1; then
+  QDBUS_CMD=$(command -v qdbus)
+elif command -v qdbus6 >/dev/null 2>&1; then
+  QDBUS_CMD=$(command -v qdbus6)
+fi
+
+if [ -n "$QDBUS_CMD" ]; then
+  if $QDBUS_CMD org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect breezy_desktop; then
+    [ "$for_install" -eq 0 ] && echo "Unloaded breezy_desktop effect"
+  fi
+fi
+
 USER_HOME=$(realpath ~)
 if [ "$for_install" -eq 0 ]; then
     UA_EVENT_NAME="breezy_kwin_uninstall"
