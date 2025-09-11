@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+ARCH=${ARCH:-$(uname -m)}
+BUILD_ARCH=$ARCH
+if [ -n "${STEAMOS+x}" ]; then
+    ARCH="x86_64"
+    BUILD_ARCH="steamos"
+fi
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+ROOT_DIR=$(realpath $SCRIPT_DIR/..)
+XR_DRIVER_DIR=$ROOT_DIR/modules/XRLinuxDriver
+
+echo "Building Breezy KWin for $BUILD_ARCH"
+KWIN_DIR=$ROOT_DIR/kwin
+BUILD_FILE_NAME=breezyKWin-$BUILD_ARCH.tar.gz
+
+TMP_DIR=$(mktemp -d -t breezy-kwin-XXXXXXXXXX)
+PACKAGE_DIR=$TMP_DIR/breezy_kwin
+mkdir -p $PACKAGE_DIR
+
+source $XR_DRIVER_DIR/bin/inject_ua
+
+# copy vulkan setup scripts and configs
+mkdir -p $PACKAGE_DIR/bin
+copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$KWIN_DIR/bin/setup" "$KWIN_DIR/bin/breezy_kwin_uninstall"
+
+XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
+if [ "$1" == "--download-driver" ]; then
+  driver_download_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xrDriver-$ARCH.tar.gz"
+  setup_download_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xr_driver_setup"
+
+  curl -L "$driver_download_url" > "$PACKAGE_DIR/xrDriver.tar.gz"
+  curl -L "$setup_download_url" > "$PACKAGE_DIR/bin/xr_driver_setup"
+  chmod +x "$PACKAGE_DIR/bin/xr_driver_setup"
+
+  echo "Downloaded XRLinuxDriver binary and setup script, with hashes:"
+  printf '\txrDriver-%s.tar.gz: %s\n' "$ARCH" "$(sha256sum "$PACKAGE_DIR/xrDriver.tar.gz" | sort | sha256sum | sed 's/ .*//')"
+  printf '\txr_driver_setup: %s\n' "$(sha256sum "$PACKAGE_DIR/bin/xr_driver_setup" | sort | sha256sum | sed 's/ .*//')"
+else
+  if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ] || [ "$1" == "--rebuild-all" ]; then
+    # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
+    if [ -e "$VULKAN_DIR/custom_banner_config.yml" ]; then
+      cp $VULKAN_DIR/custom_banner_config.yml $XR_DRIVER_DIR
+    fi
+
+    pushd $XR_DRIVER_DIR > /dev/null
+
+    # strange issue where the base library produces a .so file if the build is not cleaned
+    rm -rf build/
+
+    docker-build/init.sh
+    docker-build/run-build.sh $ARCH
+    popd > /dev/null
+  fi
+
+  XR_DRIVER_TMP_DIR=$(mktemp -d -t xr-driver-XXXXXXXXXX)
+  pushd $XR_DRIVER_TMP_DIR > /dev/null
+  cp $XR_DRIVER_BINARY $XR_DRIVER_TMP_DIR/xrDriver.tar.gz
+  tar -xf $XR_DRIVER_TMP_DIR/xrDriver.tar.gz
+
+  XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
+  popd > /dev/null
+  rm -rf $XR_DRIVER_TMP_DIR
+
+  cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
+  cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin/xr_driver_setup
+fi
+
+# alternative to symlinking, since the Docker build can't resolve to the parent directory
+# this file is in .gitignore so it doesn't get duplicated
+cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py $KWIN_DIR/src/xrdriveripc/xrdriveripc.py
+cp VERSION $KWIN_DIR
+cp modules/sombrero/*.png $KWIN_DIR/src/qml
+
+pushd $KWIN_DIR > /dev/null
+if [ -z "${LOCAL_BUILD_SYSTEM+x}" ]; then
+  docker-build/init.sh
+  docker-build/run-build.sh "$BUILD_ARCH"
+else
+  bin/package_kwin_plugin
+fi
+popd > /dev/null
+cp $KWIN_DIR/out/breezyKWinPlugin-$BUILD_ARCH.tar.gz $PACKAGE_DIR/breezyKWinPlugin.tar.gz
+
+pushd $TMP_DIR > /dev/null
+tar -zcvf $BUILD_FILE_NAME breezy_kwin
+popd > /dev/null
+
+mkdir -p out
+if [ -e "out/$BUILD_FILE_NAME" ]; then
+  rm out/$BUILD_FILE_NAME
+fi
+cp $TMP_DIR/$BUILD_FILE_NAME out
+
+rm -rf $TMP_DIR

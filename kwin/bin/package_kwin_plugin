@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
+        exit 1
+    fi
+}
+check_command "cmake"
+check_command "make"
+
+ARCH=${ARCH:-$(uname -m)}
+if [ -n "${STEAMOS+x}" ]; then
+    ARCH="steamos"
+fi
+echo "Building Breezy KWin plugin for $ARCH"
+
+BUILD_PATH=build
+rm -rf $BUILD_PATH
+mkdir $BUILD_PATH
+
+pushd $BUILD_PATH > /dev/null
+cmake ..
+make
+cpack -G TGZ
+popd > /dev/null
+
+mkdir -p out
+cp $BUILD_PATH/breezy_desktop.tar.gz out/breezyKWinPlugin-$ARCH.tar.gz

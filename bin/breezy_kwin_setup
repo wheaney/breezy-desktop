@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+# This setup script should do the minimum work required to download the release package, unzip it, and kick off the
+# setup script contained within.
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+check_command() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Please install \"$1\" and make sure it's available in your \$PATH, then rerun the setup."
+        exit 1
+    fi
+}
+
+check_command "curl"
+
+print_missing_dependencies() {
+  echo ""
+  printf "\n\033[1;31mMissing required components\033[0m\n"
+  echo ""
+  echo "Install the corresponding packages with your package manager, then rerun this setup:"
+  echo "  Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y extra-cmake-modules kwin-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev libkf6kcmutils-dev libkf6globalaccel-dev libkf6i18n-dev libkf6windowsystem-dev libkf6xmlgui-dev qt6-base-dev qt6-declarative-dev libdrm-dev"
+  echo "  Fedora/RHEL:   sudo dnf install -y extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel qt6-qtbase-devel qt6-qttools-devel wayland-devel libepoxy-devel"
+  echo "  Arch:          sudo pacman -S --needed extra-cmake-modules qt6-base qt6-declarative qt6-tools kconfig kconfigwidgets kcoreaddons kglobalaccel ki18n kcmutils kxmlgui kwindowsystem kwin"
+  echo ""
+  printf "\n\033[1;33mIf you continue to see this issue\033[0m rerun as follows and attach the full output to a bug report:\n"
+  printf "\n\tPRINT_FULL_STDERR=1 %s\n" "$0 $*"
+  exit 1
+}
+
+ARCH=$(uname -m)
+if [ -f /etc/os-release ]; then
+  . /etc/os-release
+  if [ "$ID" == "steamos" ]; then
+    ARCH="steamos"
+  fi
+fi
+FILE_NAME="breezyKWin-$ARCH.tar.gz"
+LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
+echo "Performing setup for KWin ($ARCH)"
+
+start_dir=$(pwd)
+
+# create temp directory
+tmp_dir=$(mktemp -d -t breezy-kwin-XXXXXXXXXX)
+pushd $tmp_dir > /dev/null
+echo "Created temp directory: ${tmp_dir}"
+
+binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$FILE_NAME"
+if [ "$1" = "-v" ]
+then
+  metrics_version="$2"
+  binary_path_arg="$3"
+elif [ "$1" = "--tag" ] && [ -n "$2" ]
+then
+  binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$FILE_NAME"
+else
+  binary_path_arg="$1"
+fi
+
+if [ -z "$binary_path_arg" ]
+then
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$binary_download_url" || echo "000")
+
+  if [[ "$http_code" =~ ^(2|3) ]]; then
+    echo "Downloading to: ${tmp_dir}/$FILE_NAME"
+    curl -L "$binary_download_url" -o "$FILE_NAME"
+  else
+    check_command "git"
+    check_command "cmake"
+    check_command "make"
+
+    # handle -v / --tag like the rest of the script
+    if [ "$1" = "--tag" ] && [ -n "$2" ]; then
+      requested_tag="$2"
+    fi
+
+    # resolve tag: prefer requested_tag, then LATEST_RELEASE if already fetched, else query GitHub API
+    if [ -n "$requested_tag" ]; then
+      tag="$requested_tag"
+    else
+      tag=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest" \
+            | grep -m1 '"tag_name":' \
+            | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/')
+    fi
+
+    if [ -z "$tag" ]; then
+      echo "Failed to determine latest tag for wheaney/breezy-desktop" 1>&2
+      exit 1
+    fi
+
+    if [ -z "${DEV_BUILD+x}" ]; then
+      echo "Cloning wheaney/breezy-desktop (tag: ${tag})"
+      if git clone --depth 1 --branch "$tag" "https://github.com/wheaney/breezy-desktop.git" breezy-desktop 2>/dev/null; then
+        pushd breezy-desktop > /dev/null
+      else
+        git clone "https://github.com/wheaney/breezy-desktop.git" breezy-desktop
+        pushd breezy-desktop > /dev/null
+        git checkout "$tag"
+      fi
+
+      echo "Downloading git submodules"
+      git submodule sync --recursive || true
+      git submodule update --init modules/XRLinuxDriver
+      git submodule update --init modules/sombrero
+      git submodule update --init ui/modules/PyXRLinuxDriverIPC
+    else
+      pushd $start_dir > /dev/null
+    fi
+
+    echo "Building Breezy Desktop from source, this may take a while..."
+    set +e
+    pkgkwin_stderr=$(LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1)
+    pkgkwin_rc=$?
+    set -e
+    if [ "$pkgkwin_rc" -ne 0 ]; then
+      if echo "$pkgkwin_stderr" | grep -qi "could not find" && [ -z "${PRINT_FULL_STDERR+x}" ]; then
+        print_missing_dependencies "$*"
+      else
+        echo "$pkgkwin_stderr"
+      fi
+      echo "Error: Breezy Desktop build failed with exit code $pkgkwin_rc"
+      exit $pkgkwin_rc
+    fi
+    FILE_NAME="breezyKWin-$ARCH.tar.gz"
+    cp "out/$FILE_NAME" "$tmp_dir"
+    popd > /dev/null
+  fi
+else
+  FILE_NAME=$(basename $binary_path_arg)
+  if [[ "$binary_path_arg" = /* ]]; then
+    abs_path="$binary_path_arg"
+  else
+    # Convert relative path to absolute path
+    abs_path=$(realpath "$start_dir/$binary_path_arg")
+  fi
+  cp $abs_path $tmp_dir
+fi
+
+echo "Extracting to: ${tmp_dir}/breezy_kwin"
+tar -xf $FILE_NAME
+
+pushd breezy_kwin > /dev/null
+
+# run the setup script that comes with this release
+bin/setup $metrics_version
+
+echo "Deleting temp directory: ${tmp_dir}"
+rm -rf $tmp_dir
+cd "$(dirs -l -0)" && dirs -c

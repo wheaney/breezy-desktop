@@ -54,7 +54,7 @@ if [ -z "$binary_path_arg" ]
 then
   # download and unzip the binary
   echo "Downloading to: ${tmp_dir}/$FILE_NAME"
-  curl -L -O $binary_download_url
+  curl -L "$binary_download_url" > "$FILE_NAME"
 else
   FILE_NAME=$(basename $binary_path_arg)
   if [[ "$binary_path_arg" = /* ]]; then

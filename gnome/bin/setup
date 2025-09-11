@@ -37,7 +37,19 @@ if ! { python3 -c "$PYTHON_GI_CHECK" 2>/dev/null || python -c "$PYTHON_GI_CHECK"
     fi
 fi
 
-if ! gst-inspect-1.0 pipewiresrc &>/dev/null; then
+gst_pipewire_found=0
+if command -v dpkg >/dev/null 2>&1; then
+    # Debian/Ubuntu
+    gst_pipewire_found=$(dpkg -l | grep -c "gstreamer1.0-pipewire")
+elif command -v pacman >/dev/null 2>&1; then
+    # Arch Linux
+    gst_pipewire_found=$(pacman -Qq gst-plugin-pipewire 2>/dev/null | wc -l)
+elif command -v rpm >/dev/null 2>&1; then
+    # RPM-based (Fedora, RHEL, openSUSE, etc.)
+    gst_pipewire_found=$((rpm -q pipewire-gstreamer &>/dev/null && echo "found") | wc -l)
+fi
+
+if [ "$gst_pipewire_found" -eq 0 ]; then
     if [ -z "$BREEZY_IGNORE_GST_ERRORS" ]; then
         printf "\033[1;31mERROR:\033[0m Pipewire GStreamer plugin not found\n"
         printf "Please install the required Pipewire GStreamer plugin:\n"
