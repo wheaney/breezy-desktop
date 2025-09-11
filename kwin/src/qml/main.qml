@@ -25,7 +25,7 @@ Item {
 
     property real viewportDiagonalFOVDegrees: effect.diagonalFOV
     property var viewportResolution: effect.displayResolution
-    property bool mirrorPhysicalDisplays: effect.physicalDisplaysMode === 2
+    property bool mirrorPhysicalDisplays: effect.mirrorPhysicalDisplays
     property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
         return mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
     })
