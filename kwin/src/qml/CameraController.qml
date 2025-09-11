@@ -5,6 +5,7 @@ Item {
     id: root
 
     required property Camera camera
+    required property var fovDetails
 
     property var displayResolution: effect.displayResolution
     property real diagonalFOV: effect.diagonalFOV
@@ -19,8 +20,14 @@ Item {
         id: displays
     }
 
-    function updateCamera(rotation) {
-        camera.eulerRotation = rotation;
+    function updateCamera() {
+        camera.eulerRotation = applyLookAhead(
+            effect.imuRotations[0],
+            effect.imuRotations[1],
+            effect.imuTimeElapsedMs,
+            lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, -1)
+        );
+        camera.position = effect.imuRotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
     }
 
     // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
@@ -68,12 +75,7 @@ Item {
         running: true
         onTriggered: {
             if (effect.imuRotations && effect.imuRotations.length > 0) {
-                updateCamera(applyLookAhead(
-                    effect.imuRotations[0],
-                    effect.imuRotations[1],
-                    effect.imuTimeElapsedMs,
-                    lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, -1)
-                ));
+                updateCamera();
             }
         }
     }

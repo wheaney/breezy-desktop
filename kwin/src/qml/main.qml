@@ -122,6 +122,7 @@ Item {
                 id: cameraController
                 anchors.fill: parent
                 camera: camera
+                fovDetails: fovDetails
             }
         }
     }
