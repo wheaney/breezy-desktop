@@ -37,6 +37,7 @@ var SUPPORTED_MONITOR_PRODUCTS = [
     'Air 2 Ultra',
     'SmartGlasses', // TCL/RayNeo
     'Rokid Max',
+    'Rokid Max 2',
     'Rokid Air',
     NESTED_MONITOR_PRODUCT
 ];

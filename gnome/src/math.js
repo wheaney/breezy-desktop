@@ -14,7 +14,7 @@ function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
     // then convert back to spherical FOV
     return {
         diagonal: diagonalFOVRadians,
-        horizontal: 2 * Math.atan(Math.tan(flatHorizontalFOV / 2)),
-        vertical: 2 * Math.atan(Math.tan(flatVerticalFOV / 2))
+        horizontal: 2 * Math.atan(flatHorizontalFOV / 2),
+        vertical: 2 * Math.atan(flatVerticalFOV / 2)
     }
 }

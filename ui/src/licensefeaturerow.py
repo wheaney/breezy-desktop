@@ -26,12 +26,9 @@ class LicenseFeatureRow(Adw.ActionRow):
         self.set_subtitle(f"{status}{details}")
 
     def _feature_name(self, feature):
-        print(f"Translating feature: {feature}")
-        print(f"_ is: {_}")
         feature_names = {
-            'sbs': lambda: gettext.gettext('Side-by-side mode (gaming)'),
+            'sbs': lambda: _('Side-by-side mode (gaming)'),
             'smooth_follow': lambda: _('Smooth Follow (gaming)'),
             'productivity_basic': lambda: _('Breezy Desktop (productivity)')
         }
-        print(f"Translated string: {feature_names[feature]()}")
         return feature_names[feature]()

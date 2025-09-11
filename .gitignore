@@ -5,3 +5,9 @@ gschemas.compiled
 out/
 *.po~
 gnome-44-max/
+gnome-45/
+kwin/src/xrdriveripc/xrdriveripc.py
+kwin/VERSION
+kwin/build-test/
+kwin/src/qml/calibrating.png
+kwin/src/qml/custom_banner.png
