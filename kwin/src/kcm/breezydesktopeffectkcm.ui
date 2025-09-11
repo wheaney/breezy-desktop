@@ -267,13 +267,39 @@
           </widget>
         </item>
         <item row="2" column="0">
+          <widget class="QLabel" name="labelPhysicalDisplaysMode">
+            <property name="text">
+              <string>Physical Displays On/Off:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="2" column="1">
+          <widget class="QComboBox" name="kcfg_PhysicalDisplaysMode">
+            <item>
+              <property name="text">
+                <string>Off</string>
+              </property>
+            </item>
+            <item>
+              <property name="text">
+                <string>On - not mirrored in XR</string>
+              </property>
+            </item>
+            <item>
+              <property name="text">
+                <string>On - mirrored in XR (may impact performance)</string>
+              </property>
+            </item>
+          </widget>
+        </item>
+        <item row="3" column="0">
           <widget class="QLabel" name="labelDisplayHorizontalOffset">
           <property name="text">
             <string>Display Horizontal Offset:</string>
           </property>
           </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
           <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
           <property name="decimalShift">
             <double>2</double>
@@ -292,14 +318,14 @@
           </property>
           </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
           <widget class="QLabel" name="labelDisplayVerticalOffset">
           <property name="text">
             <string>Display Vertical Offset:</string>
           </property>
           </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
           <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
           <property name="decimalShift">
             <double>2</double>
@@ -318,7 +344,7 @@
           </property>
           </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
           <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
             <property name="visible">
               <bool>false</bool>

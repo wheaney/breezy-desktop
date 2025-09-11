@@ -57,6 +57,13 @@
             <label>Antialiasing Quality</label>
             <description>0=None, 1=Medium, 2=High, 3=Very High</description>
         </entry>
+        <entry name="PhysicalDisplaysMode" type="Int">
+            <default>1</default>
+            <min>0</min>
+            <max>2</max>
+            <label>Physical Displays On/Off</label>
+            <description>How to handle the physical (built-in) monitors: 0=Off, 1=On - not mirrored in XR, 2=On - mirrored in XR (may impact performance)</description>
+        </entry>
         <entry name="RemoveVirtualDisplaysOnDisable" type="Bool">
             <default>true</default>
             <label>Remove virtual displays on disable</label>

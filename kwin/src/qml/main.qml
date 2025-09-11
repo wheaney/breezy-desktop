@@ -25,10 +25,10 @@ Item {
 
     property real viewportDiagonalFOVDegrees: effect.diagonalFOV
     property var viewportResolution: effect.displayResolution
-    property var screens: KWinComponents.Workspace.screens
-    // .filter(function(screen) {
-    //     return supportedModels.includes(screen.model);
-    // })
+    property bool mirrorPhysicalDisplays: effect.physicalDisplaysMode === 2
+    property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
+        return mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
+    })
 
     // x value for placing the viewport in the middle of all screens
     property real screensXMid: {
@@ -62,7 +62,7 @@ Item {
         id: displays
     }
 
-    property var fovDetails: displays.fovDetails(
+    property var fovDetails: displays.buildFovDetails(
         screens,
         viewportResolution[0],
         viewportResolution[1],
@@ -116,13 +116,16 @@ Item {
 
             BreezyDesktop {
                 id: breezyDesktop
+                screens: root.screens
+                fovDetails: root.fovDetails
+                monitorPlacements: root.monitorPlacements
             }
 
             CameraController {
                 id: cameraController
                 anchors.fill: parent
                 camera: camera
-                fovDetails: fovDetails
+                fovDetails: root.fovDetails
             }
         }
     }

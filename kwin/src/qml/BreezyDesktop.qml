@@ -6,9 +6,9 @@ Node {
     id: breezyDesktop
     
     property var viewportResolution: effect.displayResolution
-    property var screens: root.screens
-    property var fovDetails: root.fovDetails
-    property var monitorPlacements: root.monitorPlacements
+    required property var screens
+    required property var fovDetails
+    required property var monitorPlacements
     property int focusedMonitorIndex: -1
 
     Displays {
@@ -31,8 +31,8 @@ Node {
             
             property real monitorDistance: effect.allDisplaysDistance
             property real targetDistance: effect.allDisplaysDistance
-            property real screenRotationY: displays.radianToDegree(monitorPlacement.rotationAngleRadians.y)
-            property real screenRotationX: displays.radianToDegree(monitorPlacement.rotationAngleRadians.x)
+            property real screenRotationY: displays.radianToDegree(monitorPlacement?.rotationAngleRadians.y ?? 0)
+            property real screenRotationX: displays.radianToDegree(monitorPlacement?.rotationAngleRadians.x ?? 0)
             property matrix4x4 rotationMatrix: {
                 const matrix = Qt.matrix4x4();
                 matrix.rotate(screenRotationY, Qt.vector3d(0, 1, 0));
@@ -51,6 +51,8 @@ Node {
             eulerRotation.y: screenRotationY
             eulerRotation.x: screenRotationX
             position: {
+                if (!monitorPlacement) return Qt.vector3d(0, 0, 0);
+
                 const displayNwu = 
                     monitorPlacement.centerNoRotate
                                     .times(monitorDistance / effect.allDisplaysDistance);
@@ -110,6 +112,19 @@ Node {
                 }
             }
         }
+    }
+
+    // release references to displays and stale indexes
+    onScreensChanged: {
+        breezyDesktop.focusedMonitorIndex = -1;
+        zoomOutAnimation.stop();
+        zoomInAnimation.stop();
+        zoomOnFocusSequence.stop();
+
+        zoomOutAnimation.target = null;
+        zoomInAnimation.target = null;
+        zoomOutSeqAnimation.target = null;
+        zoomInSeqAnimation.target = null;
     }
 
     NumberAnimation {

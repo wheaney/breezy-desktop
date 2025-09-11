@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick3D
 
 Item {
-    id: root
+    id: cameraController
 
     required property Camera camera
     required property var fovDetails
@@ -12,9 +12,6 @@ Item {
     property real lensDistanceRatio: effect.lensDistanceRatio
     property bool sbsEnabled: effect.sbsEnabled
     property bool customBannerEnabled: effect.customBannerEnabled
-
-    implicitWidth: parent.width
-    implicitHeight: parent.height
 
     Displays {
         id: displays
@@ -63,7 +60,7 @@ Item {
     function updateFOV() {
         const aspectRatio = displayResolution[0] / displayResolution[1];
         camera.fieldOfView = displays.radianToDegree(displays.diagonalToCrossFOVs(
-            displays.degreeToRadian(root.diagonalFOV),
+            displays.degreeToRadian(cameraController.diagonalFOV),
             aspectRatio
         ).vertical);
     }
