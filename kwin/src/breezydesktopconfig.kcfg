@@ -67,5 +67,12 @@
             <label>Remove virtual displays on disable</label>
             <description>Whether to remove any virtual displays when the effect is disabled</description>
         </entry>
+        <entry name="LookAheadOverride" type="Int">
+            <default>-1</default>
+            <min>-1</min>
+            <max>40</max>
+            <label>Movement look-ahead (ms)</label>
+            <description>Override the default look ahead time in milliseconds (-1 to use default)</description> 
+        </entry>
     </group>
 </kcfg>

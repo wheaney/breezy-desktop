@@ -8,6 +8,9 @@
 #include <QImage>
 #include <QKeySequence>
 #include <QQuaternion>
+#include <QVariant>
+#include <QVariantList>
+#include <QHash>
 
 namespace KWin
 {
@@ -91,6 +94,8 @@ namespace KWin
         void updateImuRotation();
         void updateCursorImage();
         void updateCursorPos();
+        QVariantList listVirtualDisplays() const;
+        bool removeVirtualDisplay(const QString &id);
 
     Q_SIGNALS:
         void focusedDisplayDistanceChanged();
@@ -146,7 +151,13 @@ namespace KWin
         int m_antialiasingQuality = 3; // 0=None, 1=Medium, 2=High, 3=VeryHigh
         bool m_removeVirtualDisplaysOnDisable = true;
         bool m_mirrorPhysicalDisplays = false;
-        QList<Output *> m_virtualOutputs;
+
+        struct VirtualOutputInfo {
+            Output *output = nullptr;
+            QString id;
+            QSize size;
+        };
+        QHash<QString, VirtualOutputInfo> m_virtualDisplays;
     };
 
 } // namespace KWin

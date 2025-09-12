@@ -5,6 +5,9 @@
 #include <memory>
 
 #include <QTimer>
+#include <QVariant>
+#include <QVariantList>
+#include <QString>
 
 #include "ui_breezydesktopeffectkcm.h"
 
@@ -39,6 +42,12 @@ private:
     void setRequestInProgress(std::initializer_list<QObject*> widgets, bool inProgress);
     bool eventFilter(QObject *watched, QEvent *event) override;
 
+    // Virtual display DBus helpers and UI rendering
+    QVariantList dbusListVirtualDisplays() const;
+    QVariantList dbusAddVirtualDisplay(int w, int h) const;
+    QVariantList dbusRemoveVirtualDisplay(const QString &id) const;
+    void renderVirtualDisplays(const QVariantList &rows);
+
     ::Ui::BreezyDesktopEffectConfig ui;
 
     KConfigWatcher::Ptr m_configWatcher;
@@ -47,5 +56,6 @@ private:
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
     QTimer m_statePollTimer; // periodic driver state polling
+    QTimer m_virtualDisplayPollTimer; // periodic virtual display list polling
     bool m_licenseLoading = false;
 };

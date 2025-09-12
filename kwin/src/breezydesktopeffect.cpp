@@ -1,4 +1,4 @@
-
+#include "core/output.h"
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
 #include "kcm/shortcuts.h"
@@ -39,15 +39,23 @@ public:
         : QObject(effect), m_effect(effect) {}
 
 public Q_SLOTS:
-    void AddVirtualDisplay(int width, int height) {
-        QMetaObject::invokeMethod(m_effect, [this, width, height]() {
-            m_effect->addVirtualDisplay(QSize(width, height));
-        }, Qt::QueuedConnection);
+    QVariantList AddVirtualDisplay(int width, int height) {
+        m_effect->addVirtualDisplay(QSize(width, height));
+        return m_effect->listVirtualDisplays();
     }
 
-private:
-    KWin::BreezyDesktopEffect *m_effect;
-};
+    QVariantList ListVirtualDisplays() const {
+        return m_effect->listVirtualDisplays();
+    }
+
+    QVariantList RemoveVirtualDisplay(const QString &id) {
+        m_effect->removeVirtualDisplay(id);
+        return m_effect->listVirtualDisplays();
+    }
+
+    private:
+        KWin::BreezyDesktopEffect *m_effect;
+    };
 } // namespace
 
 namespace DataView
@@ -263,10 +271,12 @@ void BreezyDesktopEffect::deactivate()
     showCursor();
 
     if (m_removeVirtualDisplaysOnDisable) {
-        for (auto output : m_virtualOutputs) {
-            KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
+        for (auto it = m_virtualDisplays.begin(); it != m_virtualDisplays.end(); ++it) {
+            if (it->output) {
+                KWin::kwinApp()->outputBackend()->removeVirtualOutput(it->output);
+            }
         }
-        m_virtualOutputs.clear();
+        m_virtualDisplays.clear();
     }
 
     setRunning(false);
@@ -302,7 +312,7 @@ void BreezyDesktopEffect::addVirtualDisplay(QSize size)
 {
     static int virtualDisplayCount = 0;
     ++virtualDisplayCount;
-    QString name = QStringLiteral("BreezyDesktop_VirtualDisplay_%1x%2_%3").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
+    QString name = QStringLiteral("BreezyDesktop_%1").arg(virtualDisplayCount);
     #if defined(KWIN_VERSION_ENCODED) && KWIN_VERSION_ENCODED >= 60290
         QString description = QStringLiteral("Breezy Display %1x%2 (%3)").arg(size.width()).arg(size.height()).arg(virtualDisplayCount);
         auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, description, size, 1.0);
@@ -310,8 +320,40 @@ void BreezyDesktopEffect::addVirtualDisplay(QSize size)
         auto output = KWin::kwinApp()->outputBackend()->createVirtualOutput(name, size, 1.0);
     #endif
     if (output) {
-        m_virtualOutputs.append(output);
+        VirtualOutputInfo info;
+        info.output = output;
+        info.id = name;
+        info.size = size;
+        m_virtualDisplays.insert(info.id, info);
     }
+}
+
+QVariantList BreezyDesktopEffect::listVirtualDisplays() const {
+    QVariantList list;
+    for (auto it = m_virtualDisplays.constBegin(); it != m_virtualDisplays.constEnd(); ++it) {
+        const auto &info = it.value();
+        if (!info.output)
+            continue;
+        QVariantMap entry;
+        entry.insert(QStringLiteral("id"), info.id);
+        entry.insert(QStringLiteral("width"), info.size.width());
+        entry.insert(QStringLiteral("height"), info.size.height());
+        list.push_back(entry);
+    }
+    return list;
+}
+
+bool BreezyDesktopEffect::removeVirtualDisplay(const QString &id) {
+    auto it = m_virtualDisplays.find(id);
+    if (it != m_virtualDisplays.end()) {
+        Output *output = it->output;
+        if (output) {
+            KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
+        }
+        m_virtualDisplays.erase(it);
+        return true;
+    }
+    return false;
 }
 
 bool BreezyDesktopEffect::isEnabled() const {

@@ -26,6 +26,14 @@
 #include <QComboBox>
 #include <QDBusInterface>
 #include <QDBusConnection>
+#include <QDBusReply>
+#include <QDBusVariant>
+#include <QDBusArgument>
+#include <QVariant>
+#include <QVariantList>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QIcon>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -149,26 +157,27 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     }
 
     // Wire Add Virtual Display buttons via DBus to the effect
-    auto callAddVirtualDisplay = [](int w, int h) {
-        QDBusInterface iface(
-            QStringLiteral("org.kde.KWin"),
-            QStringLiteral("/com/xronlinux/BreezyDesktop"),
-            QStringLiteral("com.xronlinux.BreezyDesktop"),
-            QDBusConnection::sessionBus());
-        if (iface.isValid()) {
-            iface.call(QDBus::NoBlock, QStringLiteral("AddVirtualDisplay"), w, h);
-        }
-    };
     if (auto btn1080p = widget()->findChild<QPushButton*>("buttonAdd1080p")) {
-        connect(btn1080p, &QPushButton::clicked, this, [callAddVirtualDisplay]() {
-            callAddVirtualDisplay(1920, 1080);
+        connect(btn1080p, &QPushButton::clicked, this, [this]() {
+            auto list = dbusAddVirtualDisplay(1920, 1080);
+            renderVirtualDisplays(list);
         });
     }
     if (auto btn1440p = widget()->findChild<QPushButton*>("buttonAdd1440p")) {
-        connect(btn1440p, &QPushButton::clicked, this, [callAddVirtualDisplay]() {
-            callAddVirtualDisplay(2560, 1440);
+        connect(btn1440p, &QPushButton::clicked, this, [this]() {
+            auto list = dbusAddVirtualDisplay(2560, 1440);
+            renderVirtualDisplays(list);
         });
     }
+
+    renderVirtualDisplays(dbusListVirtualDisplays());
+
+    m_virtualDisplayPollTimer.setInterval(15000);
+    m_virtualDisplayPollTimer.setTimerType(Qt::CoarseTimer);
+    connect(&m_virtualDisplayPollTimer, &QTimer::timeout, this, [this]() {
+        renderVirtualDisplays(dbusListVirtualDisplays());
+    });
+    m_virtualDisplayPollTimer.start();
 
     // General tab: Open KDE Displays Settings
     if (auto btnDisplays = widget()->findChild<QPushButton*>(QStringLiteral("buttonOpenDisplaysSettings"))) {
@@ -241,6 +250,131 @@ void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
 
 void BreezyDesktopEffectConfig::updateUnmanagedState()
 {
+}
+
+static QDBusInterface makeVDInterface() {
+    return QDBusInterface(
+        QStringLiteral("org.kde.KWin"),
+        QStringLiteral("/com/xronlinux/BreezyDesktop"),
+        QStringLiteral("com.xronlinux.BreezyDesktop"),
+        QDBusConnection::sessionBus());
+}
+
+QVariantList BreezyDesktopEffectConfig::dbusListVirtualDisplays() const {
+    QDBusInterface iface = makeVDInterface();
+    if (!iface.isValid()) return {};
+    QDBusReply<QVariantList> reply = iface.call(QStringLiteral("ListVirtualDisplays"));
+    return reply.isValid() ? reply.value() : QVariantList{};
+}
+
+QVariantList BreezyDesktopEffectConfig::dbusAddVirtualDisplay(int w, int h) const {
+    QDBusInterface iface = makeVDInterface();
+    if (!iface.isValid()) return {};
+    // Fire add, then fetch authoritative list to avoid marshalling quirks
+    iface.call(QStringLiteral("AddVirtualDisplay"), w, h);
+    QDBusReply<QVariantList> list = iface.call(QStringLiteral("ListVirtualDisplays"));
+    return list.isValid() ? list.value() : QVariantList{};
+}
+
+QVariantList BreezyDesktopEffectConfig::dbusRemoveVirtualDisplay(const QString &id) const {
+    QDBusInterface iface = makeVDInterface();
+    if (!iface.isValid()) return {};
+    // Fire remove, then fetch authoritative list to avoid marshalling quirks
+    iface.call(QStringLiteral("RemoveVirtualDisplay"), id);
+    QDBusReply<QVariantList> list = iface.call(QStringLiteral("ListVirtualDisplays"));
+    return list.isValid() ? list.value() : QVariantList{};
+}
+
+void BreezyDesktopEffectConfig::renderVirtualDisplays(const QVariantList &rows) {
+    auto listContainer = widget()->findChild<QWidget*>(QStringLiteral("widgetVirtualDisplayList"));
+    auto listLayout = listContainer ? qobject_cast<QVBoxLayout*>(listContainer->layout()) : nullptr;
+    if (!listContainer || !listLayout) return;
+
+    while (QLayoutItem *child = listLayout->takeAt(0)) {
+        if (auto w = child->widget()) w->deleteLater();
+        delete child;
+    }
+
+    const bool hasRows = !rows.isEmpty();
+    listContainer->setVisible(hasRows);
+    listContainer->setEnabled(hasRows);
+
+    auto toMapCompat = [](const QVariant &v) -> QVariantMap {
+        if (v.metaType().id() == QMetaType::QVariantMap) {
+            return v.toMap();
+        }
+        if (v.canConvert<QDBusVariant>()) {
+            const QDBusVariant dv = v.value<QDBusVariant>();
+            if (dv.variant().metaType().id() == QMetaType::QVariantMap) {
+                return dv.variant().toMap();
+            }
+        }
+        if (v.metaType().id() == qMetaTypeId<QDBusArgument>()) {
+            const QDBusArgument arg = v.value<QDBusArgument>();
+            QVariantMap map;
+            arg.beginMap();
+            while (!arg.atEnd()) {
+                arg.beginMapEntry();
+                QString key; QVariant val;
+                QDBusArgument &nonConst = const_cast<QDBusArgument&>(arg);
+                nonConst >> key >> val;
+                arg.endMapEntry();
+                map.insert(key, val);
+            }
+            arg.endMap();
+            return map;
+        }
+        return QVariantMap{};
+    };
+
+    auto unwrapValue = [](QVariant v) -> QVariant {
+        if (v.canConvert<QDBusVariant>()) {
+            const QDBusVariant dv = v.value<QDBusVariant>();
+            return dv.variant();
+        }
+        return v;
+    };
+
+    for (const QVariant &rowVar : rows) {
+        const QVariantMap row = toMapCompat(rowVar);
+        const QString id = unwrapValue(row.value(QStringLiteral("id"))).toString();
+        const int w = unwrapValue(row.value(QStringLiteral("width"))).toInt();
+        const int h = unwrapValue(row.value(QStringLiteral("height"))).toInt();
+
+        QWidget *rowWidget = new QWidget(listContainer);
+        auto *hl = new QHBoxLayout(rowWidget);
+        hl->setContentsMargins(0, 0, 0, 0);
+
+        auto *spacer = new QWidget(rowWidget);
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        hl->addWidget(spacer, 1);
+
+        auto *icon = new QLabel(rowWidget);
+        icon->setPixmap(QIcon::fromTheme(QStringLiteral("video-display-symbolic")).pixmap(16, 16));
+        icon->setContentsMargins(8, 0, 8, 0);
+        hl->addWidget(icon, 0);
+
+        auto *idLabel = new QLabel(QStringLiteral("%1").arg(id), rowWidget);
+        idLabel->setContentsMargins(8, 0, 8, 0);
+        hl->addWidget(idLabel, 0);
+
+        auto *resLabel = new QLabel(QStringLiteral("%1x%2").arg(w).arg(h), rowWidget);
+        resLabel->setContentsMargins(8, 0, 8, 0);
+        hl->addWidget(resLabel, 0);
+
+        auto *removeBtn = new QPushButton(rowWidget);
+        removeBtn->setIcon(QIcon::fromTheme(QStringLiteral("user-trash-symbolic")));
+        removeBtn->setToolTip(QStringLiteral("Remove virtual display"));
+        removeBtn->setObjectName(QStringLiteral("remove-virtual-display"));
+        hl->addWidget(removeBtn, 0);
+
+        connect(removeBtn, &QPushButton::clicked, this, [this, id]() {
+            auto list = dbusRemoveVirtualDisplay(id);
+            renderVirtualDisplays(list);
+        });
+
+        listLayout->addWidget(rowWidget);
+    }
 }
 
 void BreezyDesktopEffectConfig::updateDriverEnabled()
