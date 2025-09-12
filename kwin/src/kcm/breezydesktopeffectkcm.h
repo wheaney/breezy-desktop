@@ -26,11 +26,13 @@ public Q_SLOTS:
 
 private:
     void updateDriverEnabled();
+    void updateMultitapEnabled();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();
     void updateUnmanagedState();
-    bool driverEnabled();
+    bool driverEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool multitapEnabled(std::optional<QJsonObject> configJsonOpt);
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void showStatus(QLabel *label, bool success, const QString &message);

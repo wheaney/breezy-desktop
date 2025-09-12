@@ -53,7 +53,7 @@
       </attribute>
    <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0" colspan="2">
-        <widget class="QCheckBox" name="kcfg_EffectEnabled">
+        <widget class="QCheckBox" name="EffectEnabled">
          <property name="text">
           <string>XR Effect enabled</string>
          </property>
@@ -336,6 +336,14 @@
           <widget class="QCheckBox" name="kcfg_MirrorPhysicalDisplays">
             <property name="text">
               <string>Mirror physical displays (may impact performance)</string>
+            </property>
+            <property name="checked"><bool>false</bool></property>
+          </widget>
+        </item>
+        <item row="6" column="0" colspan="2">
+          <widget class="QCheckBox" name="EnableMultitap">
+            <property name="text">
+              <string>Enable multi-tap detection</string>
             </property>
             <property name="checked"><bool>false</bool></property>
           </widget>

@@ -97,7 +97,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
-    connect(ui.kcfg_EffectEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateDriverEnabled);
+    connect(ui.EffectEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateDriverEnabled);
     connect(ui.kcfg_ZoomOnFocusEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -108,6 +108,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_AntialiasingQuality, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_MirrorPhysicalDisplays, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_RemoveVirtualDisplaysOnDisable, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.EnableMultitap, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateMultitapEnabled);
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -244,16 +245,16 @@ void BreezyDesktopEffectConfig::updateUnmanagedState()
 
 void BreezyDesktopEffectConfig::updateDriverEnabled()
 {
-    if (driverEnabled() == ui.kcfg_EffectEnabled->isChecked()) {
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    if (driverEnabled(configJsonOpt) == ui.EffectEnabled->isChecked()) {
         return;
     }
 
     QJsonObject newConfig = QJsonObject();
-    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
     if (configJsonOpt) {
         newConfig = configJsonOpt.value();
     }
-    if (ui.kcfg_EffectEnabled->isChecked()) {
+    if (ui.EffectEnabled->isChecked()) {
         newConfig.insert(QStringLiteral("disabled"), false);
         newConfig.insert(QStringLiteral("output_mode"), QStringLiteral("external_only"));
         newConfig.insert(QStringLiteral("external_mode"), QStringLiteral("breezy_desktop"));
@@ -263,9 +264,8 @@ void BreezyDesktopEffectConfig::updateDriverEnabled()
     XRDriverIPC::instance().writeConfig(newConfig);
 }
 
-bool BreezyDesktopEffectConfig::driverEnabled()
+bool BreezyDesktopEffectConfig::driverEnabled(std::optional<QJsonObject> configJsonOpt)
 {
-    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
     if (!configJsonOpt) return false;
     auto configJson = configJsonOpt.value();
     bool driverDisabled = configJson.value(QStringLiteral("disabled")).toBool();
@@ -280,7 +280,8 @@ void BreezyDesktopEffectConfig::pollDriverState()
 {
     auto &bridge = XRDriverIPC::instance();
     auto stateJsonOpt = bridge.retrieveDriverState();
-    if (!stateJsonOpt) return;
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    if (!stateJsonOpt || !configJsonOpt) return;
     auto stateJson = stateJsonOpt.value();
     m_connectedDeviceBrand = stateJson.value(QStringLiteral("connected_device_brand")).toString();
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
@@ -293,10 +294,34 @@ void BreezyDesktopEffectConfig::pollDriverState()
             QStringLiteral("No device connected"));
     }
 
-    bool effectEnabled = driverEnabled();
-    if (ui.kcfg_EffectEnabled->isChecked() != effectEnabled) ui.kcfg_EffectEnabled->setChecked(effectEnabled);
+    bool effectEnabled = driverEnabled(configJsonOpt);
+    if (ui.EffectEnabled->isChecked() != effectEnabled) ui.EffectEnabled->setChecked(effectEnabled);
+    bool multitap = multitapEnabled(configJsonOpt);
+    if (ui.EnableMultitap->isChecked() != multitap) ui.EnableMultitap->setChecked(multitap);
 
     refreshLicenseUi(stateJson);
+}
+
+bool BreezyDesktopEffectConfig::multitapEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false;
+    auto configJson = configJsonOpt.value();
+    return configJson.value(QStringLiteral("multi_tap_enabled")).toBool();
+}
+
+void BreezyDesktopEffectConfig::updateMultitapEnabled()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    if (multitapEnabled(configJsonOpt) == ui.EnableMultitap->isChecked()) {
+        return;
+    }
+
+    QJsonObject newConfig = QJsonObject();
+    if (configJsonOpt) {
+        newConfig = configJsonOpt.value();
+    }
+    newConfig.insert(QStringLiteral("multi_tap_enabled"), ui.EnableMultitap->isChecked());
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 void BreezyDesktopEffectConfig::showStatus(QLabel *label, bool success, const QString &message) {
