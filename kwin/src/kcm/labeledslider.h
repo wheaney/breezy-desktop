@@ -5,6 +5,9 @@
 #include <QPainterPath>
 #include <QStyleOptionSlider>
 #include <algorithm> // for std::max
+#include <QtCore/QMap>
+#include <QtCore/QString>
+#include <QStringList>
 
 /*
  * LabeledSlider
@@ -14,6 +17,7 @@
  *   s->setMinimum(20);
  *   s->setMaximum(250);
  *   s->setTickInterval(20);
+ *   s->setTickStartOffset(10); // ticks start at 10, then increment by 20
  *   s->setTickPosition(QSlider::TicksBelow);
  *   s->setShowValueBubble(true);
  */
@@ -25,6 +29,12 @@ class LabeledSlider : public QSlider {
     // Example: raw value 250 with decimalShift=2 displays as 2.50. Underlying slider value
     // (signals, stored config) remains 250.
     Q_PROPERTY(int decimalShift READ decimalShift WRITE setDecimalShift)
+    // tickStartOffset: starting offset for label positions relative to minimum().
+    // Example: minimum=0, tickInterval=20, tickStartOffset=10 -> labels at 10,30,50,...
+    Q_PROPERTY(int tickStartOffset READ tickStartOffset WRITE setTickStartOffset)
+    // valueTextPairs: allows setting custom labels from .ui (Designer) as a string list.
+    // Format each entry as "int: Text" or "int=Text". Example: ["0: Off", "100: Max"].
+    Q_PROPERTY(QStringList valueTextPairs READ valueTextPairs WRITE setValueTextPairs)
 public:
     explicit LabeledSlider(QWidget *parent = nullptr)
         : QSlider(Qt::Horizontal, parent)
@@ -39,6 +49,62 @@ public:
         update();
     }
 
+    // Custom text for specific integer values
+    void setValueText(int value, const QString &text) {
+        // If the same text already set, ignore; allow empty string as valid label
+        auto it = m_valueTexts.constFind(value);
+        if (it != m_valueTexts.constEnd() && *it == text)
+            return;
+        m_valueTexts.insert(value, text);
+        update();
+    }
+
+    void removeValueText(int value) {
+        if (m_valueTexts.remove(value) > 0) update();
+    }
+
+    void clearValueTexts() {
+        if (m_valueTexts.isEmpty()) return;
+        m_valueTexts.clear();
+        update();
+    }
+
+    void setValueTexts(const QMap<int, QString> &map) {
+        if (m_valueTexts == map) return;
+        m_valueTexts = map;
+        update();
+    }
+
+    QMap<int, QString> valueTexts() const { return m_valueTexts; }
+
+    // Property for .ui usage
+    QStringList valueTextPairs() const {
+        QStringList list;
+        for (auto it = m_valueTexts.constBegin(); it != m_valueTexts.constEnd(); ++it) {
+            list << (QString::number(it.key()) + QLatin1String(": ") + it.value());
+        }
+        return list;
+    }
+    void setValueTextPairs(const QStringList &pairs) {
+        QMap<int, QString> newMap;
+        for (const QString &raw : pairs) {
+            QString s = raw.trimmed();
+            if (s.isEmpty()) continue;
+            int sep = s.indexOf(QLatin1Char(':'));
+            if (sep == -1) sep = s.indexOf(QLatin1Char('='));
+            if (sep == -1) continue; // skip invalid entry
+            QString left = s.left(sep).trimmed();
+            QString right = s.mid(sep + 1).trimmed();
+            bool ok = false;
+            int v = left.toInt(&ok);
+            if (!ok) continue;
+            newMap.insert(v, right);
+        }
+        if (m_valueTexts == newMap) return;
+        m_valueTexts = std::move(newMap);
+        update();
+    }
+
     int decimalShift() const { return m_decimalShift; }
     void setDecimalShift(int shift) {
         // clamp to sensible range
@@ -47,6 +113,13 @@ public:
         if (m_decimalShift == shift) return;
         m_decimalShift = shift;
         updateGeometry();
+        update();
+    }
+
+    int tickStartOffset() const { return m_tickStartOffset; }
+    void setTickStartOffset(int offset) {
+        if (m_tickStartOffset == offset) return;
+        m_tickStartOffset = offset;
         update();
     }
 
@@ -84,7 +157,15 @@ protected:
             QFontMetrics fm(font());
             const int baselineY = height() - fm.descent() - 1;
             int interval = labelInterval();
-            for (int v = minV; v <= maxV; v += interval) {
+            // Determine first labeled value based on tickStartOffset
+            int startOffset = 0;
+            if (interval > 0) {
+                startOffset = m_tickStartOffset % interval;
+                if (startOffset < 0) startOffset += interval;
+            }
+            int first = minV + startOffset;
+            if (first < minV) first = minV; // safety
+            for (int v = first; v <= maxV; v += interval) {
                 // Use style geometry for handle at this position to match tick placement.
                 QStyleOptionSlider optPos = opt;
                 optPos.sliderPosition = v;
@@ -130,6 +211,11 @@ protected:
 
 private:
     QString valueToDisplayString(int raw) const {
+        // Use custom text if provided for this exact integer value
+        auto it = m_valueTexts.constFind(raw);
+        if (it != m_valueTexts.constEnd()) {
+            return *it;
+        }
         if (m_decimalShift == 0) {
             return QString::number(raw);
         }
@@ -145,6 +231,8 @@ private:
 
     bool m_showValueBubble = true;
     int  m_decimalShift = 0; // display-only decimal shift
+    int  m_tickStartOffset = 0; // label positions start offset relative to minimum
+    QMap<int, QString> m_valueTexts; // optional text overrides for specific values
 private:
     int labelInterval() const {
         int ti = tickInterval();

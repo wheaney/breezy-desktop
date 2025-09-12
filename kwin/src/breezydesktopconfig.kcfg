@@ -7,14 +7,14 @@
     <group name="Effect-breezy_desktop">
         <entry name="FocusedDisplayDistance" type="Int">
             <default>85</default>
-            <min>25</min>
-            <max>225</max>
+            <min>20</min>
+            <max>230</max>
             <label>Focused Display Distance</label>
         </entry>
         <entry name="AllDisplaysDistance" type="Int">
             <default>105</default>
-            <min>25</min>
-            <max>225</max>
+            <min>20</min>
+            <max>230</max>
             <label>All Displays Distance</label>
         </entry>
         <entry name="ZoomOnFocusEnabled" type="Bool">

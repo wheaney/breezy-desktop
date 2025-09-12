@@ -85,7 +85,10 @@
           <double>2</double>
          </property>
          <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickStartOffset">
+          <double>5</double>
          </property>
          <property name="tickInterval">
           <double>25</double>
@@ -111,7 +114,10 @@
           <double>2</double>
          </property>
          <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickStartOffset">
+          <double>5</double>
          </property>
          <property name="tickInterval">
           <double>25</double>
@@ -279,10 +285,13 @@
             <double>2</double>
           </property>
           <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
+            <enum>QSlider::NoTicks</enum>
+          </property>
+          <property name="tickStartOffset">
+            <double>50</double>
           </property>
           <property name="tickInterval">
-            <double>50</double>
+            <double>100</double>
           </property>
           <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -305,10 +314,13 @@
             <double>2</double>
           </property>
           <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
+            <enum>QSlider::NoTicks</enum>
+          </property>
+          <property name="tickStartOffset">
+            <double>50</double>
           </property>
           <property name="tickInterval">
-            <double>50</double>
+            <double>100</double>
           </property>
           <property name="orientation">
             <enum>Qt::Horizontal</enum>
