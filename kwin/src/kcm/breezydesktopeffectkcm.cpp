@@ -607,11 +607,10 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     }
 
     if (expired) {
-        if (ui.tabWidget) ui.tabWidget->setEnabled(false);
-        OrgKdeKwinEffectsInterface interface(QStringLiteral("org.kde.KWin"), QStringLiteral("/Effects"), QDBusConnection::sessionBus());
-        interface.unloadEffect(QStringLiteral("breezy_desktop"));
+        ui.EffectEnabled->setChecked(false);
+        ui.EffectEnabled->setEnabled(false);
     } else {
-        if (ui.tabWidget) ui.tabWidget->setEnabled(true);
+        ui.EffectEnabled->setEnabled(true);
     }
 }
 
