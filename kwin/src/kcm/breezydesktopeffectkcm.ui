@@ -343,7 +343,33 @@
           </property>
           </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="4" column="0">
+          <widget class="QLabel" name="labelLookAheadOverride">
+          <property name="text">
+            <string>Movement look-ahead (ms):</string>
+          </property>
+          </widget>
+        </item>
+        <item row="4" column="1">
+          <widget class="LabeledSlider" name="kcfg_LookAheadOverride">
+          <property name="tickPosition">
+            <enum>QSlider::NoTicks</enum>
+          </property>
+          <property name="tickStartOffset">
+            <double>1</double>
+          </property>
+          <property name="tickInterval">
+            <double>5</double>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tracking">
+            <bool>true</bool>
+          </property>
+          </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
           <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
             <property name="visible">
               <bool>false</bool>
@@ -357,7 +383,7 @@
             <property name="checked"><bool>true</bool></property>
           </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
           <widget class="QCheckBox" name="kcfg_MirrorPhysicalDisplays">
             <property name="text">
               <string>Mirror physical displays (may impact performance)</string>
@@ -365,7 +391,7 @@
             <property name="checked"><bool>false</bool></property>
           </widget>
         </item>
-        <item row="6" column="0" colspan="2">
+        <item row="7" column="0" colspan="2">
           <widget class="QCheckBox" name="EnableMultitap">
             <property name="text">
               <string>Enable multi-tap detection</string>

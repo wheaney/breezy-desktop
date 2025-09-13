@@ -27,6 +27,7 @@ namespace KWin
         Q_PROPERTY(QSize cursorImageSize READ cursorImageSize NOTIFY cursorImageSourceChanged)
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
         Q_PROPERTY(QList<qreal> lookAheadConfig READ lookAheadConfig NOTIFY devicePropertiesChanged)
+        Q_PROPERTY(qreal lookAheadOverride READ lookAheadOverride WRITE setLookAheadOverride NOTIFY devicePropertiesChanged)
         Q_PROPERTY(QList<quint32> displayResolution READ displayResolution NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY focusedDisplayDistanceChanged)
         Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY allDisplaysDistanceChanged)
@@ -63,6 +64,8 @@ namespace KWin
         quint64 imuTimestamp() const;
         bool imuResetState() const;
         QList<qreal> lookAheadConfig() const;
+        qreal lookAheadOverride() const;
+        void setLookAheadOverride(qreal override);
         QList<quint32> displayResolution() const;
         qreal focusedDisplayDistance() const;
         void setFocusedDisplayDistance(qreal distance);
@@ -98,6 +101,7 @@ namespace KWin
         bool removeVirtualDisplay(const QString &id);
 
     Q_SIGNALS:
+        void lookAheadOverrideChanged();
         void focusedDisplayDistanceChanged();
         void allDisplaysDistanceChanged();
         void displaySpacingChanged();
@@ -133,6 +137,7 @@ namespace KWin
         quint32 m_imuTimeElapsedMs;
         quint64 m_imuTimestamp = 0;
         QList<qreal> m_lookAheadConfig;
+        qreal m_lookAheadOverride = -1.0; // -1 = use device default
         QList<quint32> m_displayResolution;
         qreal m_diagonalFOV;
         qreal m_lensDistanceRatio;

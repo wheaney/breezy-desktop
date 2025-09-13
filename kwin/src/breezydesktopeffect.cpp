@@ -202,6 +202,7 @@ void BreezyDesktopEffect::recenter() {
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
 {
     BreezyDesktopConfig::self()->read();
+    setLookAheadOverride(BreezyDesktopConfig::lookAheadOverride());
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
@@ -395,6 +396,17 @@ quint64 BreezyDesktopEffect::imuTimestamp() const {
 
 QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
     return m_lookAheadConfig;
+}
+
+qreal BreezyDesktopEffect::lookAheadOverride() const {
+    return m_lookAheadOverride;
+}
+
+void BreezyDesktopEffect::setLookAheadOverride(qreal override) {
+    if (override != m_lookAheadOverride) {
+        m_lookAheadOverride = override;
+        Q_EMIT lookAheadOverrideChanged();
+    }
 }
 
 QList<quint32> BreezyDesktopEffect::displayResolution() const {

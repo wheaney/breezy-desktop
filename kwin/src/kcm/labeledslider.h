@@ -32,9 +32,6 @@ class LabeledSlider : public QSlider {
     // tickStartOffset: starting offset for label positions relative to minimum().
     // Example: minimum=0, tickInterval=20, tickStartOffset=10 -> labels at 10,30,50,...
     Q_PROPERTY(int tickStartOffset READ tickStartOffset WRITE setTickStartOffset)
-    // valueTextPairs: allows setting custom labels from .ui (Designer) as a string list.
-    // Format each entry as "int: Text" or "int=Text". Example: ["0: Off", "100: Max"].
-    Q_PROPERTY(QStringList valueTextPairs READ valueTextPairs WRITE setValueTextPairs)
 public:
     explicit LabeledSlider(QWidget *parent = nullptr)
         : QSlider(Qt::Horizontal, parent)
@@ -76,34 +73,6 @@ public:
     }
 
     QMap<int, QString> valueTexts() const { return m_valueTexts; }
-
-    // Property for .ui usage
-    QStringList valueTextPairs() const {
-        QStringList list;
-        for (auto it = m_valueTexts.constBegin(); it != m_valueTexts.constEnd(); ++it) {
-            list << (QString::number(it.key()) + QLatin1String(": ") + it.value());
-        }
-        return list;
-    }
-    void setValueTextPairs(const QStringList &pairs) {
-        QMap<int, QString> newMap;
-        for (const QString &raw : pairs) {
-            QString s = raw.trimmed();
-            if (s.isEmpty()) continue;
-            int sep = s.indexOf(QLatin1Char(':'));
-            if (sep == -1) sep = s.indexOf(QLatin1Char('='));
-            if (sep == -1) continue; // skip invalid entry
-            QString left = s.left(sep).trimmed();
-            QString right = s.mid(sep + 1).trimmed();
-            bool ok = false;
-            int v = left.toInt(&ok);
-            if (!ok) continue;
-            newMap.insert(v, right);
-        }
-        if (m_valueTexts == newMap) return;
-        m_valueTexts = std::move(newMap);
-        update();
-    }
 
     int decimalShift() const { return m_decimalShift; }
     void setDecimalShift(int shift) {
@@ -194,7 +163,15 @@ protected:
             int topY = handle.top() - gap - extraLift - textRect.height();
             if (topY < 0) topY = 0;     // clamp to widget
             textRect.moveTop(topY);
+            // Center horizontally over handle
             textRect.moveLeft(handle.center().x() - textRect.width()/2);
+            // Clamp horizontally so we don't paint outside and get clipped
+            if (textRect.left() < 0) {
+                textRect.moveLeft(0);
+            }
+            if (textRect.right() > width()) {
+                textRect.moveLeft(width() - textRect.width());
+            }
 
             // Bubble shape
             QPainterPath path;

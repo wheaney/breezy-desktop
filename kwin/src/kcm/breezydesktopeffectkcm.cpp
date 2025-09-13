@@ -112,6 +112,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayHorizontalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayVerticalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_LookAheadOverride, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayWrappingScheme, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AntialiasingQuality, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_MirrorPhysicalDisplays, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
@@ -168,6 +169,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             auto list = dbusAddVirtualDisplay(2560, 1440);
             renderVirtualDisplays(list);
         });
+    }
+    if (auto lookAheadOverrideSlider = widget()->findChild<LabeledSlider*>("kcfg_LookAheadOverride")) {
+        lookAheadOverrideSlider->setValueText(-1, i18n("Default"));
     }
 
     renderVirtualDisplays(dbusListVirtualDisplays());
@@ -235,6 +239,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_DisplaySpacing->setValue(BreezyDesktopConfig::self()->displaySpacing());
     ui.kcfg_DisplayHorizontalOffset->setValue(BreezyDesktopConfig::self()->displayHorizontalOffset());
     ui.kcfg_DisplayVerticalOffset->setValue(BreezyDesktopConfig::self()->displayVerticalOffset());
+    ui.kcfg_LookAheadOverride->setValue(BreezyDesktopConfig::self()->lookAheadOverride());
     ui.kcfg_DisplayWrappingScheme->setCurrentIndex(BreezyDesktopConfig::self()->displayWrappingScheme());
     ui.kcfg_AntialiasingQuality->setCurrentIndex(BreezyDesktopConfig::self()->antialiasingQuality());
     ui.kcfg_MirrorPhysicalDisplays->setChecked(BreezyDesktopConfig::self()->mirrorPhysicalDisplays());

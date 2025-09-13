@@ -22,7 +22,7 @@ Item {
             effect.imuRotations[0],
             effect.imuRotations[1],
             effect.imuTimeElapsedMs,
-            lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, -1)
+            lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, effect.lookAheadOverride)
         );
         camera.position = effect.imuRotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
     }
