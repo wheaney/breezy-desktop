@@ -8,27 +8,43 @@
 
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
-There are two installations at the moment. **Note: Don't manually install either of these if you're running the Decky plugin on the same machine, as they invalidate each other's installations. This is only temporary.**
-* [Breezy GNOME](#breezy-gnome) for desktop support, primarily in GNOME Linux desktop environments
+There are two installations available. **Note: Don't manually install either of these if you're running the Decky plugin on the same machine, as they invalidate each other's installations. This is only temporary.**
+* [Breezy Desktop](#breezy-desktop) for KDE Plasma or GNOME desktop environments on Linux.
 * [Breezy Vulkan](#breezy-vulkan) primarily for gaming but would work with pretty much any application that uses Vulkan rendering.
 
-## Breezy GNOME
+## Breezy Desktop
 
-Breezy GNOME is a virtual workspace solution for Linux desktops that use the GNOME desktop environment (support GNOME versions 42 through 48); see [non-GNOME setup](#non-gnome-setup) if you want to try it without a GNOME desktop environment. It currently supports multiple virtual monitors and multiple physical monitors. See [upcoming features](#upcoming-features) for more improvements on the horizon.
+Breezy Desktop is a virtual workspace solution for Linux desktops that use the KDE Plasma 6 or GNOME desktop environments (GNOME versions 42 through 48). It supports launching multiple virtual monitors alongside multiple physical monitors. For Linux users not running GNOME or KDE, you can play around with a [nested GNOME setup](#nested-gnome-setup).
+
+For the best performance, ensure you have the latest graphics drivers installed for your distro.
+
+### KDE Plasma Setup (Alpha)
+
+When you connect your glasses for the first time, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent. If you're running KDE on `X11`, you won't be able to launch virtual displays; Steam Deck users note the extra step in the setup instructions for switching to `Wayland`, other users may be offered the option at the login screen.
+
+To setup Breezy on KDE, with your glasses unplugged:
+1. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/download/dev/breezy_kwin_setup) -- do `rm ~/Downloads/breezy_kwin_setup` first if you're repeating this step
+2. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
+3. Run setup with the dev tag, verify no errors in the output: `~/Downloads/breezy_kwin_setup --tag dev`
+4. If on SteamOS and want to use virtual displays, run this: `steamos-session-select plasma-wayland-persistent`
+  * **Important note** - this will prevent you from accessing Game Mode again, until you undo it by running just `steamos-session-select`
+5. Log out and back in.
+
+After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the KWin plugin working. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
 ### GNOME Setup
 
-For the best performance, ensure you have the latest graphics drivers installed for your distro. Also, double-check that your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you may not be able to launch virtual displays; switch to `Wayland` or follow the [GNOME Legacy setup](#gnome-widescreen-legacy-setup) instructions.
+Make sure your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you won't be able to launch virtual displays; switch to `Wayland` or follow the [GNOME Legacy setup](#gnome-widescreen-legacy-setup) instructions if you want access to widescreen mode.
 
-#### Multi-display (Beta)
+#### GNOME Multi-display
 
-**Note: an [AUR installation](#arch-linux) is also available for Arch users**
+**Note: an [AUR installation](#gnome-arch-linux-setup) is also available for Arch users**
 
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script: `~/Downloads/breezy_gnome_setup`
 3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
-#### Arch Linux
+#### GNOME Arch Linux setup
 
 Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands from a terminal:
 
@@ -37,23 +53,19 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 3. `systemctl --user enable --now xr-driver.service`
 4. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
-### GNOME Widescreen (Legacy) Setup
+#### GNOME Widescreen (Legacy) Setup
 
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script: `~/Downloads/breezy_gnome_setup --tag legacy`
 3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
-### Steam Deck desktop mode
-
-Steam Deck's desktop mode runs KDE Plasma, so, for now, Breezy Desktop can only be run by launching a nested GNOME shell, and requires the read-only file system to be disabled to get setup. If you're interested, and *willing to accept any risks that come with disabling the read-only file system*, check out [the wiki entry](https://github.com/wheaney/breezy-desktop/wiki/Installing-on-Steam-Deck).
-
-### Non-GNOME Setup
+#### Nested-GNOME Setup
 A workable demo -- but not a great long-term solutions -- is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
 1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 42-47, so check that using `gnome-shell --version`
 2. Run the [GNOME setup](#gnome-setup) steps. You shouldn't need to log out and back in since GNOME will be running nested.
 3. Launch the nested GNOME Shell using `MUTTER_DEBUG_DUMMY_MODE_SPECS="1920x1080@60" dbus-run-session -- gnome-shell --nested`
 
-### Breezy GNOME Usage
+#### Breezy GNOME Usage
 
 After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
@@ -62,9 +74,9 @@ For a double-wide screen, enable "widescreen mode" using the toggle in the Breez
 ### Upcoming Features
 * Port to KWin Effect (KDE Plasma support)
 
-### Breezy GNOME Pricing (Productivity Tier)
+### Breezy Desktop Pricing (Productivity Tier)
 
-Breezy GNOME comes with 2 free trial months. After that, it requires an active Productivity Tier license. Payments are currently only accepted via [Ko-fi](https://ko-fi.com/wheaney). Here's the pricing structure:
+Breezy Desktop for GNOME and KDE comes with 2 free trial months. After that, it requires an active Productivity Tier license. Payments are currently only accepted via [Ko-fi](https://ko-fi.com/wheaney). Here's the pricing structure:
 
 | Payment period | Price              | Upgrade window \*                     |
 | -------------- | ------------------ | ------------------------------------- |
@@ -168,6 +180,7 @@ Rerun the `breezy_vulkan_setup` script. No need to re-download this script, as i
 ### Uninstalling
 
 If you wish to completely remove the installation:
+* For **Breezy KDE** run the following: `breezy_kwin_uninstall`
 * For **Breezy GNOME**:
   * If you installed *via the setup script* run the following: `~/.local/bin/breezy_gnome_uninstall`
   * If you installed via `yay` run the following: `pacman -R breezy-desktop-gnome-git`, you may also want to uninstall the base driver with `pacman -R xr-driver-breezy-gnome-git`
