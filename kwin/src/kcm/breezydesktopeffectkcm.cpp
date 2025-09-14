@@ -34,6 +34,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QIcon>
+#include <QTabWidget>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -55,6 +56,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 {
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
+
+    // One-time check if the KWin effect backend is actually loaded. If not, disable UI early.
+    checkEffectLoaded();
 
     // Show/enable Virtual Display controls only when we're on Wayland
     const bool isWaylandSession = QGuiApplication::platformName().contains(QStringLiteral("wayland"), Qt::CaseInsensitive)
@@ -257,6 +261,23 @@ void BreezyDesktopEffectConfig::updateUnmanagedState()
 {
 }
 
+void BreezyDesktopEffectConfig::checkEffectLoaded() {
+    OrgKdeKwinEffectsInterface iface(QStringLiteral("org.kde.KWin"), QStringLiteral("/Effects"), QDBusConnection::sessionBus());
+    QDBusReply<bool> reply = iface.call(QStringLiteral("isEffectLoaded"), QStringLiteral("breezy_desktop"));
+    if (!reply.isValid() || !reply.value()) {
+        if (auto tabWidget = widget()->findChild<QTabWidget*>()) {
+            tabWidget->setEnabled(false);
+        }
+        if (auto warn = widget()->findChild<QLabel*>(QStringLiteral("labelGlobalWarning"))) {
+            QPalette pal = warn->palette();
+            pal.setColor(QPalette::WindowText, QColor(Qt::red));
+            warn->setPalette(pal);
+            warn->setText(tr("The Breezy Desktop KWin effect is not loaded. Please log out and back in to enable it."));
+            warn->setVisible(true);
+        }
+    }
+}
+
 static QDBusInterface makeVDInterface() {
     return QDBusInterface(
         QStringLiteral("org.kde.KWin"),
@@ -427,7 +448,7 @@ void BreezyDesktopEffectConfig::pollDriverState()
 
     const bool wasDeviceConnected = m_deviceConnected;
     m_deviceConnected = !m_connectedDeviceBrand.isEmpty() && !m_connectedDeviceModel.isEmpty();
-    if (ui.labelDeviceConnectionStatus->text().isEmpty() || m_deviceConnected != wasDeviceConnected) {
+    if (!m_driverStateInitialized || m_deviceConnected != wasDeviceConnected) {
         ui.labelDeviceConnectionStatus->setText(m_deviceConnected ?
             QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) :
             QStringLiteral("No device connected"));
@@ -439,6 +460,8 @@ void BreezyDesktopEffectConfig::pollDriverState()
     if (ui.EnableMultitap->isChecked() != multitap) ui.EnableMultitap->setChecked(multitap);
 
     refreshLicenseUi(stateJson);
+
+    m_driverStateInitialized = true;
 }
 
 bool BreezyDesktopEffectConfig::multitapEnabled(std::optional<QJsonObject> configJsonOpt)
@@ -529,7 +552,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     auto labelSummary = tab->findChild<QLabel*>("labelLicenseSummary");
     if (!labelSummary) return;
     auto donate = tab->findChild<QLabel*>("labelDonateLink");
-    auto globalWarn = widget()->findChild<QLabel*>("labelGlobalLicenseWarning");
+    auto globalWarn = widget()->findChild<QLabel*>("labelGlobalWarning");
 
     QString status = tr("disabled");
     QString renewalDescriptor = QStringLiteral("");
@@ -601,7 +624,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
 
     if (donate) donate->setVisible(warningState || expired);
 
-    if (globalWarn) {
+    if (globalWarn && !globalWarn->isVisible()) {
         if (warningState || expired) {
             globalWarn->setText(message + (expired ? tr(" — effect disabled") : QString()));
             globalWarn->setVisible(true);

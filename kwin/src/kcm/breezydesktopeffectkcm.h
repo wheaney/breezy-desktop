@@ -38,6 +38,7 @@ private:
     bool multitapEnabled(std::optional<QJsonObject> configJsonOpt);
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
+    void checkEffectLoaded();
     void showStatus(QLabel *label, bool success, const QString &message);
     void setRequestInProgress(std::initializer_list<QObject*> widgets, bool inProgress);
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -52,6 +53,7 @@ private:
 
     KConfigWatcher::Ptr m_configWatcher;
     bool m_updatingFromConfig = false;
+    bool m_driverStateInitialized = false;
     bool m_deviceConnected = false;
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;

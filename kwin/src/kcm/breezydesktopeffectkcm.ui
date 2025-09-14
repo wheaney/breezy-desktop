@@ -6,7 +6,7 @@
    <item>
       <widget class="QLabel" name="labelDeviceConnectionStatus">
        <property name="text">
-          <string></string>
+          <string>Loading, please wait...</string>
          </property>
          <property name="alignment">
             <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
@@ -21,7 +21,7 @@
         </widget>
      </item>
      <item>
-       <widget class="QLabel" name="labelGlobalLicenseWarning">
+       <widget class="QLabel" name="labelGlobalWarning">
         <property name="text">
          <string/>
         </property>
@@ -58,7 +58,7 @@
           <string>XR Effect enabled</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
      </item>
