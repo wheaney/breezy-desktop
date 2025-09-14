@@ -11,7 +11,6 @@
         "Description": "Breezy Desktop XR Effect",
         "EnabledByDefault": true,
         "License": "GPL",
-        "Name": "Breezy Desktop XR"
-    },
-    "X-KDE-ConfigModule": "breezy_desktop_config"
+        "Name": "Breezy Desktop"
+    }
 }

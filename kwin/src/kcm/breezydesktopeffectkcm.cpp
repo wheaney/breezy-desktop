@@ -48,7 +48,7 @@ void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Sho
     KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
 }
 
-K_PLUGIN_CLASS(BreezyDesktopEffectConfig)
+K_PLUGIN_CLASS_WITH_JSON(BreezyDesktopEffectConfig, "kcm_metadata.json")
 
 BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data)
     : KCModule(parent, data)

@@ -76,6 +76,7 @@ fi
 cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py $KWIN_DIR/src/xrdriveripc/xrdriveripc.py
 cp VERSION $KWIN_DIR
 cp modules/sombrero/*.png $KWIN_DIR/src/qml
+cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg $KWIN_DIR/src/kcm/
 
 pushd $KWIN_DIR > /dev/null
 if [ -z "${LOCAL_BUILD_SYSTEM+x}" ]; then

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Breezy Desktop
+GenericName=KWin Effect Settings
+Comment=Configure Breezy Desktop
+Exec=@KCMSHELL@ breezy_desktop_config
+Icon=com.xronlinux.BreezyDesktop
+Categories=Utility;Qt;KDE;
+Keywords=Breezy;XR;Desktop;Effect;
+Terminal=false
+X-KDE-AuthorizeAction=org.kde.kcontrol.kcmkwinrules.save

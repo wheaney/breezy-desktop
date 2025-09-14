@@ -41,13 +41,25 @@ fi
 
 EFFECT_ID="breezy_desktop"
 EFFECT_DIR="$XDG_DATA_HOME/kwin/effects/$EFFECT_ID"
+ICON_PATH="$XDG_DATA_HOME/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg"
+DESKTOP_FILE_PATH="$XDG_DATA_HOME/applications/breezy_desktop.desktop"
 PLUGIN_SO="$LIB_HOME/qt6/plugins/kwin/effects/plugins/${EFFECT_ID}.so"
-CONFIG_SO="$LIB_HOME/qt6/plugins/kwin/effects/configs/${EFFECT_ID}_config.so"
+CONFIG_SO="$LIB_HOME/qt6/plugins/plasma/kcms/${EFFECT_ID}_config.so"
 BREEZY_LIBRARY_DIR="$LIB_HOME/breezy_kwin"
 
 if [[ -d "$EFFECT_DIR" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $EFFECT_DIR and its contents"
     $SUDO rm -rf "$EFFECT_DIR"
+fi
+
+if [[ -f "$ICON_PATH" ]]; then
+    [ "$for_install" -eq 0 ] && echo "Removing $ICON_PATH"
+    $SUDO rm -f "$ICON_PATH"
+fi
+
+if [[ -f "$DESKTOP_FILE_PATH" ]]; then
+    [ "$for_install" -eq 0 ] && echo "Removing $DESKTOP_FILE_PATH"
+    $SUDO rm -f "$DESKTOP_FILE_PATH"
 fi
 
 if [[ -f "$PLUGIN_SO" ]]; then

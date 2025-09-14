@@ -2,7 +2,7 @@ set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp labeledslider.cpp)
 ki18n_wrap_ui(breezy_desktop_config_SOURCES breezydesktopeffectkcm.ui)
 qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kwineffects_interface)
 
-kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "kwin/effects/configs" SOURCES ${breezy_desktop_config_SOURCES})
+kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "plasma/kcms" SOURCES ${breezy_desktop_config_SOURCES})
 kconfig_add_kcfg_files(breezy_desktop_config ../breezydesktopconfig.kcfgc)
 target_link_libraries(breezy_desktop_config
     Qt6::DBus
@@ -22,3 +22,14 @@ target_link_libraries(breezy_desktop_config
 if(BREEZY_DESKTOP_VERSION)
     target_compile_definitions(breezy_desktop_config PRIVATE BREEZY_DESKTOP_VERSION_STR=\"${BREEZY_DESKTOP_VERSION}\")
 endif()
+
+set(KCMSHELL "kcmshell6")
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/breezy_desktop.desktop.in
+    ${CMAKE_CURRENT_BINARY_DIR}/breezy_desktop.desktop
+    @ONLY
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/breezy_desktop.desktop
+        DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/com.xronlinux.BreezyDesktop.svg
+        DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
