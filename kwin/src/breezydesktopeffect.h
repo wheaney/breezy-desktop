@@ -37,7 +37,9 @@ namespace KWin
         Q_PROPERTY(int displayWrappingScheme READ displayWrappingScheme NOTIFY displayWrappingSchemeChanged)
         Q_PROPERTY(qreal diagonalFOV READ diagonalFOV NOTIFY devicePropertiesChanged)
         Q_PROPERTY(qreal lensDistanceRatio READ lensDistanceRatio NOTIFY devicePropertiesChanged)
-        Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY devicePropertiesChanged)
+        Q_PROPERTY(bool sbsEnabled READ sbsEnabled NOTIFY sbsEnabledChanged)
+        Q_PROPERTY(bool smoothFollowEnabled READ smoothFollowEnabled NOTIFY smoothFollowEnabledChanged)
+        Q_PROPERTY(QList<QQuaternion> smoothFollowOrigin READ smoothFollowOrigin)
         Q_PROPERTY(bool customBannerEnabled READ customBannerEnabled NOTIFY devicePropertiesChanged)
         Q_PROPERTY(int antialiasingQuality READ antialiasingQuality NOTIFY antialiasingQualityChanged)
         Q_PROPERTY(bool removeVirtualDisplaysOnDisable READ removeVirtualDisplaysOnDisable NOTIFY removeVirtualDisplaysOnDisableChanged)
@@ -79,6 +81,8 @@ namespace KWin
         qreal diagonalFOV() const;
         qreal lensDistanceRatio() const;
         bool sbsEnabled() const;
+        bool smoothFollowEnabled() const;
+        QList<QQuaternion> smoothFollowOrigin() const;
         bool customBannerEnabled() const;
         int antialiasingQuality() const;
         bool removeVirtualDisplaysOnDisable() const;
@@ -110,12 +114,14 @@ namespace KWin
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void imuResetStateChanged();
-        void cursorImageSourceChanged();
-        void cursorPosChanged();
+        void sbsEnabledChanged();
+        void smoothFollowEnabledChanged();
         void devicePropertiesChanged();
         void antialiasingQualityChanged();
         void removeVirtualDisplaysOnDisableChanged();
         void mirrorPhysicalDisplaysChanged();
+        void cursorImageSourceChanged();
+        void cursorPosChanged();
 
     protected:
         QVariantMap initialProperties(Output *screen) override;
@@ -142,6 +148,8 @@ namespace KWin
         qreal m_diagonalFOV;
         qreal m_lensDistanceRatio;
         bool m_sbsEnabled;
+        bool m_smoothFollowEnabled;
+        QList<QQuaternion> m_smoothFollowOrigin;
         bool m_customBannerEnabled;
         QFileSystemWatcher *m_shmFileWatcher = nullptr;
         QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;

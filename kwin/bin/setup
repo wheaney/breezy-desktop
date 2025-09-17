@@ -73,7 +73,6 @@ if [[ ! -f "$BASH_PROFILE" ]] || ! grep -Fq "$QT_PLUGIN_EXPORT" "$BASH_PROFILE" 
 
 # Added by Breezy Desktop installer: QT plugin path setup
 $QT_PLUGIN_EXPORT
-export QT_DEBUG_PLUGINS=1
 EOF
 fi
 
@@ -85,7 +84,6 @@ if [[ ! -f "$PLASMA_ENV_SCRIPT" ]]; then
 
 # Added by Breezy Desktop installer: QT plugin path setup
 $QT_PLUGIN_EXPORT
-export QT_DEBUG_PLUGINS=1
 EOF
 fi
 

@@ -487,6 +487,14 @@ bool BreezyDesktopEffect::mirrorPhysicalDisplays() const {
     return m_mirrorPhysicalDisplays;
 }
 
+QList<QQuaternion> BreezyDesktopEffect::smoothFollowOrigin() const {
+    return m_smoothFollowOrigin;
+}
+
+bool BreezyDesktopEffect::smoothFollowEnabled() const {
+    return m_smoothFollowEnabled;
+}
+
 bool BreezyDesktopEffect::checkParityByte(const char* data) {
     const uint8_t parityByte = static_cast<uint8_t>(data[DataView::IMU_PARITY_BYTE[DataView::OFFSET_INDEX]]);
     uint8_t parity = 0;
@@ -627,6 +635,33 @@ void BreezyDesktopEffect::updateImuRotation() {
     m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
 
     m_imuTimestamp = imuDateMs;
+    
+    float originData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
+    memcpy(originData, data + DataView::SMOOTH_FOLLOW_ORIGIN_DATA[DataView::OFFSET_INDEX], sizeof(originData));
+
+    // convert NWU to EUS by passing root.rotation values: -y, z, -x
+    QQuaternion sfQuatT0(originData[3], -originData[1], originData[2], -originData[0]);
+
+    int originDataOffset = DataView::IMU_QUAT_ENTRIES;
+    QQuaternion sfQuatT1(originData[originDataOffset + 3], -originData[originDataOffset + 1], originData[originDataOffset + 2], -originData[originDataOffset + 0]);
+
+    originDataOffset += DataView::IMU_QUAT_ENTRIES;
+
+    // skip the 3rd quaternion
+    originDataOffset += DataView::IMU_QUAT_ENTRIES;
+
+    // set smoothFollowOrigin to the last two rotations, leave out the elapsed time
+    m_smoothFollowOrigin.clear();
+    m_smoothFollowOrigin.append(sfQuatT0);
+    m_smoothFollowOrigin.append(sfQuatT1);
+
+    uint8_t smoothFollowEnabled = false;
+    memcpy(&smoothFollowEnabled, data + DataView::SMOOTH_FOLLOW_ENABLED[DataView::OFFSET_INDEX], sizeof(smoothFollowEnabled));
+    bool nextSmoothFollowEnabled = (smoothFollowEnabled != 0);
+    if (m_smoothFollowEnabled != nextSmoothFollowEnabled) {
+        m_smoothFollowEnabled = nextSmoothFollowEnabled;
+        Q_EMIT smoothFollowEnabledChanged();
+    }
 }
 
 QString BreezyDesktopEffect::cursorImageSource() const

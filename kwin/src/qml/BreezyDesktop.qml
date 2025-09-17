@@ -6,10 +6,12 @@ Node {
     id: breezyDesktop
     
     property var viewportResolution: effect.displayResolution
+    property bool smoothFollowEnabled: effect.smoothFollowEnabled
     required property var screens
     required property var fovDetails
     required property var monitorPlacements
     property int focusedMonitorIndex: -1
+    property var smoothFollowFocusedDisplay
 
     Displays {
         id: displays
@@ -22,6 +24,124 @@ Node {
         return breezyDesktopDisplays.objectAt(index);
     }
 
+    function updateFocus(smoothFollowEnabledChanged = false) {
+        const rotations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.imuRotations;
+        if (rotations && rotations.length > 0) {
+            let focusedIndex = -1;
+
+            if (effect.zoomOnFocusEnabled || smoothFollowEnabled) {
+                focusedIndex = displays.findFocusedMonitor(
+                    displays.eusToNwuQuat(rotations[0]), 
+                    breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
+                    breezyDesktop.focusedMonitorIndex,
+                    smoothFollowEnabled,
+                    breezyDesktop.fovDetails,
+                    breezyDesktop.screens.map(screen => screen.geometry)
+                );
+            }
+
+            let focusedDisplay;
+            let unfocusedDisplay;
+            let startSmoothFollowFocusAnimation = false;
+            if (smoothFollowEnabledChanged) {
+                let targetDisplay;
+                let targetProgress;
+                if (focusedIndex !== -1) {
+                    focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
+                    targetDisplay = focusedDisplay;
+                    targetProgress = 1.0;
+                    startSmoothFollowFocusAnimation = true;
+                } else if (breezyDesktop.focusedMonitorIndex !== -1) {
+                    unfocusedDisplay = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
+                    targetDisplay = unfocusedDisplay;
+                    targetProgress = 0.0;
+                }
+                smoothFollowTransitionAnimation.stop();
+                smoothFollowTransitionAnimation.target = targetDisplay;
+                smoothFollowTransitionAnimation.from = targetDisplay.smoothFollowTransitionProgress;
+                smoothFollowTransitionAnimation.to = targetProgress;
+                smoothFollowTransitionAnimation.start();
+            }
+
+            if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
+                const unfocusedIndex = breezyDesktop.focusedMonitorIndex;
+                if (!focusedDisplay) focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
+                const allDisplaysDistanceBinding = Qt.binding(function() { return effect.allDisplaysDistance; });
+                const focusedDisplayDistanceBinding = Qt.binding(function() { return effect.focusedDisplayDistance; });
+                if (focusedDisplay === null) {
+                    if (!unfocusedDisplay) unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
+                    zoomOutAnimation.target = unfocusedDisplay;
+                    zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
+                    zoomOutAnimation.start();
+                } else {                    
+                    if (unfocusedIndex === -1) {
+                        zoomInAnimation.target = focusedDisplay;
+                        focusedDisplay.targetDistance = effect.focusedDisplayDistance;
+                        zoomInAnimation.start();
+                    } else {
+                        zoomInSeqAnimation.target = focusedDisplay;
+                        focusedDisplay.targetDistance = effect.focusedDisplayDistance;
+
+                        if (!unfocusedDisplay) unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
+                        zoomOutSeqAnimation.target = unfocusedDisplay;
+                        zoomOutSeqAnimation.target.targetDistance = effect.allDisplaysDistance;
+
+                        zoomOnFocusSequence.start();
+                    }
+                }
+                breezyDesktop.focusedMonitorIndex = focusedIndex;
+            }
+
+            if (startSmoothFollowFocusAnimation) smoothFollowFocusedAnimation.restart();
+        }
+    }
+
+    // monitorPlacement assumed to be present
+    function displayEusVector(display) {
+        const displayNwu = 
+            display.monitorPlacement.centerNoRotate
+                                    .times(display.monitorDistance / effect.allDisplaysDistance);
+
+        return displays.nwuToEusVector(displayNwu);
+    }
+
+    function displayRotationVector(display, eusVector) {
+        return display.rotationMatrix.times(eusVector);
+    }
+
+    // smoothFollowOrigin is the rotation away from the original placement of the displays
+    // imuRotations is the smooth follow rotation relative to the camera (very near an identity quat)
+    // subtract the latter from the former to get the complete rotation
+    function smoothFollowQuat() {
+        return effect.smoothFollowOrigin[0].times(effect.imuRotations[0].conjugated());
+    }
+
+    function displaySmoothFollowVector(display, eusVector) {
+        return smoothFollowQuat().times(eusVector);
+    }
+
+    // don't call this from the delegate to avoid binding the position property to the effect properties 
+    // used for smooth follow
+    function displayPosition(display, smoothFollowRotation) {
+        const displayEus = displayEusVector(display);
+
+        // short circuit to avoid slerping if not needed
+        if (display.smoothFollowTransitionProgress === 0.0) {
+            return displayRotationVector(display, displayEus);
+        }
+        if (display.smoothFollowTransitionProgress === 1.0) {
+            return displaySmoothFollowVector(display, displayEus, smoothFollowRotation);
+        }
+
+        const finalPosition = displays.slerpVector(
+            displayRotationVector(display, displayEus), 
+            displaySmoothFollowVector(display, displayEus, smoothFollowRotation),
+            display.smoothFollowTransitionProgress
+        );
+
+        return finalPosition
+    }
+
     Repeater3D {
         id: breezyDesktopDisplays
         model: breezyDesktop.screens.length
@@ -29,6 +149,7 @@ Node {
             screen: breezyDesktop.screens[index]
             monitorPlacement: breezyDesktop.monitorPlacements[index]
             
+            property real smoothFollowTransitionProgress: 0.0
             property real monitorDistance: effect.allDisplaysDistance
             property real targetDistance: effect.allDisplaysDistance
             property real screenRotationY: displays.radianToDegree(monitorPlacement?.rotationAngleRadians.y ?? 0)
@@ -53,14 +174,55 @@ Node {
             position: {
                 if (!monitorPlacement) return Qt.vector3d(0, 0, 0);
 
-                const displayNwu = 
-                    monitorPlacement.centerNoRotate
-                                    .times(monitorDistance / effect.allDisplaysDistance);
-
-
-                return rotationMatrix.times(displays.nwuToEusVector(displayNwu));
+                return displayRotationVector(this, displayEusVector(this));
             }
         }
+    }
+
+    // smoothFollowEnabled gets cleared before the IMU begins slerping back to the origin so we can't just 
+    // switch off smooth follow logic based on this flag. Instead, we have to rely on 
+    // smoothFollowTransitionProgress to determine how much of the IMU positions to apply.
+    onSmoothFollowEnabledChanged: {
+        updateFocus(true);
+    }
+
+    FrameAnimation {
+        id: smoothFollowFocusedAnimation
+        running: false
+        onTriggered: {
+            if (!breezyDesktop.smoothFollowFocusedDisplay && breezyDesktop.focusedMonitorIndex !== -1) {
+                breezyDesktop.smoothFollowFocusedDisplay = breezyDesktopDisplays.objectAt(breezyDesktop.focusedMonitorIndex)
+            }
+
+            let continueRunning = false;
+            const focusedDisplay = breezyDesktop.smoothFollowFocusedDisplay;
+            if (focusedDisplay) {
+                const smoothFollowRotation = smoothFollowQuat();
+                focusedDisplay.position = displayPosition(focusedDisplay, smoothFollowRotation);
+                continueRunning = focusedDisplay.smoothFollowTransitionProgress > 0.0;
+
+                if (continueRunning) {
+                    focusedDisplay.eulerRotation = Qt.vector3d(0, 0, 0);
+                    focusedDisplay.rotation = smoothFollowRotation;
+                } else {
+                    focusedDisplay.eulerRotation.x = focusedDisplay.screenRotationX;
+                    focusedDisplay.eulerRotation.y = focusedDisplay.screenRotationY;
+                    focusedDisplay.eulerRotation.z = 0.0;
+                }
+            }
+
+            if (!continueRunning) {
+                smoothFollowFocusedAnimation.stop();
+                breezyDesktop.smoothFollowFocusedDisplay = null;
+            }
+        }
+    }
+
+    NumberAnimation {
+        id: smoothFollowTransitionAnimation
+        duration: 150
+        property: "smoothFollowTransitionProgress"
+        running: false
     }
 
     Timer {
@@ -68,49 +230,7 @@ Node {
         repeat: true
         running: true
         onTriggered: {
-            if (effect.imuRotations && effect.imuRotations.length > 0) {
-                let focusedIndex = -1;
-
-                if (effect.zoomOnFocusEnabled) {
-                    focusedIndex = displays.findFocusedMonitor(
-                        displays.eusToNwuQuat(effect.imuRotations[0]), 
-                        breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
-                        breezyDesktop.focusedMonitorIndex,
-                        false, // TODO smooth follow
-                        breezyDesktop.fovDetails,
-                        breezyDesktop.screens.map(screen => screen.geometry)
-                    );
-                }
-
-                if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
-                    const unfocusedIndex = breezyDesktop.focusedMonitorIndex;
-                    const focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
-                    const allDisplaysDistanceBinding = Qt.binding(function() { return effect.allDisplaysDistance; });
-                    const focusedDisplayDistanceBinding = Qt.binding(function() { return effect.focusedDisplayDistance; });
-                    if (focusedDisplay === null) {
-                        const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
-                        zoomOutAnimation.target = unfocusedDisplay;
-                        zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
-                        zoomOutAnimation.start();
-                    } else {
-                        if (unfocusedIndex === -1) {
-                            zoomInAnimation.target = focusedDisplay;
-                            focusedDisplay.targetDistance = effect.focusedDisplayDistance;
-                            zoomInAnimation.start();
-                        } else {
-                            zoomInSeqAnimation.target = focusedDisplay;
-                            focusedDisplay.targetDistance = effect.focusedDisplayDistance;
-
-                            const unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
-                            zoomOutSeqAnimation.target = unfocusedDisplay;
-                            zoomOutSeqAnimation.target.targetDistance = effect.allDisplaysDistance;
-
-                            zoomOnFocusSequence.start();
-                        }
-                    }
-                    breezyDesktop.focusedMonitorIndex = focusedIndex;
-                }
-            }
+            updateFocus();
         }
     }
 
@@ -120,11 +240,14 @@ Node {
         zoomOutAnimation.stop();
         zoomInAnimation.stop();
         zoomOnFocusSequence.stop();
+        smoothFollowTransitionAnimation.stop();
+        smoothFollowFocusedAnimation.stop();
 
         zoomOutAnimation.target = null;
         zoomInAnimation.target = null;
         zoomOutSeqAnimation.target = null;
         zoomInSeqAnimation.target = null;
+        smoothFollowTransitionAnimation.target = null;
     }
 
     NumberAnimation {

@@ -12,19 +12,24 @@ Item {
     property real lensDistanceRatio: effect.lensDistanceRatio
     property bool sbsEnabled: effect.sbsEnabled
     property bool customBannerEnabled: effect.customBannerEnabled
+    property bool smoothFollowEnabled: effect.smoothFollowEnabled
+
+    // if true, then smoothFollowEnabled just cleared and the IMU data is slerping back, 
+    // continue to use the origin data for the duration of the Timer
+    property bool smoothFollowDisabling: false
 
     Displays {
         id: displays
     }
 
-    function updateCamera() {
+    function updateCamera(rotations) {
         camera.eulerRotation = applyLookAhead(
-            effect.imuRotations[0],
-            effect.imuRotations[1],
+            rotations[0],
+            rotations[1],
             effect.imuTimeElapsedMs,
             lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, effect.lookAheadOverride)
         );
-        camera.position = effect.imuRotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
+        camera.position = rotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
     }
 
     // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
@@ -71,9 +76,25 @@ Item {
     FrameAnimation {
         running: true
         onTriggered: {
-            if (effect.imuRotations && effect.imuRotations.length > 0) {
-                updateCamera();
+            const rotations = (effect.smoothFollowEnabled || smoothFollowDisabling) ? effect.smoothFollowOrigin : effect.imuRotations;
+            if (rotations && rotations.length > 0) {
+                updateCamera(rotations);
             }
         }
+    }
+
+    Timer {
+        id: smoothFollowDisablingTimer
+        interval: 750
+        repeat: false
+        onTriggered: {
+            cameraController.smoothFollowDisabling = false;
+        }
+    }
+
+    onSmoothFollowEnabledChanged: {
+        smoothFollowDisablingTimer.stop();
+        smoothFollowDisabling = !smoothFollowEnabled;
+        if (smoothFollowDisabling) smoothFollowDisablingTimer.start();
     }
 }

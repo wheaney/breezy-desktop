@@ -336,6 +336,8 @@ QtObject {
     }
 
     function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, smoothFollowEnabled, fovDetails, monitorsDetails) {
+        if (currentFocusedIndex !== -1 && smoothFollowEnabled) return currentFocusedIndex;
+
         var lookVector = Qt.vector3d(1.0, 0.0, 0.0); // NWU vector pointing to the center of the screen
         var rotatedLookVector = quaternion.times(lookVector);
 
@@ -369,8 +371,7 @@ QtObject {
                 westConversionFns.angleToLength
             ) * effect.focusedDisplayDistance / effect.allDisplaysDistance;
 
-            if (smoothFollowEnabled || focusedDistance < unfocusThreshold)
-                return currentFocusedIndex;
+            if (focusedDistance < unfocusThreshold) return currentFocusedIndex;
         }
 
         var closestIndex = -1;
@@ -401,5 +402,16 @@ QtObject {
 
         // Unfocus all displays
         return -1;
+    }
+
+    function slerpVector(from, to, progress) {
+        const inverseProgress = 1.0 - progress;
+        const finalVector = Qt.vector3d(
+            from.x * inverseProgress + to.x * progress,
+            from.y * inverseProgress + to.y * progress,
+            from.z * inverseProgress + to.z * progress
+        );
+
+        return finalVector;
     }
 }
