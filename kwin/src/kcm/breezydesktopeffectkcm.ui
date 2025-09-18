@@ -327,7 +327,7 @@
         <item row="2" column="0">
           <widget class="QLabel" name="labelSmoothFollowTracking">
             <property name="text">
-              <string>Smooth follow tracking:</string>
+              <string>Follow mode movement tracking:</string>
             </property>
           </widget>
         </item>
