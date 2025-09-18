@@ -28,4 +28,10 @@ namespace BreezyShortcuts {
         QStringLiteral("Toggle Zoom on Focus"),
         QStringLiteral("Toggle Zoom on Focus")
     };
+
+    const Shortcut TOGGLE_FOLLOW_MODE = {
+        Qt::CTRL | Qt::META | Qt::Key_Return,
+        QStringLiteral("Toggle Follow Mode"),
+        QStringLiteral("Toggle Follow Mode")
+    };
 }

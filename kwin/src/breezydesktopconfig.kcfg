@@ -67,6 +67,13 @@
             <label>Remove virtual displays on disable</label>
             <description>Whether to remove any virtual displays when the effect is disabled</description>
         </entry>
+        <entry name="SmoothFollowThreshold" type="Int">
+            <default>15</default>
+            <min>1</min>
+            <max>45</max>
+            <label>Follow threshold (degrees)</label>
+            <description>How closely the display follows</description> 
+        </entry>
         <entry name="LookAheadOverride" type="Int">
             <default>-1</default>
             <min>-1</min>

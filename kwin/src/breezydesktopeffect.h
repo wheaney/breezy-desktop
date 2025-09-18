@@ -132,6 +132,8 @@ namespace KWin
         void setupGlobalShortcut(const BreezyShortcuts::Shortcut &shortcut, 
                                  std::function<void()> triggeredFunc);
         void recenter();
+        void toggleSmoothFollow();
+        void updateDriverDisplayDistance(float distance);
 
         QString m_cursorImageSource;
         QSize m_cursorImageSize;

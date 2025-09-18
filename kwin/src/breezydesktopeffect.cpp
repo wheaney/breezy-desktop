@@ -118,6 +118,10 @@ BreezyDesktopEffect::BreezyDesktopEffect()
             this->setZoomOnFocusEnabled(!m_zoomOnFocusEnabled);
         }
     );
+    setupGlobalShortcut(
+        BreezyShortcuts::TOGGLE_FOLLOW_MODE,
+        [this]() { this->toggleSmoothFollow(); }
+    );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
@@ -194,9 +198,9 @@ void BreezyDesktopEffect::setupGlobalShortcut(const BreezyShortcuts::Shortcut &s
 }
 
 void BreezyDesktopEffect::recenter() {
-    XRDriverIPC::instance().writeControlFlags({
-        {"recenter_screen", true}
-    });
+    QJsonObject flags; 
+    flags.insert(QStringLiteral("recenter_screen"), true);
+    XRDriverIPC::instance().writeControlFlags(flags);
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
@@ -378,6 +382,12 @@ void BreezyDesktopEffect::setZoomOnFocusEnabled(bool enabled) {
     }
 }
 
+void BreezyDesktopEffect::toggleSmoothFollow() {
+    QJsonObject flags;
+    flags.insert(QStringLiteral("toggle_breezy_desktop_smooth_follow"), true);
+    XRDriverIPC::instance().writeControlFlags(flags);
+}
+
 bool BreezyDesktopEffect::imuResetState() const {
     return m_imuResetState;
 }
@@ -421,6 +431,8 @@ void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
     if (distance != m_focusedDisplayDistance) {
         m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
         Q_EMIT focusedDisplayDistanceChanged();
+
+        if (m_smoothFollowEnabled) updateDriverDisplayDistance(m_focusedDisplayDistance);
     }
 }
 
@@ -661,7 +673,15 @@ void BreezyDesktopEffect::updateImuRotation() {
     if (m_smoothFollowEnabled != nextSmoothFollowEnabled) {
         m_smoothFollowEnabled = nextSmoothFollowEnabled;
         Q_EMIT smoothFollowEnabledChanged();
-    }
+
+        if (nextSmoothFollowEnabled) updateDriverDisplayDistance(m_focusedDisplayDistance);
+    } else if (enabled && !wasEnabled) Q_EMIT smoothFollowEnabledChanged();
+}
+
+void BreezyDesktopEffect::updateDriverDisplayDistance(float distance) {
+    QJsonObject flags;
+    flags.insert(QStringLiteral("breezy_desktop_display_distance"), distance);
+    XRDriverIPC::instance().writeControlFlags(flags);
 }
 
 QString BreezyDesktopEffect::cursorImageSource() const

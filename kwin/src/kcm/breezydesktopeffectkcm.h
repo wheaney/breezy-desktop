@@ -30,12 +30,15 @@ public Q_SLOTS:
 private:
     void updateDriverEnabled();
     void updateMultitapEnabled();
+    void updateSmoothFollowEnabled();
+    void updateSmoothFollowThreshold();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();
     void updateUnmanagedState();
     bool driverEnabled(std::optional<QJsonObject> configJsonOpt);
     bool multitapEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool smoothFollowEnabled(std::optional<QJsonObject> stateJsonOpt);
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void checkEffectLoaded();
@@ -55,6 +58,8 @@ private:
     bool m_updatingFromConfig = false;
     bool m_driverStateInitialized = false;
     bool m_deviceConnected = false;
+    bool m_smoothFollowEnabled = false;
+    int m_smoothFollowThreshold = 15;
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
     QTimer m_statePollTimer; // periodic driver state polling

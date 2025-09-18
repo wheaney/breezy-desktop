@@ -107,13 +107,16 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE);
     addShortcutAction(actionCollection, BreezyShortcuts::RECENTER);
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS);
+    addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_FOLLOW_MODE);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
     connect(ui.EffectEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateDriverEnabled);
+    connect(ui.SmoothFollowEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowEnabled);
     connect(ui.kcfg_ZoomOnFocusEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_SmoothFollowThreshold, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateSmoothFollowThreshold);
     connect(ui.kcfg_DisplayHorizontalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayVerticalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_LookAheadOverride, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -151,7 +154,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             labelStatus->setVisible(false);
             bool success = XRDriverIPC::instance().verifyToken(edit->text().trimmed().toStdString());
             if (success) {
-                XRDriverIPC::instance().writeControlFlags({{"refresh_device_license", true}});
+                QJsonObject flags; 
+                flags.insert(QStringLiteral("refresh_device_license"), true);
+                XRDriverIPC::instance().writeControlFlags(flags);
             }
             showStatus(labelStatus, success, success ? tr("Your license has been refreshed.") : tr("Invalid or expired token."));
             setRequestInProgress({edit, sender()}, false);
@@ -216,7 +221,8 @@ void BreezyDesktopEffectConfig::save()
     updateConfigFromUi();
     BreezyDesktopConfig::self()->save();
     KCModule::save();
-    ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
+    ui.kcfg_FocusedDisplayDistance->setEnabled(
+        ui.kcfg_ZoomOnFocusEnabled->isChecked() || ui.SmoothFollowEnabled->isChecked());
     m_updatingFromConfig = false;
     updateUnmanagedState();
 
@@ -250,6 +256,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_RemoveVirtualDisplaysOnDisable->setChecked(BreezyDesktopConfig::self()->removeVirtualDisplaysOnDisable());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
     ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
+    ui.kcfg_SmoothFollowThreshold->setValue(BreezyDesktopConfig::self()->smoothFollowThreshold());
 }
 
 void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
@@ -446,6 +453,13 @@ void BreezyDesktopEffectConfig::pollDriverState()
     m_connectedDeviceBrand = stateJson.value(QStringLiteral("connected_device_brand")).toString();
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
 
+    const bool smoothFollow = smoothFollowEnabled(stateJsonOpt);
+    if (ui.SmoothFollowEnabled->isChecked() != smoothFollow) {
+        ui.SmoothFollowEnabled->setChecked(smoothFollow);
+
+        ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked() || smoothFollow);
+    }
+
     const bool wasDeviceConnected = m_deviceConnected;
     m_deviceConnected = !m_connectedDeviceBrand.isEmpty() && !m_connectedDeviceModel.isEmpty();
     if (!m_driverStateInitialized || m_deviceConnected != wasDeviceConnected) {
@@ -471,6 +485,13 @@ bool BreezyDesktopEffectConfig::multitapEnabled(std::optional<QJsonObject> confi
     return configJson.value(QStringLiteral("multi_tap_enabled")).toBool();
 }
 
+bool BreezyDesktopEffectConfig::smoothFollowEnabled(std::optional<QJsonObject> stateJsonOpt)
+{
+    if (!stateJsonOpt) return false;
+    auto stateJson = stateJsonOpt.value();
+    return stateJson.value(QStringLiteral("breezy_desktop_smooth_follow_enabled")).toBool();
+}
+
 void BreezyDesktopEffectConfig::updateMultitapEnabled()
 {
     auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
@@ -484,6 +505,26 @@ void BreezyDesktopEffectConfig::updateMultitapEnabled()
     }
     newConfig.insert(QStringLiteral("multi_tap_enabled"), ui.EnableMultitap->isChecked());
     XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateSmoothFollowEnabled()
+{
+    auto stateJsonOpt = XRDriverIPC::instance().retrieveDriverState();
+    if (smoothFollowEnabled(stateJsonOpt) == ui.SmoothFollowEnabled->isChecked()) {
+        return;
+    }
+    bool enabled = ui.SmoothFollowEnabled->isChecked();
+    QJsonObject flags; 
+    flags.insert(QStringLiteral("enable_breezy_desktop_smooth_follow"), enabled);
+    XRDriverIPC::instance().writeControlFlags(flags);
+}
+
+void BreezyDesktopEffectConfig::updateSmoothFollowThreshold()
+{
+    BreezyDesktopEffectConfig::save();
+    QJsonObject flags; 
+    flags.insert(QStringLiteral("breezy_desktop_follow_threshold"), ui.kcfg_SmoothFollowThreshold->value());
+    XRDriverIPC::instance().writeControlFlags(flags);
 }
 
 void BreezyDesktopEffectConfig::showStatus(QLabel *label, bool success, const QString &message) {

@@ -89,9 +89,8 @@ bool XRDriverIPC::writeConfig(const QJsonObject &configUpdate) {
 	return !out.isEmpty();
 }
 
-bool XRDriverIPC::writeControlFlags(const std::map<std::string, bool> &flags) {
-	QJsonObject obj; for (const auto &kv : flags) obj.insert(QString::fromStdString(kv.first), kv.second);
-	QByteArray payload = QJsonDocument(obj).toJson(QJsonDocument::Compact);
+bool XRDriverIPC::writeControlFlags(const QJsonObject &flags) {
+	QByteArray payload = QJsonDocument(flags).toJson(QJsonDocument::Compact);
 	QByteArray out = invokePython(QStringLiteral("write_control_flags"), payload, {});
 	return !out.isEmpty();
 }
