@@ -124,6 +124,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_AntialiasingQuality, qOverload<int>(&QComboBox::currentIndexChanged), this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_MirrorPhysicalDisplays, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_RemoveVirtualDisplaysOnDisable, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_AllDisplaysFollowMode, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.EnableMultitap, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateMultitapEnabled);
     connect(ui.SmoothFollowTrackYaw, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw);
     connect(ui.SmoothFollowTrackPitch, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackPitch);
@@ -257,6 +258,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_AntialiasingQuality->setCurrentIndex(BreezyDesktopConfig::self()->antialiasingQuality());
     ui.kcfg_MirrorPhysicalDisplays->setChecked(BreezyDesktopConfig::self()->mirrorPhysicalDisplays());
     ui.kcfg_RemoveVirtualDisplaysOnDisable->setChecked(BreezyDesktopConfig::self()->removeVirtualDisplaysOnDisable());
+    ui.kcfg_AllDisplaysFollowMode->setChecked(BreezyDesktopConfig::self()->allDisplaysFollowMode());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
     ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
     ui.kcfg_SmoothFollowThreshold->setValue(BreezyDesktopConfig::self()->smoothFollowThreshold());

@@ -228,6 +228,9 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     if (m_antialiasingQuality != aaQuality) { m_antialiasingQuality = aaQuality; Q_EMIT antialiasingQualityChanged(); }
     if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (m_mirrorPhysicalDisplays != mirrorPhysicalDisplays) { m_mirrorPhysicalDisplays = mirrorPhysicalDisplays; Q_EMIT mirrorPhysicalDisplaysChanged(); }
+
+    // this one doesn't have a signal, just always assign it
+    m_allDisplaysFollowMode = BreezyDesktopConfig::allDisplaysFollowMode();
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -507,7 +510,8 @@ QList<QQuaternion> BreezyDesktopEffect::smoothFollowOrigin() const {
 }
 
 bool BreezyDesktopEffect::smoothFollowEnabled() const {
-    return m_smoothFollowEnabled;
+    // the effect doesn't need to know about smooth follow if it's in "all displays" mode
+    return m_focusedSmoothFollowEnabled;
 }
 
 bool BreezyDesktopEffect::checkParityByte(const char* data) {
@@ -673,14 +677,21 @@ void BreezyDesktopEffect::updateImuRotation() {
     uint8_t smoothFollowEnabled = false;
     memcpy(&smoothFollowEnabled, data + DataView::SMOOTH_FOLLOW_ENABLED[DataView::OFFSET_INDEX], sizeof(smoothFollowEnabled));
     bool nextSmoothFollowEnabled = (smoothFollowEnabled != 0);
-    if (m_smoothFollowEnabled != nextSmoothFollowEnabled) {
+    bool focusedSmoothFollowEnabled = nextSmoothFollowEnabled && !m_allDisplaysFollowMode;
+    if (m_smoothFollowEnabled != nextSmoothFollowEnabled || m_focusedSmoothFollowEnabled != focusedSmoothFollowEnabled) {
         m_smoothFollowEnabled = nextSmoothFollowEnabled;
-        Q_EMIT smoothFollowEnabledChanged();
 
-        if (nextSmoothFollowEnabled) updateDriverSmoothFollowSettings();
+        if (m_focusedSmoothFollowEnabled != focusedSmoothFollowEnabled) {
+            m_focusedSmoothFollowEnabled = focusedSmoothFollowEnabled;
+
+            // only emit the signal if it affects the effect
+            Q_EMIT smoothFollowEnabledChanged();
+        }
+
+        if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
     } else if (enabled && !wasEnabled) {
         Q_EMIT smoothFollowEnabledChanged();
-        if (nextSmoothFollowEnabled) updateDriverSmoothFollowSettings();
+        if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
     }
 }
 

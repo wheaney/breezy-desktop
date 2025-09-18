@@ -81,5 +81,10 @@
             <label>Movement look-ahead (ms)</label>
             <description>Override the default look ahead time in milliseconds (-1 to use default)</description> 
         </entry>
+        <entry name="AllDisplaysFollowMode" type="Bool">
+            <default>false</default>
+            <label>All displays follow mode</label>
+            <description>Apply follow mode to all displays instead of only the focused display</description>
+        </entry>
     </group>
 </kcfg>

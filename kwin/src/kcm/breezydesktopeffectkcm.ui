@@ -371,6 +371,16 @@
             </layout>
           </widget>
         </item>
+        <item row="3" column="0" colspan="2">
+          <widget class="QCheckBox" name="kcfg_AllDisplaysFollowMode">
+            <property name="text">
+              <string>All displays follow mode</string>
+            </property>
+            <property name="checked">
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
         <item row="5" column="0">
           <widget class="QLabel" name="labelDisplayHorizontalOffset">
           <property name="text">

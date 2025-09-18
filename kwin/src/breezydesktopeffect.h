@@ -168,6 +168,8 @@ namespace KWin
         bool m_removeVirtualDisplaysOnDisable = true;
         bool m_mirrorPhysicalDisplays = false;
         float m_smoothFollowThreshold = 1.0f;
+        bool m_allDisplaysFollowMode = false;
+        bool m_focusedSmoothFollowEnabled = false;
 
         struct VirtualOutputInfo {
             Output *output = nullptr;
