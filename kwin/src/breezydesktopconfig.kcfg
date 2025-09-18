@@ -68,7 +68,7 @@
             <description>Whether to remove any virtual displays when the effect is disabled</description>
         </entry>
         <entry name="SmoothFollowThreshold" type="Int">
-            <default>15</default>
+            <default>1</default>
             <min>1</min>
             <max>45</max>
             <label>Follow threshold (degrees)</label>

@@ -59,7 +59,7 @@ private:
     bool m_driverStateInitialized = false;
     bool m_deviceConnected = false;
     bool m_smoothFollowEnabled = false;
-    int m_smoothFollowThreshold = 15;
+    int m_smoothFollowThreshold = 1;
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
     QTimer m_statePollTimer; // periodic driver state polling
