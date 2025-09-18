@@ -211,20 +211,23 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
     setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
+    setSmoothFollowThreshold(BreezyDesktopConfig::smoothFollowThreshold());
+
     qreal horiz = BreezyDesktopConfig::displayHorizontalOffset() / 100.0f;
     qreal vert = BreezyDesktopConfig::displayVerticalOffset() / 100.0f;
+    bool offsetchanged = false;
+    if (!qFuzzyCompare(m_displayHorizontalOffset, horiz)) { m_displayHorizontalOffset = horiz; offsetchanged = true; }
+    if (!qFuzzyCompare(m_displayVerticalOffset, vert)) { m_displayVerticalOffset = vert; offsetchanged = true; }
+    if (offsetchanged) Q_EMIT displayOffsetChanged();
+
     int wrap = BreezyDesktopConfig::displayWrappingScheme();
     int aaQuality = BreezyDesktopConfig::antialiasingQuality();
     bool removeVD = BreezyDesktopConfig::removeVirtualDisplaysOnDisable();
     bool mirrorPhysicalDisplays = BreezyDesktopConfig::mirrorPhysicalDisplays();
-    bool changed = false;
-    if (!qFuzzyCompare(m_displayHorizontalOffset, horiz)) { m_displayHorizontalOffset = horiz; changed = true; }
-    if (!qFuzzyCompare(m_displayVerticalOffset, vert)) { m_displayVerticalOffset = vert; changed = true; }
     if (m_displayWrappingScheme != wrap) { m_displayWrappingScheme = wrap; Q_EMIT displayWrappingSchemeChanged(); }
     if (m_antialiasingQuality != aaQuality) { m_antialiasingQuality = aaQuality; Q_EMIT antialiasingQualityChanged(); }
     if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (m_mirrorPhysicalDisplays != mirrorPhysicalDisplays) { m_mirrorPhysicalDisplays = mirrorPhysicalDisplays; Q_EMIT mirrorPhysicalDisplaysChanged(); }
-    if (changed) Q_EMIT displayOffsetChanged();
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -432,7 +435,7 @@ void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
         m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
         Q_EMIT focusedDisplayDistanceChanged();
 
-        if (m_smoothFollowEnabled) updateDriverDisplayDistance(m_focusedDisplayDistance);
+        if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
     }
 }
 
@@ -674,13 +677,24 @@ void BreezyDesktopEffect::updateImuRotation() {
         m_smoothFollowEnabled = nextSmoothFollowEnabled;
         Q_EMIT smoothFollowEnabledChanged();
 
-        if (nextSmoothFollowEnabled) updateDriverDisplayDistance(m_focusedDisplayDistance);
-    } else if (enabled && !wasEnabled) Q_EMIT smoothFollowEnabledChanged();
+        if (nextSmoothFollowEnabled) updateDriverSmoothFollowSettings();
+    } else if (enabled && !wasEnabled) {
+        Q_EMIT smoothFollowEnabledChanged();
+        if (nextSmoothFollowEnabled) updateDriverSmoothFollowSettings();
+    }
 }
 
-void BreezyDesktopEffect::updateDriverDisplayDistance(float distance) {
+void BreezyDesktopEffect::setSmoothFollowThreshold(float threshold) {
+    if (m_smoothFollowThreshold != threshold) {
+        m_smoothFollowThreshold = threshold;
+        if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
+    }
+}
+
+void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
     QJsonObject flags;
-    flags.insert(QStringLiteral("breezy_desktop_display_distance"), distance);
+    flags.insert(QStringLiteral("breezy_desktop_display_distance"), m_focusedDisplayDistance);
+    flags.insert(QStringLiteral("breezy_desktop_follow_threshold"), m_smoothFollowThreshold);
     XRDriverIPC::instance().writeControlFlags(flags);
 }
 

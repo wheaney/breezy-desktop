@@ -46,12 +46,12 @@ Node {
             if (smoothFollowEnabledChanged) {
                 let targetDisplay;
                 let targetProgress;
-                if (focusedIndex !== -1) {
+                if (smoothFollowEnabled && focusedIndex !== -1) {
                     focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
                     targetDisplay = focusedDisplay;
                     targetProgress = 1.0;
                     startSmoothFollowFocusAnimation = true;
-                } else if (breezyDesktop.focusedMonitorIndex !== -1) {
+                } else if (!smoothFollowEnabled && breezyDesktop.focusedMonitorIndex !== -1) {
                     unfocusedDisplay = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
                     targetDisplay = unfocusedDisplay;
                     targetProgress = 0.0;
@@ -126,9 +126,6 @@ Node {
         const displayEus = displayEusVector(display);
 
         // short circuit to avoid slerping if not needed
-        if (display.smoothFollowTransitionProgress === 0.0) {
-            return displayRotationVector(display, displayEus);
-        }
         if (display.smoothFollowTransitionProgress === 1.0) {
             return displaySmoothFollowVector(display, displayEus, smoothFollowRotation);
         }
@@ -197,17 +194,29 @@ Node {
             let continueRunning = false;
             const focusedDisplay = breezyDesktop.smoothFollowFocusedDisplay;
             if (focusedDisplay) {
-                const smoothFollowRotation = smoothFollowQuat();
-                focusedDisplay.position = displayPosition(focusedDisplay, smoothFollowRotation);
                 continueRunning = focusedDisplay.smoothFollowTransitionProgress > 0.0;
-
                 if (continueRunning) {
+                    const smoothFollowRotation = smoothFollowQuat();
                     focusedDisplay.eulerRotation = Qt.vector3d(0, 0, 0);
                     focusedDisplay.rotation = smoothFollowRotation;
+
+                    // When smooth follow is running, we're updating the position of the display manually
+                    // on every frame (avoid binding to a function that uses non-notify effect properties
+                    // imuRotations and smoothFollowOrigin).
+                    focusedDisplay.position = displayPosition(focusedDisplay, smoothFollowRotation);
                 } else {
+                    focusedDisplay.rotation = Qt.quaternion(1, 0, 0, 0);
                     focusedDisplay.eulerRotation.x = focusedDisplay.screenRotationX;
                     focusedDisplay.eulerRotation.y = focusedDisplay.screenRotationY;
                     focusedDisplay.eulerRotation.z = 0.0;
+
+                    // When smooth follow is done, this frame animation will no longer run so we need to
+                    // rebind a safe function to the position property that will automatically update the 
+                    // position when delegate properties change. display properties don't often change,
+                    // but zoomOnFocus does change monitorDistance, so we need the binding to pick that up.
+                    focusedDisplay.position = Qt.binding(function() { 
+                        return displayRotationVector(this, displayEusVector(this)); 
+                    }.bind(focusedDisplay) );
                 }
             }
 

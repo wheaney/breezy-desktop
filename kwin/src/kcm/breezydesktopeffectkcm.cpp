@@ -116,7 +116,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
-    connect(ui.kcfg_SmoothFollowThreshold, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateSmoothFollowThreshold);
+    connect(ui.kcfg_SmoothFollowThreshold, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayHorizontalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayVerticalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_LookAheadOverride, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -516,14 +516,6 @@ void BreezyDesktopEffectConfig::updateSmoothFollowEnabled()
     bool enabled = ui.SmoothFollowEnabled->isChecked();
     QJsonObject flags; 
     flags.insert(QStringLiteral("enable_breezy_desktop_smooth_follow"), enabled);
-    XRDriverIPC::instance().writeControlFlags(flags);
-}
-
-void BreezyDesktopEffectConfig::updateSmoothFollowThreshold()
-{
-    BreezyDesktopEffectConfig::save();
-    QJsonObject flags; 
-    flags.insert(QStringLiteral("breezy_desktop_follow_threshold"), ui.kcfg_SmoothFollowThreshold->value());
     XRDriverIPC::instance().writeControlFlags(flags);
 }
 

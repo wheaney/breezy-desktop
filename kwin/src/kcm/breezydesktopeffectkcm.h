@@ -31,7 +31,6 @@ private:
     void updateDriverEnabled();
     void updateMultitapEnabled();
     void updateSmoothFollowEnabled();
-    void updateSmoothFollowThreshold();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();

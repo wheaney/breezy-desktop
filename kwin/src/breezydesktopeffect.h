@@ -133,7 +133,8 @@ namespace KWin
                                  std::function<void()> triggeredFunc);
         void recenter();
         void toggleSmoothFollow();
-        void updateDriverDisplayDistance(float distance);
+        void setSmoothFollowThreshold(float threshold);
+        void updateDriverSmoothFollowSettings();
 
         QString m_cursorImageSource;
         QSize m_cursorImageSize;
@@ -166,6 +167,7 @@ namespace KWin
         int m_antialiasingQuality = 3; // 0=None, 1=Medium, 2=High, 3=VeryHigh
         bool m_removeVirtualDisplaysOnDisable = true;
         bool m_mirrorPhysicalDisplays = false;
+        float m_smoothFollowThreshold = 1.0f;
 
         struct VirtualOutputInfo {
             Output *output = nullptr;
