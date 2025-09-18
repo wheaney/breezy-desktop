@@ -325,13 +325,60 @@
           </widget>
         </item>
         <item row="2" column="0">
+          <widget class="QLabel" name="labelSmoothFollowTracking">
+            <property name="text">
+              <string>Smooth follow tracking:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="2" column="1">
+          <widget class="QWidget" name="widgetSmoothFollowTracking">
+            <layout class="QHBoxLayout" name="layoutSmoothFollowTracking">
+              <property name="leftMargin"><number>0</number></property>
+              <property name="topMargin"><number>0</number></property>
+              <property name="rightMargin"><number>0</number></property>
+              <property name="bottomMargin"><number>0</number></property>
+              <item>
+                <widget class="QCheckBox" name="SmoothFollowTrackYaw">
+                  <property name="text">
+                    <string>Yaw</string>
+                  </property>
+                  <property name="checked">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QCheckBox" name="SmoothFollowTrackPitch">
+                  <property name="text">
+                    <string>Pitch</string>
+                  </property>
+                  <property name="checked">
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QCheckBox" name="SmoothFollowTrackRoll">
+                  <property name="text">
+                    <string>Roll</string>
+                  </property>
+                  <property name="checked">
+                    <bool>false</bool>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+        </item>
+        <item row="5" column="0">
           <widget class="QLabel" name="labelDisplayHorizontalOffset">
           <property name="text">
             <string>Display Horizontal Offset:</string>
           </property>
           </widget>
         </item>
-        <item row="2" column="1">
+        <item row="5" column="1">
           <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
           <property name="decimalShift">
             <double>2</double>
@@ -353,14 +400,14 @@
           </property>
           </widget>
         </item>
-        <item row="3" column="0">
+        <item row="6" column="0">
           <widget class="QLabel" name="labelDisplayVerticalOffset">
           <property name="text">
             <string>Display Vertical Offset:</string>
           </property>
           </widget>
         </item>
-        <item row="3" column="1">
+        <item row="6" column="1">
           <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
           <property name="decimalShift">
             <double>2</double>
@@ -382,14 +429,14 @@
           </property>
           </widget>
         </item>
-        <item row="4" column="0">
+        <item row="7" column="0">
           <widget class="QLabel" name="labelLookAheadOverride">
           <property name="text">
             <string>Movement look-ahead (ms):</string>
           </property>
           </widget>
         </item>
-        <item row="4" column="1">
+        <item row="7" column="1">
           <widget class="LabeledSlider" name="kcfg_LookAheadOverride">
           <property name="tickPosition">
             <enum>QSlider::NoTicks</enum>
@@ -408,7 +455,7 @@
           </property>
           </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="8" column="0" colspan="2">
           <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
             <property name="visible">
               <bool>false</bool>
@@ -422,7 +469,7 @@
             <property name="checked"><bool>true</bool></property>
           </widget>
         </item>
-        <item row="6" column="0" colspan="2">
+        <item row="9" column="0" colspan="2">
           <widget class="QCheckBox" name="kcfg_MirrorPhysicalDisplays">
             <property name="text">
               <string>Mirror physical displays (may impact performance)</string>
@@ -430,7 +477,7 @@
             <property name="checked"><bool>false</bool></property>
           </widget>
         </item>
-        <item row="7" column="0" colspan="2">
+        <item row="10" column="0" colspan="2">
           <widget class="QCheckBox" name="EnableMultitap">
             <property name="text">
               <string>Enable multi-tap detection</string>

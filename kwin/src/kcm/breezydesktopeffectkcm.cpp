@@ -125,6 +125,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_MirrorPhysicalDisplays, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_RemoveVirtualDisplaysOnDisable, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.EnableMultitap, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateMultitapEnabled);
+    connect(ui.SmoothFollowTrackYaw, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw);
+    connect(ui.SmoothFollowTrackPitch, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackPitch);
+    connect(ui.SmoothFollowTrackRoll, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackRoll);
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -473,6 +476,16 @@ void BreezyDesktopEffectConfig::pollDriverState()
     bool multitap = multitapEnabled(configJsonOpt);
     if (ui.EnableMultitap->isChecked() != multitap) ui.EnableMultitap->setChecked(multitap);
 
+    const bool trackYaw = smoothFollowTrackYawEnabled(configJsonOpt);
+    if (ui.SmoothFollowTrackYaw->isChecked() != trackYaw)
+        ui.SmoothFollowTrackYaw->setChecked(trackYaw);
+    const bool trackPitch = smoothFollowTrackPitchEnabled(configJsonOpt);
+    if (ui.SmoothFollowTrackPitch->isChecked() != trackPitch)
+        ui.SmoothFollowTrackPitch->setChecked(trackPitch);
+    const bool trackRoll = smoothFollowTrackRollEnabled(configJsonOpt);
+    if (ui.SmoothFollowTrackRoll->isChecked() != trackRoll)
+        ui.SmoothFollowTrackRoll->setChecked(trackRoll);
+
     refreshLicenseUi(stateJson);
 
     m_driverStateInitialized = true;
@@ -517,6 +530,60 @@ void BreezyDesktopEffectConfig::updateSmoothFollowEnabled()
     QJsonObject flags; 
     flags.insert(QStringLiteral("enable_breezy_desktop_smooth_follow"), enabled);
     XRDriverIPC::instance().writeControlFlags(flags);
+}
+
+bool BreezyDesktopEffectConfig::smoothFollowTrackYawEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return true; // fallback if config missing entirely
+    return configJsonOpt->value(QStringLiteral("smooth_follow_track_yaw")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::smoothFollowTrackPitchEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return true; // fallback if config missing entirely
+    return configJsonOpt->value(QStringLiteral("smooth_follow_track_pitch")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::smoothFollowTrackRollEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false; // fallback if config missing entirely
+    return configJsonOpt->value(QStringLiteral("smooth_follow_track_roll")).toBool();
+}
+
+void BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = smoothFollowTrackYawEnabled(configJsonOpt);
+    const bool desired = ui.SmoothFollowTrackYaw->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("smooth_follow_track_yaw"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateSmoothFollowTrackPitch()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = smoothFollowTrackPitchEnabled(configJsonOpt);
+    const bool desired = ui.SmoothFollowTrackPitch->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("smooth_follow_track_pitch"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateSmoothFollowTrackRoll()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = smoothFollowTrackRollEnabled(configJsonOpt);
+    const bool desired = ui.SmoothFollowTrackRoll->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("smooth_follow_track_roll"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 void BreezyDesktopEffectConfig::showStatus(QLabel *label, bool success, const QString &message) {

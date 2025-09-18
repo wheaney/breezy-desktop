@@ -31,6 +31,9 @@ private:
     void updateDriverEnabled();
     void updateMultitapEnabled();
     void updateSmoothFollowEnabled();
+    void updateSmoothFollowTrackYaw();
+    void updateSmoothFollowTrackPitch();
+    void updateSmoothFollowTrackRoll();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();
@@ -38,6 +41,9 @@ private:
     bool driverEnabled(std::optional<QJsonObject> configJsonOpt);
     bool multitapEnabled(std::optional<QJsonObject> configJsonOpt);
     bool smoothFollowEnabled(std::optional<QJsonObject> stateJsonOpt);
+    bool smoothFollowTrackYawEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool smoothFollowTrackPitchEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool smoothFollowTrackRollEnabled(std::optional<QJsonObject> configJsonOpt);
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void checkEffectLoaded();
