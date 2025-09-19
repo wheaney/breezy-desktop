@@ -86,5 +86,10 @@
             <label>All displays follow mode</label>
             <description>Apply follow mode to all displays instead of only the focused display</description>
         </entry>
+        <entry name="CurvedDisplay" type="Bool">
+            <default>false</default>
+            <label>Curved display</label>
+            <description>Curve the displays around you</description>
+        </entry>
     </group>
 </kcfg>

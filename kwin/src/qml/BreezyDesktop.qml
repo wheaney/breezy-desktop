@@ -145,6 +145,7 @@ Node {
         delegate: BreezyDesktopDisplay {
             screen: breezyDesktop.screens[index]
             monitorPlacement: breezyDesktop.monitorPlacements[index]
+            fovDetails: breezyDesktop.fovDetails
             
             property real smoothFollowTransitionProgress: 0.0
             property real monitorDistance: effect.allDisplaysDistance
@@ -158,14 +159,6 @@ Node {
                 return matrix;
             }
 
-            property vector3d screenScale: {
-                const geometry = screen.geometry;
-
-                // apparently the default model unit size is 100x100, so we scale it up to the screen size
-                return Qt.vector3d(geometry.width / 100, geometry.height / 100, 1);
-            }
-
-            scale: screenScale
             eulerRotation.y: screenRotationY
             eulerRotation.x: screenRotationX
             position: {

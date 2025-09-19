@@ -75,7 +75,7 @@ QtObject {
             lensDistancePixels,
             completeScreenDistancePixels,
             monitorWrappingScheme: monitorWrappingScheme,
-            curvedDisplay: false // or true
+            curvedDisplay: effect.curvedDisplay
         };
     }
 

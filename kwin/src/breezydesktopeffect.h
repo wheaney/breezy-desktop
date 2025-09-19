@@ -44,6 +44,7 @@ namespace KWin
         Q_PROPERTY(int antialiasingQuality READ antialiasingQuality NOTIFY antialiasingQualityChanged)
         Q_PROPERTY(bool removeVirtualDisplaysOnDisable READ removeVirtualDisplaysOnDisable NOTIFY removeVirtualDisplaysOnDisableChanged)
         Q_PROPERTY(bool mirrorPhysicalDisplays READ mirrorPhysicalDisplays NOTIFY mirrorPhysicalDisplaysChanged)
+        Q_PROPERTY(bool curvedDisplay READ curvedDisplay NOTIFY curvedDisplayChanged)
 
     public:
 
@@ -87,6 +88,7 @@ namespace KWin
         int antialiasingQuality() const;
         bool removeVirtualDisplaysOnDisable() const;
         bool mirrorPhysicalDisplays() const;
+        bool curvedDisplay() const;
 
         void showCursor();
         void hideCursor();
@@ -120,6 +122,7 @@ namespace KWin
         void antialiasingQualityChanged();
         void removeVirtualDisplaysOnDisableChanged();
         void mirrorPhysicalDisplaysChanged();
+        void curvedDisplayChanged();
         void cursorImageSourceChanged();
         void cursorPosChanged();
 
@@ -167,6 +170,7 @@ namespace KWin
         int m_antialiasingQuality = 3; // 0=None, 1=Medium, 2=High, 3=VeryHigh
         bool m_removeVirtualDisplaysOnDisable = true;
         bool m_mirrorPhysicalDisplays = false;
+        bool m_curvedDisplay = false;
         float m_smoothFollowThreshold = 1.0f;
         bool m_allDisplaysFollowMode = false;
         bool m_focusedSmoothFollowEnabled = false;
