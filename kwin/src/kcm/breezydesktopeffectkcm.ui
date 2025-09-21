@@ -219,17 +219,47 @@
             </property>
             <layout class="QHBoxLayout" name="layoutVirtualDisplayButtons">
               <item>
-                <widget class="QPushButton" name="buttonAdd1080p">
-                  <property name="text">
-                    <string>+ 1080p</string>
+                <widget class="QComboBox" name="comboAddVirtualDisplay">
+                  <item>
+                    <property name="text">
+                      <string>1080p</string>
+                    </property>
+                  </item>
+                  <item>
+                    <property name="text">
+                      <string>1440p</string>
+                    </property>
+                  </item>
+                  <item>
+                    <property name="text">
+                      <string>Add custom…</string>
+                    </property>
+                  </item>
+                </widget>
+              </item>
+              <item>
+                <widget class="QPushButton" name="buttonRemoveCustomResolution">
+                  <property name="toolTip">
+                    <string>Remove custom resolution</string>
+                  </property>
+                  <property name="icon">
+                    <iconset theme="list-remove-symbolic"/>
+                  </property>
+                  <property name="flat"><bool>true</bool></property>
+                  <property name="visible">
+                    <bool>false</bool>
+                  </property>
+                  <property name="enabled">
+                    <bool>false</bool>
                   </property>
                 </widget>
               </item>
               <item>
-                <widget class="QPushButton" name="buttonAdd1440p">
-                  <property name="text">
-                    <string>+ 1440p</string>
+                <widget class="QPushButton" name="buttonAddVirtualDisplay">
+                  <property name="icon">
+                    <iconset theme="list-add-symbolic"/>
                   </property>
+                  <property name="flat"><bool>true</bool></property>
                 </widget>
               </item>
               <item>

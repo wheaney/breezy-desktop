@@ -1,5 +1,14 @@
-set(breezy_desktop_config_SOURCES breezydesktopeffectkcm.cpp labeledslider.cpp)
-ki18n_wrap_ui(breezy_desktop_config_SOURCES breezydesktopeffectkcm.ui)
+set(breezy_desktop_config_SOURCES
+    breezydesktopeffectkcm.cpp
+    labeledslider.cpp
+    customresolutiondialog.cpp
+    virtualdisplayrow.cpp
+)
+ki18n_wrap_ui(breezy_desktop_config_SOURCES
+    breezydesktopeffectkcm.ui
+    customresolutiondialog.ui
+    virtualdisplayrow.ui
+)
 qt_add_dbus_interface(breezy_desktop_config_SOURCES ${KWIN_EFFECTS_INTERFACE} kwineffects_interface)
 
 kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "plasma/kcms" SOURCES ${breezy_desktop_config_SOURCES})

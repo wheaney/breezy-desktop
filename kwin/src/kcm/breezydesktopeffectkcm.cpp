@@ -3,6 +3,8 @@
 #include "breezydesktopconfig.h"
 #include "labeledslider.h"
 #include "xrdriveripc.h"
+#include "customresolutiondialog.h"
+#include "virtualdisplayrow.h"
 
 #include <kwineffects_interface.h>
 
@@ -11,6 +13,7 @@
 #include <KLocalizedString>
 #include <KConfigWatcher>
 #include <KSharedConfig>
+#include <KConfigGroup>
 #include <KPluginFactory>
 
 #include <QAction>
@@ -35,10 +38,149 @@
 #include <QPushButton>
 #include <QIcon>
 #include <QTabWidget>
+#include <QInputDialog>
+#include <QSize>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QSlider>
+#include <QFile>
+#include <QDir>
+#include <QJsonDocument>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
 static const char EFFECT_GROUP[] = "Effect-breezy_desktop";
+
+namespace {
+// Roles for QComboBox items
+constexpr int ROLE_SIZE = Qt::UserRole + 1;             // QVariant::fromValue(QSize)
+constexpr int ROLE_IS_CUSTOM = Qt::UserRole + 2;        // bool
+constexpr int ROLE_IS_ADD_CUSTOM = Qt::UserRole + 3;    // bool
+
+QString stateDirPath()
+{
+    const QString fallback = QDir::homePath() + QStringLiteral("/.local/state");
+    const QString base = qEnvironmentVariable("XDG_STATE_HOME", fallback);
+    return QDir::cleanPath(base + QStringLiteral("/breezy_kwin"));
+}
+
+QString customResolutionsFilePath()
+{
+    return stateDirPath() + QStringLiteral("/custom_resolutions.json");
+}
+
+QStringList loadCustomResolutions()
+{
+    QFile f(customResolutionsFilePath());
+    if (!f.exists()) return {};
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) return {};
+    const QByteArray data = f.readAll();
+    f.close();
+    const QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isArray()) return {};
+    QStringList out;
+    const QJsonArray arr = doc.array();
+    for (const QJsonValue &v : arr) {
+        if (!v.isString()) continue;
+        const QString s = v.toString().trimmed();
+        if (s.isEmpty()) continue;
+        if (!out.contains(s)) out << s; // dedupe while reading to keep UI clean
+    }
+    return out;
+}
+
+void saveCustomResolutions(const QStringList &list)
+{
+    QDir().mkpath(stateDirPath());
+    QFile f(customResolutionsFilePath());
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return;
+    QJsonArray arr;
+    for (const QString &s : list) arr.push_back(s);
+    const QJsonDocument doc(arr);
+    f.write(doc.toJson(QJsonDocument::Compact));
+    f.close();
+}
+
+bool parseResString(const QString &text, int &w, int &h)
+{
+    const QString t = text.trimmed().toLower();
+    const QString xChar = QString::fromUtf8("x");
+    const QString multChar = QString::fromUtf8("×");
+    QString s = t;
+    s.replace(multChar, xChar);
+    const QStringList parts = s.split(QLatin1Char('x'), Qt::SkipEmptyParts);
+    if (parts.size() != 2) return false;
+    bool okW=false, okH=false;
+    int ww = parts[0].toInt(&okW);
+    int hh = parts[1].toInt(&okH);
+    if (!okW || !okH) return false;
+    if (ww < 320 || hh < 200) return false;
+    if (ww > 32768 || hh > 32768) return false;
+    w = ww; h = hh; return true;
+}
+
+void addResolutionItem(QComboBox *combo, QString label, QSize resolution, bool isCustom, bool isAddCustom) {
+    combo->addItem(label);
+    combo->setItemData(combo->count()-1, QVariant::fromValue(resolution), ROLE_SIZE);
+    combo->setItemData(combo->count()-1, isCustom, ROLE_IS_CUSTOM);
+    combo->setItemData(combo->count()-1, isAddCustom, ROLE_IS_ADD_CUSTOM);
+}
+
+void populateResolutionCombo(QComboBox *combo, const QStringList &custom)
+{
+    if (!combo) return;
+    combo->clear();
+
+    addResolutionItem(combo, QStringLiteral("1080p"), QSize(1920,1080), false, false);
+    addResolutionItem(combo, QStringLiteral("1440p"), QSize(2560,1440), false, false);
+
+    for (const QString &res : custom) {
+        int w=0,h=0;
+        if (!parseResString(res, w, h)) continue;
+        const QString label = QStringLiteral("%1x%2").arg(w).arg(h);
+        addResolutionItem(combo, label, QSize(w,h), true, false);
+    }
+
+    addResolutionItem(combo, QObject::tr("Add custom…"), QSize(), false, true);
+
+    combo->setCurrentIndex(0);
+}
+
+bool isCustomIndex(const QComboBox *combo, int index)
+{
+    if (!combo || index < 0 || index >= combo->count()) return false;
+    return combo->itemData(index, ROLE_IS_CUSTOM).toBool();
+}
+
+bool isAddCustomIndex(const QComboBox *combo, int index)
+{
+    if (!combo || index < 0 || index >= combo->count()) return false;
+    return combo->itemData(index, ROLE_IS_ADD_CUSTOM).toBool();
+}
+
+QSize sizeForIndex(const QComboBox *combo, int index)
+{
+    if (!combo || index < 0 || index >= combo->count()) return {};
+    QVariant v = combo->itemData(index, ROLE_SIZE);
+    if (!v.isValid()) return {};
+    return v.toSize();
+}
+
+bool showCustomResolutionDialog(QWidget *parent, int &outW, int &outH)
+{
+    CustomResolutionDialog dlg(parent);
+    const int res = dlg.exec();
+    if (res == QDialog::Accepted) {
+        outW = dlg.widthValue();
+        outH = dlg.heightValue();
+        return true;
+    }
+    return false;
+}
+
+}
 
 void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Shortcut &shortcut)
 {
@@ -75,6 +217,76 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
         if (auto chk = widget()->findChild<QWidget*>(QStringLiteral("kcfg_RemoveVirtualDisplaysOnDisable"))) {
             chk->setVisible(true);
             chk->setEnabled(true);
+        }
+
+        // Initialize the resolution picker controls
+        if (auto combo = widget()->findChild<QComboBox*>(QStringLiteral("comboAddVirtualDisplay"))) {
+            QStringList custom = loadCustomResolutions();
+            populateResolutionCombo(combo, custom);
+
+            auto removeBtn = widget()->findChild<QPushButton*>(QStringLiteral("buttonRemoveCustomResolution"));
+            auto addBtn = widget()->findChild<QPushButton*>(QStringLiteral("buttonAddVirtualDisplay"));
+
+            combo->setProperty("lastResIndex", 0);
+
+            auto updateRemoveUi = [combo, removeBtn, addBtn]() {
+                if (!removeBtn) return;
+                const bool customSel = isCustomIndex(combo, combo->currentIndex());
+                removeBtn->setEnabled(customSel);
+                removeBtn->setVisible(customSel);
+                if (addBtn) addBtn->setEnabled(!isAddCustomIndex(combo, combo->currentIndex()));
+            };
+
+            connect(combo, qOverload<int>(&QComboBox::currentIndexChanged), this, [this, combo, updateRemoveUi]() {
+                const int idx = combo->currentIndex();
+                if (isAddCustomIndex(combo, idx)) {
+                    const int oldIdx = combo->property("lastResIndex").toInt();
+                    int w = 1920, h = 1080;
+                    if (showCustomResolutionDialog(widget(), w, h)) {
+                        const QString label = QStringLiteral("%1x%2").arg(w).arg(h);
+                        QStringList custom = loadCustomResolutions();
+                        if (!custom.contains(label)) {
+                            custom << label;
+                            saveCustomResolutions(custom);
+                        }
+                        populateResolutionCombo(combo, custom);
+                        const int newIndex = combo->findText(label);
+                        if (newIndex >= 0) combo->setCurrentIndex(newIndex);
+                        combo->setProperty("lastResIndex", combo->currentIndex());
+                    } else {
+                        // Revert to previous selection if dialog cancelled
+                        combo->setCurrentIndex(oldIdx);
+                    }
+                } else {
+                    combo->setProperty("lastResIndex", idx);
+                }
+                updateRemoveUi();
+            });
+            updateRemoveUi();
+
+            if (removeBtn) {
+                connect(removeBtn, &QPushButton::clicked, this, [this, combo]() {
+                    const int idx = combo->currentIndex();
+                    if (!isCustomIndex(combo, idx)) return;
+                    const QString label = combo->itemText(idx);
+                    QStringList custom = loadCustomResolutions();
+                    custom.removeAll(label);
+                    saveCustomResolutions(custom);
+                    populateResolutionCombo(combo, custom);
+                });
+            }
+
+
+            if (addBtn) {
+                connect(addBtn, &QPushButton::clicked, this, [this, combo]() {
+                    const int idx = combo->currentIndex();
+                    const QSize sz = sizeForIndex(combo, idx);
+                    if (sz.isValid()) {
+                        auto list = dbusAddVirtualDisplay(sz.width(), sz.height());
+                        renderVirtualDisplays(list);
+                    }
+                });
+            }
         }
     }
 
@@ -171,19 +383,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
         }
     }
 
-    // Wire Add Virtual Display buttons via DBus to the effect
-    if (auto btn1080p = widget()->findChild<QPushButton*>("buttonAdd1080p")) {
-        connect(btn1080p, &QPushButton::clicked, this, [this]() {
-            auto list = dbusAddVirtualDisplay(1920, 1080);
-            renderVirtualDisplays(list);
-        });
-    }
-    if (auto btn1440p = widget()->findChild<QPushButton*>("buttonAdd1440p")) {
-        connect(btn1440p, &QPushButton::clicked, this, [this]() {
-            auto list = dbusAddVirtualDisplay(2560, 1440);
-            renderVirtualDisplays(list);
-        });
-    }
+    // Resolution picker wiring handled above in Wayland section
     if (auto lookAheadOverrideSlider = widget()->findChild<LabeledSlider*>("kcfg_LookAheadOverride")) {
         lookAheadOverrideSlider->setValueText(-1, i18n("Default"));
     }
@@ -381,38 +581,12 @@ void BreezyDesktopEffectConfig::renderVirtualDisplays(const QVariantList &rows) 
         const int w = unwrapValue(row.value(QStringLiteral("width"))).toInt();
         const int h = unwrapValue(row.value(QStringLiteral("height"))).toInt();
 
-        QWidget *rowWidget = new QWidget(listContainer);
-        auto *hl = new QHBoxLayout(rowWidget);
-        hl->setContentsMargins(0, 0, 0, 0);
-
-        auto *spacer = new QWidget(rowWidget);
-        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        hl->addWidget(spacer, 1);
-
-        auto *icon = new QLabel(rowWidget);
-        icon->setPixmap(QIcon::fromTheme(QStringLiteral("video-display-symbolic")).pixmap(16, 16));
-        icon->setContentsMargins(8, 0, 8, 0);
-        hl->addWidget(icon, 0);
-
-        auto *idLabel = new QLabel(QStringLiteral("%1").arg(id), rowWidget);
-        idLabel->setContentsMargins(8, 0, 8, 0);
-        hl->addWidget(idLabel, 0);
-
-        auto *resLabel = new QLabel(QStringLiteral("%1x%2").arg(w).arg(h), rowWidget);
-        resLabel->setContentsMargins(8, 0, 8, 0);
-        hl->addWidget(resLabel, 0);
-
-        auto *removeBtn = new QPushButton(rowWidget);
-        removeBtn->setIcon(QIcon::fromTheme(QStringLiteral("user-trash-symbolic")));
-        removeBtn->setToolTip(QStringLiteral("Remove virtual display"));
-        removeBtn->setObjectName(QStringLiteral("remove-virtual-display"));
-        hl->addWidget(removeBtn, 0);
-
-        connect(removeBtn, &QPushButton::clicked, this, [this, id]() {
-            auto list = dbusRemoveVirtualDisplay(id);
+        auto *rowWidget = new VirtualDisplayRow(listContainer);
+        rowWidget->setInfo(id, w, h);
+        connect(rowWidget, &VirtualDisplayRow::removeRequested, this, [this](const QString &vid) {
+            auto list = dbusRemoveVirtualDisplay(vid);
             renderVirtualDisplays(list);
         });
-
         listLayout->addWidget(rowWidget);
     }
 }
