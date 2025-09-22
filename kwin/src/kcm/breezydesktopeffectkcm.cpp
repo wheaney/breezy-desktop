@@ -527,6 +527,13 @@ QVariantList BreezyDesktopEffectConfig::dbusRemoveVirtualDisplay(const QString &
     return list.isValid() ? list.value() : QVariantList{};
 }
 
+bool BreezyDesktopEffectConfig::dbusCurvedDisplaySupported() const {
+    QDBusInterface iface = makeVDInterface();
+    if (!iface.isValid()) return false;
+    QDBusReply<bool> reply = iface.call(QStringLiteral("CurvedDisplaySupported"));
+    return reply.isValid() && reply.value();
+}
+
 void BreezyDesktopEffectConfig::renderVirtualDisplays(const QVariantList &rows) {
     auto listContainer = widget()->findChild<QWidget*>(QStringLiteral("widgetVirtualDisplayList"));
     auto listLayout = listContainer ? qobject_cast<QVBoxLayout*>(listContainer->layout()) : nullptr;
@@ -649,6 +656,24 @@ void BreezyDesktopEffectConfig::pollDriverState()
         ui.labelDeviceConnectionStatus->setText(m_deviceConnected ?
             QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) :
             QStringLiteral("No device connected"));
+    }
+
+    if (m_deviceConnected) {
+        if (!dbusCurvedDisplaySupported()) {
+            if (m_curvedDisplaySupported) {
+                m_curvedDisplaySupported = false;
+                ui.kcfg_CurvedDisplay->setEnabled(false);
+                ui.kcfg_CurvedDisplay->setChecked(false);
+                ui.kcfg_CurvedDisplay->setToolTip(QObject::tr("This feature requires Qt version 6.6 or higher"));
+            }
+        } else {
+            if (!m_curvedDisplaySupported) {
+                m_curvedDisplaySupported = true;
+                ui.kcfg_CurvedDisplay->setEnabled(true);
+                ui.kcfg_CurvedDisplay->setChecked(BreezyDesktopConfig::self()->curvedDisplay());
+                ui.kcfg_CurvedDisplay->setToolTip(QString());
+            }
+        }
     }
 
     bool effectEnabled = driverEnabled(configJsonOpt);

@@ -171,6 +171,15 @@ Node {
                 return matrix;
             }
 
+            // only for the Rectangle geometry fallback
+            property vector3d rectangleFallbackScale: {
+                const geometry = screen.geometry;
+
+                // default geometry unit size is 100x100, so we scale it up to the screen size
+                return Qt.vector3d(geometry.width / 100, geometry.height / 100, 1);
+            }
+
+            scale: effect.curvedDisplaySupported ? Qt.vector3d(1, 1, 1) : rectangleFallbackScale
             eulerRotation.y: screenRotationY
             eulerRotation.x: screenRotationX
             position: {

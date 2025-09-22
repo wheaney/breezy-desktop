@@ -8,17 +8,34 @@ python one-liner implementation.
 
 from __future__ import annotations
 
+import logging
 import json
 import os
 import sys
 import traceback
+from logging.handlers import TimedRotatingFileHandler
+
+state_home = os.environ.get('XDG_STATE_HOME', '~/.local/state')
+state_dir = os.path.expanduser(state_home)
+breezy_state_dir = os.path.join(state_dir, 'breezy_kwin')
+log_dir = os.path.join(breezy_state_dir, 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
+logger = logging.getLogger('xrdriveripc')
+logger.setLevel(logging.INFO)
+logname = os.path.join(log_dir, "xrdriveripc.log")
+handler = TimedRotatingFileHandler(logname, when="midnight", backupCount=30)
+handler.suffix = "%Y%m%d"
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class Logger:
 	def info(self, *args, **kwargs):
-		pass
+		logger.info(*args, **kwargs)
 
 	def error(self, *args, **kwargs):
-		pass
+		logger.error(*args, **kwargs)
 
 
 def main() -> int:

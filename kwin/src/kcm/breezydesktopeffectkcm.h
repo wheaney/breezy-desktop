@@ -57,6 +57,8 @@ private:
     QVariantList dbusRemoveVirtualDisplay(const QString &id) const;
     void renderVirtualDisplays(const QVariantList &rows);
 
+    bool dbusCurvedDisplaySupported() const;
+
     ::Ui::BreezyDesktopEffectConfig ui;
 
     KConfigWatcher::Ptr m_configWatcher;
@@ -70,4 +72,5 @@ private:
     QTimer m_statePollTimer; // periodic driver state polling
     QTimer m_virtualDisplayPollTimer; // periodic virtual display list polling
     bool m_licenseLoading = false;
+    bool m_curvedDisplaySupported = true;
 };

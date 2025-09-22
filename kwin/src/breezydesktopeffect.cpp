@@ -55,6 +55,10 @@ public Q_SLOTS:
         return m_effect->listVirtualDisplays();
     }
 
+    bool CurvedDisplaySupported() {
+        return m_effect->curvedDisplaySupported();
+    }
+
     private:
         KWin::BreezyDesktopEffect *m_effect;
     };
@@ -240,7 +244,7 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (m_mirrorPhysicalDisplays != mirrorPhysicalDisplays) { m_mirrorPhysicalDisplays = mirrorPhysicalDisplays; Q_EMIT mirrorPhysicalDisplaysChanged(); }
 
-    bool curved = BreezyDesktopConfig::curvedDisplay();
+    bool curved = BreezyDesktopConfig::curvedDisplay() && m_curvedDisplaySupported;
     if (m_curvedDisplay != curved) { m_curvedDisplay = curved; Q_EMIT curvedDisplayChanged(); }
 
     // this one doesn't have a signal, just always assign it
@@ -521,6 +525,22 @@ bool BreezyDesktopEffect::mirrorPhysicalDisplays() const {
 
 bool BreezyDesktopEffect::curvedDisplay() const {
     return m_curvedDisplay;
+}
+
+bool BreezyDesktopEffect::curvedDisplaySupported() const {
+    return m_curvedDisplaySupported;
+}
+
+void BreezyDesktopEffect::setCurvedDisplaySupported(bool supported) {
+    if (m_curvedDisplaySupported != supported) {
+        m_curvedDisplaySupported = supported;
+        Q_EMIT curvedDisplaySupportedChanged();
+    }
+
+    if (!supported && m_curvedDisplay) {
+        m_curvedDisplay = false;
+        Q_EMIT curvedDisplayChanged();
+    }
 }
 
 QList<QQuaternion> BreezyDesktopEffect::smoothFollowOrigin() const {
