@@ -18,6 +18,6 @@ else
 fi
 
 echo "Building docker image"
-docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile -t "breezy-kwin:amd64" --load .
+# docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile -t "breezy-kwin:amd64" --load .
 # docker buildx build --platform linux/arm64 -f ./docker-build/Dockerfile -t "breezy-kwin:arm64" --load .
 docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile.steamos -t "breezy-kwin-steamos:amd64" --load .

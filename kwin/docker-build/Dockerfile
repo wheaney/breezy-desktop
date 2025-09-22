@@ -19,6 +19,7 @@ RUN pacman -Sy --noconfirm --needed \
     extra-cmake-modules \
     qt6-base \
     qt6-declarative \
+    qt6-quick3d \
     qt6-tools \
     kconfig \
     kconfigwidgets \

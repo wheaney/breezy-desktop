@@ -19,6 +19,7 @@ namespace KWin
         Q_OBJECT
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
+        Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
         Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuResetStateChanged)
         Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations)
         Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs)
@@ -62,6 +63,8 @@ namespace KWin
         bool isEnabled() const;
         bool isZoomOnFocusEnabled() const;
         void setZoomOnFocusEnabled(bool enabled);
+        int lookingAtScreenIndex() const { return m_lookingAtScreenIndex; }
+        void setLookingAtScreenIndex(int index);
         QList<QQuaternion> imuRotations() const;
         quint32 imuTimeElapsedMs() const;
         quint64 imuTimestamp() const;
@@ -105,6 +108,7 @@ namespace KWin
         void updateCursorPos();
         QVariantList listVirtualDisplays() const;
         bool removeVirtualDisplay(const QString &id);
+        void moveCursorToFocusedDisplay();
 
     Q_SIGNALS:
         void lookAheadOverrideChanged();
@@ -138,12 +142,14 @@ namespace KWin
         void toggleSmoothFollow();
         void setSmoothFollowThreshold(float threshold);
         void updateDriverSmoothFollowSettings();
+        void warpPointerToOutputCenter(Output *output);
 
         QString m_cursorImageSource;
         QSize m_cursorImageSize;
 
         bool m_enabled = false;
         bool m_zoomOnFocusEnabled = false;
+        int m_lookingAtScreenIndex = -1; // -1 means disabled/unknown
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;

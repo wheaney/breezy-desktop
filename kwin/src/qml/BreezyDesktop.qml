@@ -11,6 +11,7 @@ Node {
     required property var fovDetails
     required property var monitorPlacements
     property int focusedMonitorIndex: -1
+    property int lookingAtMonitorIndex: -1
     property var smoothFollowFocusedDisplay
 
     Displays {
@@ -28,16 +29,24 @@ Node {
         const rotations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.imuRotations;
         if (rotations && rotations.length > 0) {
             let focusedIndex = -1;
+            let lookingAtIndex = -1;
+
+            lookingAtIndex = displays.findFocusedMonitor(
+                displays.eusToNwuQuat(rotations[0]), 
+                breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
+                breezyDesktop.focusedMonitorIndex,
+                smoothFollowEnabled,
+                breezyDesktop.fovDetails,
+                breezyDesktop.screens.map(screen => screen.geometry)
+            );
+
+            if (breezyDesktop.lookingAtMonitorIndex !== lookingAtIndex) {
+                breezyDesktop.lookingAtMonitorIndex = lookingAtIndex;
+                effect.lookingAtScreenIndex = lookingAtIndex;
+            }
 
             if (effect.zoomOnFocusEnabled || smoothFollowEnabled) {
-                focusedIndex = displays.findFocusedMonitor(
-                    displays.eusToNwuQuat(rotations[0]), 
-                    breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
-                    breezyDesktop.focusedMonitorIndex,
-                    smoothFollowEnabled,
-                    breezyDesktop.fovDetails,
-                    breezyDesktop.screens.map(screen => screen.geometry)
-                );
+                focusedIndex = lookingAtIndex;
             }
 
             let focusedDisplay;

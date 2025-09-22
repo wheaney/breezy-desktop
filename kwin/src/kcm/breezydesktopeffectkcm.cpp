@@ -320,6 +320,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     addShortcutAction(actionCollection, BreezyShortcuts::RECENTER);
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_ZOOM_ON_FOCUS);
     addShortcutAction(actionCollection, BreezyShortcuts::TOGGLE_FOLLOW_MODE);
+    addShortcutAction(actionCollection, BreezyShortcuts::CURSOR_TO_FOCUSED_DISPLAY);
     ui.shortcutsEditor->addCollection(actionCollection);
     connect(ui.shortcutsEditor, &KShortcutsEditor::keyChange, this, &BreezyDesktopEffectConfig::markAsChanged);
     connect(ui.EffectEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateDriverEnabled);

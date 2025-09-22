@@ -1,6 +1,8 @@
 #include "core/output.h"
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
+#include "cursor.h"
+#include "pointer_input.h"
 #include "kcm/shortcuts.h"
 #include "breezydesktopeffect.h"
 #include "breezydesktopconfig.h"
@@ -122,6 +124,10 @@ BreezyDesktopEffect::BreezyDesktopEffect()
         BreezyShortcuts::TOGGLE_FOLLOW_MODE,
         [this]() { this->toggleSmoothFollow(); }
     );
+    setupGlobalShortcut(
+        BreezyShortcuts::CURSOR_TO_FOCUSED_DISPLAY,
+        [this]() { this->moveCursorToFocusedDisplay(); }
+    );
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     updateCursorImage();
@@ -201,6 +207,11 @@ void BreezyDesktopEffect::recenter() {
     QJsonObject flags; 
     flags.insert(QStringLiteral("recenter_screen"), true);
     XRDriverIPC::instance().writeControlFlags(flags);
+}
+
+void BreezyDesktopEffect::setLookingAtScreenIndex(int index)
+{
+    m_lookingAtScreenIndex = index;
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
@@ -769,6 +780,23 @@ void BreezyDesktopEffect::updateCursorPos()
         m_cursorPos = newPos;
         Q_EMIT cursorPosChanged();
     }
+}
+
+void BreezyDesktopEffect::warpPointerToOutputCenter(Output *output)
+{
+    if (!output) {
+        return;
+    }
+    const QRect geometry = output->geometry();
+    const QPointF center = geometry.center();
+    Cursors::self()->mouse()->setPos(center);
+}
+
+void BreezyDesktopEffect::moveCursorToFocusedDisplay()
+{
+    if (m_lookingAtScreenIndex == -1) return;
+
+    warpPointerToOutputCenter(effects->screens().at(m_lookingAtScreenIndex));
 }
 }
 

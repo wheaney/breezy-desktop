@@ -35,18 +35,25 @@ include(cmake/info.cmake)
 find_package(epoxy REQUIRED)
 find_package(XCB REQUIRED COMPONENTS XCB)
 find_package(KWinDBusInterface CONFIG REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
-find_library(QT6_QUICK3D_LIB
-    NAMES Qt6Quick3D Qt6Quick3D.so Qt6Quick3D.so.6
-    PATH_SUFFIXES lib
+# Qt6 sets QT6_INSTALL_QML which is distro-aware
+get_target_property(QT6_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
+execute_process(
+    COMMAND ${QT6_QMAKE_EXECUTABLE} -query QT_INSTALL_QML
+    OUTPUT_VARIABLE QT6_QML_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-if(NOT QT6_QUICK3D_LIB)
-    message(FATAL_ERROR "Qt6 Quick3D runtime library not found (QtQuick3D). Please install the Qt6 Quick3D runtime.")
+
+find_path(QT6_QUICK3D_QML_DIR
+    NAMES QtQuick3D
+    PATHS ${QT6_QML_DIR}
+    NO_DEFAULT_PATH
+)
+
+if(NOT QT6_QUICK3D_QML_DIR)
+    message(FATAL_ERROR "cmake could not find the QtQuick3D QML module.")
 endif()
-set_package_properties(Qt6Quick3D PROPERTIES
-    TYPE RUNTIME
-    PURPOSE "Required at runtime for 3D rendering (Qt Quick 3D)."
-)
 
 add_subdirectory(src)
 ki18n_install(po)

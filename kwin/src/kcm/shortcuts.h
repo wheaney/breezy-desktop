@@ -34,4 +34,10 @@ namespace BreezyShortcuts {
         QStringLiteral("Toggle Follow Mode"),
         QStringLiteral("Toggle Follow Mode")
     };
+
+    const Shortcut CURSOR_TO_FOCUSED_DISPLAY = {
+        Qt::CTRL | Qt::META | Qt::Key_Period,
+        QStringLiteral("Move Cursor to Focused Display"),
+        QStringLiteral("Move Cursor to Focused Display")
+    };
 }
