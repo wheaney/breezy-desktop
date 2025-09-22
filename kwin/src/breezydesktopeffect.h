@@ -149,7 +149,7 @@ namespace KWin
 
         bool m_enabled = false;
         bool m_zoomOnFocusEnabled = false;
-        int m_lookingAtScreenIndex = -1; // -1 means disabled/unknown
+        int m_lookingAtScreenIndex = -1;
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;

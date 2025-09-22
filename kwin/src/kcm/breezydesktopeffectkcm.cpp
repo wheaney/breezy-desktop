@@ -463,7 +463,8 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_RemoveVirtualDisplaysOnDisable->setChecked(BreezyDesktopConfig::self()->removeVirtualDisplaysOnDisable());
     ui.kcfg_AllDisplaysFollowMode->setChecked(BreezyDesktopConfig::self()->allDisplaysFollowMode());
     ui.kcfg_ZoomOnFocusEnabled->setChecked(BreezyDesktopConfig::self()->zoomOnFocusEnabled());
-    ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked());
+    ui.kcfg_FocusedDisplayDistance->setEnabled(
+        ui.kcfg_ZoomOnFocusEnabled->isChecked() || ui.SmoothFollowEnabled->isChecked());
     ui.kcfg_SmoothFollowThreshold->setValue(BreezyDesktopConfig::self()->smoothFollowThreshold());
 }
 

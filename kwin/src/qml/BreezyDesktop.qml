@@ -29,9 +29,7 @@ Node {
         const rotations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.imuRotations;
         if (rotations && rotations.length > 0) {
             let focusedIndex = -1;
-            let lookingAtIndex = -1;
-
-            lookingAtIndex = displays.findFocusedMonitor(
+            const lookingAtIndex = displays.findFocusedMonitor(
                 displays.eusToNwuQuat(rotations[0]), 
                 breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                 breezyDesktop.focusedMonitorIndex,
@@ -57,26 +55,31 @@ Node {
                 let targetProgress;
                 if (smoothFollowEnabled && focusedIndex !== -1) {
                     focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
-                    targetDisplay = focusedDisplay;
-                    targetProgress = 1.0;
-                    startSmoothFollowFocusAnimation = true;
+                    if (focusedDisplay !== null) {
+                        targetDisplay = focusedDisplay;
+                        targetProgress = 1.0;
+                        startSmoothFollowFocusAnimation = true;
+                    }
                 } else if (!smoothFollowEnabled && breezyDesktop.focusedMonitorIndex !== -1) {
                     unfocusedDisplay = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
-                    targetDisplay = unfocusedDisplay;
-                    targetProgress = 0.0;
+                    if (unfocusedDisplay !== null) {
+                        targetDisplay = unfocusedDisplay;
+                        targetProgress = 0.0;
+                    }
                 }
-                smoothFollowTransitionAnimation.stop();
-                smoothFollowTransitionAnimation.target = targetDisplay;
-                smoothFollowTransitionAnimation.from = targetDisplay.smoothFollowTransitionProgress;
-                smoothFollowTransitionAnimation.to = targetProgress;
-                smoothFollowTransitionAnimation.start();
+
+                if (targetDisplay !== null) {
+                    smoothFollowTransitionAnimation.stop();
+                    smoothFollowTransitionAnimation.target = targetDisplay;
+                    smoothFollowTransitionAnimation.from = targetDisplay.smoothFollowTransitionProgress;
+                    smoothFollowTransitionAnimation.to = targetProgress;
+                    smoothFollowTransitionAnimation.start();
+                }
             }
 
             if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
                 const unfocusedIndex = breezyDesktop.focusedMonitorIndex;
                 if (!focusedDisplay) focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
-                const allDisplaysDistanceBinding = Qt.binding(function() { return effect.allDisplaysDistance; });
-                const focusedDisplayDistanceBinding = Qt.binding(function() { return effect.focusedDisplayDistance; });
                 if (focusedDisplay === null) {
                     if (!unfocusedDisplay) unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
                     zoomOutAnimation.target = unfocusedDisplay;
@@ -105,16 +108,12 @@ Node {
         }
     }
 
-    // monitorPlacement assumed to be present
-    function displayEusVector(display) {
+    function displayRotationVector(display) {
         const displayNwu = 
             display.monitorPlacement.centerNoRotate
                                     .times(display.monitorDistance / effect.allDisplaysDistance);
 
-        return displays.nwuToEusVector(displayNwu);
-    }
-
-    function displayRotationVector(display, eusVector) {
+        const eusVector = displays.nwuToEusVector(displayNwu)
         return display.rotationMatrix.times(eusVector);
     }
 
@@ -125,23 +124,27 @@ Node {
         return effect.smoothFollowOrigin[0].times(effect.imuRotations[0].conjugated());
     }
 
-    function displaySmoothFollowVector(display, eusVector) {
-        return smoothFollowQuat().times(eusVector);
+    function displaySmoothFollowVector(display, smoothFollowRotation) {
+        // for smooth follow, place the display centered directly in front of the camera
+        const displayDistanceNorth = 
+            display.monitorPlacement.monitorCenterNorth * 
+            display.monitorDistance / effect.allDisplaysDistance;
+        const eusVector = Qt.vector3d(0, 0, -displayDistanceNorth);
+
+        return smoothFollowRotation.times(eusVector);
     }
 
     // don't call this from the delegate to avoid binding the position property to the effect properties 
     // used for smooth follow
     function displayPosition(display, smoothFollowRotation) {
-        const displayEus = displayEusVector(display);
-
         // short circuit to avoid slerping if not needed
         if (display.smoothFollowTransitionProgress === 1.0) {
-            return displaySmoothFollowVector(display, displayEus, smoothFollowRotation);
+            return displaySmoothFollowVector(display, smoothFollowRotation);
         }
 
         const finalPosition = displays.slerpVector(
-            displayRotationVector(display, displayEus), 
-            displaySmoothFollowVector(display, displayEus, smoothFollowRotation),
+            displayRotationVector(display), 
+            displaySmoothFollowVector(display, smoothFollowRotation),
             display.smoothFollowTransitionProgress
         );
 
@@ -173,7 +176,7 @@ Node {
             position: {
                 if (!monitorPlacement) return Qt.vector3d(0, 0, 0);
 
-                return displayRotationVector(this, displayEusVector(this));
+                return displayRotationVector(this);
             }
         }
     }
@@ -208,17 +211,17 @@ Node {
                     focusedDisplay.position = displayPosition(focusedDisplay, smoothFollowRotation);
                 } else {
                     focusedDisplay.rotation = Qt.quaternion(1, 0, 0, 0);
-                    focusedDisplay.eulerRotation.x = focusedDisplay.screenRotationX;
-                    focusedDisplay.eulerRotation.y = focusedDisplay.screenRotationY;
+                    focusedDisplay.eulerRotation.x = Qt.binding(function() { return focusedDisplay.screenRotationX; });
+                    focusedDisplay.eulerRotation.y = Qt.binding(function() { return focusedDisplay.screenRotationY; });
                     focusedDisplay.eulerRotation.z = 0.0;
 
                     // When smooth follow is done, this frame animation will no longer run so we need to
                     // rebind a safe function to the position property that will automatically update the 
                     // position when delegate properties change. display properties don't often change,
                     // but zoomOnFocus does change monitorDistance, so we need the binding to pick that up.
-                    focusedDisplay.position = Qt.binding(function() { 
-                        return displayRotationVector(this, displayEusVector(this)); 
-                    }.bind(focusedDisplay) );
+                    focusedDisplay.position = Qt.binding(function() {
+                        return displayRotationVector(this);
+                    }.bind(focusedDisplay));
                 }
             }
 

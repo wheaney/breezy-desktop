@@ -219,6 +219,7 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: originalIndex,
+                    monitorCenterNorth: monitorCenterRadius,
                     centerNoRotate: Qt.vector3d(
                         monitorCenterRadius,
                         0,
@@ -259,6 +260,7 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: originalIndex,
+                    monitorCenterNorth: monitorCenterRadius,
                     centerNoRotate: Qt.vector3d(
                         monitorCenterRadius,
                         westCenterPixels,
@@ -287,6 +289,7 @@ QtObject {
 
                 monitorPlacements.push({
                     originalIndex: index,
+                    monitorCenterNorth: fovDetails.completeScreenDistancePixels,
                     centerNoRotate: Qt.vector3d(
                         fovDetails.completeScreenDistancePixels,
                         westCenterPixels,
