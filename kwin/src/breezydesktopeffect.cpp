@@ -27,6 +27,8 @@
 #include <KGlobalAccel>
 #include <KLocalizedString>
 
+#include <algorithm>
+
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
 // A small DBus adaptor to expose effect controls to the KCM.
@@ -741,8 +743,27 @@ void BreezyDesktopEffect::setSmoothFollowThreshold(float threshold) {
 }
 
 void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
+    qreal adjustedDistance = m_focusedDisplayDistance;
+
+    if (m_lookingAtScreenIndex != -1 && !m_displayResolution.isEmpty()) {
+        // Adjust display distance by relative monitor size compared to the FOV monitor
+        const Output *focusedOutput = effects->screens().at(m_lookingAtScreenIndex);
+        const QSize focusedSize = focusedOutput ? focusedOutput->geometry().size() : QSize();
+
+        if (focusedSize.isValid()) {
+            const qreal fovW = static_cast<qreal>(m_displayResolution.at(0));
+            const qreal fovH = static_cast<qreal>(m_displayResolution.at(1));
+
+            const qreal ratioW = static_cast<qreal>(focusedSize.width()) / fovW;
+            const qreal ratioH = static_cast<qreal>(focusedSize.height()) / fovH;
+            const qreal focusedMonitorSizeAdjustment = std::max(ratioW, ratioH);
+
+            adjustedDistance = m_focusedDisplayDistance / focusedMonitorSizeAdjustment;
+        }
+    }
+
     QJsonObject flags;
-    flags.insert(QStringLiteral("breezy_desktop_display_distance"), m_focusedDisplayDistance);
+    flags.insert(QStringLiteral("breezy_desktop_display_distance"), adjustedDistance);
     flags.insert(QStringLiteral("breezy_desktop_follow_threshold"), m_smoothFollowThreshold);
     XRDriverIPC::instance().writeControlFlags(flags);
 }
