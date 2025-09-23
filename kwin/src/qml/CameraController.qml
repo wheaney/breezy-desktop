@@ -7,27 +7,56 @@ Item {
     required property Camera camera
     required property var fovDetails
 
-    property var displayResolution: effect.displayResolution
-    property real diagonalFOV: effect.diagonalFOV
+    Displays {
+        id: displays
+    }
+
+    property real aspectRatio: effect.displayResolution[0] / effect.displayResolution[1]
     property real lensDistanceRatio: effect.lensDistanceRatio
     property bool sbsEnabled: effect.sbsEnabled
     property bool customBannerEnabled: effect.customBannerEnabled
     property bool smoothFollowEnabled: effect.smoothFollowEnabled
+    property real lookAheadScanlineMs: effect.lookAheadConfig[2]
+    property var crossFovs: displays.diagonalToCrossFOVs(
+        displays.degreeToRadian(effect.diagonalFOV),
+        aspectRatio
+    );
 
     // if true, then smoothFollowEnabled just cleared and the IMU data is slerping back, 
     // continue to use the origin data for the duration of the Timer
     property bool smoothFollowDisabling: false
 
-    Displays {
-        id: displays
+    property real clipNear: 10.0
+    property real clipFar: 10000.0
+
+    function ratesOfChange(rotations) {
+        const e0 = rotations[0].toEulerAngles();
+        const e1 = rotations[1].toEulerAngles();
+        const dt = effect.imuTimeElapsedMs;
+        const yawDegrees = (e0.y - e1.y) / dt;
+        const pitchDegrees = (e0.x - e1.x) / dt;
+        const rollDegrees = (e0.z - e1.z) / dt;
+
+        return {
+            eulerEnd: e0,
+            eulerStart: e1,
+            yawDegrees: yawDegrees,
+            yaw: displays.degreeToRadian(yawDegrees),
+            pitchDegrees: pitchDegrees,
+            pitch: displays.degreeToRadian(pitchDegrees),
+            rollDegrees: rollDegrees,
+            roll: displays.degreeToRadian(rollDegrees)
+        };
     }
 
-    function updateCamera(rotations) {
+    function updateCamera(rotations, rates) {
         camera.eulerRotation = applyLookAhead(
-            rotations[0],
-            rotations[1],
-            effect.imuTimeElapsedMs,
-            lookAheadMS(effect.imuTimestamp, effect.lookAheadConfig, effect.lookAheadOverride)
+            rates,
+            lookAheadMS(
+                effect.imuTimestamp,
+                effect.lookAheadConfig,
+                effect.lookAheadOverride
+            )
         );
         camera.position = rotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
     }
@@ -42,43 +71,88 @@ Item {
         return (override === -1 ? lookAheadConstant : override) + dataAge;
     }
 
-    function applyLookAhead(quatT0, quatT1, elapsedTimeMs, lookAheadMs) {
-        // convert both quats to euler angles
-        const eulerT0 = quatT0.toEulerAngles();
-        const eulerT1 = quatT1.toEulerAngles();
-
-        // compute the rate of change of the angles based on the elapsed time
-        const deltaX = (eulerT0.x - eulerT1.x);
-        const deltaY = (eulerT0.y - eulerT1.y);
-        const deltaZ = (eulerT0.z - eulerT1.z);
-
-        // how much of the delta to apply based on the look-ahead time
-        const timeConstant = lookAheadMs / elapsedTimeMs;
-
+    function applyLookAhead(rates, lookAheadMs) {
         return Qt.vector3d(
-            eulerT0.x + deltaX * timeConstant,
-            eulerT0.y + deltaY * timeConstant,
-            eulerT0.z + deltaZ * timeConstant,
+            rates.eulerEnd.x + rates.pitchDegrees * lookAheadMs,
+            rates.eulerEnd.y + rates.yawDegrees * lookAheadMs,
+            rates.eulerEnd.z + rates.rollDegrees * lookAheadMs,
         );
     }
 
-    function updateFOV() {
-        const aspectRatio = displayResolution[0] / displayResolution[1];
-        camera.fieldOfView = displays.radianToDegree(displays.diagonalToCrossFOVs(
-            displays.degreeToRadian(cameraController.diagonalFOV),
-            aspectRatio
-        ).vertical);
+    function updateProjection() {
+        camera.projection = buildPerspectiveMatrix();
     }
 
-    onDisplayResolutionChanged: updateFOV();
-    onDiagonalFOVChanged: updateFOV();
+    function buildPerspectiveMatrix() {
+        const f = 1.0 / crossFovs.verticalTangent;
+        const nf = 1.0 / (clipNear - clipFar);
+        const m00 = f / aspectRatio;
+        const m11 = f;
+        const m22 = (clipFar + clipNear) * nf;
+        const m23 = (2.0 * clipFar * clipNear) * nf;
+
+        // Standard OpenGL-style projection matrix
+        return Qt.matrix4x4(
+            m00, 0,   0,   0,
+            0,   m11, 0,   0,
+            0,   0,   m22, m23,
+            0,   0,  -1,   0
+        );
+    }
+
+    function applyRollingShutterShear(rates) {
+        // Convert to maximum shift at bottom of frame
+        const maxDxNdc = (rates.yaw * lookAheadScanlineMs) / crossFovs.horizontalTangent;
+        const maxDyNdc = -(rates.pitch * lookAheadScanlineMs) / crossFovs.verticalTangent;
+
+        let shx = maxDxNdc / 2.0;
+        let shy = maxDyNdc / 2.0;
+
+        const f = 1.0 / crossFovs.verticalTangent;
+        const nf = 1.0 / (clipNear - clipFar);
+        const m00 = f / aspectRatio;
+        const m11 = f;
+        const m22 = (clipFar + clipNear) * nf;
+        const m23 = (2.0 * clipFar * clipNear) * nf;
+
+        const r0c0 = m00;
+        const r0c1 = -(shx * m11) / 2.0;
+        const r0c2 = -(shx) / 2.0;
+        const r0c3 = 0.0;
+
+        const r1c0 = 0.0;
+        const r1c1 = m11 * (1.0 - shy / 2.0);
+        const r1c2 = -(shy) / 2.0;
+        const r1c3 = 0.0;
+
+        const r2c0 = 0.0;
+        const r2c1 = 0.0;
+        const r2c2 = m22;
+        const r2c3 = m23;
+
+        const r3c0 = 0.0;
+        const r3c1 = 0.0;
+        const r3c2 = -1.0;
+        const r3c3 = 0.0;
+
+        camera.projection = Qt.matrix4x4(
+            r0c0, r0c1, r0c2, r0c3,
+            r1c0, r1c1, r1c2, r1c3,
+            r2c0, r2c1, r2c2, r2c3,
+            r3c0, r3c1, r3c2, r3c3
+        );
+    }
+
+    Component.onCompleted: updateProjection();
 
     FrameAnimation {
         running: true
         onTriggered: {
             const rotations = (effect.smoothFollowEnabled || smoothFollowDisabling) ? effect.smoothFollowOrigin : effect.imuRotations;
             if (rotations && rotations.length > 0) {
-                updateCamera(rotations);
+                const rates = ratesOfChange(rotations);
+                updateCamera(rotations, rates);
+                applyRollingShutterShear(rates);
             }
         }
     }

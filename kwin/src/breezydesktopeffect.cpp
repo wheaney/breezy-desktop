@@ -218,6 +218,7 @@ void BreezyDesktopEffect::recenter() {
 void BreezyDesktopEffect::setLookingAtScreenIndex(int index)
 {
     m_lookingAtScreenIndex = index;
+    if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
 }
 
 void BreezyDesktopEffect::reconfigure(ReconfigureFlags)

@@ -110,7 +110,7 @@ Item {
                     root.effect.antialiasingQuality === 2 ? SceneEnvironment.High : SceneEnvironment.VeryHigh))
             }
             
-            PerspectiveCamera { 
+            CustomCamera { 
                 id: camera
             }
 

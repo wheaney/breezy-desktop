@@ -25,13 +25,15 @@ QtObject {
 
     // Converts diagonal FOV in radians and aspect ratio to horizontal and vertical FOVs
     function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
-        var flatDiagonalFOV = 2 * Math.tan(diagonalFOVRadians / 2);
-        var flatVerticalFOV = flatDiagonalFOV / Math.sqrt(1 + aspectRatio * aspectRatio);
-        var flatHorizontalFOV = flatVerticalFOV * aspectRatio;
+        var diagonalTangent = Math.tan(diagonalFOVRadians / 2);
+        var verticalTangent = diagonalTangent / Math.sqrt(1 + aspectRatio * aspectRatio);
+        var horizontalTangent = verticalTangent * aspectRatio;
         return {
             diagonal: diagonalFOVRadians,
-            horizontal: 2 * Math.atan(flatHorizontalFOV / 2),
-            vertical: 2 * Math.atan(flatVerticalFOV / 2)
+            horizontal: 2 * Math.atan(horizontalTangent),
+            horizontalTangent: horizontalTangent,
+            vertical: 2 * Math.atan(verticalTangent),
+            verticalTangent: verticalTangent
         }
     }
 
@@ -50,16 +52,16 @@ QtObject {
 
     function buildFovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice) {
         const aspect = viewportWidth / viewportHeight;
-        const fovRadians = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
-        const defaultDistanceVerticalRadians = 2 * Math.atan(Math.tan(fovRadians.vertical / 2) / defaultDisplayDistance);
-        const defaultDistanceHorizontalRadians = 2 * Math.atan(Math.tan(fovRadians.horizontal / 2) / defaultDisplayDistance);
+        const crossFovs = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
+        const defaultDistanceVerticalRadians = 2 * Math.atan(crossFovs.verticalTangent / defaultDisplayDistance);
+        const defaultDistanceHorizontalRadians = 2 * Math.atan(crossFovs.horizontalTangent / defaultDisplayDistance);
 
         // distance needed for the FOV-sized monitor to fill up the screen
-        const fullScreenDistance = viewportHeight / 2 / Math.tan(fovRadians.vertical / 2);
+        const fullScreenDistance = viewportHeight / (2 * crossFovs.verticalTangent);
         const lensDistancePixels = fullScreenDistance / (1.0 - lensDistanceRatio) - fullScreenDistance;
 
         // distance of a display at the default (most zoomed out) distance, plus the lens distance constant
-        const lensToScreenDistance = viewportHeight / 2 / Math.tan(defaultDistanceVerticalRadians / 2);
+        const lensToScreenDistance = viewportHeight / (2 * Math.tan(defaultDistanceVerticalRadians / 2));
         const completeScreenDistancePixels = lensToScreenDistance + lensDistancePixels;
 
         let monitorWrappingScheme = actualWrapScheme(screens, viewportWidth, viewportHeight);

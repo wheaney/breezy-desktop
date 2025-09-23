@@ -55,20 +55,20 @@ Node {
                 let targetProgress;
                 if (smoothFollowEnabled && focusedIndex !== -1) {
                     focusedDisplay = breezyDesktop.displayAtIndex(focusedIndex);
-                    if (focusedDisplay !== null) {
+                    if (focusedDisplay) {
                         targetDisplay = focusedDisplay;
                         targetProgress = 1.0;
                         startSmoothFollowFocusAnimation = true;
                     }
                 } else if (!smoothFollowEnabled && breezyDesktop.focusedMonitorIndex !== -1) {
                     unfocusedDisplay = breezyDesktop.displayAtIndex(breezyDesktop.focusedMonitorIndex);
-                    if (unfocusedDisplay !== null) {
+                    if (unfocusedDisplay) {
                         targetDisplay = unfocusedDisplay;
                         targetProgress = 0.0;
                     }
                 }
 
-                if (targetDisplay !== null) {
+                if (targetDisplay) {
                     smoothFollowTransitionAnimation.stop();
                     smoothFollowTransitionAnimation.target = targetDisplay;
                     smoothFollowTransitionAnimation.from = targetDisplay.smoothFollowTransitionProgress;
@@ -80,13 +80,16 @@ Node {
             if (focusedIndex !== breezyDesktop.focusedMonitorIndex) {
                 const unfocusedIndex = breezyDesktop.focusedMonitorIndex;
                 if (!focusedDisplay) focusedDisplay = focusedIndex !== -1 ? breezyDesktop.displayAtIndex(focusedIndex) : null;
-                if (focusedDisplay === null) {
+                if (!focusedDisplay) {
                     if (!unfocusedDisplay) unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
-                    zoomOutAnimation.target = unfocusedDisplay;
-                    zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
-                    zoomOutAnimation.start();
-                } else {                    
-                    if (unfocusedIndex === -1) {
+                    if (unfocusedDisplay) {
+                        zoomOutAnimation.target = unfocusedDisplay;
+                        zoomOutAnimation.target.targetDistance = effect.allDisplaysDistance;
+                        zoomOutAnimation.start();
+                    }
+                } else {
+                    if (!unfocusedDisplay) unfocusedDisplay = unfocusedIndex !== -1 ? breezyDesktop.displayAtIndex(unfocusedIndex) : null;
+                    if (!unfocusedDisplay) {
                         zoomInAnimation.target = focusedDisplay;
                         focusedDisplay.targetDistance = effect.focusedDisplayDistance;
                         zoomInAnimation.start();
@@ -94,9 +97,8 @@ Node {
                         zoomInSeqAnimation.target = focusedDisplay;
                         focusedDisplay.targetDistance = effect.focusedDisplayDistance;
 
-                        if (!unfocusedDisplay) unfocusedDisplay = breezyDesktop.displayAtIndex(unfocusedIndex);
                         zoomOutSeqAnimation.target = unfocusedDisplay;
-                        zoomOutSeqAnimation.target.targetDistance = effect.allDisplaysDistance;
+                        unfocusedDisplay.targetDistance = effect.allDisplaysDistance;
 
                         zoomOnFocusSequence.start();
                     }
