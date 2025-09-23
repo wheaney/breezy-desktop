@@ -88,6 +88,7 @@ Item {
     }
 
     property bool targetScreenSupported: supportedModels.some(model => root.targetScreen.model.includes(model))
+    property bool targetScreenIsVirtual: targetScreen.name.includes("BreezyDesktop")
     property bool imuResetState: effect.imuResetState
     property bool isEnabled: effect.isEnabled
 
@@ -136,9 +137,9 @@ Item {
     }
 
     function checkLoadedComponent() {
-        console.log(`Breezy - checking screen ${targetScreen.model}: ${targetScreenSupported} ${isEnabled} ${imuResetState}`);
+        console.log(`Breezy - checking screen ${targetScreen.model}: ${targetScreenSupported} ${targetScreenIsVirtual} ${isEnabled} ${imuResetState}`);
         const show3DView = targetScreenSupported && isEnabled && !imuResetState;
-        viewLoader.sourceComponent = show3DView ? view3DComponent : desktopViewComponent;
+        if (!targetScreenIsVirtual) viewLoader.sourceComponent = show3DView ? view3DComponent : desktopViewComponent;
     }
 
     onImuResetStateChanged: {
