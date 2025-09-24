@@ -11,6 +11,7 @@
 #include <QVariant>
 #include <QVariantList>
 #include <QHash>
+#include <QRect>
 
 namespace KWin
 {
@@ -18,6 +19,7 @@ namespace KWin
     {
         Q_OBJECT
         Q_PROPERTY(bool isEnabled READ isEnabled NOTIFY enabledStateChanged)
+        Q_PROPERTY(int effectTargetScreenIndex READ effectTargetScreenIndex WRITE setEffectTargetScreenIndex)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
         Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
         Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuResetStateChanged)
@@ -48,6 +50,7 @@ namespace KWin
         Q_PROPERTY(bool curvedDisplay READ curvedDisplay NOTIFY curvedDisplayChanged)
         Q_PROPERTY(bool curvedDisplaySupported READ curvedDisplaySupported WRITE setCurvedDisplaySupported NOTIFY curvedDisplaySupportedChanged)
 
+
     public:
 
         BreezyDesktopEffect();
@@ -62,6 +65,8 @@ namespace KWin
         QPointF cursorPos() const;
 
         bool isEnabled() const;
+        int effectTargetScreenIndex() const { return m_effectTargetScreenIndex; }
+        void setEffectTargetScreenIndex(int index);
         bool isZoomOnFocusEnabled() const;
         void setZoomOnFocusEnabled(bool enabled);
         int lookingAtScreenIndex() const { return m_lookingAtScreenIndex; }
@@ -147,6 +152,9 @@ namespace KWin
         void setSmoothFollowThreshold(float threshold);
         void updateDriverSmoothFollowSettings();
         void warpPointerToOutputCenter(Output *output);
+        void evaluateCursorOnScreenState(const QPointF &prevPos, const QPointF &newPos);
+        void invalidateEffectOnScreenGeometryCache();
+        bool updateEffectOnScreenGeometryCache();
 
         QString m_cursorImageSource;
         QSize m_cursorImageSize;
@@ -154,6 +162,7 @@ namespace KWin
         bool m_enabled = false;
         bool m_zoomOnFocusEnabled = false;
         int m_lookingAtScreenIndex = -1;
+        int m_effectTargetScreenIndex = -1;
         bool m_imuResetState;
         QList<QQuaternion> m_imuRotations;
         quint32 m_imuTimeElapsedMs;
@@ -169,6 +178,7 @@ namespace KWin
         bool m_customBannerEnabled;
         QFileSystemWatcher *m_shmFileWatcher = nullptr;
         QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;
+        bool m_cursorHidden = false;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
         qreal m_focusedDisplayDistance = 0.85;
@@ -185,6 +195,10 @@ namespace KWin
         float m_smoothFollowThreshold = 1.0f;
         bool m_allDisplaysFollowMode = false;
         bool m_focusedSmoothFollowEnabled = false;
+
+        // Cached geometry for on-screen cursor evaluation
+        QRect m_effectOnScreenExpandedGeometry;
+        bool m_effectOnScreenGeometryValid = false;
 
         struct VirtualOutputInfo {
             Output *output = nullptr;

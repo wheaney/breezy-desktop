@@ -291,8 +291,6 @@ void BreezyDesktopEffect::activate()
     // and doesn't allow for interaction with anything on the desktop. These two calls fix that.
     effects->ungrabKeyboard();
     effects->stopMouseInterception(this);
-
-    hideCursor();
 }
 
 void BreezyDesktopEffect::deactivate()
@@ -390,6 +388,14 @@ bool BreezyDesktopEffect::removeVirtualDisplay(const QString &id) {
 
 bool BreezyDesktopEffect::isEnabled() const {
     return m_enabled;
+}
+
+void BreezyDesktopEffect::setEffectTargetScreenIndex(int index) {
+    if (m_effectTargetScreenIndex != index) {
+        m_effectTargetScreenIndex = index;
+        invalidateEffectOnScreenGeometryCache();
+        evaluateCursorOnScreenState(m_cursorPos, m_cursorPos);
+    }
 }
 
 bool BreezyDesktopEffect::isZoomOnFocusEnabled() const {
@@ -572,7 +578,6 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
     return parityByte == parity;
 }
 
-// TODO - can this be something callable from the camera qml code, so it's pulled only when needed?
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
 void BreezyDesktopEffect::updateImuRotation() {    
@@ -786,13 +791,19 @@ QPointF BreezyDesktopEffect::cursorPos() const
 
 void BreezyDesktopEffect::showCursor()
 {
+    if (!m_cursorHidden) return;
+
     effects->showCursor();
+    m_cursorHidden = false;
 }
 
 void BreezyDesktopEffect::hideCursor()
 {
+    if (m_cursorHidden) return;
+
     updateCursorImage();
     effects->hideCursor();
+    m_cursorHidden = true;
 }
 
 void BreezyDesktopEffect::updateCursorImage()
@@ -810,6 +821,8 @@ void BreezyDesktopEffect::updateCursorImage()
         m_cursorImageSource = QString();
         m_cursorImageSize = QSize();
     }
+    // Cursor size affects the expanded geometry margin; invalidate cache.
+    invalidateEffectOnScreenGeometryCache();
     Q_EMIT cursorImageSourceChanged();
 }
 
@@ -819,9 +832,54 @@ void BreezyDesktopEffect::updateCursorPos()
     const auto cursor = effects->cursorImage();
     QPointF newPos = effects->cursorPos() - cursor.hotSpot();
     if (m_cursorPos != newPos) {
+        const QPointF prevPos = m_cursorPos;
         m_cursorPos = newPos;
         Q_EMIT cursorPosChanged();
+
+        evaluateCursorOnScreenState(prevPos, m_cursorPos);
     }
+}
+
+void BreezyDesktopEffect::evaluateCursorOnScreenState(const QPointF &prevPos, const QPointF &newPos)
+{
+    if (!updateEffectOnScreenGeometryCache()) return;
+
+    const QPointF velocity = newPos - prevPos;
+    const QPointF predicted = newPos + velocity;
+
+    const bool onScreen = 
+        m_effectOnScreenExpandedGeometry.contains(newPos.toPoint()) || 
+        m_effectOnScreenExpandedGeometry.contains(predicted.toPoint());
+    if (!m_cursorHidden && onScreen) {
+        hideCursor();
+    } else if (m_enabled && !m_imuResetState && m_cursorHidden && !onScreen) {
+        showCursor();
+    }
+}
+
+void BreezyDesktopEffect::invalidateEffectOnScreenGeometryCache()
+{
+    m_effectOnScreenGeometryValid = false;
+}
+
+bool BreezyDesktopEffect::updateEffectOnScreenGeometryCache()
+{
+    if (m_effectOnScreenGeometryValid)
+        return true;
+
+    if (m_effectTargetScreenIndex == -1)
+        return false;
+
+    Output *effectOnScreen = effects->screens().at(m_effectTargetScreenIndex);
+    if (!effectOnScreen)
+        return false;
+
+    const QRect geometry = effectOnScreen->geometry();
+    const int marginX = (m_cursorImageSize.width()  > 0) ? m_cursorImageSize.width()  : 10;
+    const int marginY = (m_cursorImageSize.height() > 0) ? m_cursorImageSize.height() : 10;
+    m_effectOnScreenExpandedGeometry = geometry.adjusted(-marginX, -marginY, marginX, marginY);
+    m_effectOnScreenGeometryValid = true;
+    return true;
 }
 
 void BreezyDesktopEffect::warpPointerToOutputCenter(Output *output)
@@ -832,6 +890,9 @@ void BreezyDesktopEffect::warpPointerToOutputCenter(Output *output)
     const QRect geometry = output->geometry();
     const QPointF center = geometry.center();
     Cursors::self()->mouse()->setPos(center);
+
+    // When warping, we don't have a meaningful previous position; use center for both.
+    evaluateCursorOnScreenState(center, center);
 }
 
 void BreezyDesktopEffect::moveCursorToFocusedDisplay()

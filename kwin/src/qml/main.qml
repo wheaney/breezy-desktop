@@ -140,6 +140,7 @@ Item {
         console.log(`Breezy - checking screen ${targetScreen.model}: ${targetScreenSupported} ${targetScreenIsVirtual} ${isEnabled} ${imuResetState}`);
         const show3DView = targetScreenSupported && isEnabled && !imuResetState;
         if (!targetScreenIsVirtual) viewLoader.sourceComponent = show3DView ? view3DComponent : desktopViewComponent;
+        if (targetScreenSupported) effect.effectTargetScreenIndex = KWinComponents.Workspace.screens.indexOf(targetScreen);
     }
 
     onImuResetStateChanged: {
