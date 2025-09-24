@@ -23,6 +23,7 @@
 #include <QQuickItem>
 #include <QTimer>
 #include <QDBusConnection>
+#include <QDateTime>
 
 #include <KGlobalAccel>
 #include <KLocalizedString>
@@ -167,6 +168,14 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     // Initial setup
     setupFileWatcher();
 
+    m_imuWatchdogTimer = new QTimer(this);
+    m_imuWatchdogTimer->setInterval(1000);
+    connect(m_imuWatchdogTimer, &QTimer::timeout, this, [this]() {
+        if (!m_enabled) return;
+        this->updateImuRotation();
+    });
+    m_imuWatchdogTimer->start();
+
     m_cursorUpdateTimer = new QTimer(this);
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
     m_cursorUpdateTimer->setInterval(16); // ~60Hz
@@ -196,6 +205,11 @@ BreezyDesktopEffect::~BreezyDesktopEffect()
     if (m_shmDirectoryWatcher) {
         m_shmDirectoryWatcher->deleteLater();
         m_shmDirectoryWatcher = nullptr;
+    }
+    if (m_imuWatchdogTimer) {
+        m_imuWatchdogTimer->stop();
+        m_imuWatchdogTimer->deleteLater();
+        m_imuWatchdogTimer = nullptr;
     }
     deactivate();
 }
@@ -581,6 +595,15 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
 void BreezyDesktopEffect::updateImuRotation() {    
+    // Reentrancy guard: if an update is already in progress, skip
+    bool expected = false;
+    if (!m_imuUpdateInProgress.compare_exchange_strong(expected, true)) {
+        return;
+    }
+
+    // destructor called on function exit, triggers reset of the flag
+    struct ResetFlag { std::atomic<bool>* f; ~ResetFlag(){ f->store(false); } } reset{&m_imuUpdateInProgress};
+
     const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
     QFile shmFile(shmPath);
     if (!shmFile.open(QIODevice::ReadOnly)) {
@@ -850,9 +873,9 @@ void BreezyDesktopEffect::evaluateCursorOnScreenState(const QPointF &prevPos, co
     const bool onScreen = 
         m_effectOnScreenExpandedGeometry.contains(newPos.toPoint()) || 
         m_effectOnScreenExpandedGeometry.contains(predicted.toPoint());
-    if (!m_cursorHidden && onScreen) {
+    if (m_enabled && !m_imuResetState && !m_cursorHidden && onScreen) {
         hideCursor();
-    } else if (m_enabled && !m_imuResetState && m_cursorHidden && !onScreen) {
+    } else if (m_cursorHidden && (!m_enabled || m_imuResetState || !onScreen)) {
         showCursor();
     }
 }

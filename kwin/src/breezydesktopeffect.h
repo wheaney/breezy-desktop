@@ -12,6 +12,8 @@
 #include <QVariantList>
 #include <QHash>
 #include <QRect>
+#include <atomic>
+class QTimer;
 
 namespace KWin
 {
@@ -181,6 +183,8 @@ namespace KWin
         bool m_cursorHidden = false;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
+        QTimer *m_imuWatchdogTimer = nullptr;
+        std::atomic<bool> m_imuUpdateInProgress{false};
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
         qreal m_displaySpacing = 0.0;
