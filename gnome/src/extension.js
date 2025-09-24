@@ -136,7 +136,8 @@ export default class BreezyDesktopExtension extends Extension {
                 Globals.logger.log_debug('BreezyDesktopExtension _find_supported_monitor - Using dummy monitor');
                 // find the first of the physical monitors
                 target_monitor = this._monitor_manager.getMonitorPropertiesList()?.find(
-                    monitor => monitor && monitor.product !== VIRTUAL_MONITOR_PRODUCT);
+                    monitor => monitor && monitor.product !== VIRTUAL_MONITOR_PRODUCT) ||
+                    this._monitor_manager.getMonitorPropertiesList()?.[0];
                 is_dummy = true;
             }
 

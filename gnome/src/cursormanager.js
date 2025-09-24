@@ -76,10 +76,20 @@ export class CursorManager {
         }
 
         if (!this._cursorVisibilityChangedId) {
-            this._cursorTracker.set_pointer_visible(false);
+            if (this._cursorTracker.inhibit_cursor_visibility) {
+                this._cursorTracker.inhibit_cursor_visibility();
+            } else {
+                this._cursorTracker.set_pointer_visible(false);
+            }
+
             this._cursorVisibilityChangedId = this._cursorTracker.connect('visibility-changed', (() => {
-                if (this._cursorTracker.get_pointer_visible())
-                    this._cursorTracker.set_pointer_visible(false);
+                if (this._cursorTracker.get_pointer_visible()) {
+                    if (this._cursorTracker.inhibit_cursor_visibility) {
+                        this._cursorTracker.inhibit_cursor_visibility();
+                    } else {
+                        this._cursorTracker.set_pointer_visible(false);
+                    }
+                }
             }).bind(this));
         }
     }
@@ -157,8 +167,13 @@ export class CursorManager {
         if (this._cursorVisibilityChangedId) {
             this._cursorTracker.disconnect(this._cursorVisibilityChangedId);
             delete this._cursorVisibilityChangedId;
+            
 
-            this._cursorTracker.set_pointer_visible(true);
+            if (this._cursorTracker.uninhibit_cursor_visibility) {
+                this._cursorTracker.uninhibit_cursor_visibility();
+            } else {
+                this._cursorTracker.set_pointer_visible(true);
+            }
         }
     }
 
