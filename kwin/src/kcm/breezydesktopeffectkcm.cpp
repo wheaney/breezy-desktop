@@ -663,14 +663,12 @@ void BreezyDesktopEffectConfig::pollDriverState()
             if (m_curvedDisplaySupported) {
                 m_curvedDisplaySupported = false;
                 ui.kcfg_CurvedDisplay->setEnabled(false);
-                ui.kcfg_CurvedDisplay->setChecked(false);
                 ui.kcfg_CurvedDisplay->setToolTip(QObject::tr("This feature requires Qt version 6.6 or higher"));
             }
         } else {
             if (!m_curvedDisplaySupported) {
                 m_curvedDisplaySupported = true;
                 ui.kcfg_CurvedDisplay->setEnabled(true);
-                ui.kcfg_CurvedDisplay->setChecked(BreezyDesktopConfig::self()->curvedDisplay());
                 ui.kcfg_CurvedDisplay->setToolTip(QString());
             }
         }
@@ -735,6 +733,8 @@ void BreezyDesktopEffectConfig::updateSmoothFollowEnabled()
     QJsonObject flags; 
     flags.insert(QStringLiteral("enable_breezy_desktop_smooth_follow"), enabled);
     XRDriverIPC::instance().writeControlFlags(flags);
+
+    ui.kcfg_FocusedDisplayDistance->setEnabled(ui.kcfg_ZoomOnFocusEnabled->isChecked() || enabled);
 }
 
 bool BreezyDesktopEffectConfig::smoothFollowTrackYawEnabled(std::optional<QJsonObject> configJsonOpt)

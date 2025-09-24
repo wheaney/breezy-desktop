@@ -560,8 +560,9 @@ void BreezyDesktopEffect::setCurvedDisplaySupported(bool supported) {
         Q_EMIT curvedDisplaySupportedChanged();
     }
 
-    if (!supported && m_curvedDisplay) {
-        m_curvedDisplay = false;
+    bool curvedDisplayEnabled = supported && BreezyDesktopConfig::curvedDisplay();
+    if (curvedDisplayEnabled != m_curvedDisplay) {
+        m_curvedDisplay = curvedDisplayEnabled;
         Q_EMIT curvedDisplayChanged();
     }
 }
