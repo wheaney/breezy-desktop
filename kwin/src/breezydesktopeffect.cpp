@@ -310,6 +310,10 @@ void BreezyDesktopEffect::activate()
 void BreezyDesktopEffect::deactivate()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
+
+    m_effectTargetScreenIndex = -1;
+    invalidateEffectOnScreenGeometryCache();
+
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
     m_cursorUpdateTimer->stop();
     showCursor();
@@ -894,9 +898,16 @@ bool BreezyDesktopEffect::updateEffectOnScreenGeometryCache()
     if (m_effectTargetScreenIndex == -1)
         return false;
 
-    Output *effectOnScreen = effects->screens().at(m_effectTargetScreenIndex);
-    if (!effectOnScreen)
+    const auto screensList = effects->screens();
+    if (m_effectTargetScreenIndex >= screensList.count()) {
+        m_effectTargetScreenIndex = -1;
         return false;
+    }
+    Output *effectOnScreen = screensList.at(m_effectTargetScreenIndex);
+    if (!effectOnScreen) {
+        m_effectTargetScreenIndex = -1;
+        return false;
+    }
 
     const QRect geometry = effectOnScreen->geometry();
     const int marginX = (m_cursorImageSize.width()  > 0) ? m_cursorImageSize.width()  : 10;

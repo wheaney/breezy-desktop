@@ -143,6 +143,10 @@ Item {
         if (targetScreenSupported) effect.effectTargetScreenIndex = KWinComponents.Workspace.screens.indexOf(targetScreen);
     }
 
+    onScreensChanged: {
+        checkLoadedComponent();
+    }
+
     onImuResetStateChanged: {
         checkLoadedComponent();
     }
