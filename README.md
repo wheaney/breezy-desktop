@@ -18,19 +18,19 @@ Breezy Desktop is a virtual workspace solution for Linux desktops that use the K
 
 For the best performance, ensure you have the latest graphics drivers installed for your distro.
 
-### KDE Plasma Setup (Alpha)
+### KDE Plasma Setup (Beta)
 
 When you connect your glasses for the first time, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent. If you're running KDE on `X11`, you won't be able to launch virtual displays; Steam Deck users note the extra step in the setup instructions for switching to `Wayland`, other users may be offered the option at the login screen.
 
 To setup Breezy on KDE, with your glasses unplugged:
-1. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/download/dev/breezy_kwin_setup) -- do `rm ~/Downloads/breezy_kwin_setup` first if you're repeating this step
+1. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_kwin_setup)
 2. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
-3. Run setup with the dev tag, verify no errors in the output: `~/Downloads/breezy_kwin_setup --tag dev`
-4. If on SteamOS and want to use virtual displays, run this: `steamos-session-select plasma-wayland-persistent`
+3. Run the setup script: `~/Downloads/breezy_kwin_setup`
+4. If you're on SteamOS and want to use virtual displays, run this: `steamos-session-select plasma-wayland-persistent`
   * **Important note** - this will prevent you from accessing Game Mode again, until you undo it by running just `steamos-session-select`
 5. Log out and back in.
 
-After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the KWin plugin working. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
+After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
 ### GNOME Setup
 
