@@ -24,24 +24,35 @@
         };
       in {
         packages = {
-          breezy-gnome = pkgs.callPackage ./nix/packages/breezy-gnome.nix {inherit self;};
-          #breezy-vulkan = pkgs.callPackage ./nix/packages/breezy-vulkan.nix {inherit self;};
-          #breezy-kwin = pkgs.callPackage ./nix/packages/breezy-kwin.nix {inherit self;};
+          breezy-gnome = pkgs.callPackage ./.nix/packages/breezy-gnome {inherit self;};
+          breezy-kde = pkgs.callPackage ./.nix/packages/breezy-kde {inherit self;};
+          breezy-ui = pkgs.callPackage ./.nix/packages/breezy-ui {inherit self;};
+          breezy-vulkan = pkgs.callPackage ./.nix/packages/breezy-vulkan {inherit self;};
           breezy-desktop = pkgs.symlinkJoin {
             name = "breezy-desktop";
-            paths = with self.packages.${system}; [
+            paths = with self.packages.${pkgs.system}; [
               breezy-gnome
-              #breezy-vulkan
-              #breezy-kwin
+              breezy-kde
+              breezy-ui
+              breezy-vulkan
             ];
           };
-          default = self.packages.${system}.breezy-desktop;
+          default = self.packages.${pkgs.system}.breezy-desktop;
         };
 
-        devShells.default = pkgs.mkShell {inputsFrom = with self.packages.${system}; [default];};
+        devShells.default = pkgs.mkShell {inputsFrom = with self.packages.${pkgs.system}; [default];};
       }
     )
     // {
-      overlays.default = final: _prev: {inherit (self.packages.${final.system}) breezy-desktop breezy-vulkan breezy-gnome breezy-kwin;};
+      overlays.default = final: _prev: {
+        inherit
+          (self.packages.${final.system})
+          breezy-desktop
+          breezy-gnome
+          breezy-kde
+          breezy-ui
+          breezy-vulkan
+          ;
+      };
     };
 }
