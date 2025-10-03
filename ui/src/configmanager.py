@@ -9,7 +9,21 @@ class ConfigManager(GObject.GObject):
         'multi-tap-enabled': (bool, 'Multi-Tap Enabled', 'Whether Multi-Tap is enabled', False, GObject.ParamFlags.READWRITE),
         'follow-track-roll': (bool, 'Follow Track Roll', 'Whether to follow on the roll axis', False, GObject.ParamFlags.READWRITE),
         'follow-track-pitch': (bool, 'Follow Track Pitch', 'Whether to follow on the pitch axis', True, GObject.ParamFlags.READWRITE),
-        'follow-track-yaw': (bool, 'Follow Track Yaw', 'Whether to follow on the yaw axis', True, GObject.ParamFlags.READWRITE)
+        'follow-track-yaw': (bool, 'Follow Track Yaw', 'Whether to follow on the yaw axis', True, GObject.ParamFlags.READWRITE),
+        'neck-saver-horizontal-multiplier': (
+            float,
+            'Neck Saver Horizontal Multiplier',
+            'Multiplier to reduce horizontal head movement',
+            1.0, 2.5, 1.0,
+            GObject.ParamFlags.READWRITE,
+        ),
+        'neck-saver-vertical-multiplier': (
+            float,
+            'Neck Saver Vertical Multiplier',
+            'Multiplier to reduce vertical head movement',
+            1.0, 2.5, 1.0,
+            GObject.ParamFlags.READWRITE,
+        )
     }
 
     _instance = None
@@ -35,6 +49,8 @@ class ConfigManager(GObject.GObject):
         self.follow_track_roll = None
         self.follow_track_pitch = None
         self.follow_track_yaw = None
+        self.neck_saver_horizontal_multiplier = None
+        self.neck_saver_vertical_multiplier = None
         self._running = True
         self._refresh_config()
 
@@ -57,6 +73,12 @@ class ConfigManager(GObject.GObject):
 
         if self.config['smooth_follow_track_yaw'] != self.follow_track_yaw:
             self.set_property('follow-track-yaw', self.config['smooth_follow_track_yaw'])
+
+        if self.config['neck_saver_horizontal_multiplier'] != self.neck_saver_horizontal_multiplier:
+            self.set_property('neck-saver-horizontal-multiplier', self.config['neck_saver_horizontal_multiplier'])
+            
+        if self.config['neck_saver_vertical_multiplier'] != self.neck_saver_vertical_multiplier:
+            self.set_property('neck-saver-vertical-multiplier', self.config['neck_saver_vertical_multiplier'])
 
         if self._running: threading.Timer(1.0, self._refresh_config).start()
 
@@ -98,6 +120,20 @@ class ConfigManager(GObject.GObject):
             self.ipc.write_config(self.config)
             self.follow_track_yaw = value
 
+    def _set_neck_saver_horizontal_multiplier(self, value):
+        value = round(min(2.5, max(1.0, float(value))), 2)
+        if self.neck_saver_horizontal_multiplier != value:
+            self.config['neck_saver_horizontal_multiplier'] = value
+            self.ipc.write_config(self.config)
+            self.neck_saver_horizontal_multiplier = value
+
+    def _set_neck_saver_vertical_multiplier(self, value):
+        value = round(min(2.5, max(1.0, float(value))), 2)
+        if self.neck_saver_vertical_multiplier != value:
+            self.config['neck_saver_vertical_multiplier'] = value
+            self.ipc.write_config(self.config)
+            self.neck_saver_vertical_multiplier = value
+
     def do_set_property(self, prop, value):
         if prop.name == 'breezy-desktop-enabled':
             self._set_breezy_desktop_enabled(value)
@@ -109,6 +145,10 @@ class ConfigManager(GObject.GObject):
             self._set_follow_track_pitch(value)
         elif prop.name == 'follow-track-yaw':
             self._set_follow_track_yaw(value)
+        elif prop.name == 'neck-saver-horizontal-multiplier':
+            self._set_neck_saver_horizontal_multiplier(value)
+        elif prop.name == 'neck-saver-vertical-multiplier':
+            self._set_neck_saver_vertical_multiplier(value)
 
     def do_get_property(self, prop):
         if prop.name == 'breezy-desktop-enabled':
@@ -121,3 +161,7 @@ class ConfigManager(GObject.GObject):
             return self.follow_track_pitch
         elif prop.name == 'follow-track-yaw':
             return self.follow_track_yaw
+        elif prop.name == 'neck-saver-horizontal-multiplier':
+            return self.neck_saver_horizontal_multiplier
+        elif prop.name == 'neck-saver-vertical-multiplier':
+            return self.neck_saver_vertical_multiplier

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 12:43-0700\n"
+"POT-Creation-Date: 2025-10-03 16:04-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,33 +27,33 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/connecteddevice.py:145
+#: src/connecteddevice.py:151
 msgid "Set Focused Display Distance"
 msgstr ""
 
-#: src/connecteddevice.py:146
+#: src/connecteddevice.py:152
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:153
+#: src/connecteddevice.py:159
 msgid "Set All Displays Distance"
 msgstr ""
 
-#: src/connecteddevice.py:154
+#: src/connecteddevice.py:160
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:270
+#: src/connecteddevice.py:283
 msgid ""
 "Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
 "and the pipewire GStreamer plugin are required."
 msgstr ""
 
-#: src/connecteddevice.py:304
+#: src/connecteddevice.py:317
 msgid "Focused display"
 msgstr ""
 
-#: src/connecteddevice.py:310
+#: src/connecteddevice.py:323
 msgid "All displays"
 msgstr ""
 
@@ -94,15 +94,15 @@ msgstr ""
 msgid " ({time_remaining} remaining)"
 msgstr ""
 
-#: src/licensefeaturerow.py:32
+#: src/licensefeaturerow.py:30
 msgid "Side-by-side mode (gaming)"
 msgstr ""
 
-#: src/licensefeaturerow.py:33
+#: src/licensefeaturerow.py:31
 msgid "Smooth Follow (gaming)"
 msgstr ""
 
-#: src/licensefeaturerow.py:34
+#: src/licensefeaturerow.py:32
 msgid "Breezy Desktop (productivity)"
 msgstr ""
 
@@ -473,45 +473,61 @@ msgid "Follow mode moves all displays, not just the focused one."
 msgstr ""
 
 #: src/gtk/connected-device.ui:642
-msgid "Follow mode movement tracking"
+msgid "Neck-saver horizontal multiplier"
 msgstr ""
 
 #: src/gtk/connected-device.ui:643
+msgid "Higher values require smaller horizontal head movements."
+msgstr ""
+
+#: src/gtk/connected-device.ui:675
+msgid "Neck-saver vertical multiplier"
+msgstr ""
+
+#: src/gtk/connected-device.ui:676
+msgid "Higher values require smaller vertical head movements."
+msgstr ""
+
+#: src/gtk/connected-device.ui:708
+msgid "Follow mode movement tracking"
+msgstr ""
+
+#: src/gtk/connected-device.ui:709
 msgid "Choose which movements should be tracked in follow mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:658
+#: src/gtk/connected-device.ui:724
 msgid "Horizontal"
 msgstr ""
 
-#: src/gtk/connected-device.ui:678
+#: src/gtk/connected-device.ui:744
 msgid "Vertical"
 msgstr ""
 
-#: src/gtk/connected-device.ui:698
+#: src/gtk/connected-device.ui:764
 msgid "Tilt/roll"
 msgstr ""
 
-#: src/gtk/connected-device.ui:716
+#: src/gtk/connected-device.ui:782
 msgid "Movement look-ahead"
 msgstr ""
 
-#: src/gtk/connected-device.ui:717
+#: src/gtk/connected-device.ui:783
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 
-#: src/gtk/connected-device.ui:735
+#: src/gtk/connected-device.ui:801
 msgid "Default"
 msgstr ""
 
-#: src/gtk/connected-device.ui:747
+#: src/gtk/connected-device.ui:813
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:748
+#: src/gtk/connected-device.ui:814
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 

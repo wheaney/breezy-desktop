@@ -535,6 +535,76 @@
             <property name="checked"><bool>false</bool></property>
           </widget>
         </item>
+        <item row="11" column="0">
+          <widget class="QLabel" name="labelNeckSaverHorizontal">
+            <property name="text">
+              <string>Neck-saver horizontal:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="11" column="1">
+          <widget class="LabeledSlider" name="NeckSaverHorizontalMultiplier">
+            <property name="decimalShift">
+              <double>2</double>
+            </property>
+            <property name="minimum">
+              <number>100</number>
+            </property>
+            <property name="maximum">
+              <number>250</number>
+            </property>
+            <property name="tickStartOffset">
+              <double>25</double>
+            </property>
+            <property name="tickInterval">
+              <double>50</double>
+            </property>
+            <property name="tickPosition">
+              <enum>QSlider::NoTicks</enum>
+            </property>
+            <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tracking">
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
+        <item row="12" column="0">
+          <widget class="QLabel" name="labelNeckSaverVertical">
+            <property name="text">
+              <string>Neck-saver vertical:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="12" column="1">
+          <widget class="LabeledSlider" name="NeckSaverVerticalMultiplier">
+            <property name="decimalShift">
+              <double>2</double>
+            </property>
+            <property name="minimum">
+              <number>100</number>
+            </property>
+            <property name="maximum">
+              <number>250</number>
+            </property>
+            <property name="tickStartOffset">
+              <double>25</double>
+            </property>
+            <property name="tickInterval">
+              <double>50</double>
+            </property>
+            <property name="tickPosition">
+              <enum>QSlider::NoTicks</enum>
+            </property>
+            <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tracking">
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
       </layout>
      </widget>
    <widget class="QWidget" name="tabLicenseDetails">

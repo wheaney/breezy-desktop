@@ -67,6 +67,10 @@ class ConnectedDevice(Gtk.Box):
     movement_look_ahead_adjustment = Gtk.Template.Child()
     text_scaling_scale = Gtk.Template.Child()
     text_scaling_adjustment = Gtk.Template.Child()
+    neck_saver_horizontal_scale = Gtk.Template.Child()
+    neck_saver_horizontal_adjustment = Gtk.Template.Child()
+    neck_saver_vertical_scale = Gtk.Template.Child()
+    neck_saver_vertical_adjustment = Gtk.Template.Child()
     enable_multi_tap_switch = Gtk.Template.Child()
     legacy_follow_mode_switch = Gtk.Template.Child()
     follow_track_yaw_switch = Gtk.Template.Child()
@@ -98,7 +102,9 @@ class ConnectedDevice(Gtk.Box):
             self.monitor_wrapping_scheme_menu,
             self.monitor_spacing_scale,
             self.viewport_offset_x_scale,
-            self.viewport_offset_y_scale
+            self.viewport_offset_y_scale,
+            self.neck_saver_horizontal_scale,
+            self.neck_saver_vertical_scale
         ]
 
         self.settings = SettingsManager.get_instance().settings
@@ -176,6 +182,8 @@ class ConnectedDevice(Gtk.Box):
         self._bind_switch_to_config(self.follow_track_roll_switch, 'follow-track-roll')
         self._bind_switch_to_config(self.follow_track_pitch_switch, 'follow-track-pitch')
         self._bind_switch_to_config(self.follow_track_yaw_switch, 'follow-track-yaw')
+        self._bind_scale_to_config(self.neck_saver_horizontal_adjustment, 'neck-saver-horizontal-multiplier')
+        self._bind_scale_to_config(self.neck_saver_vertical_adjustment, 'neck-saver-vertical-multiplier')
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
@@ -209,6 +217,11 @@ class ConnectedDevice(Gtk.Box):
 
         # wayland is required to create virtual displays
         self.is_wayland = "WAYLAND_DISPLAY" in os.environ
+
+    def _bind_scale_to_config(self, scale, config_key):
+        self.config_manager.bind_property(config_key, scale, 'value', Gio.SettingsBindFlags.DEFAULT)
+        scale.set_value(self.config_manager.get_property(config_key))
+        scale.connect('value-changed', lambda widget: self.config_manager.set_property(config_key, widget.get_value()))
 
     def _bind_switch_to_config(self, switch, config_key):
         self.config_manager.bind_property(config_key, switch, 'active', Gio.SettingsBindFlags.DEFAULT)

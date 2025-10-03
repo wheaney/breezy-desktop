@@ -639,6 +639,72 @@
                     <property name="width-request">700</property>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Neck-saver horizontal multiplier</property>
+                        <property name="subtitle" translatable="yes">Higher values require smaller horizontal head movements.</property>
+                        <child>
+                          <object class="GtkScale" id="neck_saver_horizontal_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="neck_saver_horizontal_adjustment">
+                                <property name="lower">1.0</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">1.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="1.0" position="bottom">1.0</mark>
+                              <mark value="1.25" position="bottom">1.25</mark>
+                              <mark value="1.5" position="bottom">1.5</mark>
+                              <mark value="1.75" position="bottom">1.75</mark>
+                              <mark value="2.0" position="bottom">2.0</mark>
+                              <mark value="2.25" position="bottom">2.25</mark>
+                              <mark value="2.5" position="bottom">2.5</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Neck-saver vertical multiplier</property>
+                        <property name="subtitle" translatable="yes">Higher values require smaller vertical head movements.</property>
+                        <child>
+                          <object class="GtkScale" id="neck_saver_vertical_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="neck_saver_vertical_adjustment">
+                                <property name="lower">1.0</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">1.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="1.0" position="bottom">1.0</mark>
+                              <mark value="1.25" position="bottom">1.25</mark>
+                              <mark value="1.5" position="bottom">1.5</mark>
+                              <mark value="1.75" position="bottom">1.75</mark>
+                              <mark value="2.0" position="bottom">2.0</mark>
+                              <mark value="2.25" position="bottom">2.25</mark>
+                              <mark value="2.5" position="bottom">2.5</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Follow mode movement tracking</property>
                         <property name="subtitle" translatable="yes">Choose which movements should be tracked in follow mode.</property>
                         <child>

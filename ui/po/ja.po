@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 12:40-0700\n"
+"POT-Creation-Date: 2025-10-03 16:04-0700\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -31,33 +31,33 @@ msgstr "メガネを3Dモードに切り替え、表示の幅を2倍にします
 msgid "This feature is not currently supported for your device."
 msgstr "現在接続されているデバイスはこの機能に対応していません。"
 
-#: src/connecteddevice.py:145
+#: src/connecteddevice.py:151
 msgid "Set Focused Display Distance"
 msgstr "フォーカスされたディスプレイ距離"
 
-#: src/connecteddevice.py:146
+#: src/connecteddevice.py:152
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr "近くに設定すると見たディスプレイにズームインします。"
 
-#: src/connecteddevice.py:153
+#: src/connecteddevice.py:159
 msgid "Set All Displays Distance"
 msgstr "すべてのディスプレイ距離"
 
-#: src/connecteddevice.py:154
+#: src/connecteddevice.py:160
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr "遠くに設定すると視線の外れたディスプレイがズームアウトします。"
 
-#: src/connecteddevice.py:270
+#: src/connecteddevice.py:283
 msgid ""
 "Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
 "and the pipewire GStreamer plugin are required."
 msgstr "仮想ディスプレイが追加できません。"
 
-#: src/connecteddevice.py:304
+#: src/connecteddevice.py:317
 msgid "Focused display"
 msgstr "フォーカスされたディスプレイ"
 
-#: src/connecteddevice.py:310
+#: src/connecteddevice.py:323
 msgid "All displays"
 msgstr "すべてのディスプレイ"
 
@@ -98,15 +98,15 @@ msgstr "有効"
 msgid " ({time_remaining} remaining)"
 msgstr "(残り {time_remaining})"
 
-#: src/licensefeaturerow.py:32
+#: src/licensefeaturerow.py:30
 msgid "Side-by-side mode (gaming)"
 msgstr "サイドバイサイドモード(ゲーミング)"
 
-#: src/licensefeaturerow.py:33
+#: src/licensefeaturerow.py:31
 msgid "Smooth Follow (gaming)"
 msgstr "スムーズフォロー(ゲーミング)"
 
-#: src/licensefeaturerow.py:34
+#: src/licensefeaturerow.py:32
 msgid "Breezy Desktop (productivity)"
 msgstr "Breezy Desktop(プロダクティビティ)"
 
@@ -491,30 +491,46 @@ msgstr ""
 "す。"
 
 #: src/gtk/connected-device.ui:642
+msgid "Neck-saver horizontal multiplier"
+msgstr ""
+
+#: src/gtk/connected-device.ui:643
+msgid "Higher values require smaller horizontal head movements."
+msgstr ""
+
+#: src/gtk/connected-device.ui:675
+msgid "Neck-saver vertical multiplier"
+msgstr ""
+
+#: src/gtk/connected-device.ui:676
+msgid "Higher values require smaller vertical head movements."
+msgstr ""
+
+#: src/gtk/connected-device.ui:708
 msgid "Follow mode movement tracking"
 msgstr "フォローモード移動設定"
 
-#: src/gtk/connected-device.ui:643
+#: src/gtk/connected-device.ui:709
 msgid "Choose which movements should be tracked in follow mode."
 msgstr "フォローモードで追跡する方法を選択します。"
 
-#: src/gtk/connected-device.ui:658
+#: src/gtk/connected-device.ui:724
 msgid "Horizontal"
 msgstr "水平"
 
-#: src/gtk/connected-device.ui:678
+#: src/gtk/connected-device.ui:744
 msgid "Vertical"
 msgstr "垂直"
 
-#: src/gtk/connected-device.ui:698
+#: src/gtk/connected-device.ui:764
 msgid "Tilt/roll"
 msgstr "傾き・回転"
 
-#: src/gtk/connected-device.ui:716
+#: src/gtk/connected-device.ui:782
 msgid "Movement look-ahead"
 msgstr "動きの先読み"
 
-#: src/gtk/connected-device.ui:717
+#: src/gtk/connected-device.ui:783
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -524,15 +540,15 @@ msgstr ""
 "ます。仮想ディスプレイが頭の動きに遅れたり、先に進んだり、非常に揺れたりする"
 "場合を除き、デフォルトのままで問題ありません。"
 
-#: src/gtk/connected-device.ui:735
+#: src/gtk/connected-device.ui:801
 msgid "Default"
 msgstr "デフォルト"
 
-#: src/gtk/connected-device.ui:747
+#: src/gtk/connected-device.ui:813
 msgid "Text Scaling"
 msgstr "テキストスケーリング"
 
-#: src/gtk/connected-device.ui:748
+#: src/gtk/connected-device.ui:814
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 "テキストを1.0未満にスケーリングすると、高解像度ディスプレイをシミュレートしま"

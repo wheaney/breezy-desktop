@@ -48,6 +48,8 @@
 #include <QFile>
 #include <QDir>
 #include <QJsonDocument>
+#include <cmath>
+#include <algorithm>
 
 Q_LOGGING_CATEGORY(KWIN_XR, "kwin.xr")
 
@@ -343,6 +345,8 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.SmoothFollowTrackYaw, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw);
     connect(ui.SmoothFollowTrackPitch, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackPitch);
     connect(ui.SmoothFollowTrackRoll, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackRoll);
+    connect(ui.NeckSaverHorizontalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverHorizontal);
+    connect(ui.NeckSaverVerticalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverVertical);
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -689,9 +693,62 @@ void BreezyDesktopEffectConfig::pollDriverState()
     if (ui.SmoothFollowTrackRoll->isChecked() != trackRoll)
         ui.SmoothFollowTrackRoll->setChecked(trackRoll);
 
+    const double horiz = neckSaverHorizontalMultiplier(configJsonOpt);
+    const int horizInt = static_cast<int>(std::round(horiz * 100.0));
+    if (ui.NeckSaverHorizontalMultiplier->value() != horizInt) {
+        ui.NeckSaverHorizontalMultiplier->setValue(horizInt);
+    }
+    const double vert  = neckSaverVerticalMultiplier(configJsonOpt);
+    const int vertInt = static_cast<int>(std::round(vert * 100.0));
+    if (ui.NeckSaverVerticalMultiplier->value() != vertInt) {
+        ui.NeckSaverVerticalMultiplier->setValue(vertInt);
+    }
+
     refreshLicenseUi(stateJson);
 
     m_driverStateInitialized = true;
+}
+
+double BreezyDesktopEffectConfig::neckSaverHorizontalMultiplier(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return 1.0;
+    const QJsonValue jv = configJsonOpt->value(QStringLiteral("neck_saver_horizontal_multiplier"));
+    const double v = jv.isDouble() ? jv.toDouble() : 1.0;
+    if (v < 1.0) return 1.0;
+    if (v > 2.5) return 2.5;
+    return v;
+}
+
+double BreezyDesktopEffectConfig::neckSaverVerticalMultiplier(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return 1.0;
+    const QJsonValue jv = configJsonOpt->value(QStringLiteral("neck_saver_vertical_multiplier"));
+    const double v = jv.isDouble() ? jv.toDouble() : 1.0;
+    if (v < 1.0) return 1.0;
+    if (v > 2.5) return 2.5;
+    return v;
+}
+
+void BreezyDesktopEffectConfig::updateNeckSaverHorizontal()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    double val = ui.NeckSaverHorizontalMultiplier->value() / 100.0;
+    if (neckSaverHorizontalMultiplier(configJsonOpt) == val) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("neck_saver_horizontal_multiplier"), val);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateNeckSaverVertical()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    double val = ui.NeckSaverVerticalMultiplier->value() / 100.0;
+    if (neckSaverVerticalMultiplier(configJsonOpt) == val) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("neck_saver_vertical_multiplier"), val);
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 bool BreezyDesktopEffectConfig::multitapEnabled(std::optional<QJsonObject> configJsonOpt)
