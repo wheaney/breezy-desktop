@@ -32,6 +32,8 @@ export const SUPPORTED_MONITOR_PRODUCTS = [
     'Air 2',
     'Air 2 Pro',
     'Air 2 Ultra',
+    'One',
+    'One Pro',
     'SmartGlasses', // TCL/RayNeo
     'Rokid Max',
     'Rokid Max 2',
