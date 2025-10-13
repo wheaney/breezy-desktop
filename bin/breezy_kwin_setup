@@ -72,10 +72,6 @@ then
     echo "Downloading to: ${tmp_dir}/$FILE_NAME"
     curl -L "$binary_download_url" -o "$FILE_NAME"
   else
-    check_command "git"
-    check_command "cmake"
-    check_command "make"
-
     # handle -v / --tag like the rest of the script
     if [ "$1" = "--tag" ] && [ -n "$2" ]; then
       requested_tag="$2"
@@ -95,42 +91,187 @@ then
       exit 1
     fi
 
-    if [ -z "${DEV_BUILD+x}" ]; then
-      echo "Cloning wheaney/breezy-desktop (tag: ${tag})"
-      if git clone --depth 1 --branch "$tag" "https://github.com/wheaney/breezy-desktop.git" breezy-desktop 2>/dev/null; then
-        pushd breezy-desktop > /dev/null
-      else
-        git clone "https://github.com/wheaney/breezy-desktop.git" breezy-desktop
-        pushd breezy-desktop > /dev/null
-        git checkout "$tag"
+    # Optional Distrobox-aware build: if Distrobox is available, create (or reuse) a container and
+    # run the build inside it, then continue installation on the host.
+    use_distrobox=false
+    if [ -z "${FORCE_NO_DISTROBOX+x}" ] && command -v distrobox &>/dev/null; then
+      use_distrobox=true
+      DISTROBOX_NAME="breezy-kwin-build"
+      # Pick a container image that matches the host distro/release
+      if [ -f /etc/os-release ]; then . /etc/os-release; fi
+      case "$ID" in
+        fedora)
+          DISTROBOX_IMAGE="registry.fedoraproject.org/fedora-toolbox:${VERSION_ID}"
+          ;;
+        ubuntu)
+          DISTROBOX_IMAGE="ubuntu:${VERSION_ID:-24.04}"
+          ;;
+        debian)
+          DISTROBOX_IMAGE="debian:${VERSION_CODENAME:-bookworm}"
+          ;;
+        arch|endeavouros|manjaro)
+          DISTROBOX_IMAGE="archlinux:latest"
+          ;;
+        opensuse*)
+          if [[ "${VERSION_CODENAME:-}" == "tumbleweed" ]] || [[ "${VERSION:-}" =~ Tumbleweed ]]; then
+            DISTROBOX_IMAGE="registry.opensuse.org/opensuse/tumbleweed:latest"
+          else
+            DISTROBOX_IMAGE="registry.opensuse.org/opensuse/leap:${VERSION_ID}"
+          fi
+          ;;
+        *)
+          DISTROBOX_IMAGE="ubuntu:24.04"
+          ;;
+      esac
+      echo "Ensuring Distrobox container '$DISTROBOX_NAME' exists (image: $DISTROBOX_IMAGE)..."
+      # Pick host user to grant passwordless sudo inside the container
+      HOST_USER=$(id -un)
+      # Create container if missing (idempotent), and bootstrap once at creation time using init hooks.
+      # - Install sudo (if needed)
+      # - Configure passwordless sudo for the host user
+      # - Initialize Arch keyring if applicable
+      # - Mark bootstrap completion with /etc/breezy_bootstrap_done
+      distrobox create -n "$DISTROBOX_NAME" --image "$DISTROBOX_IMAGE" --yes \
+        --init-hooks "bash -lc 'set -e; if command -v apt-get >/dev/null 2>&1; then export DEBIAN_FRONTEND=noninteractive; apt-get update || true; apt-get install -y sudo || true; fi'" \
+        --init-hooks "bash -lc 'set -e; if command -v dnf >/dev/null 2>&1; then dnf -y install sudo || true; fi'" \
+        --init-hooks "bash -lc 'set -e; if command -v zypper >/dev/null 2>&1; then zypper --non-interactive install -y sudo || zypper --non-interactive install sudo || true; fi'" \
+        --init-hooks "bash -lc 'set -e; if command -v pacman >/dev/null 2>&1; then pacman -Sy --noconfirm archlinux-keyring sudo || true; pacman-key --init || true; pacman-key --populate archlinux || true; fi'" \
+        --init-hooks "bash -lc 'set -e; echo '"$HOST_USER"' ALL=(ALL) NOPASSWD:ALL > /etc/sudoers.d/99-breezy && chmod 0440 /etc/sudoers.d/99-breezy'" \
+        --init-hooks "bash -lc 'set -e; touch /etc/breezy_bootstrap_done'" >/dev/null 2>&1 || true
+
+      # If the container existed already and lacked the bootstrap, try to apply it once now.
+      if ! distrobox enter -n "$DISTROBOX_NAME" -- bash --noprofile --norc -c '[ -f /etc/breezy_bootstrap_done ]'; then
+        echo "Bootstrapping existing container for passwordless sudo and keyring..."
+        distrobox enter --root -n "$DISTROBOX_NAME" -- bash --noprofile --norc -c '
+          set -e
+          if command -v apt-get >/dev/null 2>&1; then export DEBIAN_FRONTEND=noninteractive; apt-get update || true; apt-get install -y sudo || true; fi
+          if command -v dnf >/dev/null 2>&1; then dnf -y install sudo || true; fi
+          if command -v zypper >/dev/null 2>&1; then zypper --non-interactive install -y sudo || zypper --non-interactive install sudo || true; fi
+          if command -v pacman >/dev/null 2>&1; then pacman -Sy --noconfirm archlinux-keyring sudo || true; pacman-key --init || true; pacman-key --populate archlinux || true; fi
+          echo "$HOST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/99-breezy && chmod 0440 /etc/sudoers.d/99-breezy
+          touch /etc/breezy_bootstrap_done
+        ' || echo "Warning: Could not apply bootstrap to existing container; you may need to recreate it."
       fi
 
-      echo "Downloading git submodules"
-      git submodule sync --recursive || true
-      git submodule update --init modules/XRLinuxDriver
-      git submodule update --init modules/sombrero
-      git submodule update --init ui/modules/PyXRLinuxDriverIPC
-    else
-      pushd $start_dir > /dev/null
+      # Now, as normal user with NOPASSWD sudo, install build dependencies once (guarded by sentinel).
+      distrobox enter -n "$DISTROBOX_NAME" -- bash --noprofile --norc -c '
+        set -e
+        if [ ! -f /etc/breezy_deps_done ]; then
+          if command -v dnf >/dev/null 2>&1; then
+            sudo dnf -y install \
+              git cmake make gcc gcc-c++ \
+              extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel \
+              kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel \
+              qt6-qtbase-devel qt6-qttools-devel wayland-devel libepoxy-devel libdrm-devel || true
+          elif command -v apt-get >/dev/null 2>&1; then
+            export DEBIAN_FRONTEND=noninteractive
+            (sudo apt-get update && sudo apt-get install -y \
+              git build-essential cmake \
+              extra-cmake-modules kwin-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev \
+              libkf6kcmutils-dev libkf6globalaccel-dev libkf6i18n-dev libkf6windowsystem-dev libkf6xmlgui-dev \
+              qt6-base-dev qt6-declarative-dev libdrm-dev \
+              || true)
+            (sudo apt-get install -y qml6-module-qtquick3d-helpers || true)
+          elif command -v pacman >/dev/null 2>&1; then
+            # Ensure keyring is sane even post-create
+            sudo pacman -Sy --noconfirm archlinux-keyring || true
+            sudo pacman -Syu --needed --noconfirm \
+              base-devel git cmake ninja \
+              extra-cmake-modules qt6-base qt6-declarative qt6-tools qt6-quick3d \
+              kconfig kconfigwidgets kcoreaddons kglobalaccel ki18n kcmutils kxmlgui kwindowsystem kwin || true
+          elif command -v zypper >/dev/null 2>&1; then
+            sudo zypper --non-interactive install --no-recommends \
+              git gcc gcc-c++ make cmake \
+              extra-cmake-modules libqt6-qtbase-devel libqt6-qtdeclarative-devel libqt6-qttools-devel \
+              libqt6-quick3d-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel \
+              kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel \
+              libdrm-devel || true
+          fi
+          sudo sh -c "touch /etc/breezy_deps_done" || true
+        fi
+      ' || true
     fi
 
-    echo "Building Breezy Desktop from source, this may take a while..."
-    set +e
-    pkgkwin_stderr=$(LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1)
-    pkgkwin_rc=$?
-    set -e
-    if [ "$pkgkwin_rc" -ne 0 ]; then
-      if echo "$pkgkwin_stderr" | grep -qi "could not find" && [ -z "${PRINT_FULL_STDERR+x}" ]; then
-        print_missing_dependencies "$*"
-      else
+    if $use_distrobox; then
+      echo "Using Distrobox container '$DISTROBOX_NAME' for the build..."
+      # Build inside the container either from the local repo (DEV_BUILD) or a fresh clone under $HOME.
+      # Clean build inside container under user's home (bind-mounted back to host)
+      set +e
+      pkgkwin_stderr=$(distrobox enter -n "$DISTROBOX_NAME" -- bash --noprofile --norc -c '
+        set -e
+        export TAG="'$tag'"
+        export CONTAINER_BUILD_DIR="$HOME/.cache/breezy-kwin-build"
+        rm -rf "$CONTAINER_BUILD_DIR"
+        echo "Cloning wheaney/breezy-desktop (tag: $TAG) inside Distrobox..."
+        if git clone --depth 1 --branch "$TAG" https://github.com/wheaney/breezy-desktop.git "$CONTAINER_BUILD_DIR" 2>/dev/null; then
+          :
+        else
+          git clone https://github.com/wheaney/breezy-desktop.git "$CONTAINER_BUILD_DIR"
+          cd "$CONTAINER_BUILD_DIR" && git checkout "$TAG"
+        fi
+        cd "$CONTAINER_BUILD_DIR"
+        echo "Downloading git submodules"
+        git submodule sync --recursive || true
+        git submodule update --init modules/XRLinuxDriver
+        git submodule update --init modules/sombrero
+        git submodule update --init ui/modules/PyXRLinuxDriverIPC
+        echo "Building Breezy Desktop from source (inside Distrobox), this may take a while..."
+        LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1
+      ')
+      pkgkwin_rc=$?
+      set -e
+      container_build_dir_path="$HOME/.cache/breezy-kwin-build"
+
+      if [ "$pkgkwin_rc" -ne 0 ]; then
+        echo "Error: Breezy Desktop build (in Distrobox) failed with exit code $pkgkwin_rc"
         echo "$pkgkwin_stderr"
+        exit $pkgkwin_rc
       fi
-      echo "Error: Breezy Desktop build failed with exit code $pkgkwin_rc"
-      exit $pkgkwin_rc
+
+      FILE_NAME="breezyKWin-$ARCH.tar.gz"
+      cp "$container_build_dir_path/out/$FILE_NAME" "$tmp_dir"
+    else
+      # Host build (existing behavior)
+      check_command "git"
+      check_command "cmake"
+      check_command "make"
+      if [ -z "${DEV_BUILD+x}" ]; then
+        echo "Cloning wheaney/breezy-desktop (tag: ${tag})"
+        if git clone --depth 1 --branch "$tag" "https://github.com/wheaney/breezy-desktop.git" breezy-desktop 2>/dev/null; then
+          pushd breezy-desktop > /dev/null
+        else
+          git clone "https://github.com/wheaney/breezy-desktop.git" breezy-desktop
+          pushd breezy-desktop > /dev/null
+          git checkout "$tag"
+        fi
+
+        echo "Downloading git submodules"
+        git submodule sync --recursive || true
+        git submodule update --init modules/XRLinuxDriver
+        git submodule update --init modules/sombrero
+        git submodule update --init ui/modules/PyXRLinuxDriverIPC
+      else
+        pushd $start_dir > /dev/null
+      fi
+
+      echo "Building Breezy Desktop from source, this may take a while..."
+      set +e
+      pkgkwin_stderr=$(LOCAL_BUILD_SYSTEM=1 bin/package_kwin --download-driver 2>&1)
+      pkgkwin_rc=$?
+      set -e
+      if [ "$pkgkwin_rc" -ne 0 ]; then
+        if echo "$pkgkwin_stderr" | grep -qi "could not find" && [ -z "${PRINT_FULL_STDERR+x}" ]; then
+          print_missing_dependencies "$*"
+        else
+          echo "$pkgkwin_stderr"
+        fi
+        echo "Error: Breezy Desktop build failed with exit code $pkgkwin_rc"
+        exit $pkgkwin_rc
+      fi
+      FILE_NAME="breezyKWin-$ARCH.tar.gz"
+      cp "out/$FILE_NAME" "$tmp_dir"
+      popd > /dev/null
     fi
-    FILE_NAME="breezyKWin-$ARCH.tar.gz"
-    cp "out/$FILE_NAME" "$tmp_dir"
-    popd > /dev/null
   fi
 else
   FILE_NAME=$(basename $binary_path_arg)
