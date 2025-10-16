@@ -8,7 +8,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "breezy-kde";
   version = "unstable";
 
-  src = "${self}/kwin";
+  src = ../../.;
 
   dontBuild = true;
 

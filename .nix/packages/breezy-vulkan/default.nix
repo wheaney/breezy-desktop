@@ -8,7 +8,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "breezy-vulkan";
   version = "unstable";
 
-  src = "${self}/vulkan";
+  src = ../../.;
 
   dontBuild = true;
 

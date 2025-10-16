@@ -7,9 +7,9 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-    self.submodules = true;
   };
-  outputs = inputs: let
+  inputs.self.submodules = true;
+  outputs = { self, ...}@inputs: let
     inherit (inputs) self nixpkgs flake-utils;
     systems = [
       "x86_64-linux"

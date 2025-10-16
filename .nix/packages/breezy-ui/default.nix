@@ -8,7 +8,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "breezy-ui";
   version = "unstable";
 
-  src = "${self}/ui";
+  src = ../../.;
 
   dontBuild = true;
 
