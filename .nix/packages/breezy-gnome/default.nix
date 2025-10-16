@@ -10,7 +10,7 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "breezy-gnome";
   version = "unstable";
 
-  src = "${self}/gnome/src";
+  src = self;
 
   buildInputs = [
     glib
@@ -23,6 +23,8 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
+    cd gnome/src
+
     glib-compile-schemas schemas
 
     runHook postBuild
@@ -34,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
     extensions_dir="$out/share/gnome-shell/extensions/${finalAttrs.passthru.extensionUuid}"
     mkdir -p "$extensions_dir"
 
-    cp -RLv $src/{schemas,*.js,*.frag,metadata.json,dbus-interfaces,textures} "$extensions_dir"
+    cp -RLv $src/gnome/src/{schemas,*.js,*.frag,metadata.json,dbus-interfaces,textures} "$extensions_dir"
 
     runHook postInstall
   '';
