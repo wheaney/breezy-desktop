@@ -20,7 +20,16 @@ For the best performance, ensure you have the latest graphics drivers installed 
 
 ### KDE Plasma Setup (Beta)
 
-When you connect your glasses for the first time, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent. If you're running KDE on `X11`, you won't be able to launch virtual displays; Steam Deck users note the extra step in the setup instructions for switching to `Wayland`, other users may be offered the option at the login screen.
+Breezy Desktop is only compatible with KDE Plasma 6.
+
+**IMPORTANT** - Please read carefully through this list before you get started
+* **If this is the first time you're using your glasses with KDE**, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent.
+* **If you're running KDE on `X11`**, you won't be able to launch virtual displays. If you're not on SteamOS, look for Wayland options on the login screen.
+* **Steam Deck users** note the extra step in the setup instructions for switching to `Wayland` if you want virtual display features.
+* **If you're using XREAL Ones** or other glasses that provide built-in 3DoF/stabilization features (e.g. VITURE Beast), you must disable the stabilization features first, using the menu on the glasses.
+* **For the best experience**
+  * To prevent a broken taskbar: in `Panel Settings`, set `Visibility` to `always-visible`.
+  * To prevent a magnified cursor from showing in the wrong place: in `System Settings` / `Accessibility`, disable the `Shake Cursor` effect.
 
 To setup Breezy on KDE, with your glasses unplugged:
 1. Make sure your glasses are in the [supported devices list](https://github.com/wheaney/XRLinuxDriver#supported-devices) and are on the latest firmware.
@@ -28,12 +37,8 @@ To setup Breezy on KDE, with your glasses unplugged:
 3. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
 4. Run the setup script: `~/Downloads/breezy_kwin_setup`
 5. If you're on SteamOS and want to use virtual displays, run this: `steamos-session-select plasma-wayland-persistent`
-  * **Important note** - this will prevent you from accessing Game Mode again, until you undo it by running just `steamos-session-select`
-6. For the best experience:
-  * To prevent a broken taskbar: in `Panel Settings`, set `Visibility` to `always-visible`.
-  * To prevent a magnified cursor from showing in the wrong place: in `System Settings` / `Accessibility`, disable the `Shake Cursor` effect.
-7. If you're using glasses with built-in 3DoF/stabilization features (e.g. XREAL One, VITURE Beast), be sure to disable those features through the menu on the glasses.
-8. Log out and back in.
+   * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running just `steamos-session-select`
+6. Log out and back in.
 
 After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
