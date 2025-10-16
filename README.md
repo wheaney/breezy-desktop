@@ -26,7 +26,7 @@ Breezy Desktop is only compatible with KDE Plasma 6.
 * **If this is the first time you're using your glasses with KDE**, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent.
 * **If you're running KDE on `X11`**, you won't be able to launch virtual displays. If you're not on SteamOS, look for Wayland options on the login screen.
 * **Steam Deck users** note the extra step in the setup instructions for switching to `Wayland` if you want virtual display features.
-* **If you're using XREAL Ones** or other glasses that provide built-in 3DoF/stabilization features (e.g. VITURE Beast), you must disable the stabilization features first, using the menu on the glasses.
+* **If you're using XREAL Ones** or other glasses that provide built-in 3DoF/stabilization/anchoring features (e.g. VITURE Beast), you must disable ALL such features first, using the menu on the glasses.
 * **For the best experience**
   * To prevent a broken taskbar: in `Panel Settings`, set `Visibility` to `always-visible`.
   * To prevent a magnified cursor from showing in the wrong place: in `System Settings` / `Accessibility`, disable the `Shake Cursor` effect.
