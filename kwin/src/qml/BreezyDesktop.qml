@@ -26,11 +26,11 @@ Node {
     }
 
     function updateFocus(smoothFollowEnabledChanged = false) {
-        const rotations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.imuRotations;
-        if (rotations && rotations.length > 0) {
+        const orientations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.poseOrientations;
+        if (orientations && orientations.length > 0) {
             let focusedIndex = -1;
             const lookingAtIndex = displays.findFocusedMonitor(
-                displays.eusToNwuQuat(rotations[0]), 
+                displays.eusToNwuQuat(orientations[0]), 
                 breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                 breezyDesktop.focusedMonitorIndex,
                 smoothFollowEnabled,
@@ -120,10 +120,10 @@ Node {
     }
 
     // smoothFollowOrigin is the rotation away from the original placement of the displays
-    // imuRotations is the smooth follow rotation relative to the camera (very near an identity quat)
+    // poseOrientations is the smooth follow rotation relative to the camera (very near an identity quat)
     // subtract the latter from the former to get the complete rotation
     function smoothFollowQuat() {
-        return effect.smoothFollowOrigin[0].times(effect.imuRotations[0].conjugated());
+        return effect.smoothFollowOrigin[0].times(effect.poseOrientations[0].conjugated());
     }
 
     function displaySmoothFollowVector(display, smoothFollowRotation) {
@@ -192,9 +192,9 @@ Node {
         }
     }
 
-    // smoothFollowEnabled gets cleared before the IMU begins slerping back to the origin so we can't just 
-    // switch off smooth follow logic based on this flag. Instead, we have to rely on 
-    // smoothFollowTransitionProgress to determine how much of the IMU positions to apply.
+    // smoothFollowEnabled gets cleared before the orientation begins slerping back to the origin so we can't just 
+    // switch off smooth follow logic based on this flag. Instead, we have to rely on
+    // smoothFollowTransitionProgress to determine how much of the orientations to apply.
     onSmoothFollowEnabledChanged: {
         updateFocus(true);
     }
@@ -218,7 +218,7 @@ Node {
 
                     // When smooth follow is running, we're updating the position of the display manually
                     // on every frame (avoid binding to a function that uses non-notify effect properties
-                    // imuRotations and smoothFollowOrigin).
+                    // poseOrientations and smoothFollowOrigin).
                     focusedDisplay.position = displayPosition(focusedDisplay, smoothFollowRotation);
                 } else {
                     focusedDisplay.rotation = Qt.quaternion(1, 0, 0, 0);

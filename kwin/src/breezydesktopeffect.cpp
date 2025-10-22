@@ -98,11 +98,12 @@ namespace DataView
     constexpr int CUSTOM_BANNER_ENABLED[3] = {dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1};
     constexpr int SMOOTH_FOLLOW_ENABLED[3] = {dataViewEnd(CUSTOM_BANNER_ENABLED), BOOL_SIZE, 1};
     constexpr int SMOOTH_FOLLOW_ORIGIN_DATA[3] = {dataViewEnd(SMOOTH_FOLLOW_ENABLED), FLOAT_SIZE, 16};
-    constexpr int IMU_DATE_MS[3] = {dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), UINT_SIZE, 2};
-    constexpr int IMU_QUAT_ENTRIES = 4;
-    constexpr int IMU_QUAT_DATA[3] = {dataViewEnd(IMU_DATE_MS), FLOAT_SIZE, 4 * IMU_QUAT_ENTRIES};
-    constexpr int IMU_PARITY_BYTE[3] = {dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1};
-    constexpr int LENGTH = dataViewEnd(IMU_PARITY_BYTE);
+    constexpr int POSE_POSITION_DATA[3] = {dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), FLOAT_SIZE, 3};
+    constexpr int POSE_DATE_MS[3] = {dataViewEnd(POSE_POSITION_DATA), UINT_SIZE, 2};
+    constexpr int POSE_ORIENTATION_ENTRIES = 4;
+    constexpr int POSE_ORIENTATION_DATA[3] = {dataViewEnd(POSE_DATE_MS), FLOAT_SIZE, 4 * POSE_ORIENTATION_ENTRIES};
+    constexpr int POSE_PARITY_BYTE[3] = {dataViewEnd(POSE_ORIENTATION_DATA), UINT8_SIZE, 1};
+    constexpr int LENGTH = dataViewEnd(POSE_PARITY_BYTE);
 }
 
 namespace KWin
@@ -142,7 +143,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
 
     setSource(QUrl::fromLocalFile(QStandardPaths::locate(QStandardPaths::GenericDataLocation, QStringLiteral("kwin/effects/breezy_desktop/qml/main.qml"))));
 
-    // Monitor the IMU file for changes, even if it doesn't exist at startup
+    // Monitor the IPC file for changes, even if it doesn't exist at startup
     m_shmDirectoryWatcher = new QFileSystemWatcher(this);
     m_shmDirectoryWatcher->addPath(DataView::SHM_DIR);
 
@@ -151,14 +152,14 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     // Setup file watcher with recreation detection
     auto setupFileWatcher = [this]() {
         if (QFile::exists(DataView::SHM_PATH) && (
-            m_imuTimestamp == 0 || 
-            QDateTime::currentMSecsSinceEpoch() - m_imuTimestamp > 50 || // file may have been deleted and recreated
+            m_poseTimestamp == 0 || 
+            QDateTime::currentMSecsSinceEpoch() - m_poseTimestamp > 50 || // file may have been deleted and recreated
             !m_shmFileWatcher->files().contains(DataView::SHM_PATH)
         )) {
             m_shmFileWatcher->removePath(DataView::SHM_PATH);
-            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateImuRotation);
+            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
             m_shmFileWatcher->addPath(DataView::SHM_PATH);
-            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updateImuRotation);
+            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
         }
     };
 
@@ -168,13 +169,13 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     // Initial setup
     setupFileWatcher();
 
-    m_imuWatchdogTimer = new QTimer(this);
-    m_imuWatchdogTimer->setInterval(1000);
-    connect(m_imuWatchdogTimer, &QTimer::timeout, this, [this]() {
+    m_watchdogTimer = new QTimer(this);
+    m_watchdogTimer->setInterval(1000);
+    connect(m_watchdogTimer, &QTimer::timeout, this, [this]() {
         if (!m_enabled) return;
-        this->updateImuRotation();
+        this->updatePoseOrientation();
     });
-    m_imuWatchdogTimer->start();
+    m_watchdogTimer->start();
 
     m_cursorUpdateTimer = new QTimer(this);
     connect(m_cursorUpdateTimer, &QTimer::timeout, this, &BreezyDesktopEffect::updateCursorPos);
@@ -206,10 +207,10 @@ BreezyDesktopEffect::~BreezyDesktopEffect()
         m_shmDirectoryWatcher->deleteLater();
         m_shmDirectoryWatcher = nullptr;
     }
-    if (m_imuWatchdogTimer) {
-        m_imuWatchdogTimer->stop();
-        m_imuWatchdogTimer->deleteLater();
-        m_imuWatchdogTimer = nullptr;
+    if (m_watchdogTimer) {
+        m_watchdogTimer->stop();
+        m_watchdogTimer->deleteLater();
+        m_watchdogTimer = nullptr;
     }
     deactivate();
 }
@@ -439,20 +440,24 @@ void BreezyDesktopEffect::toggleSmoothFollow() {
     XRDriverIPC::instance().writeControlFlags(flags);
 }
 
-bool BreezyDesktopEffect::imuResetState() const {
-    return m_imuResetState;
+bool BreezyDesktopEffect::poseResetState() const {
+    return m_poseResetState;
 }
 
-QList<QQuaternion> BreezyDesktopEffect::imuRotations() const {
-    return m_imuRotations;
+QList<QQuaternion> BreezyDesktopEffect::poseOrientations() const {
+    return m_poseOrientations;
 }
 
-quint32 BreezyDesktopEffect::imuTimeElapsedMs() const {
-    return m_imuTimeElapsedMs;
+QVector3D BreezyDesktopEffect::posePosition() const {
+    return m_posePosition;
 }
 
-quint64 BreezyDesktopEffect::imuTimestamp() const {
-    return m_imuTimestamp;
+quint32 BreezyDesktopEffect::poseTimeElapsedMs() const {
+    return m_poseTimeElapsedMs;
+}
+
+quint64 BreezyDesktopEffect::poseTimestamp() const {
+    return m_poseTimestamp;
 }
 
 QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
@@ -581,17 +586,17 @@ bool BreezyDesktopEffect::smoothFollowEnabled() const {
 }
 
 bool BreezyDesktopEffect::checkParityByte(const char* data) {
-    const uint8_t parityByte = static_cast<uint8_t>(data[DataView::IMU_PARITY_BYTE[DataView::OFFSET_INDEX]]);
+    const uint8_t parityByte = static_cast<uint8_t>(data[DataView::POSE_PARITY_BYTE[DataView::OFFSET_INDEX]]);
     uint8_t parity = 0;
 
-    const int dateBytes = DataView::IMU_DATE_MS[DataView::COUNT_INDEX] * DataView::IMU_DATE_MS[DataView::SIZE_INDEX];
+    const int dateBytes = DataView::POSE_DATE_MS[DataView::COUNT_INDEX] * DataView::POSE_DATE_MS[DataView::SIZE_INDEX];
     for (int i = 0; i < dateBytes; ++i) {
-        parity ^= static_cast<uint8_t>(data[DataView::IMU_DATE_MS[DataView::OFFSET_INDEX] + i]);
+        parity ^= static_cast<uint8_t>(data[DataView::POSE_DATE_MS[DataView::OFFSET_INDEX] + i]);
     }
 
-    const int quatBytes = DataView::IMU_QUAT_DATA[DataView::COUNT_INDEX] * DataView::IMU_QUAT_DATA[DataView::SIZE_INDEX];
+    const int quatBytes = DataView::POSE_ORIENTATION_DATA[DataView::COUNT_INDEX] * DataView::POSE_ORIENTATION_DATA[DataView::SIZE_INDEX];
     for (int i = 0; i < quatBytes; ++i) {
-        parity ^= static_cast<uint8_t>(data[DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX] + i]);
+        parity ^= static_cast<uint8_t>(data[DataView::POSE_ORIENTATION_DATA[DataView::OFFSET_INDEX] + i]);
     }
 
     return parityByte == parity;
@@ -599,15 +604,15 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
 
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
-void BreezyDesktopEffect::updateImuRotation() {    
+void BreezyDesktopEffect::updatePoseOrientation() {    
     // Reentrancy guard: if an update is already in progress, skip
     bool expected = false;
-    if (!m_imuUpdateInProgress.compare_exchange_strong(expected, true)) {
+    if (!m_poseUpdateInProgress.compare_exchange_strong(expected, true)) {
         return;
     }
 
     // destructor called on function exit, triggers reset of the flag
-    struct ResetFlag { std::atomic<bool>* f; ~ResetFlag(){ f->store(false); } } reset{&m_imuUpdateInProgress};
+    struct ResetFlag { std::atomic<bool>* f; ~ResetFlag(){ f->store(false); } } reset{&m_poseUpdateInProgress};
 
     const QString shmPath = QStringLiteral("/dev/shm/breezy_desktop_imu");
     QFile shmFile(shmPath);
@@ -623,9 +628,9 @@ void BreezyDesktopEffect::updateImuRotation() {
 
     uint8_t version = static_cast<uint8_t>(data[DataView::VERSION[DataView::OFFSET_INDEX]]);
     uint8_t enabledFlag = static_cast<uint8_t>(data[DataView::ENABLED[DataView::OFFSET_INDEX]]);
-    uint64_t imuDateMs;
-    memcpy(&imuDateMs, data + DataView::IMU_DATE_MS[DataView::OFFSET_INDEX], sizeof(imuDateMs));
-    imuDateMs = qFromLittleEndian(imuDateMs);
+    uint64_t poseDateMs;
+    memcpy(&poseDateMs, data + DataView::POSE_DATE_MS[DataView::OFFSET_INDEX], sizeof(poseDateMs));
+    poseDateMs = qFromLittleEndian(poseDateMs);
 
     const qint64 currentTimeMs = QDateTime::currentMSecsSinceEpoch();
     const bool updateConfig = lastConfigUpdate == 0 || currentTimeMs - lastConfigUpdate > 1000;
@@ -664,9 +669,9 @@ void BreezyDesktopEffect::updateImuRotation() {
         lastConfigUpdate = currentTimeMs;
     }
 
-    const bool validKeepAlive = (currentTimeMs - imuDateMs) < 5000;
+    const bool validKeepAlive = (currentTimeMs - poseDateMs) < 5000;
     const bool validData = validKeepAlive && m_diagonalFOV != 0.0f;
-    const uint8_t expectedVersion = 4;
+    const uint8_t expectedVersion = 5;
     bool enabledFlagSet = (enabledFlag != 0);
     bool validVersion = (version == expectedVersion);
     const bool wasEnabled = m_enabled;
@@ -675,7 +680,7 @@ void BreezyDesktopEffect::updateImuRotation() {
         // give a grace period after enabling the effect
         if (wasEnabled && (currentTimeMs - activatedAt > 1000)) {
             qCCritical(KWIN_XR) << "\t\t\tBreezy - disabling effect; currentTimeMs:" << currentTimeMs
-                                << "imuDateMs:" << imuDateMs
+                                << "poseDateMs:" << poseDateMs
                                 << "enabledFlag:" << enabledFlag
                                 << "version:" << version
                                 << "diagonalFOV:" << m_diagonalFOV;
@@ -686,7 +691,7 @@ void BreezyDesktopEffect::updateImuRotation() {
         }
     } else if (!wasEnabled) {
         qCCritical(KWIN_XR) << "\t\t\tBreezy - enabling effect; currentTimeMs:" << currentTimeMs
-                                << "imuDateMs:" << imuDateMs
+                                << "poseDateMs:" << poseDateMs
                                 << "enabledFlag:" << enabledFlag
                                 << "version:" << version
                                 << "diagonalFOV:" << m_diagonalFOV;
@@ -698,50 +703,56 @@ void BreezyDesktopEffect::updateImuRotation() {
     
     if (updateConfig) Q_EMIT devicePropertiesChanged();
 
-    float imuData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
-    memcpy(imuData, data + DataView::IMU_QUAT_DATA[DataView::OFFSET_INDEX], sizeof(imuData));
-    bool wasImuResetState = m_imuResetState;
-    m_imuResetState = (imuData[0] == 0.0f && imuData[1] == 0.0f && imuData[2] == 0.0f && imuData[3] == 1.0f);
-    if (m_imuResetState != wasImuResetState) {
-        if (m_imuResetState) recenter();
-        Q_EMIT imuResetStateChanged();
+    float posePositionData[3];
+    memcpy(posePositionData, data + DataView::POSE_POSITION_DATA[DataView::OFFSET_INDEX], sizeof(posePositionData));
+
+    // convert NWU to EUS by passing position values: -y, z, -x
+    m_posePosition = QVector3D(-posePositionData[1], posePositionData[2], -posePositionData[0]);
+
+    float poseOrientationData[4 * DataView::POSE_ORIENTATION_ENTRIES]; // 4 quaternion-sized rows
+    memcpy(poseOrientationData, data + DataView::POSE_ORIENTATION_DATA[DataView::OFFSET_INDEX], sizeof(poseOrientationData));
+    bool wasPoseResetState = m_poseResetState;
+    m_poseResetState = (poseOrientationData[0] == 0.0f && poseOrientationData[1] == 0.0f && poseOrientationData[2] == 0.0f && poseOrientationData[3] == 1.0f);
+    if (m_poseResetState != wasPoseResetState) {
+        if (m_poseResetState) recenter();
+        Q_EMIT poseResetStateChanged();
     }
 
-    // convert NWU to EUS by passing root.rotation values: -y, z, -x
-    QQuaternion quatT0(imuData[3], -imuData[1], imuData[2], -imuData[0]);
+    // convert NWU to EUS by passing orientation values: -y, z, -x
+    QQuaternion quatT0(poseOrientationData[3], -poseOrientationData[1], poseOrientationData[2], -poseOrientationData[0]);
 
-    int imuDataOffset = DataView::IMU_QUAT_ENTRIES;
-    QQuaternion quatT1(imuData[imuDataOffset + 3], -imuData[imuDataOffset + 1], imuData[imuDataOffset + 2], -imuData[imuDataOffset + 0]);
+    int orientationDataOffset = DataView::POSE_ORIENTATION_ENTRIES;
+    QQuaternion quatT1(poseOrientationData[orientationDataOffset + 3], -poseOrientationData[orientationDataOffset + 1], poseOrientationData[orientationDataOffset + 2], -poseOrientationData[orientationDataOffset + 0]);
 
-    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
+    orientationDataOffset += DataView::POSE_ORIENTATION_ENTRIES;
 
     // skip the 3rd quaternion
-    imuDataOffset += DataView::IMU_QUAT_ENTRIES;
+    orientationDataOffset += DataView::POSE_ORIENTATION_ENTRIES;
 
-    // set imuRotations to the last two rotations, leave out the elapsed time
-    m_imuRotations.clear();
-    m_imuRotations.append(quatT0);
-    m_imuRotations.append(quatT1);
+    // set poseOrientations to the last two rotations, leave out the elapsed time
+    m_poseOrientations.clear();
+    m_poseOrientations.append(quatT0);
+    m_poseOrientations.append(quatT1);
 
     // 4th row isn't actually a quaternion, it contains the timestamps for each of the 3 quaternions
-    // elapsed time between T0 and T1 is: imuData[0] - imuData[1]
-    m_imuTimeElapsedMs = static_cast<quint32>(imuData[imuDataOffset + 0] - imuData[imuDataOffset + 1]);
+    // elapsed time between T0 and T1 is: poseOrientationData[0] - poseOrientationData[1]
+    m_poseTimeElapsedMs = static_cast<quint32>(poseOrientationData[orientationDataOffset + 0] - poseOrientationData[orientationDataOffset + 1]);
 
-    m_imuTimestamp = imuDateMs;
+    m_poseTimestamp = poseDateMs;
     
-    float originData[4 * DataView::IMU_QUAT_ENTRIES]; // 4 quaternion-sized rows
+    float originData[4 * DataView::POSE_ORIENTATION_ENTRIES]; // 4 quaternion-sized rows
     memcpy(originData, data + DataView::SMOOTH_FOLLOW_ORIGIN_DATA[DataView::OFFSET_INDEX], sizeof(originData));
 
     // convert NWU to EUS by passing root.rotation values: -y, z, -x
     QQuaternion sfQuatT0(originData[3], -originData[1], originData[2], -originData[0]);
 
-    int originDataOffset = DataView::IMU_QUAT_ENTRIES;
+    int originDataOffset = DataView::POSE_ORIENTATION_ENTRIES;
     QQuaternion sfQuatT1(originData[originDataOffset + 3], -originData[originDataOffset + 1], originData[originDataOffset + 2], -originData[originDataOffset + 0]);
 
-    originDataOffset += DataView::IMU_QUAT_ENTRIES;
+    originDataOffset += DataView::POSE_ORIENTATION_ENTRIES;
 
     // skip the 3rd quaternion
-    originDataOffset += DataView::IMU_QUAT_ENTRIES;
+    originDataOffset += DataView::POSE_ORIENTATION_ENTRIES;
 
     // set smoothFollowOrigin to the last two rotations, leave out the elapsed time
     m_smoothFollowOrigin.clear();
@@ -878,9 +889,9 @@ void BreezyDesktopEffect::evaluateCursorOnScreenState(const QPointF &prevPos, co
     const bool onScreen = 
         m_effectOnScreenExpandedGeometry.contains(newPos.toPoint()) || 
         m_effectOnScreenExpandedGeometry.contains(predicted.toPoint());
-    if (m_enabled && !m_imuResetState && !m_cursorHidden && onScreen) {
+    if (m_enabled && !m_poseResetState && !m_cursorHidden && onScreen) {
         hideCursor();
-    } else if (m_cursorHidden && (!m_enabled || m_imuResetState || !onScreen)) {
+    } else if (m_cursorHidden && (!m_enabled || m_poseResetState || !onScreen)) {
         showCursor();
     }
 }
