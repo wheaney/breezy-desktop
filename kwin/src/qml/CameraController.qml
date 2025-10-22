@@ -22,17 +22,17 @@ Item {
         aspectRatio
     );
 
-    // if true, then smoothFollowEnabled just cleared and the IMU data is slerping back, 
+    // if true, then smoothFollowEnabled just cleared and the orientation data is slerping back, 
     // continue to use the origin data for the duration of the Timer
     property bool smoothFollowDisabling: false
 
     property real clipNear: 10.0
     property real clipFar: 10000.0
 
-    function ratesOfChange(rotations) {
-        const e0 = rotations[0].toEulerAngles();
-        const e1 = rotations[1].toEulerAngles();
-        const dt = effect.imuTimeElapsedMs;
+    function ratesOfChange(orientations) {
+        const e0 = orientations[0].toEulerAngles();
+        const e1 = orientations[1].toEulerAngles();
+        const dt = effect.poseTimeElapsedMs;
         const yawDegrees = (e0.y - e1.y) / dt;
         const pitchDegrees = (e0.x - e1.x) / dt;
         const rollDegrees = (e0.z - e1.z) / dt;
@@ -49,22 +49,22 @@ Item {
         };
     }
 
-    function updateCamera(rotations, rates) {
+    function updateCamera(orientations, position, rates) {
         camera.eulerRotation = applyLookAhead(
             rates,
             lookAheadMS(
-                effect.imuTimestamp,
+                effect.poseTimestamp,
                 effect.lookAheadConfig,
                 effect.lookAheadOverride
             )
         );
-        camera.position = rotations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels));
+        camera.position = position.times(fovDetails.completeScreenDistancePixels).plus(orientations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels)));
     }
 
-    // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
-    function lookAheadMS(imuDateMs, lookAheadConfig, override) {
-        // how stale the imu data is
-        const dataAge = Date.now() - imuDateMs;
+    // how far to look ahead is how old the pose data is plus a constant that is either the default for this device or an override
+    function lookAheadMS(poseDateMs, lookAheadConfig, override) {
+        // how stale the pose data is
+        const dataAge = Date.now() - poseDateMs;
 
         const lookAheadConstant = lookAheadConfig[0];
         const lookAheadMultiplier = lookAheadConfig[1];
@@ -148,10 +148,10 @@ Item {
     FrameAnimation {
         running: true
         onTriggered: {
-            const rotations = (effect.smoothFollowEnabled || smoothFollowDisabling) ? effect.smoothFollowOrigin : effect.imuRotations;
-            if (rotations && rotations.length > 0) {
-                const rates = ratesOfChange(rotations);
-                updateCamera(rotations, rates);
+            const orientations = (effect.smoothFollowEnabled || smoothFollowDisabling) ? effect.smoothFollowOrigin : effect.poseOrientations;
+            if (orientations && orientations.length > 0) {
+                const rates = ratesOfChange(orientations);
+                updateCamera(orientations, effect.posePosition, rates);
                 applyRollingShutterShear(rates);
             }
         }

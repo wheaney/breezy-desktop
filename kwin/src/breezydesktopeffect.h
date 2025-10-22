@@ -24,10 +24,11 @@ namespace KWin
         Q_PROPERTY(int effectTargetScreenIndex READ effectTargetScreenIndex WRITE setEffectTargetScreenIndex)
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
         Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
-        Q_PROPERTY(bool imuResetState READ imuResetState NOTIFY imuResetStateChanged)
-        Q_PROPERTY(QList<QQuaternion> imuRotations READ imuRotations)
-        Q_PROPERTY(quint32 imuTimeElapsedMs READ imuTimeElapsedMs)
-        Q_PROPERTY(quint64 imuTimestamp READ imuTimestamp)
+        Q_PROPERTY(bool poseResetState READ poseResetState NOTIFY poseResetStateChanged)
+        Q_PROPERTY(QList<QQuaternion> poseOrientations READ poseOrientations)
+        Q_PROPERTY(QVector3D posePosition READ posePosition)
+        Q_PROPERTY(quint32 poseTimeElapsedMs READ poseTimeElapsedMs)
+        Q_PROPERTY(quint64 poseTimestamp READ poseTimestamp)
         Q_PROPERTY(QString cursorImageSource READ cursorImageSource NOTIFY cursorImageSourceChanged)
         Q_PROPERTY(QSize cursorImageSize READ cursorImageSize NOTIFY cursorImageSourceChanged)
         Q_PROPERTY(QPointF cursorPos READ cursorPos NOTIFY cursorPosChanged)
@@ -73,10 +74,11 @@ namespace KWin
         void setZoomOnFocusEnabled(bool enabled);
         int lookingAtScreenIndex() const { return m_lookingAtScreenIndex; }
         void setLookingAtScreenIndex(int index);
-        QList<QQuaternion> imuRotations() const;
-        quint32 imuTimeElapsedMs() const;
-        quint64 imuTimestamp() const;
-        bool imuResetState() const;
+        QList<QQuaternion> poseOrientations() const;
+        QVector3D posePosition() const;
+        quint32 poseTimeElapsedMs() const;
+        quint64 poseTimestamp() const;
+        bool poseResetState() const;
         QList<qreal> lookAheadConfig() const;
         qreal lookAheadOverride() const;
         void setLookAheadOverride(qreal override);
@@ -112,7 +114,7 @@ namespace KWin
         void disableDriver();
         void toggle();
         void addVirtualDisplay(QSize size);
-        void updateImuRotation();
+        void updatePoseOrientation();
         void updateCursorImage();
         void updateCursorPos();
         QVariantList listVirtualDisplays() const;
@@ -129,7 +131,7 @@ namespace KWin
         void displayWrappingSchemeChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
-        void imuResetStateChanged();
+        void poseResetStateChanged();
         void sbsEnabledChanged();
         void smoothFollowEnabledChanged();
         void devicePropertiesChanged();
@@ -165,10 +167,11 @@ namespace KWin
         bool m_zoomOnFocusEnabled = false;
         int m_lookingAtScreenIndex = -1;
         int m_effectTargetScreenIndex = -1;
-        bool m_imuResetState;
-        QList<QQuaternion> m_imuRotations;
-        quint32 m_imuTimeElapsedMs;
-        quint64 m_imuTimestamp = 0;
+        bool m_poseResetState;
+        QList<QQuaternion> m_poseOrientations;
+        QVector3D m_posePosition;
+        quint32 m_poseTimeElapsedMs;
+        quint64 m_poseTimestamp = 0;
         QList<qreal> m_lookAheadConfig;
         qreal m_lookAheadOverride = -1.0; // -1 = use device default
         QList<quint32> m_displayResolution;
@@ -183,8 +186,8 @@ namespace KWin
         bool m_cursorHidden = false;
         QPointF m_cursorPos;
         QTimer *m_cursorUpdateTimer = nullptr;
-        QTimer *m_imuWatchdogTimer = nullptr;
-        std::atomic<bool> m_imuUpdateInProgress{false};
+        QTimer *m_watchdogTimer = nullptr;
+        std::atomic<bool> m_poseUpdateInProgress{false};
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
         qreal m_displaySpacing = 0.0;

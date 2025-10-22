@@ -417,7 +417,8 @@ export const VirtualDisplayEffect = GObject.registerClass({
     vfunc_build_pipeline() {
         const declarations = `
             uniform bool u_show_banner;
-            uniform mat4 u_imu_data;
+            uniform mat4 u_pose_orientation;
+            uniform vec3 u_pose_position;
             uniform float u_look_ahead_ms;
             uniform vec4 u_look_ahead_cfg;
             uniform mat4 u_projection_matrix;
@@ -460,7 +461,11 @@ export const VirtualDisplayEffect = GObject.registerClass({
             vec4 nwuToESU(vec4 v) {
                 return vec4(-v.y, v.z, -v.x, v.w);
             }
-                
+
+            vec3 nwuToESU(vec3 v) {
+                return vec3(-v.y, v.z, -v.x);
+            }
+
             // returns the rate of change between the two vectors, in same time units as delta_time
             // e.g. if delta_time is in ms, then the rate of change is "per ms"
             vec3 rateOfChange(vec3 v1, vec3 v2, float delta_time) {
@@ -487,14 +492,23 @@ export const VirtualDisplayEffect = GObject.registerClass({
             if (!u_show_banner) {
                 float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
+                vec4 quat_t0 = nwuToESU(quatConjugate(u_pose_orientation[0]));
+                vec3 position_vector = applyQuaternionToVector(nwuToESU(u_pose_position), quat_t0);
+                vec3 final_lens_position = u_lens_vector + position_vector;
+
                 vec3 complete_vector = applyXRotationToVector(world_pos.xyz, u_rotation_x_radians);
                 complete_vector = applyYRotationToVector(complete_vector, u_rotation_y_radians);
 
-                vec4 quat_t0 = nwuToESU(quatConjugate(u_imu_data[0]));
                 vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
-                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_imu_data[1])));
-                float delta_time_t0 = u_imu_data[3][0] - u_imu_data[3][1];
-                vec3 velocity_t0 = rateOfChange(rotated_vector_t0, rotated_vector_t1, delta_time_t0);
+                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_pose_orientation[1])));
+                float delta_time_t0 = u_pose_orientation[3][0] - u_pose_orientation[3][1];
+
+                // how quickly the vertex is moving relative to the camera
+                vec3 velocity_t0 = rateOfChange(
+                    rotated_vector_t0 - final_lens_position, 
+                    rotated_vector_t1 - final_lens_position, 
+                    delta_time_t0
+                );
 
                 // compute the capped look ahead with scanline adjustments
                 float look_ahead_scanline_ms = u_look_ahead_ms == 0.0 ? 0.0 : vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
@@ -502,7 +516,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
                 vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
 
-                world_pos = vec4(look_ahead_vector - u_lens_vector, world_pos.w);
+                world_pos = vec4(look_ahead_vector - final_lens_position, world_pos.w);
 
                 world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
 
@@ -557,9 +571,12 @@ export const VirtualDisplayEffect = GObject.registerClass({
                     this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
                     lookAheadSet = true;
                 }
-                this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.imu_data);
+                const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.completeScreenDistancePixels);
+                this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
+                this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
             } else {
-                this.set_uniform_matrix(this.get_uniform_location("u_imu_data"), false, 4, this.imu_snapshots.smooth_follow_origin);
+                this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.smooth_follow_origin);
+                this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, [0.0, 0.0, 0.0]);
             }
             if (!lookAheadSet) {
                 this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);

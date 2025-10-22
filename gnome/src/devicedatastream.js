@@ -21,7 +21,7 @@ const IPC_FILE_PATH = "/dev/shm/breezy_desktop_imu";
 const KEEPALIVE_REFRESH_INTERVAL_SEC = 1;
 
 // the driver should be using the same data layout version
-const DATA_LAYOUT_VERSION = 4;
+const DATA_LAYOUT_VERSION = 5;
 
 // DataView info: [offset, size, count]
 const VERSION = [0, UINT8_SIZE, 1];
@@ -34,16 +34,17 @@ const SBS_ENABLED = [dataViewEnd(LENS_DISTANCE_RATIO), BOOL_SIZE, 1];
 const CUSTOM_BANNER_ENABLED = [dataViewEnd(SBS_ENABLED), BOOL_SIZE, 1];
 const SMOOTH_FOLLOW_ENABLED = [dataViewEnd(CUSTOM_BANNER_ENABLED), BOOL_SIZE, 1];
 const SMOOTH_FOLLOW_ORIGIN_DATA = [dataViewEnd(SMOOTH_FOLLOW_ENABLED), FLOAT_SIZE, 16];
-const EPOCH_MS = [dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), UINT_SIZE, 2];
-const IMU_QUAT_DATA = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
-const IMU_PARITY_BYTE = [dataViewEnd(IMU_QUAT_DATA), UINT8_SIZE, 1];
+const POSE_POSITION = [dataViewEnd(SMOOTH_FOLLOW_ORIGIN_DATA), FLOAT_SIZE, 3];
+const EPOCH_MS = [dataViewEnd(POSE_POSITION), UINT_SIZE, 2];
+const POSE_ORIENTATION = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
+const IMU_PARITY_BYTE = [dataViewEnd(POSE_ORIENTATION), UINT8_SIZE, 1];
 const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
 
 function checkParityByte(dataView) {
     const parityByte = dataViewUint8(dataView, IMU_PARITY_BYTE);
     let parity = 0;
     const epochUint8 = dataViewUint8Array(dataView, EPOCH_MS);
-    const imuDataUint8 = dataViewUint8Array(dataView, IMU_QUAT_DATA);
+    const imuDataUint8 = dataViewUint8Array(dataView, POSE_ORIENTATION);
     for (let i = 0; i < epochUint8.length; i++) {
         parity ^= epochUint8[i];
     }
@@ -210,10 +211,11 @@ export const DeviceDataStream = GObject.registerClass({
                     const validData = validKeepAlive && displayFov !== 0.0;
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
-                    let imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                    let poseOrientation = dataViewFloatArray(dataView, POSE_ORIENTATION);
+                    let posePosition = dataViewFloatArray(dataView, POSE_POSITION);
                     let smoothFollowEnabled = !this.legacy_follow_mode && dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
                     let smoothFollowOrigin = dataViewFloatArray(dataView, SMOOTH_FOLLOW_ORIGIN_DATA);
-                    const imuResetState = enabled && validData && imuData[0] === 0.0 && imuData[1] === 0.0 && imuData[2] === 0.0 && imuData[3] === 1.0;
+                    const imuResetState = enabled && validData && poseOrientation[0] === 0.0 && poseOrientation[1] === 0.0 && poseOrientation[2] === 0.0 && poseOrientation[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
 
@@ -261,7 +263,8 @@ export const DeviceDataStream = GObject.registerClass({
                                 if (checkParityByte(dataView)) {
                                     
                                     this.imu_snapshots = {
-                                        imu_data: imuData,
+                                        pose_orientation: poseOrientation,
+                                        pose_position: posePosition,
                                         timestamp_ms: imuDateMs,
                                         smooth_follow_origin: smoothFollowOrigin
                                     };
@@ -277,7 +280,8 @@ export const DeviceDataStream = GObject.registerClass({
                                     buffer = new Uint8Array(data[1]).buffer;
                                     dataView = new DataView(buffer);
                                     imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
-                                    imuData = dataViewFloatArray(dataView, IMU_QUAT_DATA);
+                                    poseOrientation = dataViewFloatArray(dataView, POSE_ORIENTATION);
+                                    posePosition = dataViewFloatArray(dataView, POSE_POSITION);
                                 }
                             }
                         }
@@ -311,15 +315,17 @@ export const DeviceDataStream = GObject.registerClass({
             if (!keepalive_only) {
                 this._counter = ((this._counter ?? -1)+1)%COUNTER_MAX;
 
-                const imuDataFirst = nextDebugIMUQuaternion(this._counter);
-                const imuData = [
-                    ...imuDataFirst,
-                    ...imuDataFirst,
-                    ...imuDataFirst,
+                const poseOrientationFirst = nextDebugIMUQuaternion(this._counter);
+                const poseOrientation = [
+                    ...poseOrientationFirst,
+                    ...poseOrientationFirst,
+                    ...poseOrientationFirst,
                     2.0, 1.0, 0.0, 0.0
                 ]
+                const posePosition = [0.0, 0.0, 0.0];
                 this.imu_snapshots = {
-                    imu_data: imuData,
+                    pose_orientation: poseOrientation,
+                    pose_position: posePosition,
                     timestamp_ms: Date.now(),
                     smooth_follow_origin: [0.0, 0.0, 0.0, 1.0]
                 };

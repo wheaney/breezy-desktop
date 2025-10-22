@@ -93,14 +93,14 @@ Item {
 
     property bool targetScreenSupported: supportedModels.some(model => root.targetScreen.model.includes(model))
     property bool targetScreenIsVirtual: targetScreen.name.includes("BreezyDesktop")
-    property bool imuResetState: effect.imuResetState
+    property bool poseResetState: effect.poseResetState
     property bool isEnabled: effect.isEnabled
 
     Component {
         id: desktopViewComponent
         SingleDesktopView {
             supportsXR: targetScreenSupported
-            showCalibratingBanner: isEnabled && imuResetState
+            showCalibratingBanner: isEnabled && poseResetState
         }
     }
 
@@ -141,8 +141,8 @@ Item {
     }
 
     function checkLoadedComponent() {
-        console.log(`Breezy - checking screen ${targetScreen.model}: ${targetScreenSupported} ${targetScreenIsVirtual} ${isEnabled} ${imuResetState}`);
-        const show3DView = targetScreenSupported && isEnabled && !imuResetState;
+        console.log(`Breezy - checking screen ${targetScreen.model}: ${targetScreenSupported} ${targetScreenIsVirtual} ${isEnabled} ${poseResetState}`);
+        const show3DView = targetScreenSupported && isEnabled && !poseResetState;
         if (!targetScreenIsVirtual) viewLoader.sourceComponent = show3DView ? view3DComponent : desktopViewComponent;
         if (targetScreenSupported) effect.effectTargetScreenIndex = KWinComponents.Workspace.screens.indexOf(targetScreen);
     }
@@ -151,7 +151,7 @@ Item {
         checkLoadedComponent();
     }
 
-    onImuResetStateChanged: {
+    onPoseResetStateChanged: {
         checkLoadedComponent();
     }
 
