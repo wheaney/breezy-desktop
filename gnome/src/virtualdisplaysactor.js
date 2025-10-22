@@ -785,12 +785,12 @@ export const VirtualDisplaysActor = GObject.registerClass({
                        (!this._smooth_follow_slerping || this.focused_monitor_index === -1)) {
                 // if smooth follow is enabled, use the origin IMU data to inform the initial focused monitor
                 // since it reflects where the user is looking in relation to the original monitor positions
-                const currentPoseQuat = this.smooth_follow_enabled ? 
+                const currentOrientationQuat = this.smooth_follow_enabled ? 
                     this.imu_snapshots.smooth_follow_origin.splice(0, 4) : 
-                    this.imu_snapshots.imu_data.splice(0, 4);
+                    this.imu_snapshots.pose_orientation.splice(0, 4);
 
                 const focusedMonitorIndex = findFocusedMonitor(
-                    currentPoseQuat,
+                    currentOrientationQuat,
                     this.monitor_placements.map(monitorVectors => monitorVectors.centerLook), 
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),
