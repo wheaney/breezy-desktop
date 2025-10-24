@@ -176,12 +176,21 @@ export const VirtualDisplayEffect = GObject.registerClass({
             GObject.ParamFlags.READWRITE,
             true
         ),
+        'display-size': GObject.ParamSpec.double(
+            'display-size',
+            'Display size',
+            'Size of the display',
+            GObject.ParamFlags.READWRITE,
+            0.1,
+            2.5,
+            1.0
+        ),
         'display-distance': GObject.ParamSpec.double(
             'display-distance',
             'Display Distance',
             'Distance of the display from the camera',
             GObject.ParamFlags.READWRITE,
-            0.0, 
+            0.1, 
             2.5, 
             1.0
         ),
@@ -190,7 +199,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
             'Display distance default',
             'Distance to use when not explicitly set, or when reset',
             GObject.ParamFlags.READWRITE, 
-            0.2, 
+            0.1, 
             2.5, 
             1.0
         ),
@@ -253,6 +262,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this._use_smooth_follow_origin = false;
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
+        this.connect('notify::display-size', this._update_display_position.bind(this));
         this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
         this.connect('notify::monitor-placements', this._update_display_position.bind(this));
         this.connect('notify::show-banner', this._handle_banner_update.bind(this));
@@ -389,7 +399,11 @@ export const VirtualDisplayEffect = GObject.registerClass({
             finalPositionVector = noRotationVector.map(coord => coord * inverse_follow_ease);
             finalPositionVector[0] = noRotationVector[0];
         }
-        this._vertices = createVertexMesh(this.fov_details, this.monitor_details, finalPositionVector);
+        const resizedMonitorDetails = {
+            width: this.monitor_details.width * this.display_size,
+            height: this.monitor_details.height * this.display_size
+        };
+        this._vertices = createVertexMesh(this.fov_details, resizedMonitorDetails, finalPositionVector);
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
         if (this._initialized) {
@@ -574,6 +588,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.completeScreenDistancePixels);
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
+                console.log(`Breezy - Setting pose position: ${posePositionPixels}`);
             } else {
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.smooth_follow_origin);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, [0.0, 0.0, 0.0]);

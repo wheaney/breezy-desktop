@@ -19,11 +19,8 @@ const FOCUS_THRESHOLD = 0.95 / 2.0;
 // if we leave the monitor with some margin, unfocus even if no other monitor is in focus
 const UNFOCUS_THRESHOLD = 1.1 / 2.0;
 
-// returns how far the look vector is from the center of the monitor, as a percentage of the monitor's width
+// returns how far the look vector is from the center of the monitor, as a percentage of the monitor's dimensions
 function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
-    const monitorAspectRatio = monitorDetails.width / monitorDetails.height;
-
-    // weight the up distance by the aspect ratio
     const vectorUpPixels = upAngleToLength(
         fovDetails.defaultDistanceVerticalRadians,
         fovDetails.heightPixels,
@@ -31,7 +28,7 @@ function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVec
         monitorVector[2],
         monitorVector[0]
     );
-    const upDeltaPixels = (lookUpPixels - vectorUpPixels) * monitorAspectRatio;
+    const upPercentage = Math.abs(lookUpPixels - vectorUpPixels) / monitorDetails.height;
 
     const vectorWestPixels = westAngleToLength(
         fovDetails.defaultDistanceHorizontalRadians,
@@ -40,11 +37,10 @@ function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVec
         monitorVector[1],
         monitorVector[0]
     );
-    const westDeltaPixels = lookWestPixels - vectorWestPixels;
-    const totalDeltaPixels = Math.sqrt(upDeltaPixels * upDeltaPixels + westDeltaPixels * westDeltaPixels);
+    const westPercentage = Math.abs(lookWestPixels - vectorWestPixels) / monitorDetails.width;
 
-    // threshold is a percentage of width, and height was already properly weighted
-    return totalDeltaPixels / monitorDetails.width;
+    // how close we are to any edge is the largest of the two percentages
+    return Math.max(upPercentage, westPercentage);
 }
 
 /**
@@ -60,6 +56,8 @@ function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVec
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
 function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
+    if (currentFocusedIndex !== -1 && smoothFollowEnabled) return currentFocusedIndex;
+
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
     const rotatedLookVector = applyQuaternionToVector(lookVector, quaternion);
 
@@ -82,9 +80,6 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
         rotatedLookVector[0]
     );
 
-    let closestIndex = -1;
-    let closestDistance = Infinity;
-
     // the currently focused monitor is the most likely to be the closest, check it first and exit early if it is
     if (currentFocusedIndex !== -1) {
         const focusedDistance = getMonitorDistance(
@@ -97,8 +92,11 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
             westConversionFns.angleToLength
         ) * focusedMonitorDistance;
 
-        if (smoothFollowEnabled || focusedDistance < UNFOCUS_THRESHOLD) return currentFocusedIndex;
+        if (focusedDistance < UNFOCUS_THRESHOLD) return currentFocusedIndex;
     }
+
+    let closestIndex = -1;
+    let closestDistance = Infinity;
 
     // find the vector closest to the rotated look vector
     monitorVectors.forEach((monitorVector, index) => {
@@ -499,7 +497,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Display size',
             'Size of the display',
             GObject.ParamFlags.READWRITE,
-            0.2,
+            0.1,
             2.5,
             1.0
         ),
@@ -515,7 +513,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Display Distance',
             'Distance of the display from the camera',
             GObject.ParamFlags.READWRITE,
-            0.2, 
+            0.1, 
             2.5,
             1.05
         ),
@@ -537,7 +535,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Display distance start',
             'Start distance when using the "change distance" shortcut.',
             GObject.ParamFlags.READWRITE, 
-            0.2, 
+            0.1, 
             2.5, 
             1.05
         ),
@@ -546,7 +544,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Display distance end',
             'End distance when using the "change distance" shortcut.',
             GObject.ParamFlags.READWRITE, 
-            0.2, 
+            0.1, 
             2.5, 
             1.05
         ),
@@ -578,7 +576,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
     constructor(params = {}) {
         super(params);
 
-        this._all_monitors = [
+        this._all_monitors_unmodified = [
             this.target_monitor,
             ...this.virtual_monitors
         ];
@@ -653,6 +651,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('toggle-display-distance-start', this._handle_display_distance_properties_change);
         notifyToFunction('toggle-display-distance-end', this._handle_display_distance_properties_change);
         notifyToFunction('display-distance', this._handle_display_distance_properties_change);
+        notifyToFunction('display-size', this._handle_display_size_change);
         notifyToFunction('monitor-wrapping-scheme', this._update_monitor_placements);
         notifyToFunction('monitor-spacing', this._update_monitor_placements);
         notifyToFunction('headset-display-as-viewport-center', this._update_monitor_placements);
@@ -663,6 +662,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
         notifyToFunction('custom-banner-enabled', this._handle_banner_update);
         notifyToFunction('framerate-cap', this._handle_frame_rate_cap_change);
         notifyToFunction('smooth-follow-enabled', this._handle_smooth_follow_enabled_change);
+        this._handle_display_size_change(false);
         this._handle_display_distance_properties_change();
         this._handle_frame_rate_cap_change();
 
@@ -680,8 +680,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
         ];
 
         Globals.logger.log_debug(`\t\t\tActor to display ratios: ${actorToDisplayRatios}, offsets: ${actorToDisplayOffsets}`);
-        
-        this._all_monitors.forEach(((monitor, index) => {
+
+        this._all_monitors_unmodified.forEach(((monitor, index) => {
             Globals.logger.log_debug(`\t\t\tMonitor ${index}: ${monitor.x}, ${monitor.y}, ${monitor.width}, ${monitor.height}`);
 
             const containerActor = new Clutter.Actor({
@@ -711,6 +711,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 monitor_placements: this.monitor_placements,
                 fov_details: this.fov_details,
                 target_monitor: this.target_monitor,
+                display_size: this.display_size,
                 display_distance: this.display_distance,
                 display_distance_default: this._display_distance_default(),
                 actor_to_display_ratios: actorToDisplayRatios,
@@ -735,6 +736,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
             [
                 'monitor-placements',
+                'display-size',
                 'fov-details',
                 'imu-snapshots',
                 'smooth-follow-enabled',
@@ -827,6 +829,10 @@ export const VirtualDisplaysActor = GObject.registerClass({
         this._redraw_timeline.start();
     }
 
+    _size_adjusted_target_monitor() {
+        return this._all_monitors[0];
+    }
+
     _display_distance_default() {
         return Math.max(this.display_distance, this.toggle_display_distance_start, this.toggle_display_distance_end);
     }
@@ -869,7 +875,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
         const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
         const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
 
-        if ((maxX - minX) / this.target_monitor.width >= (maxY - minY) / this.target_monitor.height) {
+        const targetMonitor = this._size_adjusted_target_monitor();
+        if ((maxX - minX) / targetMonitor.width >= (maxY - minY) / targetMonitor.height) {
             return 'horizontal';
         } else {
             return 'vertical';
@@ -878,17 +885,19 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
     _update_monitor_placements() {
         try {
+            const targetMonitor = this._size_adjusted_target_monitor();
+
             const minX = Math.min(...this._all_monitors.map(monitor => monitor.x));
             const maxX = Math.max(...this._all_monitors.map(monitor => monitor.x + monitor.width));
             const minY = Math.min(...this._all_monitors.map(monitor => monitor.y));
             const maxY = Math.max(...this._all_monitors.map(monitor => monitor.y + monitor.height));
 
             // the beginning edges of the viewport if it's centered on all displays
-            const allDisplaysCenterXBegin = (minX + maxX) / 2 - this.target_monitor.width / 2;
-            const allDisplaysCenterYBegin = (minY + maxY) / 2 - this.target_monitor.height / 2;
+            const allDisplaysCenterXBegin = (minX + maxX) / 2 - targetMonitor.width / 2;
+            const allDisplaysCenterYBegin = (minY + maxY) / 2 - targetMonitor.height / 2;
 
-            const viewportXBegin = this.headset_display_as_viewport_center ? this.target_monitor.x : allDisplaysCenterXBegin;
-            const viewportYBegin = this.headset_display_as_viewport_center ? this.target_monitor.y : allDisplaysCenterYBegin;
+            const viewportXBegin = this.headset_display_as_viewport_center ? targetMonitor.x : allDisplaysCenterXBegin;
+            const viewportYBegin = this.headset_display_as_viewport_center ? targetMonitor.y : allDisplaysCenterYBegin;
 
             this.fov_details = this._fov_details();
             this.lens_vector = [0.0, 0.0, -this.fov_details.lensDistancePixels];
@@ -897,8 +906,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
 
                 // shift all monitors so they center around the viewport center, then adjusted by the offsets
                 this._all_monitors.map(monitor => ({
-                    x: monitor.x - viewportXBegin - this.viewport_offset_x * this.target_monitor.width,
-                    y: monitor.y - viewportYBegin + this.viewport_offset_y * this.target_monitor.height,
+                    x: monitor.x - viewportXBegin - this.viewport_offset_x * targetMonitor.width,
+                    y: monitor.y - viewportYBegin + this.viewport_offset_y * targetMonitor.height,
                     width: monitor.width,
                     height: monitor.height
                 })),
@@ -914,6 +923,16 @@ export const VirtualDisplaysActor = GObject.registerClass({
         const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);
         this._is_display_distance_at_end = distance_from_end < distance_from_start;
         this._update_monitor_placements();
+    }
+
+    _handle_display_size_change(update_placements = true) {
+        this._all_monitors = this._all_monitors_unmodified.map(monitor => ({
+            x: monitor.x * this.display_size,
+            y: monitor.y * this.display_size,
+            width: monitor.width * this.display_size,
+            height: monitor.height * this.display_size
+        }));
+        if (update_placements) this._update_monitor_placements();
     }
 
     _handle_banner_update() {
