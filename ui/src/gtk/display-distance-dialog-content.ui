@@ -25,7 +25,7 @@
         <property name="has-origin">false</property>
         <property name="adjustment">
           <object class="GtkAdjustment" id="display_distance_adjustment">
-            <property name="lower">0.2</property>
+            <property name="lower">0.1</property>
             <property name="upper">2.5</property>
             <property name="step-increment">0.01</property>
             <property name="value">1.05</property>

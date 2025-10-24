@@ -33,6 +33,8 @@ class ConnectedDevice(Gtk.Box):
     effect_enable_switch = Gtk.Template.Child()
     disable_physical_displays_switch = Gtk.Template.Child()
     display_zoom_on_focus_switch = Gtk.Template.Child()
+    display_size_scale = Gtk.Template.Child()
+    display_size_adjustment = Gtk.Template.Child()
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
@@ -83,6 +85,7 @@ class ConnectedDevice(Gtk.Box):
     viewport_offset_x_adjustment = Gtk.Template.Child()
     viewport_offset_y_scale = Gtk.Template.Child()
     viewport_offset_y_adjustment = Gtk.Template.Child()
+    units_menu = Gtk.Template.Child()
 
     def __init__(self):
         super(Gtk.Box, self).__init__()
@@ -90,7 +93,7 @@ class ConnectedDevice(Gtk.Box):
         self.active = True
         self.all_enabled_state_inputs = [
             self.display_zoom_on_focus_switch,
-            # self.display_size_scale,
+            self.display_size_scale,
             self.follow_mode_switch,
             self.follow_threshold_scale,
             self.curved_display_switch,
@@ -115,7 +118,7 @@ class ConnectedDevice(Gtk.Box):
 
         self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::display-distance', self._handle_display_distance)
-        # self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('display-size', self.display_size_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
@@ -135,6 +138,10 @@ class ConnectedDevice(Gtk.Box):
         self.display_zoom_on_focus_switch.connect('notify::active', self._handle_zoom_on_focus_switch_changed)
         self.monitor_wrapping_scheme_menu.connect('changed', self._handle_monitor_wrapping_scheme_menu_changed)
         self._handle_monitor_wrapping_scheme_setting_changed(self.settings, self.settings.get_string('monitor-wrapping-scheme'))
+
+        current_units = self.settings.get_string('units')
+        self.units_menu.set_active_id(current_units)
+        self.units_menu.connect('changed', self._handle_units_menu_changed)
 
         bind_shortcut_settings(self.get_parent(), [
             [self.reassign_toggle_xr_effect_shortcut_button, self.toggle_xr_effect_shortcut_label],
@@ -175,6 +182,11 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
+
+        self.display_size_scale.set_format_value_func(lambda scale, val: self._format_size(val))
+        self.state_manager.connect('notify::connected-device-full-size-cm', self._handle_metric_change)
+        self.state_manager.connect('notify::connected-device-full-distance-cm', self._handle_metric_change)
+        self.settings.connect('changed::units', self._handle_units_changed)
 
         self.config_manager = ConfigManager.get_instance()
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
@@ -237,6 +249,27 @@ class ConnectedDevice(Gtk.Box):
             self.settings.set_double('display-distance', toggle_display_distance_start)
         elif not widget.get_active() and is_zoom_on_focus_already_enabled:
             self.settings.set_double('display-distance', toggle_display_distance_end)
+
+    def _handle_units_menu_changed(self, widget):
+        active_id = widget.get_active_id() or 'cm'
+        self.settings.set_string('units', active_id)
+
+    def _handle_units_changed(self, *args):
+        self._refresh_display_size_scale_value()
+        self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
+        self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
+
+    def _handle_metric_change(self, *args):
+        self._refresh_display_size_scale_value()
+        self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
+        self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
+
+    def _refresh_display_size_scale_value(self):
+        if self.display_size_scale.get_draw_value():
+            self.display_size_scale.set_draw_value(False)
+            self.display_size_scale.set_draw_value(True)
+        else:
+            self.display_size_scale.queue_draw()
 
     def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
         self.monitor_wrapping_scheme_menu.set_active_id(val)
@@ -314,16 +347,44 @@ class ConnectedDevice(Gtk.Box):
             self.display_zoom_on_focus_switch.set_active(should_zoom_on_focus_be_enabled)
 
     def _set_focused_display_distance(self, distance):
-        self.focused_display_distance_label.set_markup(f"{_('Focused display')}: <b>{distance}</b>")
+        self.focused_display_distance_label.set_markup(f"{_('Focused display')}: <b>{self._format_distance(distance)}</b>")
         self.settings.set_double('toggle-display-distance-start', distance)
 
         self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-end'))
 
     def _set_all_displays_distance(self, distance):
-        self.all_displays_distance_label.set_markup(f"{_('All displays')}: <b>{distance}</b>")
+        self.all_displays_distance_label.set_markup(f"{_('All displays')}: <b>{self._format_distance(distance)}</b>")
         self.settings.set_double('toggle-display-distance-end', distance)
         self.display_zoom_on_focus_switch.set_active(False)
         self.display_zoom_on_focus_switch.set_sensitive(distance != self.settings.get_double('toggle-display-distance-start'))
+
+    def _get_units(self):
+        units = self.settings.get_string('units')
+        return units if units in ['cm', 'in'] else 'cm'
+
+    def _format_distance(self, normalized):
+        sm = getattr(self, 'state_manager', None) or StateManager.get_instance()
+        full_cm = float(sm.get_property('connected-device-full-distance-cm') or 0.0)
+        if full_cm <= 0:
+            # Fallback to normalized display if metric unknown
+            return f"{round(normalized, 2)}"
+        cm = normalized * full_cm
+        if self._get_units() == 'in':
+            inches = cm / 2.54
+            return f"{inches:.2f} in"
+        return f"{cm:.1f} cm"
+
+    def _format_size(self, normalized):
+        sm = getattr(self, 'state_manager', None) or StateManager.get_instance()
+        full_cm = float(sm.get_property('connected-device-full-size-cm') or 0.0)
+        if full_cm <= 0:
+            # Fallback to normalized display if metric unknown
+            return f"{round(normalized, 2)}"
+        cm = normalized * full_cm
+        if self._get_units() == 'in':
+            inches = cm / 2.54
+            return f"{inches:.2f} in"
+        return f"{cm:.1f} cm"
 
     def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit):
         dialog = DisplayDistanceDialog(settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit)
