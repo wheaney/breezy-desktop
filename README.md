@@ -4,6 +4,8 @@
 
 [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/azSBTXNXMt)
 
+![Breezy KDE screenshot](assets/breezy-kde.png)
+
 ## What is this?
 
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
