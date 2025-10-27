@@ -588,7 +588,6 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.completeScreenDistancePixels);
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
-                console.log(`Breezy - Setting pose position: ${posePositionPixels}`);
             } else {
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.smooth_follow_origin);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, [0.0, 0.0, 0.0]);

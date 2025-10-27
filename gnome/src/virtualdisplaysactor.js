@@ -926,9 +926,12 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
 
     _handle_display_size_change(update_placements = true) {
+        const sizeComplement = 1.0 - this.display_size;
+        const sizeViewportOffsetX = sizeComplement * this.target_monitor.width;
+        const sizeViewportOffsetY = sizeComplement * this.target_monitor.height;
         this._all_monitors = this._all_monitors_unmodified.map(monitor => ({
-            x: monitor.x * this.display_size,
-            y: monitor.y * this.display_size,
+            x: monitor.x * this.display_size + sizeViewportOffsetX,
+            y: monitor.y * this.display_size + sizeViewportOffsetY,
             width: monitor.width * this.display_size,
             height: monitor.height * this.display_size
         }));
