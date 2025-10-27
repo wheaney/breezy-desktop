@@ -25,15 +25,20 @@ print_missing_dependencies() {
   printf "\n\033[1;31mMissing required components\033[0m\n"
   if [ -n "${BREEZY_DISTROBOX:-}" ]; then
     echo ""
-    echo "If you are using a Distrobox container, enter it and install packages there:"
-    echo "  distrobox enter $BREEZY_DISTROBOX"
+    printf "\033[1;33mFirst, enter your Distrobox container:\033[0m\n"
+    printf "\tdistrobox enter $BREEZY_DISTROBOX\n"
   fi
   echo ""
-  echo "Install the corresponding packages with your package manager, then rerun this setup:"
-  echo "  Debian/Ubuntu: sudo apt-get update && sudo apt-get install -y extra-cmake-modules kwin-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev libkf6kcmutils-dev libkf6globalaccel-dev libkf6i18n-dev libkf6windowsystem-dev libkf6xmlgui-dev qt6-base-dev qt6-declarative-dev libdrm-dev && (sudo apt-get install -y qml6-module-qtquick3d-helpers || true)"
-  echo "  Fedora/RHEL:   sudo dnf install -y extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel qt6-qtbase-devel qt6-qttools-devel qt6-qtquick3d wayland-devel libepoxy-devel libdrm-devel"
-  echo "  Arch:          sudo pacman -S --needed extra-cmake-modules qt6-base qt6-declarative qt6-tools qt6-quick3d kconfig kconfigwidgets kcoreaddons kglobalaccel ki18n kcmutils kxmlgui kwindowsystem kwin"
+  printf "\033[1;33mInstall the missing packages\033[0m with your package manager, then rerun this setup:\n"
+  printf "\tDebian/Ubuntu:\tsudo apt-get update && sudo apt-get install -y extra-cmake-modules kwin-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev libkf6kcmutils-dev libkf6globalaccel-dev libkf6i18n-dev libkf6windowsystem-dev libkf6xmlgui-dev qt6-base-dev qt6-declarative-dev libdrm-dev && (sudo apt-get install -y qml6-module-qtquick3d-helpers || true)\n"
+  printf "\tFedora/RHEL:\tsudo dnf install -y extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel qt6-qtbase-devel qt6-qttools-devel qt6-qtquick3d wayland-devel libepoxy-devel libdrm-devel\n"
+  printf "\tArch:\t\tsudo pacman -S --needed extra-cmake-modules qt6-base qt6-declarative qt6-tools qt6-quick3d kconfig kconfigwidgets kcoreaddons kglobalaccel ki18n kcmutils kxmlgui kwindowsystem kwin\n"
   echo ""
+  if [ -z "${BREEZY_DISTROBOX:-}" ]; then
+    printf "\033[1;33mOn immutable distributions\033[0m (e.g. Fedora Silverblue) you can run the build inside a container.\n"
+    printf "\tBREEZY_DISTROBOX=your-container-name %s\n" "$0 $*"
+    echo ""
+  fi
   printf "\n\033[1;33mIf you continue to see this issue\033[0m rerun as follows and attach the full output to a bug report:\n"
   printf "\n\tPRINT_FULL_STDERR=1 %s\n" "$0 $*"
   exit 1
