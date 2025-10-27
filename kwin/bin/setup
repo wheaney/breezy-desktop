@@ -77,7 +77,7 @@ EOF
 [Desktop Entry]
 Type=Application
 Name=Enable Breezy Wayland
-Comment=Switch to the persistent Breezy Desktop Wayland session
+Comment=Enable Wayland for Breezy Desktop virtual displays
 Exec=$enable_script
 Icon=com.xronlinux.BreezyDesktop
 Categories=Utility;
@@ -89,7 +89,7 @@ EOF
 [Desktop Entry]
 Type=Application
 Name=Disable Breezy Wayland
-Comment=Return to SteamOS Game Mode session selection
+Comment=Disable Wayland, allow return to Game Mode
 Exec=$disable_script
 Icon=com.xronlinux.BreezyDesktop
 Categories=Utility;

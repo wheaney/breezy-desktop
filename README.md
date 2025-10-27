@@ -38,8 +38,8 @@ To setup Breezy on KDE, with your glasses unplugged:
 2. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_kwin_setup)
 3. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
 4. Run the setup script: `~/Downloads/breezy_kwin_setup`
-5. If you're on SteamOS and want to use virtual displays, run this: `steamos-session-select plasma-wayland-persistent`
-   * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running just `steamos-session-select`
+5. If you're on SteamOS and want to use virtual displays, use the `Enable Breezy Wayland` desktop script
+   * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running the `Disable Breezy Wayland` desktop script
 6. Log out and back in.
 
 After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
