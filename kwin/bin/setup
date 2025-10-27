@@ -7,6 +7,104 @@ if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
     printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires Wayland\n"
 fi
 
+install_steamos_shortcuts() {
+  local os_release="/etc/os-release"
+  if [[ ! -r "$os_release" ]]; then
+    return
+  fi
+
+  local ID=""
+  local ID_LIKE=""
+  # shellcheck disable=SC1090
+  source "$os_release"
+
+  if [[ "$ID" != "steamos" && "$ID_LIKE" != *"steamos"* && "$ID_LIKE" != *"steamdeck"* ]]; then
+    return
+  fi
+
+  if ! command -v steamos-session-select >/dev/null 2>&1; then
+    echo "Skipping SteamOS shortcuts: steamos-session-select not found"
+    return
+  fi
+
+  local applications_dir="$HOME/.local/share/applications"
+  local desktop_dir="$HOME/Desktop"
+  local enable_script="$XDG_BIN_HOME/breezy_enable_wayland"
+  local disable_script="$XDG_BIN_HOME/breezy_disable_wayland"
+  local enable_desktop="$applications_dir/Enable Breezy Wayland.desktop"
+  local disable_desktop="$applications_dir/Disable Breezy Wayland.desktop"
+
+  local desktop_enable="$desktop_dir/Enable Breezy Wayland.desktop"
+  local desktop_disable="$desktop_dir/Disable Breezy Wayland.desktop"
+
+  mkdir -p "$applications_dir" "$desktop_dir"
+
+  cat > "$enable_script" <<'EOF'
+#!/usr/bin/env bash
+set -e
+
+MESSAGE="IMPORTANT - You will be unable to return to Game Mode until you use the Disable Breezy Wayland script."
+
+if command -v kdialog >/dev/null 2>&1; then
+  if ! kdialog --warningyesno "$MESSAGE" --title "Enable Breezy Wayland" --yes-label "Enable" --no-label "Cancel"; then
+    exit 0
+  fi
+elif command -v zenity >/dev/null 2>&1; then
+  if ! zenity --question --title="Enable Breezy Wayland" --text="$MESSAGE" --ok-label="Enable" --cancel-label="Cancel" --no-wrap; then
+    exit 0
+  fi
+else
+  echo "$MESSAGE"
+  read -r -p "Type 'enable' to continue: " confirmation
+  if [[ "$confirmation" != "enable" ]]; then
+    exit 0
+  fi
+fi
+
+exec steamos-session-select plasma-wayland-persistent
+EOF
+
+  cat > "$disable_script" <<'EOF'
+#!/usr/bin/env bash
+set -e
+
+exec steamos-session-select
+EOF
+
+  chmod +x "$enable_script" "$disable_script"
+
+  cat > "$enable_desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Enable Breezy Wayland
+Comment=Switch to the persistent Breezy Desktop Wayland session
+Exec=$enable_script
+Icon=com.xronlinux.BreezyDesktop
+Categories=Utility;
+Terminal=false
+StartupNotify=false
+EOF
+
+  cat > "$disable_desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Disable Breezy Wayland
+Comment=Return to SteamOS Game Mode session selection
+Exec=$disable_script
+Icon=com.xronlinux.BreezyDesktop
+Categories=Utility;
+Terminal=false
+StartupNotify=false
+EOF
+
+  chmod 644 "$enable_desktop" "$disable_desktop"
+  command cp "$enable_desktop" "$desktop_enable"
+  command cp "$disable_desktop" "$desktop_disable"
+  chmod 755 "$desktop_enable" "$desktop_disable"
+
+  echo "Installed SteamOS desktop shortcuts in $applications_dir and on $desktop_dir"
+}
+
 USER_HOME=$(realpath ~)
 
 if [ -z "$XDG_BIN_HOME" ]; then
@@ -61,6 +159,8 @@ popd > /dev/null
 
 mkdir -p $XDG_BIN_HOME
 cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
+
+install_steamos_shortcuts
 
 # Install QT_PLUGIN_PATH snippet into ~/.bash_profile if not present
 BASH_PROFILE="$HOME/.bash_profile"
