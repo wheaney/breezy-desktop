@@ -25,6 +25,7 @@ For the best performance, ensure you have the latest graphics drivers installed 
 Breezy Desktop is only compatible with KDE Plasma 6.
 
 **IMPORTANT** - Please read carefully through this list before you get started
+* **If you're installing on an immutable distro other than SteamOS**, you'll need to follow the [Distrobox setup](https://github.com/wheaney/breezy-desktop/wiki/Breezy-KDE-Distrobox-setup).
 * **If this is the first time you're using your glasses with KDE**, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent.
 * **If you're running KDE on `X11`**, you won't be able to launch virtual displays. If you're not on SteamOS, look for Wayland options on the login screen.
 * **Steam Deck users** note the extra step in the setup instructions for switching to `Wayland` if you want virtual display features.
