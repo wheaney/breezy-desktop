@@ -46,40 +46,78 @@ DESKTOP_FILE_PATH="$XDG_DATA_HOME/applications/breezy_desktop.desktop"
 PLUGIN_SO="$LIB_HOME/qt6/plugins/kwin/effects/plugins/${EFFECT_ID}.so"
 CONFIG_SO="$LIB_HOME/qt6/plugins/plasma/kcms/${EFFECT_ID}_config.so"
 BREEZY_LIBRARY_DIR="$LIB_HOME/breezy_kwin"
+ENABLE_SCRIPT="$XDG_BIN_HOME/breezy_enable_wayland"
+DISABLE_SCRIPT="$XDG_BIN_HOME/breezy_disable_wayland"
+STEAMOS_ENABLE_DESKTOP="$XDG_DATA_HOME/applications/Enable Breezy Wayland.desktop"
+STEAMOS_DISABLE_DESKTOP="$XDG_DATA_HOME/applications/Disable Breezy Wayland.desktop"
+DESKTOP_DIR="$USER_HOME/Desktop"
+DESKTOP_ENABLE="$DESKTOP_DIR/Enable Breezy Wayland.desktop"
+DESKTOP_DISABLE="$DESKTOP_DIR/Disable Breezy Wayland.desktop"
 
 if [[ -d "$EFFECT_DIR" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $EFFECT_DIR and its contents"
-    $SUDO rm -rf "$EFFECT_DIR"
+  rm -rf "$EFFECT_DIR"
 fi
 
 if [[ -f "$ICON_PATH" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $ICON_PATH"
-    $SUDO rm -f "$ICON_PATH"
+  rm -f "$ICON_PATH"
 fi
 
 if [[ -f "$DESKTOP_FILE_PATH" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $DESKTOP_FILE_PATH"
-    $SUDO rm -f "$DESKTOP_FILE_PATH"
+  rm -f "$DESKTOP_FILE_PATH"
 fi
 
 if [[ -f "$PLUGIN_SO" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $PLUGIN_SO"
-    $SUDO rm -f "$PLUGIN_SO"
+  rm -f "$PLUGIN_SO"
 fi
 
 if [[ -f "$CONFIG_SO" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $CONFIG_SO"
-    $SUDO rm -f "$CONFIG_SO"
+  rm -f "$CONFIG_SO"
 fi
 
 if [[ -d "$BREEZY_LIBRARY_DIR" ]]; then
     [ "$for_install" -eq 0 ] && echo "Removing $BREEZY_LIBRARY_DIR and its contents"
-    $SUDO rm -rf "$BREEZY_LIBRARY_DIR"
+  rm -rf "$BREEZY_LIBRARY_DIR"
+fi
+
+if [[ -f "$ENABLE_SCRIPT" ]]; then
+  [ "$for_install" -eq 0 ] && echo "Removing SteamOS desktop scripts"
+  rm -f "$ENABLE_SCRIPT"
+fi
+
+removed_wayland_disable_script=0
+if [[ -f "$DISABLE_SCRIPT" ]]; then
+  rm -f "$DISABLE_SCRIPT"
+  removed_wayland_disable_script=1
+fi
+
+if [[ -f "$STEAMOS_ENABLE_DESKTOP" ]]; then
+  rm -f "$STEAMOS_ENABLE_DESKTOP"
+fi
+
+if [[ -f "$STEAMOS_DISABLE_DESKTOP" ]]; then
+  rm -f "$STEAMOS_DISABLE_DESKTOP"
+fi
+
+if [[ -f "$DESKTOP_ENABLE" ]]; then
+  rm -f "$DESKTOP_ENABLE"
+fi
+
+if [[ -f "$DESKTOP_DISABLE" ]]; then
+  rm -f "$DESKTOP_DISABLE"
 fi
 
 if [[ -e "$XDG_BIN_HOME/xr_driver_uninstall" && "$for_install" -eq 0 ]]; then
   echo "Uninstalling XRLinuxDriver"
   sudo "$XDG_BIN_HOME/xr_driver_uninstall"
+fi
+
+if [ "$removed_wayland_disable_script" -eq 1 ] && [ "$for_install" -eq 0 ]; then
+  printf "\n\033[1;33m!!! IMPORTANT !!!\033[0m If you enabled Breezy Wayland, you MUST run \033[1;33msteamos-session-select\033[0m from a terminal in order to return to Game Mode.\n"
 fi
 
 # this script is self-deleting, leave this as the last command
