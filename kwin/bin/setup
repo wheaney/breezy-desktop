@@ -192,9 +192,9 @@ echo "Installing xrDriver (requires sudo)"
 echo "BEGIN - xr_driver_setup"
 if [ -z "$1" ]
 then
-  sudo bin/xr_driver_setup $(pwd)/xrDriver.tar.gz
+  sudo --preserve-env=SKIP_SYSTEMD bin/xr_driver_setup $(pwd)/xrDriver.tar.gz
 else
-  sudo bin/xr_driver_setup -v $1 $(pwd)/xrDriver.tar.gz
+  sudo --preserve-env=SKIP_SYSTEMD bin/xr_driver_setup -v $1 $(pwd)/xrDriver.tar.gz
 fi
 
 echo "END - xr_driver_setup"
