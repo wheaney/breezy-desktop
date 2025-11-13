@@ -12,6 +12,7 @@
 [submodule "ui/modules/PyXRLinuxDriverIPC"]
 	path = ui/modules/PyXRLinuxDriverIPC
 	url = https://github.com/wheaney/PyXRLinuxDriverIPC.git
+	branch = 2.4.x
 [submodule "gnome/backports/gnome-44-max"]
 	path = gnome/backports/gnome-44-max
 	url = https://github.com/wheaney/breezy-desktop
