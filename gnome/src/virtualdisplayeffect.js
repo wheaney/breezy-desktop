@@ -31,7 +31,7 @@ function createVertexMesh(fovDetails, monitorDetails, positionVectorNWU) {
     let fovConversions = fovDetails.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
     const sideEdgeDistancePixels = fovConversions.centerToFovEdgeDistance(
         fovDetails.completeScreenDistancePixels,
-        fovDetails.widthPixels
+        fovDetails.sizeAdjustedWidthPixels
     );
     const horizontalRadians = fovConversions.lengthToRadians(
         fovDetails.defaultDistanceHorizontalRadians, 
@@ -42,7 +42,7 @@ function createVertexMesh(fovDetails, monitorDetails, positionVectorNWU) {
 
     const topEdgeDistancePixels = fovConversions.centerToFovEdgeDistance(
         fovDetails.completeScreenDistancePixels,
-        fovDetails.heightPixels
+        fovDetails.sizeAdjustedHeightPixels
     );
     const verticalRadians = fovConversions.lengthToRadians(
         fovDetails.defaultDistanceVerticalRadians,
@@ -585,7 +585,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
                     this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
                     lookAheadSet = true;
                 }
-                const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.completeScreenDistancePixels);
+                const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.fullScreenDistancePixels);
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
             } else {

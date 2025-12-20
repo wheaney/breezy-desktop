@@ -59,6 +59,9 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build XR driver
 XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
+if [ -n "$STEAMOS" ]; then
+  XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.steamos.tar.gz
+fi
 
 if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -70,7 +73,10 @@ if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
 
   # strange issue where the base library produces a .so file if the build is not cleaned
   rm -rf build/
-
+  
+  if [ -n "${STEAMOS:-}" ]; then
+    export STEAMOS
+  fi
   docker-build/init.sh
   docker-build/run-build.sh $ARCH
   popd
