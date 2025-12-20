@@ -389,6 +389,8 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
     // follow_ease transitions this from a rotated display (progress 0.0) to a centered/focused display (progress 1.0)
     _update_display_position() {
+        const distance_adjusted_size = this.display_distance_default * this.display_size;
+
         // this is in NWU coordinates
         const monitorPlacement = this.monitor_placements[this.monitor_index];      
         const noRotationVector = monitorPlacement.centerNoRotate.map(coord => coord * this._current_display_distance / this.display_distance_default);
@@ -400,8 +402,8 @@ export const VirtualDisplayEffect = GObject.registerClass({
             finalPositionVector[0] = noRotationVector[0];
         }
         const resizedMonitorDetails = {
-            width: this.monitor_details.width * this.display_size,
-            height: this.monitor_details.height * this.display_size
+            width: this.monitor_details.width * distance_adjusted_size,
+            height: this.monitor_details.height * distance_adjusted_size
         };
         this._vertices = createVertexMesh(this.fov_details, resizedMonitorDetails, finalPositionVector);
 

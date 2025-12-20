@@ -851,8 +851,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
         // distance of a display at the default (most zoomed out) distance, plus the lens distance constant
         const lensToScreenDistance = this.target_monitor.height / 2 / Math.tan(defaultDistanceVerticalRadians / 2);
         const completeScreenDistancePixels = lensToScreenDistance + lensDistancePixels;
-        const sizeAdjustedWidthPixels = this.target_monitor.width * this.display_size;
-        const sizeAdjustedHeightPixels = this.target_monitor.height * this.display_size;
+        const sizeAdjustedWidthPixels = this.target_monitor.width * this._distance_adjusted_size;
+        const sizeAdjustedHeightPixels = this.target_monitor.height * this._distance_adjusted_size;
 
         return {
             widthPixels: this.target_monitor.width,
@@ -923,6 +923,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
     
     _handle_display_distance_properties_change() {
+        this._distance_adjusted_size = this._display_distance_default() * this.display_size;
+
         const distance_from_end = Math.abs(this.display_distance - this.toggle_display_distance_end);
         const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);
         this._is_display_distance_at_end = distance_from_end < distance_from_start;
@@ -930,14 +932,16 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
 
     _handle_display_size_change(update_placements = true) {
-        const sizeComplement = (1.0 - this.display_size) / 2.0;
+        this._distance_adjusted_size = this._display_distance_default() * this.display_size;
+
+        const sizeComplement = (1.0 - this._distance_adjusted_size) / 2.0;
         const sizeViewportOffsetX = sizeComplement * this.target_monitor.width;
         const sizeViewportOffsetY = sizeComplement * this.target_monitor.height;
         this._all_monitors = this._all_monitors_unmodified.map(monitor => ({
-            x: monitor.x * this.display_size + sizeViewportOffsetX,
-            y: monitor.y * this.display_size + sizeViewportOffsetY,
-            width: monitor.width * this.display_size,
-            height: monitor.height * this.display_size
+            x: monitor.x * this._distance_adjusted_size + sizeViewportOffsetX,
+            y: monitor.y * this._distance_adjusted_size + sizeViewportOffsetY,
+            width: monitor.width * this._distance_adjusted_size,
+            height: monitor.height * this._distance_adjusted_size
         }));
         if (update_placements) this._update_monitor_placements();
     }

@@ -402,15 +402,20 @@ export default class BreezyDesktopExtension extends Extension {
 
     _update_display_distance(object, event) {
         const distance = this.settings.get_double('display-distance');
+        const defaultDistance = Math.max(
+            distance, 
+            this.settings.get_double('toggle-display-distance-start'), 
+            this.settings.get_double('toggle-display-distance-end')
+        );
         const size = this.settings.get_double('display-size');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${distance} ${size}`);
         if (distance !== undefined && size !== undefined) {
-            let focusedMonitorSizeAdjustment = 1.0;
+            let focusedMonitorSizeAdjustment = size * defaultDistance;
             if (this._virtual_displays_actor?.focused_monitor_details && this._target_monitor) {
                 const fovMonitor = this._target_monitor.monitor;
                 const focusedMonitor = this._virtual_displays_actor.focused_monitor_details;
-                focusedMonitorSizeAdjustment = 
-                    Math.max(size * focusedMonitor.width / fovMonitor.width, size * focusedMonitor.height / fovMonitor.height);
+                focusedMonitorSizeAdjustment *= 
+                    Math.max(focusedMonitor.width / fovMonitor.width, focusedMonitor.height / fovMonitor.height);
             }
             this._write_control('breezy_desktop_display_distance', distance / focusedMonitorSizeAdjustment);
         }

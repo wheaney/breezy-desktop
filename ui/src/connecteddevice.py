@@ -183,7 +183,6 @@ class ConnectedDevice(Gtk.Box):
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
         self.effect_enable_switch.connect('notify::active', self._handle_switch_enabled_state)
 
-        self.display_size_scale.set_format_value_func(lambda scale, val: self._format_size(val))
         self.state_manager.connect('notify::connected-device-full-size-cm', self._handle_metric_change)
         self.state_manager.connect('notify::connected-device-full-distance-cm', self._handle_metric_change)
         self.settings.connect('changed::units', self._handle_units_changed)
@@ -255,21 +254,12 @@ class ConnectedDevice(Gtk.Box):
         self.settings.set_string('units', active_id)
 
     def _handle_units_changed(self, *args):
-        self._refresh_display_size_scale_value()
         self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
         self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
 
     def _handle_metric_change(self, *args):
-        self._refresh_display_size_scale_value()
         self._set_all_displays_distance(self.settings.get_double('toggle-display-distance-end'))
         self._set_focused_display_distance(self.settings.get_double('toggle-display-distance-start'))
-
-    def _refresh_display_size_scale_value(self):
-        if self.display_size_scale.get_draw_value():
-            self.display_size_scale.set_draw_value(False)
-            self.display_size_scale.set_draw_value(True)
-        else:
-            self.display_size_scale.queue_draw()
 
     def _handle_monitor_wrapping_scheme_setting_changed(self, settings, val):
         self.monitor_wrapping_scheme_menu.set_active_id(val)
@@ -374,18 +364,6 @@ class ConnectedDevice(Gtk.Box):
             return f"{inches:.2f} in"
         return f"{cm:.1f} cm"
 
-    def _format_size(self, normalized):
-        sm = getattr(self, 'state_manager', None) or StateManager.get_instance()
-        full_cm = float(sm.get_property('connected-device-full-size-cm') or 0.0)
-        if full_cm <= 0:
-            # Fallback to normalized display if metric unknown
-            return f"{round(normalized, 2)}"
-        cm = normalized * full_cm
-        if self._get_units() == 'in':
-            inches = cm / 2.54
-            return f"{inches:.2f} in"
-        return f"{cm:.1f} cm"
-
     def _on_display_distance_preset_change_button_clicked(self, widget, settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit):
         dialog = DisplayDistanceDialog(settings_key, on_save_callback, title, subtitle, lower_limit, upper_limit)
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
@@ -393,7 +371,6 @@ class ConnectedDevice(Gtk.Box):
             
     def _on_set_all_displays_distance(self, prev_distance, distance):
         focused_display_distance = self.settings.get_double('toggle-display-distance-start')
-        all_displays_distance = self.settings.get_double('toggle-display-distance-end')
         if (distance < focused_display_distance):
             self._set_focused_display_distance(distance)
         
@@ -403,7 +380,6 @@ class ConnectedDevice(Gtk.Box):
             self.settings.set_double('display-distance', prev_distance)
 
     def _on_set_focused_display_distance(self, prev_distance, distance):
-        focused_display_distance = self.settings.get_double('toggle-display-distance-start')
         all_displays_distance = self.settings.get_double('toggle-display-distance-end')
         if (distance > all_displays_distance):
             self._set_all_displays_distance(distance)
