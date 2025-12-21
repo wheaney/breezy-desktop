@@ -443,6 +443,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
         ),
+        'pose-has-position': GObject.ParamSpec.boolean(
+            'pose-has-position',
+            'Pose Has Position',
+            'Whether the IMU snapshots contain pose data',
+            GObject.ParamFlags.READWRITE,
+            false
+        ),
         'curved-display': GObject.ParamSpec.boolean(
             'curved-display',
             'Curved Display',
@@ -456,13 +463,6 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Whether smooth follow is enabled',
             GObject.ParamFlags.READWRITE,
             false
-        ),
-        'smooth-follow-toggle-epoch-ms': GObject.ParamSpec.uint64(
-            'smooth-follow-toggle-epoch-ms',
-            'Smooth follow toggle epoch time',
-            'ms since epoch when smooth follow was toggled',
-            GObject.ParamFlags.READWRITE,
-            0, Number.MAX_SAFE_INTEGER, 0
         ),
         'show-banner': GObject.ParamSpec.boolean(
             'show-banner',
@@ -903,7 +903,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             const viewportYBegin = this.headset_display_as_viewport_center ? targetMonitor.y : allDisplaysCenterYBegin;
 
             this.fov_details = this._fov_details();
-            this.lens_vector = [0.0, 0.0, -this.fov_details.lensDistancePixels];
+            this.lens_vector = [0.0, 0.0, this.pose_has_position ? -this.fov_details.lensDistancePixels : 0.0];
             this.monitor_placements = monitorsToPlacements(
                 this.fov_details,
 

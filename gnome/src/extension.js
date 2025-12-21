@@ -229,6 +229,13 @@ export default class BreezyDesktopExtension extends Extension {
                 this._virtual_displays_overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._virtual_displays_overlay.set_size(targetMonitor.width, targetMonitor.height);
 
+                const state = this._read_state();
+                const pose_has_position = state['connected_device_pose_has_position'] === 'true';
+
+                Globals.logger.log_debug(
+                    `connected_device_pose_has_position=${pose_has_position}`
+                );
+
                 Globals.data_stream.refresh_data();
                 this._virtual_displays_actor = new VirtualDisplaysActor({
                     width: targetMonitor.width,
@@ -248,7 +255,8 @@ export default class BreezyDesktopExtension extends Extension {
                     framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots,
                     show_banner: Globals.data_stream.show_banner,
-                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled,
+                    pose_has_position
                 });
 
                 this._virtual_displays_overlay.set_child(this._virtual_displays_actor);
