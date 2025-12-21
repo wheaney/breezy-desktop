@@ -262,6 +262,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this._use_smooth_follow_origin = false;
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
+        this.connect('notify::display-distance-default', this._update_display_distance.bind(this));
         this.connect('notify::display-size', this._update_display_position.bind(this));
         this.connect('notify::focused-monitor-index', this._update_display_distance.bind(this));
         this.connect('notify::monitor-placements', this._update_display_position.bind(this));

@@ -646,7 +646,6 @@ export const VirtualDisplaysActor = GObject.registerClass({
             this._property_connections.push(this.connect(`notify::${property}`, fn.bind(this)));
         }).bind(this);
 
-        this._distance_ease_timeline = null;
         notifyToFunction('toggle-display-distance-start', this._handle_display_distance_properties_change);
         notifyToFunction('toggle-display-distance-end', this._handle_display_distance_properties_change);
         notifyToFunction('display-distance', this._handle_display_distance_properties_change);

@@ -374,17 +374,24 @@ class ConnectedDevice(Gtk.Box):
         if (distance < focused_display_distance):
             self._set_focused_display_distance(distance)
         
+        all_displays_distance = self.settings.get_double('toggle-display-distance-end')
         self._set_all_displays_distance(distance)
 
-        if prev_distance == focused_display_distance:
-            self.settings.set_double('display-distance', prev_distance)
+        # if we were at the unfocused distance, put us at the new unfocused distance
+        if prev_distance == all_displays_distance:
+            self.settings.set_double('display-distance', distance)
 
     def _on_set_focused_display_distance(self, prev_distance, distance):
         all_displays_distance = self.settings.get_double('toggle-display-distance-end')
         if (distance > all_displays_distance):
             self._set_all_displays_distance(distance)
 
+        focused_display_distance = self.settings.get_double('toggle-display-distance-start')
         self._set_focused_display_distance(distance)
+
+        # if we were at the focused distance, put us at the new focused distance
+        if prev_distance == focused_display_distance:
+            self.settings.set_double('display-distance', distance)
 
     def _save_custom_resolutions(self):
         with open(self._custom_resolutions_file_path, 'w') as f:

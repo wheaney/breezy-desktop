@@ -301,6 +301,8 @@ export default class BreezyDesktopExtension extends Extension {
                 );
 
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
+                this._toggle_distance_start_connection = this.settings.connect('changed::toggle-display-distance-start', this._update_display_distance.bind(this));
+                this._toggle_distance_end_connection = this.settings.connect('changed::toggle-display-distance-end', this._update_display_distance.bind(this));
                 this._display_size_connection = this.settings.connect('changed::display-size', this._update_display_distance.bind(this));
                 this._focused_monitor_distance_connection = 
                     this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
@@ -402,14 +404,14 @@ export default class BreezyDesktopExtension extends Extension {
 
     _update_display_distance(object, event) {
         const distance = this.settings.get_double('display-distance');
-        const defaultDistance = Math.max(
-            distance, 
-            this.settings.get_double('toggle-display-distance-start'), 
-            this.settings.get_double('toggle-display-distance-end')
-        );
         const size = this.settings.get_double('display-size');
         Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${distance} ${size}`);
         if (distance !== undefined && size !== undefined) {
+            const defaultDistance = Math.max(
+                distance, 
+                this.settings.get_double('toggle-display-distance-start'), 
+                this.settings.get_double('toggle-display-distance-end')
+            );
             let focusedMonitorSizeAdjustment = size * defaultDistance;
             if (this._virtual_displays_actor?.focused_monitor_details && this._target_monitor) {
                 const fovMonitor = this._target_monitor.monitor;
@@ -594,6 +596,14 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
                 this._distance_connection = null;
+            }
+            if (this._toggle_distance_start_connection) {
+                this.settings.disconnect(this._toggle_distance_start_connection);
+                this._toggle_distance_start_connection = null;
+            }
+            if (this._toggle_distance_end_connection) {
+                this.settings.disconnect(this._toggle_distance_end_connection);
+                this._toggle_distance_end_connection = null;
             }
             if (this._display_size_connection) {
                 this.settings.disconnect(this._display_size_connection);

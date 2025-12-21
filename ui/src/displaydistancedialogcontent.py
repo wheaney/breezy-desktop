@@ -25,8 +25,7 @@ class DisplayDistanceDialogContent(Gtk.Box):
         self.settings = SettingsManager.get_instance().settings
         self.state_manager = StateManager.get_instance()
         self.prev_distance = self.settings.get_double('display-distance')
-
-        self.settings.bind('display-distance', self.display_distance_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        self.display_distance_adjustment.set_value(self.settings.get_double(settings_key))
 
         self.display_distance_scale.set_format_value_func(lambda scale, val: self._format_distance(val))
         self.state_manager.connect('notify::connected-device-full-distance-cm', lambda *args: self.display_distance_scale.queue_draw())
