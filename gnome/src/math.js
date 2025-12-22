@@ -4,18 +4,23 @@ export function degreeToRadian(degree) {
 
 // FOV in radians is spherical, so doesn't follow Pythagoras' theorem
 export function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
-    // first convert from a spherical FOV to a diagonal FOV on a flat plane at a generic distance of 1.0
-    const flatDiagonalFOV = 2 * Math.tan(diagonalFOVRadians / 2);
+    // first convert from a spherical FOV to a diagonal FOV on a flat plane at a unit distance of 1.0
+    const diagonalLengthUnitDistance = 2 * Math.tan(diagonalFOVRadians / 2);
 
     // then convert to flat plane horizontal and vertical FOVs
-    const flatVerticalFOV = flatDiagonalFOV / Math.sqrt(1 + aspectRatio * aspectRatio);
-    const flatHorizontalFOV = flatVerticalFOV * aspectRatio;
+    const heightUnitDistance = diagonalLengthUnitDistance / Math.sqrt(1 + aspectRatio * aspectRatio);
+    const widthUnitDistance = heightUnitDistance * aspectRatio;
 
-    // then convert back to spherical FOV
     return {
-        diagonal: diagonalFOVRadians,
-        horizontal: 2 * Math.atan(flatHorizontalFOV / 2),
-        vertical: 2 * Math.atan(flatVerticalFOV / 2)
+        // then convert back to spherical FOV
+        diagonalRadians: diagonalFOVRadians,
+        horizontalRadians: 2 * Math.atan(widthUnitDistance / 2),
+        verticalRadians: 2 * Math.atan(heightUnitDistance / 2),
+
+        // flat values are relative to a unit distance of 1.0
+        diagonalLengthUnitDistance,
+        widthUnitDistance,
+        heightUnitDistance
     }
 }
 
@@ -31,7 +36,10 @@ export const fovConversionFns = {
         fovEdgeToScreenCenterDistance: (edgeDistance, screenLength) => Math.sqrt(Math.pow(edgeDistance, 2) - Math.pow(screenLength / 2, 2)),
         lengthToRadians: (fovRadians, fovLength, screenEdgeDistance, toLength) => Math.asin(toLength / 2 / screenEdgeDistance) * 2,
         angleToLength: (fovRadians, fovLength, screenDistance, toAngleOpposite, toAngleAdjacent) => {
-            return toAngleOpposite / toAngleAdjacent * screenDistance
+            return toAngleOpposite / toAngleAdjacent * screenDistance;
+        },
+        fovRadiansAtDistance: (fovRadians, unitLength, newScreenDistance) => {
+            return 2 * Math.atan(unitLength / 2 / newScreenDistance);
         },
         radiansToSegments: (screenRadians) => 1
     },
@@ -42,6 +50,7 @@ export const fovConversionFns = {
         fovEdgeToScreenCenterDistance: (edgeDistance, screenLength) => edgeDistance,
         lengthToRadians: (fovRadians, fovLength, screenEdgeDistance, toLength) => fovRadians / fovLength * toLength,
         angleToLength: (fovRadians, fovLength, screenDistance, toAngleOpposite, toAngleAdjacent) => fovLength / fovRadians * Math.atan2(toAngleOpposite, toAngleAdjacent),
+        fovRadiansAtDistance: (fovRadians, unitLength, newScreenDistance) => fovRadians / newScreenDistance,
         radiansToSegments: (screenRadians) => Math.ceil(screenRadians * segmentsPerRadian)
     }
 }

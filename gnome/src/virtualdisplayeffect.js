@@ -28,33 +28,34 @@ function lookAheadMS(imuDateMs, lookAheadCfg, override) {
 
 // Create a mesh of vertices in a pattern suitable for TRIANGLE_STRIP
 function createVertexMesh(fovDetails, monitorDetails, positionVectorNWU) {
-    let fovConversions = fovDetails.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
-    const sideEdgeDistancePixels = fovConversions.centerToFovEdgeDistance(
+    let horizontalWrap = fovDetails.monitorWrappingScheme === 'horizontal';
+    const horizontalConversions = fovDetails.curvedDisplay && horizontalWrap ? fovConversionFns.curved : fovConversionFns.flat;
+    const sideEdgeDistancePixels = horizontalConversions.centerToFovEdgeDistance(
         fovDetails.completeScreenDistancePixels,
         fovDetails.sizeAdjustedWidthPixels
     );
-    const horizontalRadians = fovConversions.lengthToRadians(
+    const horizontalRadians = horizontalConversions.lengthToRadians(
         fovDetails.defaultDistanceHorizontalRadians, 
         fovDetails.widthPixels,
         sideEdgeDistancePixels,
         monitorDetails.width
     );
 
-    const topEdgeDistancePixels = fovConversions.centerToFovEdgeDistance(
+    let verticalWrap = fovDetails.monitorWrappingScheme === 'vertical';
+    const verticalConversions = fovDetails.curvedDisplay && verticalWrap ? fovConversionFns.curved : fovConversionFns.flat;
+    const topEdgeDistancePixels = verticalConversions.centerToFovEdgeDistance(
         fovDetails.completeScreenDistancePixels,
         fovDetails.sizeAdjustedHeightPixels
     );
-    const verticalRadians = fovConversions.lengthToRadians(
+    const verticalRadians = verticalConversions.lengthToRadians(
         fovDetails.defaultDistanceVerticalRadians,
         fovDetails.heightPixels,
         topEdgeDistancePixels,
         monitorDetails.height
     );
 
-    let horizontalWrap = fovDetails.monitorWrappingScheme === 'horizontal';
-    let verticalWrap = fovDetails.monitorWrappingScheme === 'vertical';
-    const xSegments = horizontalWrap ? fovConversions.radiansToSegments(horizontalRadians) : 1;
-    const ySegments = verticalWrap ? fovConversions.radiansToSegments(verticalRadians) : 1;
+    const xSegments = horizontalConversions.radiansToSegments(horizontalRadians);
+    const ySegments = verticalConversions.radiansToSegments(verticalRadians);
 
     const texXLeft = 0;
     const texYTop = 0;
@@ -419,8 +420,8 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location("u_show_banner"), 1, [this.show_banner ? 1.0 : 0.0]);
     }
 
-    perspective(fovHorizontalRadians, aspect, near, far) {
-        const f = 1.0 / Math.tan(fovHorizontalRadians / 2.0);
+    perspective(widthUnitDistance, aspect, near, far) {
+        const f = 2.0 / widthUnitDistance;
         const range = far - near;
     
         return [
@@ -562,15 +563,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
             this._initialized = true;
 
             const aspect = this.target_monitor.width / this.target_monitor.height;
-            const fovRadians = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
+            const fovLengths = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
             const projection_matrix = this.perspective(
-                fovRadians.horizontal,
+                fovLengths.widthUnitDistance,
                 aspect,
                 1.0,
                 10000.0
             );
             this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
-            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovRadians.vertical]);
+            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovLengths.verticalRadians]);
             this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
             this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
