@@ -7,7 +7,7 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
-import { applyQuaternionToVector, degreeToRadian, diagonalToCrossFOVs, fovConversionFns, normalizeVector } from './math.js';
+import { applyQuaternionToVector, degreeToRadian, diagonalToCrossFOVs, fovConversionFns, normalizeVector, vectorMagnitude } from './math.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -21,23 +21,25 @@ const UNFOCUS_THRESHOLD = 1.1 / 2.0;
 
 // returns how far the look vector is from the center of the monitor, as a percentage of the monitor's dimensions
 function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
+    const monitorDistance = vectorMagnitude(monitorVector);
+    const distanceAdjustment = monitorDistance / fovDetails.completeScreenDistancePixels;
     const vectorUpPixels = upAngleToLength(
         fovDetails.defaultDistanceVerticalRadians,
         fovDetails.heightPixels,
-        fovDetails.completeScreenDistancePixels,
+        monitorDistance,
         monitorVector[2],
         monitorVector[0]
-    );
-    const upPercentage = Math.abs(lookUpPixels - vectorUpPixels) / monitorDetails.height;
+    ) * distanceAdjustment;
+    const upPercentage = Math.abs(lookUpPixels * distanceAdjustment - vectorUpPixels) / monitorDetails.height;
 
     const vectorWestPixels = westAngleToLength(
         fovDetails.defaultDistanceHorizontalRadians,
         fovDetails.widthPixels,
-        fovDetails.completeScreenDistancePixels,
+        monitorDistance,
         monitorVector[1],
         monitorVector[0]
-    );
-    const westPercentage = Math.abs(lookWestPixels - vectorWestPixels) / monitorDetails.width;
+    ) * distanceAdjustment;
+    const westPercentage = Math.abs(lookWestPixels * distanceAdjustment - vectorWestPixels) / monitorDetails.width;
 
     // how close we are to any edge is the largest of the two percentages
     return Math.max(upPercentage, westPercentage);
@@ -47,6 +49,7 @@ function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVec
  * Find the vector in the array that's closest to the quaternion rotation
  * 
  * @param {number[]} quaternion - Reference quaternion [x, y, z, w]
+ * @param {number[]} position - Reference position [x, y, z] in NWU space
  * @param {number[][]} monitorVectors - Array of monitor vectors [x, y, z] to search from
  * @param {number} currentFocusedIndex - Index of the currently focused monitor
  * @param {number} focusedMonitorDistance - Distance to the focused monitor, < 1.0 if zoomed in
@@ -55,7 +58,7 @@ function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVec
  * @param {Object[]} monitorsDetails - Contains x, y, width, height (coordinates from top-left) for each monitor
  * @returns {number} Index of the closest vector, if it surpasses the previous closest index by a certain margin, otherwise the previous index
  */
-function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
+function findFocusedMonitor(quaternion, position, monitorVectors, currentFocusedIndex, focusedMonitorDistance, smoothFollowEnabled, fovDetails, monitorsDetails) {
     if (currentFocusedIndex !== -1 && smoothFollowEnabled) return currentFocusedIndex;
 
     const lookVector = [1.0, 0.0, 0.0]; // NWU vector pointing to the center of the screen
@@ -80,13 +83,21 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
         rotatedLookVector[0]
     );
 
+    function vectorRelativeToLensPosition(vector) {
+        return [
+            vector[0] - position[0],
+            vector[1] - position[1],
+            vector[2] - position[2]
+        ]
+    }
+
     // the currently focused monitor is the most likely to be the closest, check it first and exit early if it is
     if (currentFocusedIndex !== -1) {
         const focusedDistance = getMonitorDistance(
             fovDetails,
             lookUpPixels,
             lookWestPixels,
-            monitorVectors[currentFocusedIndex],
+            vectorRelativeToLensPosition(monitorVectors[currentFocusedIndex]),
             monitorsDetails[currentFocusedIndex],
             upConversionFns.angleToLength,
             westConversionFns.angleToLength
@@ -106,7 +117,7 @@ function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, foc
             fovDetails,
             lookUpPixels,
             lookWestPixels,
-            monitorVector,
+            vectorRelativeToLensPosition(monitorVector),
             monitorsDetails[index],
             upConversionFns.angleToLength,
             westConversionFns.angleToLength
@@ -238,7 +249,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
                     // up is flat when wrapping horizontally
                     upCenterPixels
                 ],
-                centerLook: normalizeVector([
+                centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
@@ -247,7 +258,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
 
                     // up is flat when wrapping horizontally
                     upCenterPixels
-                ]),
+                ],
                 rotationAngleRadians: {
                     x: 0,
                     y: -monitorWrapDetails.center
@@ -289,7 +300,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
                     // up is centered about the FOV center
                     0
                 ],
-                centerLook: normalizeVector([
+                centerLook: [
                     // north is adjacent where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     monitorCenterRadius * Math.cos(monitorWrapDetails.center),
 
@@ -298,7 +309,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
 
                     // up is opposite where radius is the hypotenuse, using monitorWrapDetails.center as the radians
                     -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
-                ]),
+                ],
                 rotationAngleRadians: {
                     x: -monitorWrapDetails.center,
                     y: 0
@@ -326,11 +337,11 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
                     westCenterPixels,
                     upCenterPixels
                 ],
-                centerLook: normalizeVector([
+                centerLook: [
                     fovDetails.completeScreenDistancePixels,
                     westCenterPixels,
                     upCenterPixels
-                ]),
+                ],
                 rotationAngleRadians: {
                     x: 0,
                     y: 0
@@ -463,6 +474,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Whether smooth follow is enabled',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'smooth-follow-toggle-epoch-ms': GObject.ParamSpec.uint64(
+            'smooth-follow-toggle-epoch-ms',
+            'Smooth follow toggle epoch time',
+            'ms since epoch when smooth follow was toggled',
+            GObject.ParamFlags.READWRITE,
+            0, Number.MAX_SAFE_INTEGER, 0
         ),
         'show-banner': GObject.ParamSpec.boolean(
             'show-banner',
@@ -789,8 +807,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
                     this.imu_snapshots.smooth_follow_origin.splice(0, 4) : 
                     this.imu_snapshots.pose_orientation.splice(0, 4);
 
+                const currentPosition = this.pose_has_position ?
+                    this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.fullScreenDistancePixels) :
+                    [0.0, 0.0, 0.0];
+
                 const focusedMonitorIndex = findFocusedMonitor(
                     currentOrientationQuat,
+                    currentPosition,
                     this.monitor_placements.map(monitorVectors => monitorVectors.centerLook), 
                     this.focused_monitor_index,
                     this.display_distance / this._display_distance_default(),

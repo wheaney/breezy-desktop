@@ -59,7 +59,11 @@ export const applyQuaternionToVector = (vector, quaternion) => {
     ];
 }
 
+export const vectorMagnitude = (vector) => {
+    return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+}
+
 export const normalizeVector = (vector) => {
-    const length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+    const length = vectorMagnitude(vector);
     return [vector[0] / length, vector[1] / length, vector[2] / length];
 }
