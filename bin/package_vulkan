@@ -61,6 +61,7 @@ cp -r $VULKAN_DIR/config $PACKAGE_DIR
 XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
 if [ -n "$STEAMOS" ]; then
   XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.steamos.tar.gz
+  BUILD_FILE_NAME=breezyVulkan-$ARCH.steamos.tar.gz
 fi
 
 if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
