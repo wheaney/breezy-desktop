@@ -242,6 +242,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
             45,
             -1
         ),
+        'display-dimming': GObject.ParamSpec.double(
+            'display-dimming',
+            'Display dimming',
+            'Dim the display brightness (0.0 to 1.0)',
+            GObject.ParamFlags.READWRITE,
+            0.0,
+            1.0,
+            1.0
+        ),
     }
 }, class VirtualDisplayEffect extends Shell.GLSLEffect {
     constructor(params = {}) {
@@ -257,6 +266,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.connect('notify::monitor-placements', this._update_display_position.bind(this));
         this.connect('notify::show-banner', this._handle_banner_update.bind(this));
         this.connect('notify::smooth-follow-enabled', this._handle_smooth_follow_enabled_update.bind(this));
+        this.connect('notify::display-dimming', this._handle_dimming_update.bind(this));
 
         this._update_display_position();
     }
@@ -402,6 +412,12 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.set_uniform_float(this.get_uniform_location("u_show_banner"), 1, [this.show_banner ? 1.0 : 0.0]);
     }
 
+    _handle_dimming_update() {
+        if (this._initialized) {
+            this.set_uniform_float(this.get_uniform_location("u_display_dimming"), 1, [this.display_dimming]);
+        }
+    }
+
     perspective(fovHorizontalRadians, aspect, near, far) {
         const f = 1.0 / Math.tan(fovHorizontalRadians / 2.0);
         const range = far - near;
@@ -538,6 +554,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
         `
 
         this.add_glsl_snippet(Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX, declarations, main, false);
+
+        // Fragment shader for dimming
+        const fragmentDeclarations = `
+            uniform float u_display_dimming;
+        `;
+        const fragmentMain = `
+            cogl_color_out.rgb *= u_display_dimming;
+        `;
+        this.add_glsl_snippet(Cogl.SnippetHook?.FRAGMENT ?? Shell.SnippetHook.FRAGMENT, fragmentDeclarations, fragmentMain, false);
     }
 
     vfunc_paint_target(node, paintContext) {
@@ -561,6 +586,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
             this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.lens_vector);
             this._update_display_position();
             this._handle_banner_update();
+            this._handle_dimming_update();
         }
 
         if (this.imu_snapshots && !this.show_banner) {

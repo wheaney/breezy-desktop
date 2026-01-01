@@ -572,6 +572,15 @@ export const VirtualDisplaysActor = GObject.registerClass({
             'Disable anti-aliasing for the effect',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'display-dimming': GObject.ParamSpec.double(
+            'display-dimming',
+            'Display dimming',
+            'Dim the display brightness (0.0 to 1.0)',
+            GObject.ParamFlags.READWRITE,
+            0.0,
+            1.0,
+            1.0
         )
     }
 }, class VirtualDisplaysActor extends Clutter.Actor {
@@ -743,7 +752,8 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 'lens-vector',
                 'look-ahead-override',
                 'disable-anti-aliasing',
-                'show-banner'
+                'show-banner',
+                'display-dimming'
             ].forEach((property => {
                 this._property_bindings.push(this.bind_property(property, effect, property, GObject.BindingFlags.DEFAULT));
             }));

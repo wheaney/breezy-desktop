@@ -57,6 +57,7 @@ Model {
             property real cursorW: display.cursorImageSize.width
             property real cursorH: display.cursorImageSize.height
             property bool showCursor: cursorX >= 0 && cursorX < screenWidth && cursorY >= 0 && cursorY < screenHeight
+            property real displayDimming: effect.displayDimming
 
             property TextureInput desktopTex: TextureInput {
                 texture: Texture {

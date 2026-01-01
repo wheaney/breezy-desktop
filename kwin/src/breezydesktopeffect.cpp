@@ -265,6 +265,9 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     bool curved = BreezyDesktopConfig::curvedDisplay() && m_curvedDisplaySupported;
     if (m_curvedDisplay != curved) { m_curvedDisplay = curved; Q_EMIT curvedDisplayChanged(); }
 
+    qreal dimming = BreezyDesktopConfig::displayDimming() / 100.0;
+    if (!qFuzzyCompare(m_displayDimming, dimming)) { m_displayDimming = dimming; Q_EMIT displayDimmingChanged(); }
+
     // this one doesn't have a signal, just always assign it
     m_allDisplaysFollowMode = BreezyDesktopConfig::allDisplaysFollowMode();
 }
@@ -561,6 +564,10 @@ bool BreezyDesktopEffect::curvedDisplay() const {
 
 bool BreezyDesktopEffect::curvedDisplaySupported() const {
     return m_curvedDisplaySupported;
+}
+
+qreal BreezyDesktopEffect::displayDimming() const {
+    return m_displayDimming;
 }
 
 void BreezyDesktopEffect::setCurvedDisplaySupported(bool supported) {
