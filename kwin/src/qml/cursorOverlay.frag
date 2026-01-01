@@ -14,5 +14,7 @@ void MAIN() {
             color = mix(color, cursorCol, cursorCol.a);
         }
     }
+    // Apply dimming by scaling RGB towards black while preserving alpha
+    color.rgb *= displayDimming;
     FRAGCOLOR = color;
 }

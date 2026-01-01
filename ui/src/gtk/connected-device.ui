@@ -255,6 +255,37 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display brightness</property>
+                        <property name="subtitle" translatable="yes">Dim the display to reduce eye strain or match ambient lighting.</property>
+                        <child>
+                          <object class="GtkScale" id="display_dimming_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">0</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="display_dimming_adjustment">
+                                <property name="lower">0</property>
+                                <property name="upper">100</property>
+                                <property name="step-increment">1</property>
+                                <property name="value">100</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0" position="bottom">0%</mark>
+                              <mark value="25" position="bottom"></mark>
+                              <mark value="50" position="bottom">50%</mark>
+                              <mark value="75" position="bottom"></mark>
+                              <mark value="100" position="bottom">100%</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- dropdown menu -->Display angling</property>
                         <property name="subtitle" translatable="yes">When there are multiple displays, choose how they should angle towards you.</property>
                         <property name="valign">2</property>

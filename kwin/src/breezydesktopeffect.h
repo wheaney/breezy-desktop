@@ -52,6 +52,7 @@ namespace KWin
         Q_PROPERTY(bool mirrorPhysicalDisplays READ mirrorPhysicalDisplays NOTIFY mirrorPhysicalDisplaysChanged)
         Q_PROPERTY(bool curvedDisplay READ curvedDisplay NOTIFY curvedDisplayChanged)
         Q_PROPERTY(bool curvedDisplaySupported READ curvedDisplaySupported WRITE setCurvedDisplaySupported NOTIFY curvedDisplaySupportedChanged)
+        Q_PROPERTY(qreal displayDimming READ displayDimming NOTIFY displayDimmingChanged)
 
 
     public:
@@ -103,6 +104,7 @@ namespace KWin
         bool mirrorPhysicalDisplays() const;
         bool curvedDisplay() const;
         void setCurvedDisplaySupported(bool supported);
+        qreal displayDimming() const;
 
         void showCursor();
         void hideCursor();
@@ -142,6 +144,7 @@ namespace KWin
         void curvedDisplaySupportedChanged();
         void cursorImageSourceChanged();
         void cursorPosChanged();
+        void displayDimmingChanged();
 
     protected:
         QVariantMap initialProperties(Output *screen) override;
@@ -199,6 +202,7 @@ namespace KWin
         bool m_mirrorPhysicalDisplays = false;
         bool m_curvedDisplay = false;
         bool m_curvedDisplaySupported = false;
+        qreal m_displayDimming = 1.0;
         float m_smoothFollowThreshold = 1.0f;
         bool m_allDisplaysFollowMode = false;
         bool m_focusedSmoothFollowEnabled = false;

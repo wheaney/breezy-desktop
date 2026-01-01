@@ -292,7 +292,8 @@ export default class BreezyDesktopExtension extends Extension {
                     'display-size',
                     'framerate-cap',
                     'look-ahead-override',
-                    'disable-anti-aliasing'
+                    'disable-anti-aliasing',
+                    'display-dimming'
                 ]
                 this._effect_settings_bindings.forEach(settings_key => 
                     this.settings.bind(settings_key, this._virtual_displays_actor, settings_key, Gio.SettingsBindFlags.DEFAULT)

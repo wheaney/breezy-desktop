@@ -91,5 +91,12 @@
             <label>Curved display</label>
             <description>Curve the displays around you</description>
         </entry>
+        <entry name="DisplayDimming" type="Int">
+            <default>100</default>
+            <min>0</min>
+            <max>100</max>
+            <label>Display Dimming</label>
+            <description>Dim the display brightness (0-100%)</description>
+        </entry>
     </group>
 </kcfg>

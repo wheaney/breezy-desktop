@@ -35,6 +35,8 @@ class ConnectedDevice(Gtk.Box):
     display_zoom_on_focus_switch = Gtk.Template.Child()
     follow_threshold_scale = Gtk.Template.Child()
     follow_threshold_adjustment = Gtk.Template.Child()
+    display_dimming_scale = Gtk.Template.Child()
+    display_dimming_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
     curved_display_switch = Gtk.Template.Child()
     top_features_group = Gtk.Template.Child()
@@ -130,6 +132,10 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('monitor-spacing', self.monitor_spacing_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('viewport-offset-x', self.viewport_offset_x_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('viewport-offset-y', self.viewport_offset_y_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
+        
+        # Display dimming uses 0-100 in UI but 0.0-1.0 in settings
+        self.display_dimming_adjustment.set_value(self.settings.get_double('display-dimming') * 100)
+        self.display_dimming_adjustment.connect('value-changed', self._on_display_dimming_changed)
         self.settings.connect('changed::monitor-wrapping-scheme', self._handle_monitor_wrapping_scheme_setting_changed)
         self.desktop_settings.bind('text-scaling-factor', self.text_scaling_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         self.display_zoom_on_focus_switch.connect('notify::active', self._handle_zoom_on_focus_switch_changed)
@@ -243,6 +249,9 @@ class ConnectedDevice(Gtk.Box):
 
     def _handle_monitor_wrapping_scheme_menu_changed(self, widget):
         self.settings.set_string('monitor-wrapping-scheme', widget.get_active_id())
+
+    def _on_display_dimming_changed(self, adjustment):
+        self.settings.set_double('display-dimming', adjustment.get_value() / 100.0)
 
     def _handle_enabled_features(self, state_manager, val):
         enabled_breezy_features = [feature for feature in state_manager.get_property('enabled-features-list') if feature in BREEZY_GNOME_FEATURES]
