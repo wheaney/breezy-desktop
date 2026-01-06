@@ -222,6 +222,8 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
 
         const sideEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.sizeAdjustedWidthPixels);
         const monitorSpacingPixels = monitorSpacing * fovDetails.sizeAdjustedWidthPixels;
+
+        // targetWidth is assumed to aleady be size adjusted
         const lengthToRadianFn = (targetWidth) => conversionFns.lengthToRadians(
             fovDetails.defaultDistanceHorizontalRadians, 
             fovDetails.widthPixels, 
@@ -273,6 +275,8 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
 
         const topEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.sizeAdjustedHeightPixels);
         const monitorSpacingPixels = monitorSpacing * fovDetails.sizeAdjustedHeightPixels;
+
+        // targetHeight is assumed to aleady be size adjusted
         const lengthToRadianFn = (targetHeight) => conversionFns.lengthToRadians(
             fovDetails.defaultDistanceVerticalRadians, 
             fovDetails.heightPixels, 
@@ -724,6 +728,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             const effect = new VirtualDisplayEffect({
                 focused_monitor_index: this.focused_monitor_index,
                 imu_snapshots: this.imu_snapshots,
+                pose_has_position: this.pose_has_position,
                 monitor_index: index,
                 monitor_details: monitor,
                 monitor_placements: this.monitor_placements,
@@ -757,6 +762,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
                 'display-size',
                 'fov-details',
                 'imu-snapshots',
+                'pose-has-position',
                 'smooth-follow-enabled',
                 'smooth-follow-toggle-epoch-ms',
                 'focused-monitor-index',
@@ -865,10 +871,13 @@ export const VirtualDisplaysActor = GObject.registerClass({
         const fovLengths = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
         const monitorWrappingScheme = this._actual_wrap_scheme();
         const defaultDistance = this._display_distance_default();
+        const lensDistanceComplement = 1.0 - Globals.data_stream.device_data.lensDistanceRatio;
+        const lensDistanceFactor = (1.0 / lensDistanceComplement) - 1.0;
         const horizontalConversions = this.curved_display && monitorWrappingScheme === 'horizontal' ? fovConversionFns.curved : fovConversionFns.flat;
         const verticalConversions = this.curved_display && monitorWrappingScheme === 'vertical' ? fovConversionFns.curved : fovConversionFns.flat;
         
-        // adjusted angles based on how far away the screens are e.g. a closer screen takes up a larger slice of our FOV
+        // adjust FOV to a new focal point distance while keeping screens the same size
+        // i.e. focus from pivot point to new screen distance, adjusted from lens at unit distance
         const defaultDistanceVerticalRadians = verticalConversions.fovRadiansAtDistance(
             fovLengths.verticalRadians, 
             fovLengths.heightUnitDistance,
@@ -880,31 +889,21 @@ export const VirtualDisplaysActor = GObject.registerClass({
             defaultDistance
         );
 
-        // distance needed for the FOV-sized monitor to fill up the screen
-        const fullScreenDistancePixels = this.target_monitor.width / fovLengths.widthUnitDistance;
+        // distance needed for the FOV-sized monitor to fill up the screen, as measured from the lenses
+        const lensToUnitDistancePixels = this.target_monitor.width / fovLengths.widthUnitDistance;
 
-        // TODO - fix usage of full/complete distance values, so we can factor lens distance back in
-        const lensDistancePixels = 0.0; // fullScreenDistancePixels / (1.0 - Globals.data_stream.device_data.lensDistanceRatio) - fullScreenDistancePixels;
+        // distance from pivot point to lens
+        const lensDistancePixels = lensToUnitDistancePixels * lensDistanceFactor;
 
-        // distance of a display at the default (most zoomed out) distance, plus the lens distance constant
-        const lensToScreenDistancePixels = fullScreenDistancePixels * defaultDistance;
-        const completeScreenDistancePixels = lensToScreenDistancePixels + lensDistancePixels;
-        Globals.logger.log_debug(`\t\t\tFOV Details: ${JSON.stringify({
-            widthPixels: this.target_monitor.width,
-            sizeAdjustedWidthPixels: this.target_monitor.width * this._distance_adjusted_size,
-            heightPixels: this.target_monitor.height,
-            sizeAdjustedHeightPixels: this.target_monitor.height * this._distance_adjusted_size,
-            defaultDistanceVerticalRadians,
-            defaultDistanceHorizontalRadians,
-            lensDistancePixels,
-            fullScreenDistancePixels,
-            completeScreenDistancePixels,
-            monitorWrappingScheme,
-            curvedDisplay: this.curved_display
-        })}`);
+        // distance from pivot point to full screen (monitor at unit distance from lens)
+        const fullScreenDistancePixels = lensToUnitDistancePixels + lensDistancePixels;
+
+        // distance of a display at the default (most zoomed out) distance from the pivot point
+        const completeScreenDistancePixels = fullScreenDistancePixels * defaultDistance;
 
         return {
             widthPixels: this.target_monitor.width,
+            distanceAdjustedSize: this._distance_adjusted_size,
             sizeAdjustedWidthPixels: this.target_monitor.width * this._distance_adjusted_size,
             heightPixels: this.target_monitor.height,
             sizeAdjustedHeightPixels: this.target_monitor.height * this._distance_adjusted_size,
@@ -953,7 +952,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
             const viewportYBegin = this.headset_display_as_viewport_center ? targetMonitor.y : allDisplaysCenterYBegin;
 
             this.fov_details = this._fov_details();
-            this.lens_vector = [0.0, 0.0, this.pose_has_position ? -this.fov_details.lensDistancePixels : 0.0];
+            this.lens_vector = [this.fov_details.lensDistancePixels, 0.0, 0.0];
             this.monitor_placements = monitorsToPlacements(
                 this.fov_details,
 
@@ -972,7 +971,7 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
     
     _handle_display_size_distance_change() {
-        this._distance_adjusted_size = this._display_distance_default() * this.display_size;
+        this._distance_adjusted_size = (this._display_distance_default() - Globals.data_stream.device_data.lensDistanceRatio) * this.display_size;
 
         const distance_from_end = Math.abs(this.display_distance - this.toggle_display_distance_end);
         const distance_from_start = Math.abs(this.display_distance - this.toggle_display_distance_start);

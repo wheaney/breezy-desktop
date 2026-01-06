@@ -35,7 +35,7 @@ function createVertexMesh(fovDetails, monitorDetails, positionVectorNWU) {
         fovDetails.sizeAdjustedWidthPixels
     );
     const horizontalRadians = horizontalConversions.lengthToRadians(
-        fovDetails.defaultDistanceHorizontalRadians, 
+        fovDetails.defaultDistanceHorizontalRadians,
         fovDetails.widthPixels,
         sideEdgeDistancePixels,
         monitorDetails.width
@@ -148,6 +148,13 @@ export const VirtualDisplayEffect = GObject.registerClass({
             'IMU Snapshots',
             'Latest IMU quaternion snapshots and epoch timestamp for when it was collected',
             GObject.ParamFlags.READWRITE
+        ),
+        'pose-has-position': GObject.ParamSpec.boolean(
+            'pose-has-position',
+            'Pose Has Position',
+            'Whether the IMU snapshots contain pose data',
+            GObject.ParamFlags.READWRITE,
+            false
         ),
         'smooth-follow-enabled': GObject.ParamSpec.boolean(
             'smooth-follow-enabled',
@@ -391,8 +398,6 @@ export const VirtualDisplayEffect = GObject.registerClass({
 
     // follow_ease transitions this from a rotated display (progress 0.0) to a centered/focused display (progress 1.0)
     _update_display_position() {
-        const distance_adjusted_size = this.display_distance_default * this.display_size;
-
         // this is in NWU coordinates
         const monitorPlacement = this.monitor_placements[this.monitor_index];      
         const noRotationVector = monitorPlacement.centerNoRotate.map(coord => coord * this._current_display_distance / this.display_distance_default);
@@ -404,8 +409,8 @@ export const VirtualDisplayEffect = GObject.registerClass({
             finalPositionVector[0] = noRotationVector[0];
         }
         const resizedMonitorDetails = {
-            width: this.monitor_details.width * distance_adjusted_size,
-            height: this.monitor_details.height * distance_adjusted_size
+            width: this.monitor_details.width * this.fov_details.distanceAdjustedSize,
+            height: this.monitor_details.height * this.fov_details.distanceAdjustedSize
         };
         this._vertices = createVertexMesh(this.fov_details, resizedMonitorDetails, finalPositionVector);
 
@@ -476,11 +481,11 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 return vec3(v.x * c + v.z * s, v.y, v.z * c - v.x * s);
             }
 
-            vec4 nwuToESU(vec4 v) {
+            vec4 nwuToEUS(vec4 v) {
                 return vec4(-v.y, v.z, -v.x, v.w);
             }
 
-            vec3 nwuToESU(vec3 v) {
+            vec3 nwuToEUS(vec3 v) {
                 return vec3(-v.y, v.z, -v.x);
             }
 
@@ -510,15 +515,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
             if (!u_show_banner) {
                 float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
 
-                vec4 quat_t0 = nwuToESU(quatConjugate(u_pose_orientation[0]));
-                vec3 position_vector = applyQuaternionToVector(nwuToESU(u_pose_position), quat_t0);
-                vec3 final_lens_position = u_lens_vector + position_vector;
+                vec4 quat_t0 = nwuToEUS(quatConjugate(u_pose_orientation[0]));
+                vec3 position_vector = applyQuaternionToVector(nwuToEUS(u_pose_position), quat_t0);
+                vec3 final_lens_position = nwuToEUS(u_lens_vector) + position_vector;
 
                 vec3 complete_vector = applyXRotationToVector(world_pos.xyz, u_rotation_x_radians);
                 complete_vector = applyYRotationToVector(complete_vector, u_rotation_y_radians);
 
                 vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
-                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToESU(quatConjugate(u_pose_orientation[1])));
+                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToEUS(quatConjugate(u_pose_orientation[1])));
                 float delta_time_t0 = u_pose_orientation[3][0] - u_pose_orientation[3][1];
 
                 // how quickly the vertex is moving relative to the camera
@@ -576,7 +581,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
             this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
-            this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.lens_vector);
+            this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.pose_has_position ? [0.0, 0.0, 0.0] : this.lens_vector);
             this._update_display_position();
             this._handle_banner_update();
         }
@@ -589,7 +594,12 @@ export const VirtualDisplayEffect = GObject.registerClass({
                     this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
                     lookAheadSet = true;
                 }
-                const posePositionPixels = this.imu_snapshots.pose_position.map(coord => coord * this.fov_details.fullScreenDistancePixels);
+                let posePositionPixels = [0.0, 0.0, 0.0];
+                if (this.pose_has_position) {
+                    posePositionPixels = this.imu_snapshots.pose_position.map((coord, index) => {
+                        return coord * this.fov_details.fullScreenDistancePixels + this.lens_vector[index];
+                    });
+                }
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
                 this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
             } else {
