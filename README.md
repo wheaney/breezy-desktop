@@ -89,7 +89,7 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware.**
 
 ### Upcoming Features
-* Port to KWin Effect (KDE Plasma support)
+* KDE Plasma 6DoF support
 
 ### Breezy Desktop Pricing (Productivity Tier)
 
