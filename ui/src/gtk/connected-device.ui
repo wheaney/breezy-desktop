@@ -230,6 +230,36 @@
                       </object>
                     </child>
                     <child>
+                      <object class="AdwActionRow" id="display_size_row">
+                        <property name="title" translatable="yes"><!-- adjustment slider -->Display size</property>
+                        <property name="subtitle" translatable="yes">Set how large you want the display to appear.</property>
+                        <child>
+                          <object class="GtkScale" id="display_size_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">2</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="display_size_adjustment">
+                                <property name="lower">0.1</property>
+                                <property name="upper">2.5</property>
+                                <property name="step-increment">0.01</property>
+                                <property name="value">1.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.5" position="bottom">0.5×</mark>
+                              <mark value="1.0" position="bottom" translatable="yes">full</mark>
+                              <mark value="1.5" position="bottom">1.5×</mark>
+                              <mark value="2.0" position="bottom">2.0×</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- adjustment slider -->Follow threshold</property>
                         <property name="subtitle" translatable="yes">How far away you can look before the display follows.</property>
@@ -554,6 +584,35 @@
                   <object class="AdwPreferencesGroup">
                     <property name="title" translatable="yes"><!-- section heading for the advanced settings -->Advanced Settings</property>
                     <property name="width-request">450</property>
+                    <child>
+                      <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Units</property>
+                        <property name="subtitle" translatable="yes">Choose measurement units for size and distance displays.</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">30</property>
+                            <property name="width-request">150</property>
+                            <property name="margin-start">30</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="valign">3</property>
+                                <style>
+                                  <class name="flat"/>
+                                </style>
+                                <child>
+                                  <object class="GtkComboBoxText" id="units_menu">
+                                    <items>
+                                      <item translatable="yes" id="cm">Centimeters</item>
+                                      <item translatable="yes" id="in">Inches</item>
+                                    </items>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes"><!-- feature that tries to the find best-fit monitor config -->Find optimal display config</property>

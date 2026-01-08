@@ -35,6 +35,7 @@ export default class BreezyDesktopExtension extends Extension {
         this._data_stream_bindings = [];
         this._show_banner_connection = null;
         this._distance_connection = null;
+        this._display_size_connection = null;
         this._focused_monitor_distance_connection = null;
         this._follow_threshold_connection = null;
         this._breezy_desktop_running_connection = null;
@@ -228,6 +229,13 @@ export default class BreezyDesktopExtension extends Extension {
                 this._virtual_displays_overlay.set_position(targetMonitor.x, targetMonitor.y);
                 this._virtual_displays_overlay.set_size(targetMonitor.width, targetMonitor.height);
 
+                const state = this._read_state();
+                const pose_has_position = state['connected_device_pose_has_position'] === 'true';
+
+                Globals.logger.log_debug(
+                    `connected_device_pose_has_position=${pose_has_position}`
+                );
+
                 Globals.data_stream.refresh_data();
                 this._virtual_displays_actor = new VirtualDisplaysActor({
                     width: targetMonitor.width,
@@ -241,12 +249,14 @@ export default class BreezyDesktopExtension extends Extension {
                     viewport_offset_x: this.settings.get_double('viewport-offset-x'),
                     viewport_offset_y: this.settings.get_double('viewport-offset-y'),
                     display_distance: this.settings.get_double('display-distance'),
+                    display_size: this.settings.get_double('display-size'),
                     toggle_display_distance_start: this.settings.get_double('toggle-display-distance-start'),
                     toggle_display_distance_end: this.settings.get_double('toggle-display-distance-end'),
                     framerate_cap: this.settings.get_double('framerate-cap'),
                     imu_snapshots: Globals.data_stream.imu_snapshots,
                     show_banner: Globals.data_stream.show_banner,
-                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled
+                    custom_banner_enabled: Globals.data_stream.custom_banner_enabled,
+                    pose_has_position
                 });
 
                 this._virtual_displays_overlay.set_child(this._virtual_displays_actor);
@@ -299,6 +309,9 @@ export default class BreezyDesktopExtension extends Extension {
                 );
 
                 this._distance_connection = this.settings.connect('changed::display-distance', this._update_display_distance.bind(this));
+                this._toggle_distance_start_connection = this.settings.connect('changed::toggle-display-distance-start', this._update_display_distance.bind(this));
+                this._toggle_distance_end_connection = this.settings.connect('changed::toggle-display-distance-end', this._update_display_distance.bind(this));
+                this._display_size_connection = this.settings.connect('changed::display-size', this._update_display_distance.bind(this));
                 this._focused_monitor_distance_connection = 
                     this._virtual_displays_actor.connect('notify::focused-monitor-details', this._update_display_distance.bind(this));
                 this._follow_threshold_connection = this.settings.connect('changed::follow-threshold', this._update_follow_threshold.bind(this));
@@ -398,17 +411,23 @@ export default class BreezyDesktopExtension extends Extension {
     }
 
     _update_display_distance(object, event) {
-        const value = this.settings.get_double('display-distance');
-        Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${value}`);
-        if (value !== undefined) {
-            let focusedMonitorSizeAdjustment = 1.0;
+        const distance = this.settings.get_double('display-distance');
+        const size = this.settings.get_double('display-size');
+        Globals.logger.log_debug(`BreezyDesktopExtension _update_display_distance ${distance} ${size}`);
+        if (distance !== undefined && size !== undefined) {
+            const defaultDistance = Math.max(
+                distance, 
+                this.settings.get_double('toggle-display-distance-start'), 
+                this.settings.get_double('toggle-display-distance-end')
+            );
+            let focusedMonitorSizeAdjustment = size * defaultDistance;
             if (this._virtual_displays_actor?.focused_monitor_details && this._target_monitor) {
                 const fovMonitor = this._target_monitor.monitor;
                 const focusedMonitor = this._virtual_displays_actor.focused_monitor_details;
-                focusedMonitorSizeAdjustment = 
+                focusedMonitorSizeAdjustment *= 
                     Math.max(focusedMonitor.width / fovMonitor.width, focusedMonitor.height / fovMonitor.height);
             }
-            this._write_control('breezy_desktop_display_distance', value / focusedMonitorSizeAdjustment);
+            this._write_control('breezy_desktop_display_distance', distance / focusedMonitorSizeAdjustment);
         }
     }
 
@@ -585,6 +604,18 @@ export default class BreezyDesktopExtension extends Extension {
             if (this._distance_connection) {
                 this.settings.disconnect(this._distance_connection);
                 this._distance_connection = null;
+            }
+            if (this._toggle_distance_start_connection) {
+                this.settings.disconnect(this._toggle_distance_start_connection);
+                this._toggle_distance_start_connection = null;
+            }
+            if (this._toggle_distance_end_connection) {
+                this.settings.disconnect(this._toggle_distance_end_connection);
+                this._toggle_distance_end_connection = null;
+            }
+            if (this._display_size_connection) {
+                this.settings.disconnect(this._display_size_connection);
+                this._display_size_connection = null;
             }
             if (this._focused_monitor_distance_connection) {
                 this._virtual_displays_actor.disconnect(this._focused_monitor_distance_connection);
