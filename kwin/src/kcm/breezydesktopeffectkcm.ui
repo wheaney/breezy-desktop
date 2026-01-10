@@ -151,14 +151,23 @@
         </widget>
        </item>
      <item row="6" column="0">
-        <widget class="QLabel" name="labelDisplaySpacing">
+        <widget class="QLabel" name="labelDisplaySize">
          <property name="text">
-          <string>Display Spacing:</string>
+          <string>Display Size:</string>
          </property>
         </widget>
        </item>
      <item row="6" column="1">
-        <widget class="QSlider" name="kcfg_DisplaySpacing">
+        <widget class="LabeledSlider" name="kcfg_DisplaySize">
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickStartOffset">
+          <double>10</double>
+         </property>
+         <property name="tickInterval">
+          <double>25</double>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -168,13 +177,30 @@
         </widget>
        </item>
      <item row="7" column="0">
+        <widget class="QLabel" name="labelDisplaySpacing">
+         <property name="text">
+          <string>Display Spacing:</string>
+         </property>
+        </widget>
+       </item>
+     <item row="7" column="1">
+        <widget class="QSlider" name="kcfg_DisplaySpacing">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tracking">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+     <item row="8" column="0">
         <widget class="QLabel" name="labelFollowThreshold">
          <property name="text">
           <string>Follow threshold:</string>
          </property>
         </widget>
        </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
         <widget class="LabeledSlider" name="kcfg_SmoothFollowThreshold">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -196,7 +222,7 @@
          </property>
         </widget>
        </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
           <widget class="QLabel" name="labelVirtualDisplays">
             <property name="text">
               <string>Add Virtual Display:</string>
@@ -209,7 +235,7 @@
             </property>
           </widget>
         </item>
-      <item row="8" column="1">
+      <item row="9" column="1">
           <widget class="QWidget" name="widgetVirtualDisplayButtons">
             <property name="visible">
               <bool>false</bool>

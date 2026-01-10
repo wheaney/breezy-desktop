@@ -17,7 +17,7 @@ Item {
     property bool customBannerEnabled: effect.customBannerEnabled
     property bool smoothFollowEnabled: effect.smoothFollowEnabled
     property real lookAheadScanlineMs: effect.lookAheadConfig[2]
-    property var crossFovs: displays.diagonalToCrossFOVs(
+    property var fovLengths: displays.diagonalToCrossFOVs(
         displays.degreeToRadian(effect.diagonalFOV),
         aspectRatio
     );
@@ -84,7 +84,9 @@ Item {
     }
 
     function buildPerspectiveMatrix() {
-        const f = 1.0 / crossFovs.verticalTangent;
+        const verticalTangent = fovLengths.heightUnitDistance / 2.0;
+        const horizontalTangent = fovLengths.widthUnitDistance / 2.0;
+        const f = 1.0 / verticalTangent;
         const nf = 1.0 / (clipNear - clipFar);
         const m00 = f / aspectRatio;
         const m11 = f;
@@ -102,13 +104,13 @@ Item {
 
     function applyRollingShutterShear(rates) {
         // Convert to maximum shift at bottom of frame
-        const maxDxNdc = (rates.yaw * lookAheadScanlineMs) / crossFovs.horizontalTangent;
-        const maxDyNdc = -(rates.pitch * lookAheadScanlineMs) / crossFovs.verticalTangent;
+        const maxDxNdc = (rates.yaw * lookAheadScanlineMs) / horizontalTangent;
+        const maxDyNdc = -(rates.pitch * lookAheadScanlineMs) / verticalTangent;
 
         let shx = maxDxNdc / 2.0;
         let shy = maxDyNdc / 2.0;
 
-        const f = 1.0 / crossFovs.verticalTangent;
+        const f = 1.0 / verticalTangent;
         const nf = 1.0 / (clipNear - clipFar);
         const m00 = f / aspectRatio;
         const m11 = f;

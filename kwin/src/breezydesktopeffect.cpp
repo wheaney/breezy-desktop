@@ -243,6 +243,7 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
+    setDisplaySize(BreezyDesktopConfig::displaySize() / 100.0f);
     setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
     setSmoothFollowThreshold(BreezyDesktopConfig::smoothFollowThreshold());
 
@@ -512,6 +513,18 @@ void BreezyDesktopEffect::setDisplaySpacing(qreal spacing) {
     if (spacing != m_displaySpacing) {
         m_displaySpacing = spacing;
         Q_EMIT displaySpacingChanged();
+    }
+}
+
+qreal BreezyDesktopEffect::displaySize() const {
+    return m_displaySize;
+}
+
+void BreezyDesktopEffect::setDisplaySize(qreal size) {
+    const qreal clamped = std::clamp(size, 0.5, 2.0);
+    if (!qFuzzyCompare(clamped, m_displaySize)) {
+        m_displaySize = clamped;
+        Q_EMIT displaySizeChanged();
     }
 }
 

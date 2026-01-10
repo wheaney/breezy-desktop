@@ -330,6 +330,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.kcfg_ZoomOnFocusEnabled, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_FocusedDisplayDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_AllDisplaysDistance, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
+    connect(ui.kcfg_DisplaySize, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplaySpacing, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_SmoothFollowThreshold, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
     connect(ui.kcfg_DisplayHorizontalOffset, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::save);
@@ -456,6 +457,7 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
 {
     ui.kcfg_FocusedDisplayDistance->setValue(BreezyDesktopConfig::self()->focusedDisplayDistance());
     ui.kcfg_AllDisplaysDistance->setValue(BreezyDesktopConfig::self()->allDisplaysDistance());
+    ui.kcfg_DisplaySize->setValue(BreezyDesktopConfig::self()->displaySize());
     ui.kcfg_DisplaySpacing->setValue(BreezyDesktopConfig::self()->displaySpacing());
     ui.kcfg_DisplayHorizontalOffset->setValue(BreezyDesktopConfig::self()->displayHorizontalOffset());
     ui.kcfg_DisplayVerticalOffset->setValue(BreezyDesktopConfig::self()->displayVerticalOffset());
@@ -492,7 +494,7 @@ void BreezyDesktopEffectConfig::checkEffectLoaded() {
             QPalette pal = warn->palette();
             pal.setColor(QPalette::WindowText, QColor(Qt::red));
             warn->setPalette(pal);
-            warn->setText(tr("The Breezy Desktop KWin effect is not loaded. Please log out and back in to enable it."));
+            warn->setText(tr("The Breezy Desktop KWin effect is disabled or not loaded. Please check the Desktop Effects dialog. Otherwise, log out and back in to enable it."));
             warn->setVisible(true);
         }
     }

@@ -33,19 +33,41 @@ Item {
     property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
         return mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
     })
+    property var sizeAdjustedScreens: screens.map(function(screen) {
+        const sizeComplement = (1.0 - distanceAdjustedSize) / 2.0;
+        const sizeViewportOffsetX = sizeComplement * viewportResolution[0];
+        const sizeViewportOffsetY = sizeComplement * viewportResolution[1];
+        return {
+            geometry: {
+                x: screen.geometry.x * distanceAdjustedSize + sizeViewportOffsetX,
+                y: screen.geometry.y * distanceAdjustedSize + sizeViewportOffsetY,
+                width: screen.geometry.width * distanceAdjustedSize,
+                height: screen.geometry.height * distanceAdjustedSize
+            },
+            name: screen.name,
+            model: screen.model
+        };
+    })
+    property real distanceAdjustedSize: (effect.allDisplaysDistance - effect.lensDistanceRatio) *effect.displaySize
+    property var sizeAdjustedViewport: {
+        return {
+            width: viewportResolution[0] * distanceAdjustedSize,
+            height: viewportResolution[1] * distanceAdjustedSize
+        };
+    }
 
     // x value for placing the viewport in the middle of all screens
     property real screensXMid: {
         let xMin = Number.MAX_VALUE;
         let xMax = Number.MIN_VALUE;
 
-        for (let i = 0; i < screens.length; i++) {
-            const geometry = screens[i].geometry;
+        for (let i = 0; i < sizeAdjustedScreens.length; i++) {
+            const geometry = sizeAdjustedScreens[i].geometry;
             xMin = Math.min(xMin, geometry.x);
             xMax = Math.max(xMax, geometry.x + geometry.width);
         }
 
-        return (xMin + xMax) / 2 - (viewportResolution[0] / 2);
+        return (xMin + xMax) / 2 - (sizeAdjustedViewport.width / 2);
     }
 
     // y value for placing the viewport in the middle of all screens
@@ -53,13 +75,13 @@ Item {
         let yMin = Number.MAX_VALUE;
         let yMax = Number.MIN_VALUE;
 
-        for (let i = 0; i < screens.length; i++) {
-            const geometry = screens[i].geometry;
+        for (let i = 0; i < sizeAdjustedScreens.length; i++) {
+            const geometry = sizeAdjustedScreens[i].geometry;
             yMin = Math.min(yMin, geometry.y);
             yMax = Math.max(yMax, geometry.y + geometry.height);
         }
 
-        return (yMin + yMax) / 2 - (viewportResolution[1] / 2);
+        return (yMin + yMax) / 2 - (sizeAdjustedViewport.height / 2);
     }
 
     Displays {
@@ -67,19 +89,20 @@ Item {
     }
 
     property var fovDetails: displays.buildFovDetails(
-        screens,
-        viewportResolution[0],
-        viewportResolution[1],
+        sizeAdjustedScreens,
+        sizeAdjustedViewport.width,
+        sizeAdjustedViewport.height,
         viewportDiagonalFOVDegrees,
         effect.lensDistanceRatio,
         effect.allDisplaysDistance,
-        effect.displayWrappingScheme
+        effect.displayWrappingScheme,
+        distanceAdjustedSize
     )
 
     property var monitorPlacements: {
-        const dx = effect.displayHorizontalOffset * viewportResolution[0];
-        const dy = effect.displayVerticalOffset * viewportResolution[1];
-        const adjustedGeometries = screens.map(screen => {
+        const dx = effect.displayHorizontalOffset * sizeAdjustedViewport.width;
+        const dy = effect.displayVerticalOffset * sizeAdjustedViewport.height;
+        const adjustedGeometries = sizeAdjustedScreens.map(screen => {
             const g = screen.geometry;
             return {
                 x: g.x - screensXMid + dx,

@@ -23,17 +23,25 @@ QtObject {
         return Qt.quaternion(quaternion.scalar, -quaternion.z, -quaternion.x, quaternion.y);
     }
 
-    // Converts diagonal FOV in radians and aspect ratio to horizontal and vertical FOVs
+    // Converts diagonal FOV in radians and aspect ratio to horizontal and vertical FOV measurements
     function diagonalToCrossFOVs(diagonalFOVRadians, aspectRatio) {
-        var diagonalTangent = Math.tan(diagonalFOVRadians / 2);
-        var verticalTangent = diagonalTangent / Math.sqrt(1 + aspectRatio * aspectRatio);
-        var horizontalTangent = verticalTangent * aspectRatio;
+        // first convert from a spherical FOV to a diagonal FOV on a flat plane at a unit distance of 1.0
+        const diagonalLengthUnitDistance = 2 * Math.tan(diagonalFOVRadians / 2);
+
+        // then convert to flat plane horizontal and vertical FOVs
+        const heightUnitDistance = diagonalLengthUnitDistance / Math.sqrt(1 + aspectRatio * aspectRatio);
+        const widthUnitDistance = heightUnitDistance * aspectRatio;
+
         return {
-            diagonal: diagonalFOVRadians,
-            horizontal: 2 * Math.atan(horizontalTangent),
-            horizontalTangent: horizontalTangent,
-            vertical: 2 * Math.atan(verticalTangent),
-            verticalTangent: verticalTangent
+            // then convert back to spherical FOV
+            diagonalRadians: diagonalFOVRadians,
+            horizontalRadians: 2 * Math.atan(widthUnitDistance / 2),
+            verticalRadians: 2 * Math.atan(heightUnitDistance / 2),
+
+            // flat values are relative to a unit distance of 1.0
+            diagonalLengthUnitDistance,
+            widthUnitDistance,
+            heightUnitDistance
         }
     }
 
@@ -50,33 +58,55 @@ QtObject {
         }
     }
 
-    function buildFovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice) {
+    function buildFovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice, distanceAdjustedSize) {
         const aspect = viewportWidth / viewportHeight;
-        const crossFovs = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
-        const defaultDistanceVerticalRadians = 2 * Math.atan(crossFovs.verticalTangent / defaultDisplayDistance);
-        const defaultDistanceHorizontalRadians = 2 * Math.atan(crossFovs.horizontalTangent / defaultDisplayDistance);
-
-        // distance needed for the FOV-sized monitor to fill up the screen
-        const fullScreenDistance = viewportHeight / (2 * crossFovs.verticalTangent);
-        const lensDistancePixels = fullScreenDistance / (1.0 - lensDistanceRatio) - fullScreenDistance;
-
-        // distance of a display at the default (most zoomed out) distance, plus the lens distance constant
-        const lensToScreenDistance = viewportHeight / (2 * Math.tan(defaultDistanceVerticalRadians / 2));
-        const completeScreenDistancePixels = lensToScreenDistance + lensDistancePixels;
+        const fovLengths = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
 
         let monitorWrappingScheme = actualWrapScheme(screens, viewportWidth, viewportHeight);
         if (wrappingChoice === 1) monitorWrappingScheme = 'horizontal';
         else if (wrappingChoice === 2) monitorWrappingScheme = 'vertical';
         else if (wrappingChoice === 3) monitorWrappingScheme = 'flat';
 
+        const lensDistanceComplement = 1.0 - lensDistanceRatio;
+        const lensDistanceFactor = (1.0 / lensDistanceComplement) - 1.0;
+        const horizontalConversions = effect.curvedDisplay && monitorWrappingScheme === 'horizontal' ? fovConversionFns.curved : fovConversionFns.flat;
+        const verticalConversions = effect.curvedDisplay && monitorWrappingScheme === 'vertical' ? fovConversionFns.curved : fovConversionFns.flat;
+
+        const defaultDistanceVerticalRadians = verticalConversions.fovRadiansAtDistance(
+            fovLengths.verticalRadians,
+            fovLengths.heightUnitDistance,
+            defaultDisplayDistance
+        );
+        const defaultDistanceHorizontalRadians = horizontalConversions.fovRadiansAtDistance(
+            fovLengths.horizontalRadians,
+            fovLengths.widthUnitDistance,
+            defaultDisplayDistance
+        );
+
+        // distance needed for the FOV-sized monitor to fill up the screen, as measured from the lenses
+        const lensToUnitDistancePixels = viewportWidth / fovLengths.widthUnitDistance;
+
+        // distance from pivot point to lens
+        const lensDistancePixels = lensToUnitDistancePixels * lensDistanceFactor;
+
+        // distance from pivot point to full screen (monitor at unit distance from lens)
+        const fullScreenDistancePixels = lensToUnitDistancePixels + lensDistancePixels;
+
+        // distance of a display at the default (most zoomed out) distance from the pivot point
+        const completeScreenDistancePixels = fullScreenDistancePixels * defaultDisplayDistance;
+
         return {
             widthPixels: viewportWidth,
+            distanceAdjustedSize,
+            sizeAdjustedWidthPixels: viewportWidth * distanceAdjustedSize,
             heightPixels: viewportHeight,
+            sizeAdjustedHeightPixels: viewportHeight * distanceAdjustedSize,
             defaultDistanceVerticalRadians,
             defaultDistanceHorizontalRadians,
             lensDistancePixels,
+            fullScreenDistancePixels,
             completeScreenDistancePixels,
-            monitorWrappingScheme: monitorWrappingScheme,
+            monitorWrappingScheme,
             curvedDisplay: effect.curvedDisplay
         };
     }
@@ -99,6 +129,9 @@ QtObject {
             angleToLength: function(fovRadians, fovLength, screenDistance, toAngleOpposite, toAngleAdjacent) {
                 return toAngleOpposite / toAngleAdjacent * screenDistance;
             },
+            fovRadiansAtDistance: function(fovRadians, unitLength, newScreenDistance) {
+                return 2 * Math.atan(unitLength / 2 / newScreenDistance);
+            },
             radiansToSegments: function(screenRadians) { return 1; }
         },
         curved: {
@@ -113,6 +146,9 @@ QtObject {
             },
             angleToLength: function(fovRadians, fovLength, screenDistance, toAngleOpposite, toAngleAdjacent) {
                 return fovLength / fovRadians * Math.atan2(toAngleOpposite, toAngleAdjacent);
+            },
+            fovRadiansAtDistance: function(fovRadians, unitLength, newScreenDistance) {
+                return fovRadians / newScreenDistance;
             },
             radiansToSegments: function(screenRadians) {
                 return Math.ceil(screenRadians * segmentsPerRadian);
@@ -198,8 +234,12 @@ QtObject {
         var conversionFns = fovDetails.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
 
         if (fovDetails.monitorWrappingScheme === 'horizontal') {
-            var sideEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.widthPixels);
-            var monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
+            // monitors wrap around us horizontally
+
+            var sideEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.sizeAdjustedWidthPixels);
+            var monitorSpacingPixels = monitorSpacing * fovDetails.sizeAdjustedWidthPixels;
+
+            // targetWidth is assumed to aleady be size adjusted
             var lengthToRadianFn = function(targetWidth) {
                 return conversionFns.lengthToRadians(
                     fovDetails.defaultDistanceHorizontalRadians,
@@ -209,14 +249,14 @@ QtObject {
                 );
             };
 
-            cachedMonitorRadians[0] = -fovDetails.defaultDistanceHorizontalRadians / 2;
+            cachedMonitorRadians[0] = -lengthToRadianFn(fovDetails.sizeAdjustedWidthPixels) / 2;
             horizontalMonitorSort(monitorDetailsList).forEach(function(obj) {
                 var monitorDetails = obj.monitorDetails;
                 var originalIndex = obj.originalIndex;
                 var monitorWrapDetails = monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorDetails.x, monitorDetails.width, lengthToRadianFn);
                 var monitorCenterRadius = conversionFns.fovEdgeToScreenCenterDistance(sideEdgeRadius, monitorDetails.width);
-                var upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
-                var upCenterOffsetPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+                var upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.sizeAdjustedHeightPixels) * monitorSpacingPixels;
+                var upCenterOffsetPixels = (monitorDetails.height - fovDetails.sizeAdjustedHeightPixels) / 2;
                 var upCenterPixels = upTopPixels - upCenterOffsetPixels;
 
                 monitorPlacements.push({
@@ -239,8 +279,8 @@ QtObject {
                 });
             });
         } else if (fovDetails.monitorWrappingScheme === 'vertical') {
-            var topEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.heightPixels);
-            var monitorSpacingPixels = monitorSpacing * fovDetails.heightPixels;
+            var topEdgeRadius = conversionFns.centerToFovEdgeDistance(fovDetails.completeScreenDistancePixels, fovDetails.sizeAdjustedHeightPixels);
+            var monitorSpacingPixels = monitorSpacing * fovDetails.sizeAdjustedHeightPixels;
             var lengthToRadianFn = function(targetHeight) {
                 return conversionFns.lengthToRadians(
                     fovDetails.defaultDistanceVerticalRadians,
@@ -250,14 +290,14 @@ QtObject {
                 );
             };
 
-            cachedMonitorRadians[0] = -fovDetails.defaultDistanceVerticalRadians / 2;
+            cachedMonitorRadians[0] = -lengthToRadianFn(fovDetails.sizeAdjustedHeightPixels) / 2;
             verticalMonitorSort(monitorDetailsList).forEach(function(obj) {
                 var monitorDetails = obj.monitorDetails;
                 var originalIndex = obj.originalIndex;
                 var monitorWrapDetails = monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorDetails.y, monitorDetails.height, lengthToRadianFn);
                 var monitorCenterRadius = conversionFns.fovEdgeToScreenCenterDistance(topEdgeRadius, monitorDetails.height);
-                var westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
-                var westCenterOffsetPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
+                var westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.sizeAdjustedWidthPixels) * monitorSpacingPixels;
+                var westCenterOffsetPixels = (monitorDetails.width - fovDetails.sizeAdjustedWidthPixels) / 2;
                 var westCenterPixels = westLeftPixels - westCenterOffsetPixels;
 
                 monitorPlacements.push({
@@ -280,12 +320,12 @@ QtObject {
                 });
             });
         } else {
-            var monitorSpacingPixels = monitorSpacing * fovDetails.widthPixels;
+            var monitorSpacingPixels = monitorSpacing * fovDetails.sizeAdjustedWidthPixels;
             monitorDetailsList.forEach(function(monitorDetails, index) {
-                var upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.heightPixels) * monitorSpacingPixels;
-                var westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.widthPixels) * monitorSpacingPixels;
-                var westCenterOffsetPixels = (monitorDetails.width - fovDetails.widthPixels) / 2;
-                var upCenterOffsetPixels = (monitorDetails.height - fovDetails.heightPixels) / 2;
+                var upTopPixels = -monitorDetails.y - (monitorDetails.y / fovDetails.sizeAdjustedHeightPixels) * monitorSpacingPixels;
+                var westLeftPixels = -monitorDetails.x - (monitorDetails.x / fovDetails.sizeAdjustedWidthPixels) * monitorSpacingPixels;
+                var westCenterOffsetPixels = (monitorDetails.width - fovDetails.sizeAdjustedWidthPixels) / 2;
+                var upCenterOffsetPixels = (monitorDetails.height - fovDetails.sizeAdjustedHeightPixels) / 2;
                 var westCenterPixels = westLeftPixels - westCenterOffsetPixels;
                 var upCenterPixels = upTopPixels - upCenterOffsetPixels;
 

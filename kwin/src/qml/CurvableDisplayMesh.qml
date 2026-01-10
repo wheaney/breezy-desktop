@@ -26,27 +26,26 @@ ProceduralMesh {
         const fov = mesh.fovDetails;
         const monitor = mesh.monitorGeometry;
 
-        const conv = fov.curvedDisplay ? mesh.fovConversionFns.curved
-                                       : mesh.fovConversionFns.flat;
-
         const horizontalWrap = fov.monitorWrappingScheme === 'horizontal';
-        const verticalWrap = fov.monitorWrappingScheme === 'vertical';
+        const horizontalConversions = horizontalWrap && fov.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
 
-        const sideEdgeDistance = conv.centerToFovEdgeDistance(
-            fov.completeScreenDistancePixels, fov.widthPixels);
-        const horizontalRadians = conv.lengthToRadians(
+        const sideEdgeDistancePixels = horizontalConversions.centerToFovEdgeDistance(
+            fov.completeScreenDistancePixels, fov.sizeAdjustedWidthPixels);
+        const horizontalRadians = horizontalConversions.lengthToRadians(
             fov.defaultDistanceHorizontalRadians,
             fov.widthPixels,
-            sideEdgeDistance,
+            sideEdgeDistancePixels,
             monitor.width
         );
 
-        const topEdgeDistance = conv.centerToFovEdgeDistance(
-            fov.completeScreenDistancePixels, fov.heightPixels);
-        const verticalRadians = conv.lengthToRadians(
+        const verticalWrap = fov.monitorWrappingScheme === 'vertical';
+        const verticalConversions = verticalWrap && fov.curvedDisplay ? fovConversionFns.curved : fovConversionFns.flat;
+        const topEdgeDistancePixels = verticalConversions.centerToFovEdgeDistance(
+            fov.completeScreenDistancePixels, fov.sizeAdjustedHeightPixels);
+        const verticalRadians = verticalConversions.lengthToRadians(
             fov.defaultDistanceVerticalRadians,
             fov.heightPixels,
-            topEdgeDistance,
+            topEdgeDistancePixels,
             monitor.height
         );
 
