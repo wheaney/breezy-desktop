@@ -21,6 +21,8 @@ Item {
         displays.degreeToRadian(effect.diagonalFOV),
         aspectRatio
     );
+    property real fovHalfVerticalTangent: fovLengths.heightUnitDistance / 2.0;
+    property real fovHalfHorizontalTangent: fovLengths.widthUnitDistance / 2.0;
 
     // if true, then smoothFollowEnabled just cleared and the orientation data is slerping back, 
     // continue to use the origin data for the duration of the Timer
@@ -84,9 +86,7 @@ Item {
     }
 
     function buildPerspectiveMatrix() {
-        const verticalTangent = fovLengths.heightUnitDistance / 2.0;
-        const horizontalTangent = fovLengths.widthUnitDistance / 2.0;
-        const f = 1.0 / verticalTangent;
+        const f = 1.0 / fovHalfVerticalTangent;
         const nf = 1.0 / (clipNear - clipFar);
         const m00 = f / aspectRatio;
         const m11 = f;
@@ -104,13 +104,13 @@ Item {
 
     function applyRollingShutterShear(rates) {
         // Convert to maximum shift at bottom of frame
-        const maxDxNdc = (rates.yaw * lookAheadScanlineMs) / horizontalTangent;
-        const maxDyNdc = -(rates.pitch * lookAheadScanlineMs) / verticalTangent;
+        const maxDxNdc = (rates.yaw * lookAheadScanlineMs) / fovHalfHorizontalTangent;
+        const maxDyNdc = -(rates.pitch * lookAheadScanlineMs) / fovHalfVerticalTangent;
 
         let shx = maxDxNdc / 2.0;
         let shy = maxDyNdc / 2.0;
 
-        const f = 1.0 / verticalTangent;
+        const f = 1.0 / fovHalfVerticalTangent;
         const nf = 1.0 / (clipNear - clipFar);
         const m00 = f / aspectRatio;
         const m11 = f;
