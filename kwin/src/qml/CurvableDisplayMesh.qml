@@ -77,8 +77,8 @@ ProceduralMesh {
         }
 
         let segments = 1;
-        if (horizontalWrap) segments = conv.radiansToSegments(horizontalRadians);
-        if (verticalWrap) segments = conv.radiansToSegments(verticalRadians);
+        if (horizontalWrap) segments = horizontalConversions.radiansToSegments(horizontalRadians);
+        if (verticalWrap) segments = verticalConversions.radiansToSegments(verticalRadians);
         for (let i = 0; i <= segments; i++) {
             const texFraction = i / segments;
 
