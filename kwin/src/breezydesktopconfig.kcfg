@@ -98,5 +98,9 @@
             <label>Curved display</label>
             <description>Curve the displays around you</description>
         </entry>
+
+        <entry name="DeveloperMode" type="Bool">
+            <default>false</default>
+        </entry>
     </group>
 </kcfg>

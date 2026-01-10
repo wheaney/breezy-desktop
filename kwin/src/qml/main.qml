@@ -30,8 +30,9 @@ Item {
     property real viewportDiagonalFOVDegrees: effect.diagonalFOV
     property var viewportResolution: effect.displayResolution
     property bool mirrorPhysicalDisplays: effect.mirrorPhysicalDisplays
+    property bool developerMode: effect.developerMode
     property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
-        return mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
+        return developerMode || mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
     })
     property var sizeAdjustedScreens: screens.map(function(screen) {
         const sizeComplement = (1.0 - distanceAdjustedSize) / 2.0;
@@ -114,7 +115,7 @@ Item {
         return displays.monitorsToPlacements(fovDetails, adjustedGeometries, effect.displaySpacing);
     }
 
-    property bool targetScreenSupported: supportedModels.some(model => root.targetScreen.model.includes(model))
+    property bool targetScreenSupported: developerMode || supportedModels.some(model => root.targetScreen.model.includes(model))
     property bool targetScreenIsVirtual: targetScreen.name.includes("BreezyDesktop")
     property bool poseResetState: effect.poseResetState
     property bool isEnabled: effect.isEnabled

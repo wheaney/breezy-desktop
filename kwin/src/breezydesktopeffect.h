@@ -53,6 +53,7 @@ namespace KWin
         Q_PROPERTY(bool mirrorPhysicalDisplays READ mirrorPhysicalDisplays NOTIFY mirrorPhysicalDisplaysChanged)
         Q_PROPERTY(bool curvedDisplay READ curvedDisplay NOTIFY curvedDisplayChanged)
         Q_PROPERTY(bool curvedDisplaySupported READ curvedDisplaySupported WRITE setCurvedDisplaySupported NOTIFY curvedDisplaySupportedChanged)
+        Q_PROPERTY(bool developerMode READ developerMode NOTIFY developerModeChanged)
 
 
     public:
@@ -105,6 +106,7 @@ namespace KWin
         bool removeVirtualDisplaysOnDisable() const;
         bool mirrorPhysicalDisplays() const;
         bool curvedDisplay() const;
+        bool developerMode() const;
         void setCurvedDisplaySupported(bool supported);
 
         void showCursor();
@@ -144,6 +146,7 @@ namespace KWin
         void mirrorPhysicalDisplaysChanged();
         void curvedDisplayChanged();
         void curvedDisplaySupportedChanged();
+        void developerModeChanged();
         void cursorImageSourceChanged();
         void cursorPosChanged();
 
@@ -204,6 +207,7 @@ namespace KWin
         bool m_mirrorPhysicalDisplays = false;
         bool m_curvedDisplay = false;
         bool m_curvedDisplaySupported = false;
+        bool m_developerMode = false;
         float m_smoothFollowThreshold = 1.0f;
         bool m_allDisplaysFollowMode = false;
         bool m_focusedSmoothFollowEnabled = false;

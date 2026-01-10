@@ -263,11 +263,19 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (m_mirrorPhysicalDisplays != mirrorPhysicalDisplays) { m_mirrorPhysicalDisplays = mirrorPhysicalDisplays; Q_EMIT mirrorPhysicalDisplaysChanged(); }
 
+    const bool developerMode = BreezyDesktopConfig::developerMode();
+    if (m_developerMode != developerMode) { m_developerMode = developerMode; Q_EMIT developerModeChanged(); }
+
     bool curved = BreezyDesktopConfig::curvedDisplay() && m_curvedDisplaySupported;
     if (m_curvedDisplay != curved) { m_curvedDisplay = curved; Q_EMIT curvedDisplayChanged(); }
 
     // this one doesn't have a signal, just always assign it
     m_allDisplaysFollowMode = BreezyDesktopConfig::allDisplaysFollowMode();
+}
+
+bool BreezyDesktopEffect::developerMode() const
+{
+    return m_developerMode;
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
