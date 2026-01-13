@@ -157,9 +157,9 @@ BreezyDesktopEffect::BreezyDesktopEffect()
             !m_shmFileWatcher->files().contains(DataView::SHM_PATH)
         )) {
             m_shmFileWatcher->removePath(DataView::SHM_PATH);
-            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
+            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePose);
             m_shmFileWatcher->addPath(DataView::SHM_PATH);
-            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
+            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePose);
         }
     };
 
@@ -173,7 +173,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     m_watchdogTimer->setInterval(1000);
     connect(m_watchdogTimer, &QTimer::timeout, this, [this]() {
         if (!m_enabled) return;
-        this->updatePoseOrientation();
+        this->updatePose();
     });
     m_watchdogTimer->start();
 
@@ -494,7 +494,7 @@ qreal BreezyDesktopEffect::focusedDisplayDistance() const {
 
 void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
     if (distance != m_focusedDisplayDistance) {
-        m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
+        m_focusedDisplayDistance = std::clamp(distance, 0.1, m_allDisplaysDistance);
         Q_EMIT focusedDisplayDistanceChanged();
 
         if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
@@ -507,7 +507,7 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
     if (distance != m_allDisplaysDistance) {
-        qreal min = m_zoomOnFocusEnabled ? m_focusedDisplayDistance : 0.2;
+        qreal min = m_zoomOnFocusEnabled ? m_focusedDisplayDistance : 0.1;
         m_allDisplaysDistance = std::clamp(distance, min, 2.5);
         Q_EMIT allDisplaysDistanceChanged();
     }
@@ -529,7 +529,7 @@ qreal BreezyDesktopEffect::displaySize() const {
 }
 
 void BreezyDesktopEffect::setDisplaySize(qreal size) {
-    const qreal clamped = std::clamp(size, 0.5, 2.0);
+    const qreal clamped = std::clamp(size, 0.1, 4.0);
     if (!qFuzzyCompare(clamped, m_displaySize)) {
         m_displaySize = clamped;
         Q_EMIT displaySizeChanged();
@@ -625,7 +625,7 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
 
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
-void BreezyDesktopEffect::updatePoseOrientation() {    
+void BreezyDesktopEffect::updatePose() {    
     // Reentrancy guard: if an update is already in progress, skip
     bool expected = false;
     if (!m_poseUpdateInProgress.compare_exchange_strong(expected, true)) {

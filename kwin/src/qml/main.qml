@@ -34,6 +34,7 @@ Item {
     property var screens: KWinComponents.Workspace.screens.filter(function(screen) {
         return developerMode || mirrorPhysicalDisplays || screen.name.includes("BreezyDesktop") || supportedModels.some(model => screen.model.includes(model));
     })
+    property real distanceAdjustedSize: (effect.allDisplaysDistance - effect.lensDistanceRatio) * effect.displaySize
     property var sizeAdjustedScreens: screens.map(function(screen) {
         const sizeComplement = (1.0 - distanceAdjustedSize) / 2.0;
         const sizeViewportOffsetX = sizeComplement * viewportResolution[0];
@@ -49,7 +50,6 @@ Item {
             model: screen.model
         };
     })
-    property real distanceAdjustedSize: (effect.allDisplaysDistance - effect.lensDistanceRatio) *effect.displaySize
     property var sizeAdjustedViewport: {
         return {
             width: viewportResolution[0] * distanceAdjustedSize,

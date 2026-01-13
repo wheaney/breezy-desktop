@@ -119,7 +119,7 @@ namespace KWin
         void disableDriver();
         void toggle();
         void addVirtualDisplay(QSize size);
-        void updatePoseOrientation();
+        void updatePose();
         void updateCursorImage();
         void updateCursorPos();
         QVariantList listVirtualDisplays() const;

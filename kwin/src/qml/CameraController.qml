@@ -31,6 +31,8 @@ Item {
     property real clipNear: 10.0
     property real clipFar: 10000.0
 
+    property int sampleCounter: 0
+
     function ratesOfChange(orientations) {
         const e0 = orientations[0].toEulerAngles();
         const e1 = orientations[1].toEulerAngles();
@@ -60,7 +62,13 @@ Item {
                 effect.lookAheadOverride
             )
         );
-        camera.position = position.times(fovDetails.completeScreenDistancePixels).plus(orientations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels)));
+        camera.position = position.times(fovDetails.fullScreenDistancePixels).plus(orientations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels)));
+        
+        sampleCounter += 1;
+        if (sampleCounter === 60) {
+            sampleCounter = 0;
+            console.log(`Breezy - Camera position: ${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)}; rotation: ${camera.eulerRotation.x.toFixed(2)}, ${camera.eulerRotation.y.toFixed(2)}, ${camera.eulerRotation.z.toFixed(2)}`);
+        }
     }
 
     // how far to look ahead is how old the pose data is plus a constant that is either the default for this device or an override
