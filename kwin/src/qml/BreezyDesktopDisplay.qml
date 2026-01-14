@@ -5,6 +5,7 @@ Model {
     id: display
 
     required property var screen
+    required property var sizeAdjustedScreen
     required property var monitorPlacement
     required property int index
     required property var fovDetails
@@ -27,7 +28,7 @@ Model {
             if (component.status === Component.Ready) {
                 const mesh = component.createObject(display, {
                     fovDetails: Qt.binding(() => display.fovDetails),
-                    monitorGeometry: Qt.binding(() => display.screen ? display.screen.geometry : null),
+                    monitorGeometry: Qt.binding(() => display.sizeAdjustedScreen ? display.sizeAdjustedScreen.geometry : null),
                     fovConversionFns: Qt.binding(() => displays.fovConversionFns)
                 });
                 if (mesh) {

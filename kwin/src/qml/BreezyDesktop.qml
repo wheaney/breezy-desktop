@@ -8,6 +8,7 @@ Node {
     property var viewportResolution: effect.displayResolution
     property bool smoothFollowEnabled: effect.smoothFollowEnabled
     required property var screens
+    required property var sizeAdjustedScreens
     required property var fovDetails
     required property var monitorPlacements
     property int focusedMonitorIndex: -1
@@ -158,6 +159,7 @@ Node {
         model: breezyDesktop.screens.length
         delegate: BreezyDesktopDisplay {
             screen: breezyDesktop.screens[index]
+            sizeAdjustedScreen: breezyDesktop.sizeAdjustedScreens[index]
             monitorPlacement: breezyDesktop.monitorPlacements[index]
             fovDetails: breezyDesktop.fovDetails
             
