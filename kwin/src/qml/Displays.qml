@@ -367,23 +367,28 @@ QtObject {
 
     // returns how far the look vector is from the center of the monitor, as a percentage of the monitor's dimensions
     function getMonitorDistance(fovDetails, lookUpPixels, lookWestPixels, monitorVector, monitorDetails, upAngleToLength, westAngleToLength) {
+        // since the monitor vector has been modified to be relative to the lens position, we need to calculate its distance from the lens
+        // we need to adjust all angle-based lengths based on new vector distance
+        const monitorDistance = monitorVector.length();
+        const distanceAdjustment = monitorDistance / fovDetails.completeScreenDistancePixels;
+
         var vectorUpPixels = upAngleToLength(
             fovDetails.defaultDistanceVerticalRadians,
             fovDetails.heightPixels,
-            fovDetails.completeScreenDistancePixels,
+            monitorDistance,
             monitorVector.z,
             monitorVector.x
-        );
-        var upPercentage = Math.abs(lookUpPixels - vectorUpPixels) / monitorDetails.height;
+        ) * distanceAdjustment;
+        var upPercentage = Math.abs(lookUpPixels * distanceAdjustment - vectorUpPixels) / monitorDetails.height;
 
         var vectorWestPixels = westAngleToLength(
             fovDetails.defaultDistanceHorizontalRadians,
             fovDetails.widthPixels,
-            fovDetails.completeScreenDistancePixels,
+            monitorDistance,
             monitorVector.y,
             monitorVector.x
-        );
-        var westPercentage = Math.abs(lookWestPixels - vectorWestPixels) / monitorDetails.width;
+        ) * distanceAdjustment;
+        var westPercentage = Math.abs(lookWestPixels * distanceAdjustment - vectorWestPixels) / monitorDetails.width;
 
         // how close we are to any edge is the largest of the two percentages
         return Math.max(upPercentage, westPercentage);

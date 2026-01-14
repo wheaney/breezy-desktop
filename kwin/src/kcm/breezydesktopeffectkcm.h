@@ -73,6 +73,8 @@ private:
     int m_smoothFollowThreshold = 1;
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
+    int m_connectedDeviceFullDistanceCm = 0;
+    int m_connectedDeviceFullSizeCm = 0;
     QTimer m_statePollTimer; // periodic driver state polling
     QTimer m_virtualDisplayPollTimer; // periodic virtual display list polling
     bool m_licenseLoading = false;
