@@ -96,7 +96,7 @@ QtObject {
         // distance of a display at the default (most zoomed out) distance from the pivot point
         const completeScreenDistancePixels = fullScreenDistancePixels * defaultDisplayDistance;
 
-        return {
+        const details = {
             widthPixels: viewportWidth,
             distanceAdjustedSize,
             sizeAdjustedWidthPixels: viewportWidth * distanceAdjustedSize,
@@ -110,6 +110,9 @@ QtObject {
             monitorWrappingScheme,
             curvedDisplay: effect.curvedDisplay
         };
+
+        console.log("Breezy - FOV Details:", details);
+        return details;
     }
 
     // Utility constant
@@ -272,7 +275,7 @@ QtObject {
                         monitorCenterRadius * Math.cos(monitorWrapDetails.center),
                         -monitorCenterRadius * Math.sin(monitorWrapDetails.center),
                         upCenterPixels
-                    ).normalized(),
+                    ),
                     rotationAngleRadians: {
                         x: 0,
                         y: -monitorWrapDetails.center
@@ -313,7 +316,7 @@ QtObject {
                         monitorCenterRadius * Math.cos(monitorWrapDetails.center),
                         westCenterPixels,
                         -monitorCenterRadius * Math.sin(monitorWrapDetails.center)
-                    ).normalized(),
+                    ),
                     rotationAngleRadians: {
                         x: -monitorWrapDetails.center,
                         y: 0
@@ -342,7 +345,7 @@ QtObject {
                         fovDetails.completeScreenDistancePixels,
                         westCenterPixels,
                         upCenterPixels
-                    ).normalized(),
+                    ),
                     rotationAngleRadians: {
                         x: 0,
                         y: 0

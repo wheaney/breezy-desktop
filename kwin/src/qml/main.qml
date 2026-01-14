@@ -91,8 +91,8 @@ Item {
 
     property var fovDetails: displays.buildFovDetails(
         sizeAdjustedScreens,
-        sizeAdjustedViewport.width,
-        sizeAdjustedViewport.height,
+        viewportResolution[0],
+        viewportResolution[1],
         viewportDiagonalFOVDegrees,
         effect.lensDistanceRatio,
         effect.allDisplaysDistance,
