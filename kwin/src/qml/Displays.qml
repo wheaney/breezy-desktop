@@ -18,6 +18,11 @@ QtObject {
         return Qt.vector3d(-vector.y, vector.z, -vector.x);
     }
 
+    function eusToNwuVector(vector) {
+        // Converts EUS vector to NWU vector
+        return Qt.vector3d(-vector.z, -vector.x, vector.y);
+    }
+
     function eusToNwuQuat(quaternion) {
         // Converts EUS quaternion to NWU quaternion
         return Qt.quaternion(quaternion.scalar, -quaternion.z, -quaternion.x, quaternion.y);
@@ -384,13 +389,14 @@ QtObject {
         return Math.max(upPercentage, westPercentage);
     }
 
-    function findFocusedMonitor(quaternion, monitorVectors, currentFocusedIndex, smoothFollowEnabled, fovDetails, monitorsDetails) {
+    function findFocusedMonitor(quaternion, position, monitorVectors, currentFocusedIndex, smoothFollowEnabled, fovDetails, monitorsDetails) {
         if (currentFocusedIndex !== -1 && smoothFollowEnabled) return currentFocusedIndex;
 
         var lookVector = Qt.vector3d(1.0, 0.0, 0.0); // NWU vector pointing to the center of the screen
         var rotatedLookVector = quaternion.times(lookVector);
 
-        // Use curved or flat conversion functions depending on wrapping scheme
+        // TODO - right now we're using the curved functions to figure out distances even for flat monitors
+        // because it will account for the monitors facing towards us, but this will lose some accuracy
         var upConversionFns = fovDetails.monitorWrappingScheme === "vertical" ? fovConversionFns.curved : fovConversionFns.flat;
         var lookUpPixels = upConversionFns.angleToLength(
             fovDetails.defaultDistanceVerticalRadians,
@@ -408,13 +414,17 @@ QtObject {
             rotatedLookVector.x
         );
 
+        function vectorRelativeToPosition(vector) {
+            return vector.minus(position);
+        }
+
         // Check current focused monitor first
         if (currentFocusedIndex !== -1) {
             var focusedDistance = getMonitorDistance(
                 fovDetails,
                 lookUpPixels,
                 lookWestPixels,
-                monitorVectors[currentFocusedIndex],
+                vectorRelativeToPosition(monitorVectors[currentFocusedIndex]),
                 monitorsDetails[currentFocusedIndex],
                 upConversionFns.angleToLength,
                 westConversionFns.angleToLength
@@ -434,7 +444,7 @@ QtObject {
                 fovDetails,
                 lookUpPixels,
                 lookWestPixels,
-                monitorVectors[i],
+                vectorRelativeToPosition(monitorVectors[i]),
                 monitorsDetails[i],
                 upConversionFns.angleToLength,
                 westConversionFns.angleToLength

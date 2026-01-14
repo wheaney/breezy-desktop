@@ -32,6 +32,7 @@ Node {
             let focusedIndex = -1;
             const lookingAtIndex = displays.findFocusedMonitor(
                 displays.eusToNwuQuat(orientations[0]), 
+                displays.eusToNwuVector(effect.posePosition),
                 breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                 breezyDesktop.focusedMonitorIndex,
                 smoothFollowEnabled,
