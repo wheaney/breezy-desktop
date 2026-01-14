@@ -145,7 +145,7 @@ Item {
 
             BreezyDesktop {
                 id: breezyDesktop
-                screens: root.screens
+                screens: root.sizeAdjustedScreens
                 fovDetails: root.fovDetails
                 monitorPlacements: root.monitorPlacements
             }
