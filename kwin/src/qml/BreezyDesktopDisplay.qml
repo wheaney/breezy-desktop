@@ -4,7 +4,7 @@ import QtQuick3D
 Model {
     id: display
 
-    required property QtObject screen
+    required property var screen
     required property var monitorPlacement
     required property int index
     required property var fovDetails
