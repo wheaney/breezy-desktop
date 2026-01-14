@@ -36,7 +36,7 @@ Node {
                 breezyDesktop.focusedMonitorIndex,
                 smoothFollowEnabled,
                 breezyDesktop.fovDetails,
-                breezyDesktop.screens.map(screen => screen.geometry)
+                breezyDesktop.sizeAdjustedScreens.map(screen => screen.geometry)
             );
 
             if (breezyDesktop.lookingAtMonitorIndex !== lookingAtIndex) {
@@ -177,7 +177,7 @@ Node {
 
             // only for the Rectangle geometry fallback
             property vector3d rectangleFallbackScale: {
-                const geometry = screen.geometry;
+                const geometry = sizeAdjustedScreen.geometry;
 
                 // default geometry unit size is 100x100, so we scale it up to the screen size
                 return Qt.vector3d(geometry.width / 100, geometry.height / 100, 1);
