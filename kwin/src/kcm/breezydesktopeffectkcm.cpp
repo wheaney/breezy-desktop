@@ -702,7 +702,8 @@ void BreezyDesktopEffectConfig::pollDriverState()
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
     m_connectedDeviceFullDistanceCm = stateJson.value(QStringLiteral("connected_device_full_distance_cm")).toDouble(0.0);
     m_connectedDeviceFullSizeCm = stateJson.value(QStringLiteral("connected_device_full_size_cm")).toDouble(0.0);
-    m_connectedDevicePoseHasPosition = stateJson.value(QStringLiteral("connected_device_pose_has_position")).toBool(false);
+    const QString poseHasPosition = stateJson.value(QStringLiteral("connected_device_pose_has_position")).toString();
+    m_connectedDevicePoseHasPosition = (poseHasPosition == QLatin1String("true"));
 
     applyDistanceLabelFormatters();
 
