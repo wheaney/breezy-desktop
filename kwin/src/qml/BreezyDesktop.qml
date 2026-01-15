@@ -178,6 +178,8 @@ Node {
 
             // only for the Rectangle geometry fallback
             property vector3d rectangleFallbackScale: {
+                if (!sizeAdjustedScreen) return Qt.vector3d(1, 1, 1);
+                
                 const geometry = sizeAdjustedScreen.geometry;
 
                 // default geometry unit size is 100x100, so we scale it up to the screen size
