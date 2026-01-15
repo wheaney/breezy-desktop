@@ -48,6 +48,7 @@
 #include <QFile>
 #include <QDir>
 #include <QJsonDocument>
+#include <QDebug>
 #include <QLocale>
 #include <QSignalBlocker>
 #include <cmath>
@@ -777,12 +778,18 @@ QString BreezyDesktopEffectConfig::measurementUnitsFromUi() const
 
 void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
 {
+    qCCritical(KWIN_XR) << "applyDistanceLabelFormatters()";
+
     auto *focused = ui.kcfg_FocusedDisplayDistance;
     auto *all = ui.kcfg_AllDisplaysDistance;
-    if (!focused || !all) return;
+    if (!focused || !all) {
+        qCCritical(KWIN_XR) << "applyDistanceLabelFormatters: missing sliders" << focused << all;
+        return;
+    }
 
     // Only apply the unit conversion labels when the driver reports positional tracking.
     if (!m_connectedDevicePoseHasPosition) {
+        qCCritical(KWIN_XR) << "applyDistanceLabelFormatters: pose has no position -> clearing formatter";
         focused->clearValueToDisplayStringFn();
         all->clearValueToDisplayStringFn();
         return;
@@ -792,13 +799,28 @@ void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
     const QString units = measurementUnitsFromUi();
     const QLocale loc;
 
+    qCCritical(KWIN_XR) << "applyDistanceLabelFormatters: installing formatter"
+                    << "fullDistanceCm=" << fullCm
+                    << "units=" << units;
+
     LabeledSlider::ValueToDisplayStringFn fn = [fullCm, units, loc](int raw) -> QString {
+        static int s_calls = 0;
+        if (s_calls < 25) {
+            qCCritical(KWIN_XR) << "distance label formatter called" << "raw=" << raw << "units=" << units << "fullCm=" << fullCm;
+            ++s_calls;
+        }
         if (fullCm <= 0.0) return QString();
         const double ratio = static_cast<double>(raw) / 100.0; // slider uses a 2-decimal fixed-point scale
         const double cm = ratio * fullCm;
         if (units == QLatin1String("in")) {
             const double inches = cm / 2.54;
+            if (s_calls <= 25) {
+                qCCritical(KWIN_XR) << "distance formatter computed" << ratio << "->" << inches << "in";
+            }
             return loc.toString(inches, 'f', 1) + QStringLiteral(" in");
+        }
+        if (s_calls <= 25) {
+            qCCritical(KWIN_XR) << "distance formatter computed" << ratio << "->" << cm << "cm";
         }
         return loc.toString(cm, 'f', 0) + QStringLiteral(" cm");
     };
