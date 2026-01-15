@@ -6,15 +6,15 @@
     <kcfgfile name="kwinrc"/>
     <group name="Effect-breezy_desktop">
         <entry name="FocusedDisplayDistance" type="Int">
-            <default>85</default>
-            <min>20</min>
-            <max>230</max>
+            <default>22</default>
+            <min>10</min>
+            <max>250</max>
             <label>Focused Display Distance</label>
         </entry>
         <entry name="AllDisplaysDistance" type="Int">
-            <default>105</default>
-            <min>20</min>
-            <max>230</max>
+            <default>25</default>
+            <min>10</min>
+            <max>250</max>
             <label>All Displays Distance</label>
         </entry>
         <entry name="measurement_units" type="String">

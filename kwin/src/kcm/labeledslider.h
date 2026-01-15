@@ -33,6 +33,9 @@ class LabeledSlider : public QSlider {
     // tickStartOffset: starting offset for label positions relative to minimum().
     // Example: minimum=0, tickInterval=20, tickStartOffset=10 -> labels at 10,30,50,...
     Q_PROPERTY(int tickStartOffset READ tickStartOffset WRITE setTickStartOffset)
+    // Optional units suffix shown ONLY in the floating value bubble.
+    // Tick labels never include units.
+    Q_PROPERTY(QString valueUnitsSuffix READ valueUnitsSuffix WRITE setValueUnitsSuffix)
 public:
     using ValueToDisplayStringFn = std::function<QString(int)>;
 
@@ -76,6 +79,14 @@ public:
     }
 
     QMap<int, QString> valueTexts() const { return m_valueTexts; }
+
+    QString valueUnitsSuffix() const { return m_valueUnitsSuffix; }
+    void setValueUnitsSuffix(const QString &suffix) {
+        if (m_valueUnitsSuffix == suffix) return;
+        m_valueUnitsSuffix = suffix;
+        updateGeometry();
+        update();
+    }
 
     // Optional custom formatter for displayed values.
     // If set, it is consulted for values without an explicit setValueText() override.
@@ -162,7 +173,7 @@ protected:
                 optPos.sliderValue = v;
                 QRect handleAtVal = style()->subControlRect(QStyle::CC_Slider, &optPos, QStyle::SC_SliderHandle, this);
                 int x = handleAtVal.center().x();
-                QString text = valueToDisplayString(v);
+                QString text = valueToDisplayString(v, /*forValueBubble=*/false);
                 int halfW = fm.horizontalAdvance(text) / 2;
                 QRect r(x - halfW, baselineY - fm.ascent(), fm.horizontalAdvance(text), fm.height());
                 p.drawText(r, Qt::AlignCenter, text);
@@ -173,7 +184,7 @@ protected:
         if (m_showValueBubble) {
             // Handle rect
             const QRect handle = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
-            QString valText = valueToDisplayString(value());
+            QString valText = valueToDisplayString(value(), /*forValueBubble=*/true);
             QFontMetrics fm(font());
             QRect textRect = fm.boundingRect(valText);
             textRect.adjust(-6, -4, 6, 4);
@@ -208,31 +219,49 @@ protected:
     }
 
 private:
-    QString valueToDisplayString(int raw) const {
+    QString valueToDisplayString(int raw, bool forValueBubble) const {
         // Use custom text if provided for this exact integer value
         auto it = m_valueTexts.constFind(raw);
         if (it != m_valueTexts.constEnd()) {
             return *it;
         }
 
-        if (m_valueToDisplayStringFn) {
-            QString formatted = m_valueToDisplayStringFn(raw);
-            if (!formatted.isNull()) {
-                return formatted;
+        auto decimalShiftString = [this](int r) -> QString {
+            if (m_decimalShift == 0) {
+                return QString::number(r);
             }
+            int divisor = 1;
+            for (int i = 0; i < m_decimalShift; ++i) divisor *= 10;
+            int whole = r / divisor;
+            int frac = std::abs(r % divisor);
+            QString fracStr = QString::number(frac).rightJustified(m_decimalShift, QLatin1Char('0'));
+            QString result = QString::number(std::abs(whole)) + QLatin1Char('.') + fracStr;
+            if (r < 0) result.prepend(QLatin1Char('-'));
+            return result;
+        };
+
+        QString base;
+        if (m_valueToDisplayStringFn) {
+            base = m_valueToDisplayStringFn(raw);
+        }
+        if (base.isNull()) {
+            base = decimalShiftString(raw);
         }
 
-        if (m_decimalShift == 0) {
-            return QString::number(raw);
+        if (!forValueBubble) {
+            return base;
         }
-        int divisor = 1;
-        for (int i = 0; i < m_decimalShift; ++i) divisor *= 10;
-        int whole = raw / divisor;
-        int frac = std::abs(raw % divisor);
-        QString fracStr = QString::number(frac).rightJustified(m_decimalShift, QLatin1Char('0'));
-        QString result = QString::number(std::abs(whole)) + QLatin1Char('.') + fracStr;
-        if (raw < 0) result.prepend(QLatin1Char('-'));
-        return result;
+
+        const QString suffix = m_valueUnitsSuffix.trimmed();
+        if (suffix.isEmpty() || base.isEmpty()) {
+            return base;
+        }
+        // Avoid double-appending if caller included units in the formatter.
+        const QString baseTrimmed = base.trimmed();
+        if (baseTrimmed.endsWith(suffix) || baseTrimmed.endsWith(QLatin1Char(' ') + suffix)) {
+            return base;
+        }
+        return baseTrimmed + QLatin1Char(' ') + suffix;
     }
 
     bool m_showValueBubble = true;
@@ -240,6 +269,7 @@ private:
     int  m_tickStartOffset = 0; // label positions start offset relative to minimum
     QMap<int, QString> m_valueTexts; // optional text overrides for specific values
     ValueToDisplayStringFn m_valueToDisplayStringFn; // optional custom formatter
+    QString m_valueUnitsSuffix; // shown only in the value bubble
 private:
     int labelInterval() const {
         int ti = tickInterval();

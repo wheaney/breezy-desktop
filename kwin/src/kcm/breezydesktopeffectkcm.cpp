@@ -792,6 +792,8 @@ void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
         qCCritical(KWIN_XR) << "applyDistanceLabelFormatters: pose has no position -> clearing formatter";
         focused->clearValueToDisplayStringFn();
         all->clearValueToDisplayStringFn();
+        focused->setValueUnitsSuffix(QString());
+        all->setValueUnitsSuffix(QString());
         return;
     }
 
@@ -802,6 +804,10 @@ void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
     qCCritical(KWIN_XR) << "applyDistanceLabelFormatters: installing formatter"
                     << "fullDistanceCm=" << fullCm
                     << "units=" << units;
+
+    // Units should appear only in the floating value bubble, not on tick labels.
+    focused->setValueUnitsSuffix(units);
+    all->setValueUnitsSuffix(units);
 
     LabeledSlider::ValueToDisplayStringFn fn = [fullCm, units, loc](int raw) -> QString {
         static int s_calls = 0;
@@ -817,12 +823,12 @@ void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
             if (s_calls <= 25) {
                 qCCritical(KWIN_XR) << "distance formatter computed" << ratio << "->" << inches << "in";
             }
-            return loc.toString(inches, 'f', 1) + QStringLiteral(" in");
+            return loc.toString(inches, 'f', 1);
         }
         if (s_calls <= 25) {
             qCCritical(KWIN_XR) << "distance formatter computed" << ratio << "->" << cm << "cm";
         }
-        return loc.toString(cm, 'f', 0) + QStringLiteral(" cm");
+        return loc.toString(cm, 'f', 0);
     };
 
     focused->setValueToDisplayStringFn(fn);
