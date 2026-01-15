@@ -108,10 +108,10 @@
           <enum>QSlider::NoTicks</enum>
          </property>
          <property name="tickStartOffset">
-          <double>5</double>
+          <double>25</double>
          </property>
          <property name="tickInterval">
-          <double>25</double>
+          <double>50</double>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -137,10 +137,10 @@
           <enum>QSlider::NoTicks</enum>
          </property>
          <property name="tickStartOffset">
-          <double>5</double>
+          <double>25</double>
          </property>
          <property name="tickInterval">
-          <double>25</double>
+          <double>50</double>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -642,8 +642,7 @@
           </widget>
         </item>
         <item row="13" column="1">
-          <widget class="QComboBox" name="comboMeasurementUnits">
-          </widget>
+          <widget class="QComboBox" name="comboMeasurementUnits"/>
         </item>
       </layout>
      </widget>
