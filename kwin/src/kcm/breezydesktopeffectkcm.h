@@ -28,6 +28,9 @@ public Q_SLOTS:
     void defaults() override;
 
 private:
+    QString measurementUnitsFromUi() const;
+    void applyDistanceLabelFormatters();
+
     void updateDriverEnabled();
     void updateMultitapEnabled();
     void updateSmoothFollowEnabled();
@@ -73,8 +76,9 @@ private:
     int m_smoothFollowThreshold = 1;
     QString m_connectedDeviceBrand;
     QString m_connectedDeviceModel;
-    int m_connectedDeviceFullDistanceCm = 0;
-    int m_connectedDeviceFullSizeCm = 0;
+    float m_connectedDeviceFullDistanceCm = 0.0;
+    float m_connectedDeviceFullSizeCm = 0.0;
+    bool m_connectedDevicePoseHasPosition = false;
     QTimer m_statePollTimer; // periodic driver state polling
     QTimer m_virtualDisplayPollTimer; // periodic virtual display list polling
     bool m_licenseLoading = false;

@@ -17,6 +17,11 @@
             <max>230</max>
             <label>All Displays Distance</label>
         </entry>
+        <entry name="measurement_units" type="String">
+            <default>cm</default>
+            <label>Measurement units</label>
+            <description>Units for displaying distances in the KCM UI. Valid values: "cm" or "in".</description>
+        </entry>
         <entry name="ZoomOnFocusEnabled" type="Bool">
             <default>false</default>
             <label>Zoom on Focus Enabled</label>
@@ -30,7 +35,7 @@
             <description>How far apart the displays are visually (not logically)</description>
         </entry>
         <entry name="DisplaySize" type="Int">
-            <default>100</default>
+            <default>97</default>
             <min>10</min>
             <max>250</max>
             <label>Display Size</label>

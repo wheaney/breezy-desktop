@@ -159,11 +159,14 @@
        </item>
      <item row="6" column="1">
         <widget class="LabeledSlider" name="kcfg_DisplaySize">
+         <property name="decimalShift">
+          <double>2</double>
+         </property>
          <property name="tickPosition">
           <enum>QSlider::NoTicks</enum>
          </property>
          <property name="tickStartOffset">
-          <double>10</double>
+          <double>5</double>
          </property>
          <property name="tickInterval">
           <double>25</double>
@@ -629,6 +632,17 @@
             <property name="tracking">
               <bool>false</bool>
             </property>
+          </widget>
+        </item>
+        <item row="13" column="0">
+          <widget class="QLabel" name="labelMeasurementUnits">
+            <property name="text">
+              <string>Measurement units:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="13" column="1">
+          <widget class="QComboBox" name="comboMeasurementUnits">
           </widget>
         </item>
       </layout>

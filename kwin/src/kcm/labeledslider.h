@@ -5,6 +5,7 @@
 #include <QPainterPath>
 #include <QStyleOptionSlider>
 #include <algorithm> // for std::max
+#include <functional>
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QStringList>
@@ -33,6 +34,8 @@ class LabeledSlider : public QSlider {
     // Example: minimum=0, tickInterval=20, tickStartOffset=10 -> labels at 10,30,50,...
     Q_PROPERTY(int tickStartOffset READ tickStartOffset WRITE setTickStartOffset)
 public:
+    using ValueToDisplayStringFn = std::function<QString(int)>;
+
     explicit LabeledSlider(QWidget *parent = nullptr)
         : QSlider(Qt::Horizontal, parent)
     {
@@ -73,6 +76,24 @@ public:
     }
 
     QMap<int, QString> valueTexts() const { return m_valueTexts; }
+
+    // Optional custom formatter for displayed values.
+    // If set, it is consulted for values without an explicit setValueText() override.
+    // Returning a null QString (QString()) falls back to the built-in formatting.
+    void setValueToDisplayStringFn(ValueToDisplayStringFn fn) {
+        m_valueToDisplayStringFn = std::move(fn);
+        updateGeometry();
+        update();
+    }
+
+    void clearValueToDisplayStringFn() {
+        if (!m_valueToDisplayStringFn) return;
+        m_valueToDisplayStringFn = nullptr;
+        updateGeometry();
+        update();
+    }
+
+    bool hasValueToDisplayStringFn() const { return static_cast<bool>(m_valueToDisplayStringFn); }
 
     int decimalShift() const { return m_decimalShift; }
     void setDecimalShift(int shift) {
@@ -193,6 +214,14 @@ private:
         if (it != m_valueTexts.constEnd()) {
             return *it;
         }
+
+        if (m_valueToDisplayStringFn) {
+            QString formatted = m_valueToDisplayStringFn(raw);
+            if (!formatted.isNull()) {
+                return formatted;
+            }
+        }
+
         if (m_decimalShift == 0) {
             return QString::number(raw);
         }
@@ -210,6 +239,7 @@ private:
     int  m_decimalShift = 0; // display-only decimal shift
     int  m_tickStartOffset = 0; // label positions start offset relative to minimum
     QMap<int, QString> m_valueTexts; // optional text overrides for specific values
+    ValueToDisplayStringFn m_valueToDisplayStringFn; // optional custom formatter
 private:
     int labelInterval() const {
         int ti = tickInterval();

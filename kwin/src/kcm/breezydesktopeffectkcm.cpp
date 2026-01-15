@@ -48,6 +48,8 @@
 #include <QFile>
 #include <QDir>
 #include <QJsonDocument>
+#include <QLocale>
+#include <QSignalBlocker>
 #include <cmath>
 #include <algorithm>
 
@@ -200,6 +202,27 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 {
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
+
+    // Advanced tab: measurement units selector (stored as "cm" or "in")
+    if (ui.comboMeasurementUnits) {
+        ui.comboMeasurementUnits->clear();
+        ui.comboMeasurementUnits->addItem(i18n("Centimeters (cm)"), QStringLiteral("cm"));
+        ui.comboMeasurementUnits->addItem(i18n("Inches (in)"), QStringLiteral("in"));
+
+        {
+            QSignalBlocker b(ui.comboMeasurementUnits);
+            const QString saved = KConfigGroup(BreezyDesktopConfig::self()->sharedConfig(), QLatin1String(EFFECT_GROUP))
+                                      .readEntry(QStringLiteral("measurement_units"), QStringLiteral("cm"));
+            const int idx = ui.comboMeasurementUnits->findData(saved);
+            ui.comboMeasurementUnits->setCurrentIndex(idx >= 0 ? idx : 0);
+        }
+
+        connect(ui.comboMeasurementUnits, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int) {
+            if (m_updatingFromConfig) return;
+            applyDistanceLabelFormatters();
+            save();
+        });
+    }
 
     // One-time check if the KWin effect backend is actually loaded. If not, disable UI early.
     checkEffectLoaded();
@@ -394,6 +417,8 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
         lookAheadOverrideSlider->setValueText(-1, i18n("Default"));
     }
 
+    applyDistanceLabelFormatters();
+
     renderVirtualDisplays(dbusListVirtualDisplays());
 
     m_virtualDisplayPollTimer.setInterval(15000);
@@ -431,6 +456,14 @@ void BreezyDesktopEffectConfig::save()
     m_updatingFromConfig = true;
     updateConfigFromUi();
     BreezyDesktopConfig::self()->save();
+
+    // Store measurement_units explicitly (snake_case key) without depending on KConfigXT accessor naming.
+    {
+        KConfigGroup grp(BreezyDesktopConfig::self()->sharedConfig(), QLatin1String(EFFECT_GROUP));
+        grp.writeEntry(QStringLiteral("measurement_units"), measurementUnitsFromUi());
+        grp.sync();
+    }
+
     KCModule::save();
     ui.kcfg_FocusedDisplayDistance->setEnabled(
         ui.kcfg_ZoomOnFocusEnabled->isChecked() || ui.SmoothFollowEnabled->isChecked());
@@ -472,11 +505,29 @@ void BreezyDesktopEffectConfig::updateUiFromConfig()
     ui.kcfg_FocusedDisplayDistance->setEnabled(
         ui.kcfg_ZoomOnFocusEnabled->isChecked() || ui.SmoothFollowEnabled->isChecked());
     ui.kcfg_SmoothFollowThreshold->setValue(BreezyDesktopConfig::self()->smoothFollowThreshold());
+
+    if (ui.comboMeasurementUnits) {
+        QSignalBlocker b(ui.comboMeasurementUnits);
+        const QString saved = KConfigGroup(BreezyDesktopConfig::self()->sharedConfig(), QLatin1String(EFFECT_GROUP))
+                                  .readEntry(QStringLiteral("measurement_units"), QStringLiteral("cm"));
+        const int idx = ui.comboMeasurementUnits->findData(saved);
+        ui.comboMeasurementUnits->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+
+    applyDistanceLabelFormatters();
 }
 
 void BreezyDesktopEffectConfig::updateUiFromDefaultConfig()
 {
     ui.shortcutsEditor->allDefault();
+
+    if (ui.comboMeasurementUnits) {
+        QSignalBlocker b(ui.comboMeasurementUnits);
+        const int idx = ui.comboMeasurementUnits->findData(QStringLiteral("cm"));
+        ui.comboMeasurementUnits->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+
+    applyDistanceLabelFormatters();
 }
 
 void BreezyDesktopEffectConfig::updateUnmanagedState()
@@ -648,6 +699,11 @@ void BreezyDesktopEffectConfig::pollDriverState()
     auto stateJson = stateJsonOpt.value();
     m_connectedDeviceBrand = stateJson.value(QStringLiteral("connected_device_brand")).toString();
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
+    m_connectedDeviceFullDistanceCm = stateJson.value(QStringLiteral("connected_device_full_distance_cm")).toDouble(0.0);
+    m_connectedDeviceFullSizeCm = stateJson.value(QStringLiteral("connected_device_full_size_cm")).toDouble(0.0);
+    m_connectedDevicePoseHasPosition = stateJson.value(QStringLiteral("connected_device_pose_has_position")).toBool(false);
+
+    applyDistanceLabelFormatters();
 
     const bool smoothFollow = smoothFollowEnabled(stateJsonOpt);
     if (ui.SmoothFollowEnabled->isChecked() != smoothFollow) {
@@ -709,6 +765,46 @@ void BreezyDesktopEffectConfig::pollDriverState()
     refreshLicenseUi(stateJson);
 
     m_driverStateInitialized = true;
+}
+
+QString BreezyDesktopEffectConfig::measurementUnitsFromUi() const
+{
+    if (!ui.comboMeasurementUnits) return QStringLiteral("cm");
+    const QString v = ui.comboMeasurementUnits->currentData().toString();
+    if (v == QLatin1String("in")) return QStringLiteral("in");
+    return QStringLiteral("cm");
+}
+
+void BreezyDesktopEffectConfig::applyDistanceLabelFormatters()
+{
+    auto *focused = ui.kcfg_FocusedDisplayDistance;
+    auto *all = ui.kcfg_AllDisplaysDistance;
+    if (!focused || !all) return;
+
+    // Only apply the unit conversion labels when the driver reports positional tracking.
+    if (!m_connectedDevicePoseHasPosition) {
+        focused->clearValueToDisplayStringFn();
+        all->clearValueToDisplayStringFn();
+        return;
+    }
+
+    const double fullCm = static_cast<double>(m_connectedDeviceFullDistanceCm);
+    const QString units = measurementUnitsFromUi();
+    const QLocale loc;
+
+    LabeledSlider::ValueToDisplayStringFn fn = [fullCm, units, loc](int raw) -> QString {
+        if (fullCm <= 0.0) return QString();
+        const double ratio = static_cast<double>(raw) / 100.0; // slider uses a 2-decimal fixed-point scale
+        const double cm = ratio * fullCm;
+        if (units == QLatin1String("in")) {
+            const double inches = cm / 2.54;
+            return loc.toString(inches, 'f', 1) + QStringLiteral(" in");
+        }
+        return loc.toString(cm, 'f', 0) + QStringLiteral(" cm");
+    };
+
+    focused->setValueToDisplayStringFn(fn);
+    all->setValueToDisplayStringFn(fn);
 }
 
 double BreezyDesktopEffectConfig::neckSaverHorizontalMultiplier(std::optional<QJsonObject> configJsonOpt)
