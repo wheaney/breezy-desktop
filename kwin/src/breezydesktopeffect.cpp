@@ -469,6 +469,10 @@ quint64 BreezyDesktopEffect::poseTimestamp() const {
     return m_poseTimestamp;
 }
 
+bool BreezyDesktopEffect::poseHasPosition() const {
+    return m_poseHasPosition;
+}
+
 QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
     return m_lookAheadConfig;
 }
@@ -718,7 +722,16 @@ void BreezyDesktopEffect::updatePose() {
                                 << "diagonalFOV:" << m_diagonalFOV;
         activate();
         m_enabled = true;
+        m_poseHasPosition = false;
+        auto driverStateOpt = XRDriverIPC::instance().retrieveDriverState();
+        if (driverStateOpt) {
+            QJsonObject driverState = driverStateOpt.value();
+            if (driverState.contains(QStringLiteral("connected_device_pose_has_position"))) {
+                m_poseHasPosition = driverState.value(QStringLiteral("connected_device_pose_has_position")).toBool();
+            }
+        }
         Q_EMIT enabledStateChanged();
+        Q_EMIT poseHasPositionChanged();
         activatedAt = currentTimeMs;
     }
     

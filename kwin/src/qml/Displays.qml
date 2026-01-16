@@ -64,7 +64,6 @@ QtObject {
     }
 
     function buildFovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice, distanceAdjustedSize) {
-        console.log(`Breezy - Building FOV details with viewport ${viewportWidth}x${viewportHeight}, diagonal FOV ${viewportDiagonalFOV} degrees, lens distance ratio ${lensDistanceRatio}, default display distance ${defaultDisplayDistance}, wrapping choice ${wrappingChoice}, distance adjusted size ${distanceAdjustedSize}`);
         const aspect = viewportWidth / viewportHeight;
         const fovLengths = diagonalToCrossFOVs(degreeToRadian(viewportDiagonalFOV), aspect);
 
@@ -101,7 +100,7 @@ QtObject {
         // distance of a display at the default (most zoomed out) distance from the pivot point
         const completeScreenDistancePixels = fullScreenDistancePixels * defaultDisplayDistance;
 
-        const details = {
+        return {
             widthPixels: viewportWidth,
             distanceAdjustedSize,
             sizeAdjustedWidthPixels: viewportWidth * distanceAdjustedSize,
@@ -115,9 +114,6 @@ QtObject {
             monitorWrappingScheme,
             curvedDisplay: effect.curvedDisplay
         };
-
-        console.log("Breezy - FOV Details:", details);
-        return details;
     }
 
     // Utility constant

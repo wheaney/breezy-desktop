@@ -25,6 +25,7 @@ namespace KWin
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
         Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
         Q_PROPERTY(bool poseResetState READ poseResetState NOTIFY poseResetStateChanged)
+        Q_PROPERTY(bool poseHasPosition READ poseHasPosition NOTIFY poseResetStateChanged)
         Q_PROPERTY(QList<QQuaternion> poseOrientations READ poseOrientations)
         Q_PROPERTY(QVector3D posePosition READ posePosition)
         Q_PROPERTY(quint32 poseTimeElapsedMs READ poseTimeElapsedMs)
@@ -81,6 +82,7 @@ namespace KWin
         quint32 poseTimeElapsedMs() const;
         quint64 poseTimestamp() const;
         bool poseResetState() const;
+        bool poseHasPosition() const;
         QList<qreal> lookAheadConfig() const;
         qreal lookAheadOverride() const;
         void setLookAheadOverride(qreal override);
@@ -138,6 +140,7 @@ namespace KWin
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void poseResetStateChanged();
+        void poseHasPositionChanged();
         void sbsEnabledChanged();
         void smoothFollowEnabledChanged();
         void devicePropertiesChanged();
@@ -175,6 +178,7 @@ namespace KWin
         int m_lookingAtScreenIndex = -1;
         int m_effectTargetScreenIndex = -1;
         bool m_poseResetState;
+        bool m_poseHasPosition = false;
         QList<QQuaternion> m_poseOrientations;
         QVector3D m_posePosition;
         quint32 m_poseTimeElapsedMs;

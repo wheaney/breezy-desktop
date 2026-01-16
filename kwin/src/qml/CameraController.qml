@@ -62,7 +62,13 @@ Item {
                 effect.lookAheadOverride
             )
         );
-        camera.position = position.times(fovDetails.fullScreenDistancePixels).plus(orientations[0].times(Qt.vector3d(0, 0, -fovDetails.lensDistancePixels)));
+        let lensVector = Qt.vector3d(0, 0, -fovDetails.lensDistancePixels);
+
+        // if we only have 3DoF, account for a bit of positional change based on orientation,
+        // don't do this for 6DoF to prevent doubling the positional movement due to rotation
+        if (!effect.poseHasPosition) lensVector = orientations[0].times(lensVector);
+
+        camera.position = position.times(fovDetails.fullScreenDistancePixels).plus(lensVector);
         
         sampleCounter += 1;
         if (sampleCounter === 60) {
