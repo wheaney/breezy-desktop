@@ -29,10 +29,11 @@ Node {
     function updateFocus(smoothFollowEnabledChanged = false) {
         const orientations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.poseOrientations;
         if (orientations && orientations.length > 0) {
+            const posePosition = effect.posePosition.times(breezyDesktop.fovDetails.fullScreenDistancePixels);
             let focusedIndex = -1;
             const lookingAtIndex = displays.findFocusedMonitor(
                 displays.eusToNwuQuat(orientations[0]), 
-                displays.eusToNwuVector(effect.posePosition),
+                displays.eusToNwuVector(posePosition),
                 breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                 breezyDesktop.focusedMonitorIndex,
                 smoothFollowEnabled,
