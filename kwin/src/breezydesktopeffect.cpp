@@ -157,9 +157,9 @@ BreezyDesktopEffect::BreezyDesktopEffect()
             !m_shmFileWatcher->files().contains(DataView::SHM_PATH)
         )) {
             m_shmFileWatcher->removePath(DataView::SHM_PATH);
-            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
+            disconnect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePose);
             m_shmFileWatcher->addPath(DataView::SHM_PATH);
-            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePoseOrientation);
+            connect(m_shmFileWatcher, &QFileSystemWatcher::fileChanged, this, &BreezyDesktopEffect::updatePose);
         }
     };
 
@@ -173,7 +173,7 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     m_watchdogTimer->setInterval(1000);
     connect(m_watchdogTimer, &QTimer::timeout, this, [this]() {
         if (!m_enabled) return;
-        this->updatePoseOrientation();
+        this->updatePose();
     });
     m_watchdogTimer->start();
 
@@ -243,6 +243,7 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     setFocusedDisplayDistance(BreezyDesktopConfig::focusedDisplayDistance() / 100.0f);
     setAllDisplaysDistance(BreezyDesktopConfig::allDisplaysDistance() / 100.0f);
     setDisplaySpacing(BreezyDesktopConfig::displaySpacing() / 1000.0f);
+    setDisplaySize(BreezyDesktopConfig::displaySize() / 100.0f);
     setZoomOnFocusEnabled(BreezyDesktopConfig::zoomOnFocusEnabled());
     setSmoothFollowThreshold(BreezyDesktopConfig::smoothFollowThreshold());
 
@@ -262,11 +263,19 @@ void BreezyDesktopEffect::reconfigure(ReconfigureFlags)
     if (m_removeVirtualDisplaysOnDisable != removeVD) { m_removeVirtualDisplaysOnDisable = removeVD; Q_EMIT removeVirtualDisplaysOnDisableChanged(); }
     if (m_mirrorPhysicalDisplays != mirrorPhysicalDisplays) { m_mirrorPhysicalDisplays = mirrorPhysicalDisplays; Q_EMIT mirrorPhysicalDisplaysChanged(); }
 
+    const bool developerMode = BreezyDesktopConfig::developerMode();
+    if (m_developerMode != developerMode) { m_developerMode = developerMode; Q_EMIT developerModeChanged(); }
+
     bool curved = BreezyDesktopConfig::curvedDisplay() && m_curvedDisplaySupported;
     if (m_curvedDisplay != curved) { m_curvedDisplay = curved; Q_EMIT curvedDisplayChanged(); }
 
     // this one doesn't have a signal, just always assign it
     m_allDisplaysFollowMode = BreezyDesktopConfig::allDisplaysFollowMode();
+}
+
+bool BreezyDesktopEffect::developerMode() const
+{
+    return m_developerMode;
 }
 
 QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
@@ -460,6 +469,10 @@ quint64 BreezyDesktopEffect::poseTimestamp() const {
     return m_poseTimestamp;
 }
 
+bool BreezyDesktopEffect::poseHasPosition() const {
+    return m_poseHasPosition;
+}
+
 QList<qreal> BreezyDesktopEffect::lookAheadConfig() const {
     return m_lookAheadConfig;
 }
@@ -485,7 +498,7 @@ qreal BreezyDesktopEffect::focusedDisplayDistance() const {
 
 void BreezyDesktopEffect::setFocusedDisplayDistance(qreal distance) {
     if (distance != m_focusedDisplayDistance) {
-        m_focusedDisplayDistance = std::clamp(distance, 0.2, m_allDisplaysDistance);
+        m_focusedDisplayDistance = std::clamp(distance, 0.1, m_allDisplaysDistance);
         Q_EMIT focusedDisplayDistanceChanged();
 
         if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
@@ -498,7 +511,7 @@ qreal BreezyDesktopEffect::allDisplaysDistance() const {
 
 void BreezyDesktopEffect::setAllDisplaysDistance(qreal distance) {
     if (distance != m_allDisplaysDistance) {
-        qreal min = m_zoomOnFocusEnabled ? m_focusedDisplayDistance : 0.2;
+        qreal min = m_zoomOnFocusEnabled ? m_focusedDisplayDistance : 0.1;
         m_allDisplaysDistance = std::clamp(distance, min, 2.5);
         Q_EMIT allDisplaysDistanceChanged();
     }
@@ -512,6 +525,18 @@ void BreezyDesktopEffect::setDisplaySpacing(qreal spacing) {
     if (spacing != m_displaySpacing) {
         m_displaySpacing = spacing;
         Q_EMIT displaySpacingChanged();
+    }
+}
+
+qreal BreezyDesktopEffect::displaySize() const {
+    return m_displaySize;
+}
+
+void BreezyDesktopEffect::setDisplaySize(qreal size) {
+    const qreal clamped = std::clamp(size, 0.1, 4.0);
+    if (!qFuzzyCompare(clamped, m_displaySize)) {
+        m_displaySize = clamped;
+        Q_EMIT displaySizeChanged();
     }
 }
 
@@ -604,7 +629,7 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
 
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
-void BreezyDesktopEffect::updatePoseOrientation() {    
+void BreezyDesktopEffect::updatePose() {    
     // Reentrancy guard: if an update is already in progress, skip
     bool expected = false;
     if (!m_poseUpdateInProgress.compare_exchange_strong(expected, true)) {
@@ -697,7 +722,16 @@ void BreezyDesktopEffect::updatePoseOrientation() {
                                 << "diagonalFOV:" << m_diagonalFOV;
         activate();
         m_enabled = true;
+        m_poseHasPosition = false;
+        auto driverStateOpt = XRDriverIPC::instance().retrieveDriverState();
+        if (driverStateOpt) {
+            QJsonObject driverState = driverStateOpt.value();
+            if (driverState.contains(QStringLiteral("connected_device_pose_has_position"))) {
+                m_poseHasPosition = driverState.value(QStringLiteral("connected_device_pose_has_position")).toBool();
+            }
+        }
         Q_EMIT enabledStateChanged();
+        Q_EMIT poseHasPositionChanged();
         activatedAt = currentTimeMs;
     }
     
@@ -788,7 +822,7 @@ void BreezyDesktopEffect::setSmoothFollowThreshold(float threshold) {
 }
 
 void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
-    qreal adjustedDistance = m_focusedDisplayDistance;
+    qreal adjustedDistance = m_focusedDisplayDistance / (m_displaySize * m_allDisplaysDistance);
 
     if (m_lookingAtScreenIndex != -1 && !m_displayResolution.isEmpty()) {
         // Adjust display distance by relative monitor size compared to the FOV monitor
@@ -803,7 +837,7 @@ void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
             const qreal ratioH = static_cast<qreal>(focusedSize.height()) / fovH;
             const qreal focusedMonitorSizeAdjustment = std::max(ratioW, ratioH);
 
-            adjustedDistance = m_focusedDisplayDistance / focusedMonitorSizeAdjustment;
+            adjustedDistance /= focusedMonitorSizeAdjustment;
         }
     }
 

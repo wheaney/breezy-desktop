@@ -4,7 +4,7 @@ import org.kde.kwin as KWinComponents
 Item {
     id: desktopView
 
-    required property QtObject screen
+    required property var screen
 
     function overlapsScreen(win, screenGeom) {
         if (!win) return false

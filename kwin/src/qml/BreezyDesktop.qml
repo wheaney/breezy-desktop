@@ -8,6 +8,7 @@ Node {
     property var viewportResolution: effect.displayResolution
     property bool smoothFollowEnabled: effect.smoothFollowEnabled
     required property var screens
+    required property var sizeAdjustedScreens
     required property var fovDetails
     required property var monitorPlacements
     property int focusedMonitorIndex: -1
@@ -28,14 +29,16 @@ Node {
     function updateFocus(smoothFollowEnabledChanged = false) {
         const orientations = smoothFollowEnabled ? effect.smoothFollowOrigin : effect.poseOrientations;
         if (orientations && orientations.length > 0) {
+            const posePosition = effect.posePosition.times(breezyDesktop.fovDetails.fullScreenDistancePixels);
             let focusedIndex = -1;
             const lookingAtIndex = displays.findFocusedMonitor(
                 displays.eusToNwuQuat(orientations[0]), 
+                displays.eusToNwuVector(posePosition),
                 breezyDesktop.monitorPlacements.map(monitorVectors => monitorVectors.centerLook), 
                 breezyDesktop.focusedMonitorIndex,
                 smoothFollowEnabled,
                 breezyDesktop.fovDetails,
-                breezyDesktop.screens.map(screen => screen.geometry)
+                breezyDesktop.sizeAdjustedScreens.map(screen => screen.geometry)
             );
 
             if (breezyDesktop.lookingAtMonitorIndex !== lookingAtIndex) {
@@ -158,6 +161,7 @@ Node {
         model: breezyDesktop.screens.length
         delegate: BreezyDesktopDisplay {
             screen: breezyDesktop.screens[index]
+            sizeAdjustedScreen: breezyDesktop.sizeAdjustedScreens[index]
             monitorPlacement: breezyDesktop.monitorPlacements[index]
             fovDetails: breezyDesktop.fovDetails
             
@@ -175,7 +179,9 @@ Node {
 
             // only for the Rectangle geometry fallback
             property vector3d rectangleFallbackScale: {
-                const geometry = screen.geometry;
+                if (!sizeAdjustedScreen) return Qt.vector3d(1, 1, 1);
+                
+                const geometry = sizeAdjustedScreen.geometry;
 
                 // default geometry unit size is 100x100, so we scale it up to the screen size
                 return Qt.vector3d(geometry.width / 100, geometry.height / 100, 1);

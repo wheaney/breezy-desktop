@@ -25,6 +25,7 @@ namespace KWin
         Q_PROPERTY(bool zoomOnFocusEnabled READ isZoomOnFocusEnabled WRITE setZoomOnFocusEnabled NOTIFY zoomOnFocusChanged)
         Q_PROPERTY(int lookingAtScreenIndex READ lookingAtScreenIndex WRITE setLookingAtScreenIndex)
         Q_PROPERTY(bool poseResetState READ poseResetState NOTIFY poseResetStateChanged)
+        Q_PROPERTY(bool poseHasPosition READ poseHasPosition NOTIFY poseResetStateChanged)
         Q_PROPERTY(QList<QQuaternion> poseOrientations READ poseOrientations)
         Q_PROPERTY(QVector3D posePosition READ posePosition)
         Q_PROPERTY(quint32 poseTimeElapsedMs READ poseTimeElapsedMs)
@@ -38,6 +39,7 @@ namespace KWin
         Q_PROPERTY(qreal focusedDisplayDistance READ focusedDisplayDistance NOTIFY focusedDisplayDistanceChanged)
         Q_PROPERTY(qreal allDisplaysDistance READ allDisplaysDistance NOTIFY allDisplaysDistanceChanged)
         Q_PROPERTY(qreal displaySpacing READ displaySpacing NOTIFY displaySpacingChanged)
+        Q_PROPERTY(qreal displaySize READ displaySize NOTIFY displaySizeChanged)
         Q_PROPERTY(qreal displayHorizontalOffset READ displayHorizontalOffset NOTIFY displayOffsetChanged)
         Q_PROPERTY(qreal displayVerticalOffset READ displayVerticalOffset NOTIFY displayOffsetChanged)
         Q_PROPERTY(int displayWrappingScheme READ displayWrappingScheme NOTIFY displayWrappingSchemeChanged)
@@ -52,6 +54,7 @@ namespace KWin
         Q_PROPERTY(bool mirrorPhysicalDisplays READ mirrorPhysicalDisplays NOTIFY mirrorPhysicalDisplaysChanged)
         Q_PROPERTY(bool curvedDisplay READ curvedDisplay NOTIFY curvedDisplayChanged)
         Q_PROPERTY(bool curvedDisplaySupported READ curvedDisplaySupported WRITE setCurvedDisplaySupported NOTIFY curvedDisplaySupportedChanged)
+        Q_PROPERTY(bool developerMode READ developerMode NOTIFY developerModeChanged)
 
 
     public:
@@ -79,6 +82,7 @@ namespace KWin
         quint32 poseTimeElapsedMs() const;
         quint64 poseTimestamp() const;
         bool poseResetState() const;
+        bool poseHasPosition() const;
         QList<qreal> lookAheadConfig() const;
         qreal lookAheadOverride() const;
         void setLookAheadOverride(qreal override);
@@ -89,6 +93,8 @@ namespace KWin
         void setAllDisplaysDistance(qreal distance);
         qreal displaySpacing() const;
         void setDisplaySpacing(qreal spacing);
+        qreal displaySize() const;
+        void setDisplaySize(qreal size);
         qreal displayHorizontalOffset() const;
         qreal displayVerticalOffset() const;
         int displayWrappingScheme() const;
@@ -102,6 +108,7 @@ namespace KWin
         bool removeVirtualDisplaysOnDisable() const;
         bool mirrorPhysicalDisplays() const;
         bool curvedDisplay() const;
+        bool developerMode() const;
         void setCurvedDisplaySupported(bool supported);
 
         void showCursor();
@@ -114,7 +121,7 @@ namespace KWin
         void disableDriver();
         void toggle();
         void addVirtualDisplay(QSize size);
-        void updatePoseOrientation();
+        void updatePose();
         void updateCursorImage();
         void updateCursorPos();
         QVariantList listVirtualDisplays() const;
@@ -127,11 +134,13 @@ namespace KWin
         void focusedDisplayDistanceChanged();
         void allDisplaysDistanceChanged();
         void displaySpacingChanged();
+        void displaySizeChanged();
         void displayOffsetChanged();
         void displayWrappingSchemeChanged();
         void enabledStateChanged();
         void zoomOnFocusChanged();
         void poseResetStateChanged();
+        void poseHasPositionChanged();
         void sbsEnabledChanged();
         void smoothFollowEnabledChanged();
         void devicePropertiesChanged();
@@ -140,6 +149,7 @@ namespace KWin
         void mirrorPhysicalDisplaysChanged();
         void curvedDisplayChanged();
         void curvedDisplaySupportedChanged();
+        void developerModeChanged();
         void cursorImageSourceChanged();
         void cursorPosChanged();
 
@@ -168,6 +178,7 @@ namespace KWin
         int m_lookingAtScreenIndex = -1;
         int m_effectTargetScreenIndex = -1;
         bool m_poseResetState;
+        bool m_poseHasPosition = false;
         QList<QQuaternion> m_poseOrientations;
         QVector3D m_posePosition;
         quint32 m_poseTimeElapsedMs;
@@ -191,6 +202,7 @@ namespace KWin
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
         qreal m_displaySpacing = 0.0;
+        qreal m_displaySize = 1.0;
         qreal m_displayHorizontalOffset = 0.0;
         qreal m_displayVerticalOffset = 0.0;
         int m_displayWrappingScheme = 0; // 0=auto,1=horizontal,2=vertical,3=flat
@@ -199,6 +211,7 @@ namespace KWin
         bool m_mirrorPhysicalDisplays = false;
         bool m_curvedDisplay = false;
         bool m_curvedDisplaySupported = false;
+        bool m_developerMode = false;
         float m_smoothFollowThreshold = 1.0f;
         bool m_allDisplaysFollowMode = false;
         bool m_focusedSmoothFollowEnabled = false;

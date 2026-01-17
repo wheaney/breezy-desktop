@@ -52,7 +52,16 @@
        <string>&amp;General</string>
       </attribute>
    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0" colspan="2">
+      <item row="0" column="0" colspan="2">
+      <widget class="QWidget" name="widgetGeneralCheckboxes" native="true">
+      <layout class="QGridLayout" name="gridLayoutGeneralCheckboxes" columnstretch="1,1">
+        <property name="leftMargin"><number>0</number></property>
+        <property name="topMargin"><number>0</number></property>
+        <property name="rightMargin"><number>0</number></property>
+        <property name="bottomMargin"><number>0</number></property>
+        <property name="horizontalSpacing"><number>12</number></property>
+        <property name="verticalSpacing"><number>6</number></property>
+        <item row="0" column="0">
         <widget class="QCheckBox" name="EffectEnabled">
          <property name="text">
           <string>XR Effect enabled</string>
@@ -61,8 +70,8 @@
           <bool>false</bool>
          </property>
         </widget>
-     </item>
-     <item row="1" column="0" colspan="2">
+        </item>
+        <item row="0" column="1">
         <widget class="QCheckBox" name="kcfg_ZoomOnFocusEnabled">
          <property name="text">
           <string>Zoom on Focus</string>
@@ -71,8 +80,8 @@
           <bool>false</bool>
          </property>
         </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
+        </item>
+        <item row="1" column="0">
         <widget class="QCheckBox" name="kcfg_CurvedDisplay">
          <property name="text">
           <string>Curved display</string>
@@ -81,8 +90,8 @@
           <bool>false</bool>
          </property>
         </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
+        </item>
+        <item row="1" column="1">
         <widget class="QCheckBox" name="SmoothFollowEnabled">
          <property name="text">
           <string>Follow mode</string>
@@ -91,15 +100,18 @@
           <bool>false</bool>
          </property>
         </widget>
-     </item>
-     <item row="4" column="0">
+        </item>
+       </layout>
+      </widget>
+      </item>
+     <item row="1" column="0">
       <widget class="QLabel" name="labelFocusedDisplayDistance">
         <property name="text">
         <string>Focused Display Distance:</string>
         </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="1" column="1">
         <widget class="LabeledSlider" name="kcfg_FocusedDisplayDistance">
          <property name="decimalShift">
           <double>2</double>
@@ -108,10 +120,10 @@
           <enum>QSlider::NoTicks</enum>
          </property>
          <property name="tickStartOffset">
-          <double>5</double>
+          <double>15</double>
          </property>
          <property name="tickInterval">
-          <double>25</double>
+          <double>50</double>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -121,14 +133,14 @@
          </property>
         </widget>
        </item>
-     <item row="5" column="0">
+      <item row="2" column="0">
         <widget class="QLabel" name="labelAllDisplaysDistance">
          <property name="text">
           <string>All Displays Distance:</string>
          </property>
         </widget>
        </item>
-     <item row="5" column="1">
+      <item row="2" column="1">
         <widget class="LabeledSlider" name="kcfg_AllDisplaysDistance">
          <property name="decimalShift">
           <double>2</double>
@@ -137,10 +149,10 @@
           <enum>QSlider::NoTicks</enum>
          </property>
          <property name="tickStartOffset">
-          <double>5</double>
+          <double>15</double>
          </property>
          <property name="tickInterval">
-          <double>25</double>
+          <double>50</double>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -150,14 +162,43 @@
          </property>
         </widget>
        </item>
-     <item row="6" column="0">
+      <item row="3" column="0">
+        <widget class="QLabel" name="labelDisplaySize">
+         <property name="text">
+          <string>Display Size:</string>
+         </property>
+        </widget>
+       </item>
+      <item row="3" column="1">
+        <widget class="LabeledSlider" name="kcfg_DisplaySize">
+         <property name="decimalShift">
+          <double>2</double>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
+         </property>
+         <property name="tickStartOffset">
+          <double>15</double>
+         </property>
+         <property name="tickInterval">
+          <double>50</double>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tracking">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      <item row="4" column="0">
         <widget class="QLabel" name="labelDisplaySpacing">
          <property name="text">
           <string>Display Spacing:</string>
          </property>
         </widget>
        </item>
-     <item row="6" column="1">
+      <item row="4" column="1">
         <widget class="QSlider" name="kcfg_DisplaySpacing">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -167,14 +208,14 @@
          </property>
         </widget>
        </item>
-     <item row="7" column="0">
+      <item row="5" column="0">
         <widget class="QLabel" name="labelFollowThreshold">
          <property name="text">
           <string>Follow threshold:</string>
          </property>
         </widget>
        </item>
-     <item row="7" column="1">
+      <item row="5" column="1">
         <widget class="LabeledSlider" name="kcfg_SmoothFollowThreshold">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -196,7 +237,7 @@
          </property>
         </widget>
        </item>
-        <item row="8" column="0">
+        <item row="6" column="0">
           <widget class="QLabel" name="labelVirtualDisplays">
             <property name="text">
               <string>Add Virtual Display:</string>
@@ -209,7 +250,7 @@
             </property>
           </widget>
         </item>
-      <item row="8" column="1">
+      <item row="6" column="1">
           <widget class="QWidget" name="widgetVirtualDisplayButtons">
             <property name="visible">
               <bool>false</bool>
@@ -272,7 +313,7 @@
             </layout>
           </widget>
         </item>
-    <item row="9" column="0" colspan="2">
+    <item row="7" column="0" colspan="2">
      <widget class="QWidget" name="widgetVirtualDisplayList">
       <property name="visible"><bool>false</bool></property>
       <property name="enabled"><bool>false</bool></property>
@@ -285,15 +326,22 @@
          </layout>
      </widget>
     </item>
-    <item row="10" column="0" colspan="2">
-        <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabShortcuts">
+      <attribute name="title">
+       <string>&amp;Shortcuts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayoutShortcuts">
+       <item>
+      <widget class="KShortcutsEditor" name="shortcutsEditor" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
        </item>
       </layout>
      </widget>
@@ -604,6 +652,16 @@
               <bool>false</bool>
             </property>
           </widget>
+        </item>
+        <item row="13" column="0">
+          <widget class="QLabel" name="labelMeasurementUnits">
+            <property name="text">
+              <string>Measurement units:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="13" column="1">
+          <widget class="QComboBox" name="comboMeasurementUnits"/>
         </item>
       </layout>
      </widget>

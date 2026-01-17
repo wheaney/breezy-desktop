@@ -6,16 +6,21 @@
     <kcfgfile name="kwinrc"/>
     <group name="Effect-breezy_desktop">
         <entry name="FocusedDisplayDistance" type="Int">
-            <default>85</default>
-            <min>20</min>
-            <max>230</max>
+            <default>22</default>
+            <min>10</min>
+            <max>250</max>
             <label>Focused Display Distance</label>
         </entry>
         <entry name="AllDisplaysDistance" type="Int">
-            <default>105</default>
-            <min>20</min>
-            <max>230</max>
+            <default>25</default>
+            <min>10</min>
+            <max>250</max>
             <label>All Displays Distance</label>
+        </entry>
+        <entry name="measurement_units" type="String">
+            <default>cm</default>
+            <label>Measurement units</label>
+            <description>Units for displaying distances in the KCM UI. Valid values: "cm" or "in".</description>
         </entry>
         <entry name="ZoomOnFocusEnabled" type="Bool">
             <default>false</default>
@@ -28,6 +33,13 @@
             <max>100</max>
             <label>Display Spacing</label>
             <description>How far apart the displays are visually (not logically)</description>
+        </entry>
+        <entry name="DisplaySize" type="Int">
+            <default>97</default>
+            <min>10</min>
+            <max>250</max>
+            <label>Display Size</label>
+            <description>Scale the displays in XR (percentage)</description>
         </entry>
         <entry name="DisplayHorizontalOffset" type="Int">
             <default>0</default>
@@ -90,6 +102,10 @@
             <default>false</default>
             <label>Curved display</label>
             <description>Curve the displays around you</description>
+        </entry>
+
+        <entry name="DeveloperMode" type="Bool">
+            <default>false</default>
         </entry>
     </group>
 </kcfg>
