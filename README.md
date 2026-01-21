@@ -88,9 +88,6 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 
 For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware.**
 
-### Upcoming Features
-* KDE Plasma 6DoF support
-
 ### Breezy Desktop Pricing (Productivity Tier)
 
 Breezy Desktop for GNOME and KDE comes with 2 free trial months. After that, it requires an active Productivity Tier license. Payments are currently only accepted via [Ko-fi](https://ko-fi.com/wheaney). Here's the pricing structure:
