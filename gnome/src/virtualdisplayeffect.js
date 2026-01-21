@@ -594,18 +594,17 @@ export const VirtualDisplayEffect = GObject.registerClass({
                     this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
                     lookAheadSet = true;
                 }
-                let posePositionPixels = [0.0, 0.0, 0.0];
-                if (this.pose_has_position) {
-                    posePositionPixels = this.imu_snapshots.pose_position.map((coord, index) => {
-                        return coord * this.fov_details.fullScreenDistancePixels + this.lens_vector[index];
-                    });
-                }
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
-                this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
             } else {
                 this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.smooth_follow_origin);
-                this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, [0.0, 0.0, 0.0]);
             }
+            let posePositionPixels = [0.0, 0.0, 0.0];
+            if (this.pose_has_position) {
+                posePositionPixels = this.imu_snapshots.pose_position.map((coord, index) => {
+                    return coord * this.fov_details.fullScreenDistancePixels + this.lens_vector[index];
+                });
+            }
+            this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
             if (!lookAheadSet) {
                 this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
             }

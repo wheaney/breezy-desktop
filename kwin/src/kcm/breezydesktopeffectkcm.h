@@ -39,6 +39,7 @@ private:
     void updateSmoothFollowTrackRoll();
     void updateNeckSaverHorizontal();
     void updateNeckSaverVertical();
+    void updateDeadZoneThresholdDeg();
     void updateUiFromConfig();
     void updateUiFromDefaultConfig();
     void updateConfigFromUi();
@@ -51,6 +52,7 @@ private:
     bool smoothFollowTrackRollEnabled(std::optional<QJsonObject> configJsonOpt);
     double neckSaverHorizontalMultiplier(std::optional<QJsonObject> configJsonOpt);
     double neckSaverVerticalMultiplier(std::optional<QJsonObject> configJsonOpt);
+    double deadZoneThresholdDeg(std::optional<QJsonObject> configJsonOpt);
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void checkEffectLoaded();

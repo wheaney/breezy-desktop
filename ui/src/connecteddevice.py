@@ -73,6 +73,8 @@ class ConnectedDevice(Gtk.Box):
     neck_saver_horizontal_adjustment = Gtk.Template.Child()
     neck_saver_vertical_scale = Gtk.Template.Child()
     neck_saver_vertical_adjustment = Gtk.Template.Child()
+    dead_zone_threshold_scale = Gtk.Template.Child()
+    dead_zone_threshold_adjustment = Gtk.Template.Child()
     enable_multi_tap_switch = Gtk.Template.Child()
     legacy_follow_mode_switch = Gtk.Template.Child()
     follow_track_yaw_switch = Gtk.Template.Child()
@@ -193,6 +195,7 @@ class ConnectedDevice(Gtk.Box):
         self._bind_switch_to_config(self.follow_track_roll_switch, 'follow-track-roll')
         self._bind_switch_to_config(self.follow_track_pitch_switch, 'follow-track-pitch')
         self._bind_switch_to_config(self.follow_track_yaw_switch, 'follow-track-yaw')
+        self._bind_scale_to_config(self.dead_zone_threshold_adjustment, 'dead-zone-threshold-deg')
         self._bind_scale_to_config(self.neck_saver_horizontal_adjustment, 'neck-saver-horizontal-multiplier')
         self._bind_scale_to_config(self.neck_saver_vertical_adjustment, 'neck-saver-vertical-multiplier')
 

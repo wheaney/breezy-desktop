@@ -764,6 +764,38 @@
                     </child>
                     <child>
                       <object class="AdwActionRow">
+                        <property name="title" translatable="yes">Dead-zone threshold (degrees)</property>
+                        <property name="subtitle" translatable="yes">Stabilize movements below this angle.</property>
+                        <child>
+                          <object class="GtkScale" id="dead_zone_threshold_scale">
+                            <property name="valign">3</property>
+                            <property name="draw-value">true</property>
+                            <property name="value-pos">0</property>
+                            <property name="digits">1</property>
+                            <property name="width-request">350</property>
+                            <property name="has-origin">false</property>
+                            <property name="adjustment">
+                              <object class="GtkAdjustment" id="dead_zone_threshold_adjustment">
+                                <property name="lower">0.0</property>
+                                <property name="upper">5.0</property>
+                                <property name="step-increment">0.1</property>
+                                <property name="value">0.0</property>
+                              </object>
+                            </property>
+                            <marks>
+                              <mark value="0.0" position="bottom" translatable="yes">Disabled</mark>
+                              <mark value="1.0" position="bottom">1.0</mark>
+                              <mark value="2.0" position="bottom">2.0</mark>
+                              <mark value="3.0" position="bottom">3.0</mark>
+                              <mark value="4.0" position="bottom">4.0</mark>
+                              <mark value="5.0" position="bottom">5.0</mark>
+                            </marks>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow">
                         <property name="title" translatable="yes">Follow mode movement tracking</property>
                         <property name="subtitle" translatable="yes">Choose which movements should be tracked in follow mode.</property>
                         <child>

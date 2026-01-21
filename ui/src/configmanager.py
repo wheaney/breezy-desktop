@@ -10,6 +10,13 @@ class ConfigManager(GObject.GObject):
         'follow-track-roll': (bool, 'Follow Track Roll', 'Whether to follow on the roll axis', False, GObject.ParamFlags.READWRITE),
         'follow-track-pitch': (bool, 'Follow Track Pitch', 'Whether to follow on the pitch axis', True, GObject.ParamFlags.READWRITE),
         'follow-track-yaw': (bool, 'Follow Track Yaw', 'Whether to follow on the yaw axis', True, GObject.ParamFlags.READWRITE),
+        'dead-zone-threshold-deg': (
+            float,
+            'Dead Zone Threshold (deg)',
+            'IMU dead-zone threshold in degrees (0.0 disables)',
+            0.0, 5.0, 0.0,
+            GObject.ParamFlags.READWRITE,
+        ),
         'neck-saver-horizontal-multiplier': (
             float,
             'Neck Saver Horizontal Multiplier',
@@ -49,6 +56,7 @@ class ConfigManager(GObject.GObject):
         self.follow_track_roll = None
         self.follow_track_pitch = None
         self.follow_track_yaw = None
+        self.dead_zone_threshold_deg = None
         self.neck_saver_horizontal_multiplier = None
         self.neck_saver_vertical_multiplier = None
         self._running = True
@@ -73,6 +81,9 @@ class ConfigManager(GObject.GObject):
 
         if self.config['smooth_follow_track_yaw'] != self.follow_track_yaw:
             self.set_property('follow-track-yaw', self.config['smooth_follow_track_yaw'])
+
+        if self.config['dead_zone_threshold_deg'] != self.dead_zone_threshold_deg:
+            self.set_property('dead-zone-threshold-deg', self.config['dead_zone_threshold_deg'])
 
         if self.config['neck_saver_horizontal_multiplier'] != self.neck_saver_horizontal_multiplier:
             self.set_property('neck-saver-horizontal-multiplier', self.config['neck_saver_horizontal_multiplier'])
@@ -120,6 +131,13 @@ class ConfigManager(GObject.GObject):
             self.ipc.write_config(self.config)
             self.follow_track_yaw = value
 
+    def _set_dead_zone_threshold_deg(self, value):
+        value = round(min(5.0, max(0.0, float(value))), 2)
+        if self.dead_zone_threshold_deg != value:
+            self.config['dead_zone_threshold_deg'] = value
+            self.ipc.write_config(self.config)
+            self.dead_zone_threshold_deg = value
+
     def _set_neck_saver_horizontal_multiplier(self, value):
         value = round(min(2.5, max(1.0, float(value))), 2)
         if self.neck_saver_horizontal_multiplier != value:
@@ -145,6 +163,8 @@ class ConfigManager(GObject.GObject):
             self._set_follow_track_pitch(value)
         elif prop.name == 'follow-track-yaw':
             self._set_follow_track_yaw(value)
+        elif prop.name == 'dead-zone-threshold-deg':
+            self._set_dead_zone_threshold_deg(value)
         elif prop.name == 'neck-saver-horizontal-multiplier':
             self._set_neck_saver_horizontal_multiplier(value)
         elif prop.name == 'neck-saver-vertical-multiplier':
@@ -161,6 +181,8 @@ class ConfigManager(GObject.GObject):
             return self.follow_track_pitch
         elif prop.name == 'follow-track-yaw':
             return self.follow_track_yaw
+        elif prop.name == 'dead-zone-threshold-deg':
+            return self.dead_zone_threshold_deg
         elif prop.name == 'neck-saver-horizontal-multiplier':
             return self.neck_saver_horizontal_multiplier
         elif prop.name == 'neck-saver-vertical-multiplier':

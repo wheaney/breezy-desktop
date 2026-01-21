@@ -372,6 +372,12 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.SmoothFollowTrackRoll, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackRoll);
     connect(ui.NeckSaverHorizontalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverHorizontal);
     connect(ui.NeckSaverVerticalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverVertical);
+    connect(ui.DeadZoneThresholdDeg, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateDeadZoneThresholdDeg);
+
+    if (ui.DeadZoneThresholdDeg) {
+        ui.DeadZoneThresholdDeg->setValueUnitsSuffix(QStringLiteral("°"));
+        ui.DeadZoneThresholdDeg->setValueText(0, i18n("Disabled"));
+    }
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
         label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
@@ -763,6 +769,12 @@ void BreezyDesktopEffectConfig::pollDriverState()
         ui.NeckSaverVerticalMultiplier->setValue(vertInt);
     }
 
+    const double dz = deadZoneThresholdDeg(configJsonOpt);
+    const int dzInt = static_cast<int>(std::round(dz * 10.0));
+    if (ui.DeadZoneThresholdDeg->value() != dzInt) {
+        ui.DeadZoneThresholdDeg->setValue(dzInt);
+    }
+
     refreshLicenseUi(stateJson);
 
     m_driverStateInitialized = true;
@@ -836,6 +848,16 @@ double BreezyDesktopEffectConfig::neckSaverVerticalMultiplier(std::optional<QJso
     return v;
 }
 
+double BreezyDesktopEffectConfig::deadZoneThresholdDeg(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return 0.0;
+    const QJsonValue jv = configJsonOpt->value(QStringLiteral("dead_zone_threshold_deg"));
+    const double v = jv.isDouble() ? jv.toDouble() : 0.0;
+    if (v < 0.0) return 0.0;
+    if (v > 5.0) return 5.0;
+    return v;
+}
+
 void BreezyDesktopEffectConfig::updateNeckSaverHorizontal()
 {
     auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
@@ -855,6 +877,20 @@ void BreezyDesktopEffectConfig::updateNeckSaverVertical()
 
     QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
     newConfig.insert(QStringLiteral("neck_saver_vertical_multiplier"), val);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateDeadZoneThresholdDeg()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    double val = ui.DeadZoneThresholdDeg->value() / 10.0;
+    val = std::clamp(val, 0.0, 5.0);
+
+    const double current = deadZoneThresholdDeg(configJsonOpt);
+    if (std::abs(current - val) < 1e-9) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("dead_zone_threshold_deg"), val);
     XRDriverIPC::instance().writeConfig(newConfig);
 }
 

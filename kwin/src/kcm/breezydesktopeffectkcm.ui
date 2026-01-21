@@ -654,13 +654,48 @@
           </widget>
         </item>
         <item row="13" column="0">
+          <widget class="QLabel" name="labelDeadZoneThresholdDeg">
+            <property name="text">
+              <string>Dead-zone threshold (deg):</string>
+            </property>
+          </widget>
+        </item>
+        <item row="13" column="1">
+          <widget class="LabeledSlider" name="DeadZoneThresholdDeg">
+            <property name="decimalShift">
+              <double>1</double>
+            </property>
+            <property name="minimum">
+              <number>0</number>
+            </property>
+            <property name="maximum">
+              <number>50</number>
+            </property>
+            <property name="tickStartOffset">
+              <double>0</double>
+            </property>
+            <property name="tickInterval">
+              <double>10</double>
+            </property>
+            <property name="tickPosition">
+              <enum>QSlider::NoTicks</enum>
+            </property>
+            <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tracking">
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
+        <item row="14" column="0">
           <widget class="QLabel" name="labelMeasurementUnits">
             <property name="text">
               <string>Measurement units:</string>
             </property>
           </widget>
         </item>
-        <item row="13" column="1">
+        <item row="14" column="1">
           <widget class="QComboBox" name="comboMeasurementUnits"/>
         </item>
       </layout>
