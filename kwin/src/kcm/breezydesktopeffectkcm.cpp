@@ -883,7 +883,16 @@ void BreezyDesktopEffectConfig::updateNeckSaverVertical()
 void BreezyDesktopEffectConfig::updateDeadZoneThresholdDeg()
 {
     auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
-    double val = ui.DeadZoneThresholdDeg->value() / 10.0;
+
+    int raw = ui.DeadZoneThresholdDeg->value();
+    const int clampedRaw = std::clamp(raw, 0, 50);
+    if (raw != clampedRaw) {
+        QSignalBlocker b(ui.DeadZoneThresholdDeg);
+        ui.DeadZoneThresholdDeg->setValue(clampedRaw);
+        raw = clampedRaw;
+    }
+
+    double val = raw / 10.0;
     val = std::clamp(val, 0.0, 5.0);
 
     const double current = deadZoneThresholdDeg(configJsonOpt);

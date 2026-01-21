@@ -666,13 +666,13 @@
               <double>1</double>
             </property>
             <property name="minimum">
-              <number>0</number>
+              <number>-5</number>
             </property>
             <property name="maximum">
-              <number>50</number>
+              <number>55</number>
             </property>
             <property name="tickStartOffset">
-              <double>0</double>
+              <double>5</double>
             </property>
             <property name="tickInterval">
               <double>10</double>
