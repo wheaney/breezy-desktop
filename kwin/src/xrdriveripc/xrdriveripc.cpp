@@ -108,3 +108,10 @@ bool XRDriverIPC::verifyToken(const std::string &token) {
 	QString result = QString::fromUtf8(out).trimmed().toLower();
     return result == QStringLiteral("true");
 }
+
+bool XRDriverIPC::resetDriver() {
+	QByteArray out = invokePython(QStringLiteral("reset_driver"), {}, {});
+	if (out.isEmpty()) return false;
+	QString result = QString::fromUtf8(out).trimmed().toLower();
+    return result == QStringLiteral("true");
+}

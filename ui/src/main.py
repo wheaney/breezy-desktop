@@ -103,7 +103,7 @@ class BreezydesktopApplication(Adw.Application):
                                 logo_icon_name='com.xronlinux.BreezyDesktop',
                                 version=self.version,
                                 authors=['Wayne Heaney'],
-                                copyright='© 2025 Wayne Heaney',
+                                copyright='© 2026 Wayne Heaney',
                                 license_type=Gtk.License.GPL_3_0,
                                 wrap_license=True)
         about.present()
@@ -114,9 +114,7 @@ class BreezydesktopApplication(Adw.Application):
         dialog.present()
 
     def on_reset_driver_action(self, widget, _):
-        XRDriverIPC.get_instance().write_control_flags({
-            'force_quit': True
-        })
+        XRDriverIPC.get_instance().reset_driver(as_user=None)
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.

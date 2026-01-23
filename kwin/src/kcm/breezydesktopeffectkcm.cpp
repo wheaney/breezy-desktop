@@ -444,6 +444,27 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             }
         });
     }
+
+    // Advanced tab: Force reset xr-driver (matches the Python UI's reset action)
+    if (auto btnResetDriver = widget()->findChild<QPushButton*>(QStringLiteral("buttonResetDriver"))) {
+        connect(btnResetDriver, &QPushButton::clicked, this, [this]() {
+            auto labelStatus = widget()->findChild<QLabel*>(QStringLiteral("labelResetDriverStatus"));
+            if (labelStatus) {
+                labelStatus->setVisible(false);
+            }
+
+            setRequestInProgress({sender()}, true);
+
+            const bool ok = XRDriverIPC::instance().resetDriver();
+            if (ok) {
+                showStatus(labelStatus, true, tr("Driver restarted."));
+            } else {
+                showStatus(labelStatus, false, tr("Failed to restart driver."));
+            }
+
+            setRequestInProgress({sender()}, false);
+        });
+    }
 }
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
