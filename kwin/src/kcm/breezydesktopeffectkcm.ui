@@ -208,14 +208,72 @@
          </property>
         </widget>
        </item>
-      <item row="5" column="0">
+        <item row="5" column="0">
+          <widget class="QLabel" name="labelDisplayHorizontalOffset">
+          <property name="text">
+            <string>Display Horizontal Offset:</string>
+          </property>
+          </widget>
+        </item>
+        <item row="5" column="1">
+          <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
+          <property name="decimalShift">
+            <double>2</double>
+          </property>
+          <property name="tickPosition">
+            <enum>QSlider::NoTicks</enum>
+          </property>
+          <property name="tickStartOffset">
+            <double>50</double>
+          </property>
+          <property name="tickInterval">
+            <double>100</double>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tracking">
+            <bool>true</bool>
+          </property>
+          </widget>
+        </item>
+        <item row="6" column="0">
+          <widget class="QLabel" name="labelDisplayVerticalOffset">
+          <property name="text">
+            <string>Display Vertical Offset:</string>
+          </property>
+          </widget>
+        </item>
+        <item row="6" column="1">
+          <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
+          <property name="decimalShift">
+            <double>2</double>
+          </property>
+          <property name="tickPosition">
+            <enum>QSlider::NoTicks</enum>
+          </property>
+          <property name="tickStartOffset">
+            <double>50</double>
+          </property>
+          <property name="tickInterval">
+            <double>100</double>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tracking">
+            <bool>true</bool>
+          </property>
+          </widget>
+        </item>
+      <item row="7" column="0">
         <widget class="QLabel" name="labelFollowThreshold">
          <property name="text">
           <string>Follow threshold:</string>
          </property>
         </widget>
        </item>
-      <item row="5" column="1">
+      <item row="7" column="1">
         <widget class="LabeledSlider" name="kcfg_SmoothFollowThreshold">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -237,7 +295,7 @@
          </property>
         </widget>
        </item>
-        <item row="6" column="0">
+        <item row="8" column="0">
           <widget class="QLabel" name="labelVirtualDisplays">
             <property name="text">
               <string>Add Virtual Display:</string>
@@ -250,7 +308,7 @@
             </property>
           </widget>
         </item>
-      <item row="6" column="1">
+      <item row="8" column="1">
           <widget class="QWidget" name="widgetVirtualDisplayButtons">
             <property name="visible">
               <bool>false</bool>
@@ -313,7 +371,7 @@
             </layout>
           </widget>
         </item>
-    <item row="7" column="0" colspan="2">
+    <item row="9" column="0" colspan="2">
      <widget class="QWidget" name="widgetVirtualDisplayList">
       <property name="visible"><bool>false</bool></property>
       <property name="enabled"><bool>false</bool></property>
@@ -469,62 +527,34 @@
             </property>
           </widget>
         </item>
-        <item row="5" column="0">
-          <widget class="QLabel" name="labelDisplayHorizontalOffset">
-          <property name="text">
-            <string>Display Horizontal Offset:</string>
-          </property>
+        <item row="4" column="0" colspan="2">
+          <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <property name="enabled">
+              <bool>false</bool>
+            </property>
+            <property name="text">
+              <string>Remove virtual displays on disable</string>
+            </property>
+            <property name="checked"><bool>true</bool></property>
           </widget>
         </item>
-        <item row="5" column="1">
-          <widget class="LabeledSlider" name="kcfg_DisplayHorizontalOffset">
-          <property name="decimalShift">
-            <double>2</double>
-          </property>
-          <property name="tickPosition">
-            <enum>QSlider::NoTicks</enum>
-          </property>
-          <property name="tickStartOffset">
-            <double>50</double>
-          </property>
-          <property name="tickInterval">
-            <double>100</double>
-          </property>
-          <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tracking">
-            <bool>true</bool>
-          </property>
+        <item row="5" column="0" colspan="2">
+          <widget class="QCheckBox" name="kcfg_MirrorPhysicalDisplays">
+            <property name="text">
+              <string>Mirror physical displays (may impact performance)</string>
+            </property>
+            <property name="checked"><bool>false</bool></property>
           </widget>
         </item>
-        <item row="6" column="0">
-          <widget class="QLabel" name="labelDisplayVerticalOffset">
-          <property name="text">
-            <string>Display Vertical Offset:</string>
-          </property>
-          </widget>
-        </item>
-        <item row="6" column="1">
-          <widget class="LabeledSlider" name="kcfg_DisplayVerticalOffset">
-          <property name="decimalShift">
-            <double>2</double>
-          </property>
-          <property name="tickPosition">
-            <enum>QSlider::NoTicks</enum>
-          </property>
-          <property name="tickStartOffset">
-            <double>50</double>
-          </property>
-          <property name="tickInterval">
-            <double>100</double>
-          </property>
-          <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tracking">
-            <bool>true</bool>
-          </property>
+        <item row="6" column="0" colspan="2">
+          <widget class="QCheckBox" name="EnableMultitap">
+            <property name="text">
+              <string>Enable multi-tap detection</string>
+            </property>
+            <property name="checked"><bool>false</bool></property>
           </widget>
         </item>
         <item row="7" column="0">
@@ -553,44 +583,14 @@
           </property>
           </widget>
         </item>
-        <item row="8" column="0" colspan="2">
-          <widget class="QCheckBox" name="kcfg_RemoveVirtualDisplaysOnDisable">
-            <property name="visible">
-              <bool>false</bool>
-            </property>
-            <property name="enabled">
-              <bool>false</bool>
-            </property>
-            <property name="text">
-              <string>Remove virtual displays on disable</string>
-            </property>
-            <property name="checked"><bool>true</bool></property>
-          </widget>
-        </item>
-        <item row="9" column="0" colspan="2">
-          <widget class="QCheckBox" name="kcfg_MirrorPhysicalDisplays">
-            <property name="text">
-              <string>Mirror physical displays (may impact performance)</string>
-            </property>
-            <property name="checked"><bool>false</bool></property>
-          </widget>
-        </item>
-        <item row="10" column="0" colspan="2">
-          <widget class="QCheckBox" name="EnableMultitap">
-            <property name="text">
-              <string>Enable multi-tap detection</string>
-            </property>
-            <property name="checked"><bool>false</bool></property>
-          </widget>
-        </item>
-        <item row="11" column="0">
+        <item row="8" column="0">
           <widget class="QLabel" name="labelNeckSaverHorizontal">
             <property name="text">
               <string>Neck-saver horizontal:</string>
             </property>
           </widget>
         </item>
-        <item row="11" column="1">
+        <item row="8" column="1">
           <widget class="LabeledSlider" name="NeckSaverHorizontalMultiplier">
             <property name="decimalShift">
               <double>2</double>
@@ -618,14 +618,14 @@
             </property>
           </widget>
         </item>
-        <item row="12" column="0">
+        <item row="9" column="0">
           <widget class="QLabel" name="labelNeckSaverVertical">
             <property name="text">
               <string>Neck-saver vertical:</string>
             </property>
           </widget>
         </item>
-        <item row="12" column="1">
+        <item row="9" column="1">
           <widget class="LabeledSlider" name="NeckSaverVerticalMultiplier">
             <property name="decimalShift">
               <double>2</double>
@@ -653,14 +653,14 @@
             </property>
           </widget>
         </item>
-        <item row="13" column="0">
+        <item row="10" column="0">
           <widget class="QLabel" name="labelDeadZoneThresholdDeg">
             <property name="text">
               <string>Dead-zone threshold (deg):</string>
             </property>
           </widget>
         </item>
-        <item row="13" column="1">
+        <item row="10" column="1">
           <widget class="LabeledSlider" name="DeadZoneThresholdDeg">
             <property name="decimalShift">
               <double>1</double>
@@ -688,15 +688,42 @@
             </property>
           </widget>
         </item>
-        <item row="14" column="0">
+        <item row="11" column="0">
           <widget class="QLabel" name="labelMeasurementUnits">
             <property name="text">
               <string>Measurement units:</string>
             </property>
           </widget>
         </item>
-        <item row="14" column="1">
+        <item row="11" column="1">
           <widget class="QComboBox" name="comboMeasurementUnits"/>
+        </item>
+        <item row="12" column="0">
+          <widget class="QLabel" name="labelResetDriver">
+            <property name="text">
+              <string>Reset driver:</string>
+            </property>
+          </widget>
+        </item>
+        <item row="12" column="1">
+          <widget class="QPushButton" name="buttonResetDriver">
+            <property name="text">
+              <string>Force reset driver</string>
+            </property>
+          </widget>
+        </item>
+        <item row="13" column="0" colspan="2">
+          <widget class="QLabel" name="labelResetDriverStatus">
+            <property name="text">
+              <string/>
+            </property>
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <property name="wordWrap">
+              <bool>true</bool>
+            </property>
+          </widget>
         </item>
       </layout>
      </widget>

@@ -444,6 +444,64 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             }
         });
     }
+
+    // Advanced tab: Force reset xr-driver (matches the Python UI's reset action)
+    if (auto btnResetDriver = widget()->findChild<QPushButton*>(QStringLiteral("buttonResetDriver"))) {
+        connect(btnResetDriver, &QPushButton::clicked, this, [this]() {
+            auto labelStatus = widget()->findChild<QLabel*>(QStringLiteral("labelResetDriverStatus"));
+            if (labelStatus) {
+                labelStatus->setVisible(false);
+            }
+
+            setRequestInProgress({sender()}, true);
+
+            const QString systemctl = QStandardPaths::findExecutable(QStringLiteral("systemctl"));
+            if (systemctl.isEmpty()) {
+                showStatus(labelStatus, false, tr("systemctl not found; cannot restart xr-driver."));
+                setRequestInProgress({sender()}, false);
+                return;
+            }
+
+            QProcess proc;
+            proc.setProgram(systemctl);
+            proc.setArguments({QStringLiteral("--user"), QStringLiteral("restart"), QStringLiteral("xr-driver")});
+            proc.setProcessChannelMode(QProcess::MergedChannels);
+            proc.start();
+
+            if (!proc.waitForStarted(5000)) {
+                showStatus(labelStatus, false, tr("Failed to start systemctl."));
+                setRequestInProgress({sender()}, false);
+                return;
+            }
+
+            if (!proc.waitForFinished(15000)) {
+                proc.kill();
+                proc.waitForFinished(3000);
+                showStatus(labelStatus, false, tr("Timed out restarting xr-driver."));
+                setRequestInProgress({sender()}, false);
+                return;
+            }
+
+            const QString output = QString::fromUtf8(proc.readAll()).trimmed();
+            const bool ok = (proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
+            if (ok) {
+                if (!output.isEmpty()) {
+                    qCWarning(KWIN_XR) << "Unexpected output resetting the driver:" << output;
+                }
+                showStatus(labelStatus, true, tr("Driver restarted."));
+
+                // Refresh state shortly after restart.
+                QTimer::singleShot(1000, this, [this]() {
+                    pollDriverState();
+                });
+            } else {
+                const QString err = output.isEmpty() ? tr("Unknown error") : output;
+                showStatus(labelStatus, false, tr("Failed to restart driver: %1").arg(err));
+            }
+
+            setRequestInProgress({sender()}, false);
+        });
+    }
 }
 
 BreezyDesktopEffectConfig::~BreezyDesktopEffectConfig()
