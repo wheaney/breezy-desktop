@@ -31,7 +31,7 @@ print_missing_dependencies() {
   echo ""
   printf "\033[1;33mInstall the missing packages\033[0m with your package manager, then rerun this setup:\n"
   printf "\tDebian/Ubuntu:\tsudo apt-get update && sudo apt-get install -y extra-cmake-modules kwin-dev libkf6config-dev libkf6configwidgets-dev libkf6coreaddons-dev libkf6kcmutils-dev libkf6globalaccel-dev libkf6i18n-dev libkf6windowsystem-dev libkf6xmlgui-dev qt6-base-dev qt6-declarative-dev libdrm-dev && (sudo apt-get install -y qml6-module-qtquick3d-helpers || true)\n"
-  printf "\tFedora/RHEL:\tsudo dnf install -y cmake gc++ extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel qt6-qtbase-devel qt6-qttools-devel qt6-qtquick3d wayland-devel libepoxy-devel libdrm-devel\n"
+  printf "\tFedora/RHEL:\tsudo dnf install -y cmake gcc gcc-c++ extra-cmake-modules kwin-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-kcoreaddons-devel kf6-kcmutils-devel kf6-kglobalaccel-devel kf6-ki18n-devel kf6-kwindowsystem-devel kf6-kxmlgui-devel qt6-qtbase-devel qt6-qttools-devel qt6-qtquick3d wayland-devel libepoxy-devel libdrm-devel\n"
   printf "\tArch:\t\tsudo pacman -S --needed extra-cmake-modules qt6-base qt6-declarative qt6-tools qt6-quick3d kconfig kconfigwidgets kcoreaddons kglobalaccel ki18n kcmutils kxmlgui kwindowsystem kwin\n"
   echo ""
   if [ -z "${BREEZY_DISTROBOX:-}" ]; then

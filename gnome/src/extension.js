@@ -40,6 +40,9 @@ export default class BreezyDesktopExtension extends Extension {
         this._follow_threshold_connection = null;
         this._breezy_desktop_running_connection = null;
 
+        this._state_poll_timeout = null;
+        this._pose_has_position = null;
+
         // "fresh" means the effect hasn't been enabled since breezy-desktop-running became true
         this._fresh_session = true;
 
@@ -231,6 +234,7 @@ export default class BreezyDesktopExtension extends Extension {
 
                 const state = this._read_state();
                 const pose_has_position = state['connected_device_pose_has_position'] === 'true';
+                this._pose_has_position = pose_has_position;
 
                 Globals.logger.log_debug(
                     `connected_device_pose_has_position=${pose_has_position}`
@@ -327,6 +331,8 @@ export default class BreezyDesktopExtension extends Extension {
                 this._add_settings_keybinding('toggle-follow-shortcut', this._toggle_follow_mode.bind(this));
                 this._add_settings_keybinding('cursor-to-focused-display-shortcut', this._cursor_to_focused_display.bind(this));
 
+                this._start_state_poller();
+
                 this._fresh_session = false;
             } catch (e) {
                 Globals.logger.log(`[ERROR] BreezyDesktopExtension _effect_enable ${e.message}\n${e.stack}`);
@@ -334,6 +340,44 @@ export default class BreezyDesktopExtension extends Extension {
                 this._effect_disable();
             }
         }
+    }
+
+    _start_state_poller() {
+        if (this._state_poll_timeout) return;
+
+        this._state_poll_timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
+            if (!this._is_effect_running) {
+                this._state_poll_timeout = null;
+                return GLib.SOURCE_REMOVE;
+            }
+
+            try {
+                const state = this._read_state();
+                const pose_has_position = state['connected_device_pose_has_position'] === 'true';
+
+                if (pose_has_position !== this._pose_has_position) {
+                    this._pose_has_position = pose_has_position;
+                    Globals.logger.log_debug(
+                        `BreezyDesktopExtension state poll - connected_device_pose_has_position=${pose_has_position}`
+                    );
+
+                    if (this._virtual_displays_actor) {
+                        this._virtual_displays_actor.set_property('pose-has-position', pose_has_position);
+                    }
+                }
+            } catch (e) {
+                Globals.logger.log(`[ERROR] BreezyDesktopExtension _start_state_poller ${e.message}\n${e.stack}`);
+            }
+
+            return GLib.SOURCE_CONTINUE;
+        });
+    }
+
+    _stop_state_poller() {
+        if (!this._state_poll_timeout) return;
+
+        GLib.source_remove(this._state_poll_timeout);
+        this._state_poll_timeout = null;
     }
 
     _add_settings_keybinding(settings_key, bind_to_function) {
@@ -536,12 +580,13 @@ export default class BreezyDesktopExtension extends Extension {
         }
 
         Globals.logger.log_debug(`BreezyDesktopExtension _toggle_xr_effect external_mode: ${stdout}`);
-        const enabled = stdout.trim() === 'breezy_desktop';
+        const was_enabled = stdout.trim() === 'breezy_desktop';
+        const should_enable = !was_enabled;
 
         // use the CLI to change the external mode, avoid using disable/enable, otherwise the driver will 
         // shut down and recalibrate each time
         proc = Gio.Subprocess.new(
-            ['bash', '-c', `${this._cli_file.get_path()} --${enabled ? 'disable-external' : 'breezy-desktop'}`],
+            ['bash', '-c', `${this._cli_file.get_path()} ${should_enable ? '--enable --breezy-desktop' : '--disable-external'}`],
             Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
         );
         [success, stdout, stderr] = proc.communicate_utf8(null, null);
@@ -576,6 +621,8 @@ export default class BreezyDesktopExtension extends Extension {
         try {
             Globals.logger.log_debug('BreezyDesktopExtension _effect_disable');
             this._is_effect_running = false;
+
+            this._stop_state_poller();
 
             if (Globals.data_stream.smooth_follow_enabled) this._toggle_follow_mode();
 
