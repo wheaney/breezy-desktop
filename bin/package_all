@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+ARCH=x86_64 bin/package_gnome "$@"
+ARCH=aarch64 bin/package_gnome "$@"
+STEAMOS=1 bin/package_kwin "$@"
+bin/package_vulkan "$@"
+STEAMOS=1 bin/package_vulkan "$@"
