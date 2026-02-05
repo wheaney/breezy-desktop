@@ -1,7 +1,8 @@
 # Japanese translations for PACKAGE package.
-# Copyright (C) 2024 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2024-2026 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #  <wayne@xronlinux.com>, 2024.
+#  <iwaim.sub@gmail.com>, 2026.
 #
 # Breezy DesktopやXR、GNOMEのような固有名詞はそのままの表記にしています。
 # 「gaming」が「ゲーミング」なので「productivity」も「プロダクティビティ」とカナ表記にしました。
@@ -12,8 +13,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-03 16:04-0700\n"
-"PO-Revision-Date: 2024-08-02 20:55-0700\n"
-"Last-Translator:  <wayne@xronlinux.com>\n"
+"PO-Revision-Date: 2026-02-05 22:24+0900\n"
+"Last-Translator: <iwaim.sub@gmail.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -410,11 +411,11 @@ msgstr "フォローモードのオン／オフをすばやく切り替えます
 
 #: src/gtk/connected-device.ui:509
 msgid "Summon mouse cursor shortcut"
-msgstr ""
+msgstr "マウスカーソルを呼び戻す"
 
 #: src/gtk/connected-device.ui:510
 msgid "Bring the mouse cursor to the center of the focused display."
-msgstr ""
+msgstr "フォーカス中のディスプレイの中央にマウスカーソルを移動します。"
 
 #: src/gtk/connected-device.ui:545 src/gtk/connected-device.ui:555
 msgid "Advanced Settings"
@@ -492,19 +493,21 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:642
 msgid "Neck-saver horizontal multiplier"
-msgstr ""
+msgstr "水平方向の首振り"
 
 #: src/gtk/connected-device.ui:643
 msgid "Higher values require smaller horizontal head movements."
 msgstr ""
+"値を大きくすると、水平方向の小さな動きで視点を移動できるようになります。"
 
 #: src/gtk/connected-device.ui:675
 msgid "Neck-saver vertical multiplier"
-msgstr ""
+msgstr "垂直方向の首振り"
 
 #: src/gtk/connected-device.ui:676
 msgid "Higher values require smaller vertical head movements."
 msgstr ""
+"値を大きくすると、垂直方向の小さな動きで視点を移動できるようになります。"
 
 #: src/gtk/connected-device.ui:708
 msgid "Follow mode movement tracking"
