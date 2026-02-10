@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-03 16:04-0700\n"
+"POT-Creation-Date: 2026-02-10 12:51-0800\n"
 "PO-Revision-Date: 2024-08-17 10:08-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -28,51 +28,39 @@ msgstr "Переключає окуляри в режим «бок о бок» �
 msgid "This feature is not currently supported for your device."
 msgstr "Ця функція наразі не підтримується на вашому пристрої."
 
-#: src/connecteddevice.py:151
+#: src/connecteddevice.py:160
 #, fuzzy
 msgid "Set Focused Display Distance"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:152
+#: src/connecteddevice.py:161
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:159
+#: src/connecteddevice.py:168
 #, fuzzy
 msgid "Set All Displays Distance"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:160
+#: src/connecteddevice.py:169
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:283
+#: src/connecteddevice.py:309
 msgid ""
 "Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
 "and the pipewire GStreamer plugin are required."
 msgstr ""
 
-#: src/connecteddevice.py:317
+#: src/connecteddevice.py:343
 #, fuzzy
 msgid "Focused display"
 msgstr "Відстань дисплея"
 
-#: src/connecteddevice.py:323
+#: src/connecteddevice.py:349
 #, fuzzy
 msgid "All displays"
 msgstr "Викривлений дисплей"
-
-#: src/displaydistancedialogcontent.py:41
-msgid "closer"
-msgstr ""
-
-#: src/displaydistancedialogcontent.py:45
-msgid "fullscreen"
-msgstr ""
-
-#: src/displaydistancedialogcontent.py:48
-msgid "farther"
-msgstr ""
 
 #: src/licensedialogcontent.py:63
 msgid "Paid Tier Status"
@@ -83,6 +71,7 @@ msgid "Feature Availability"
 msgstr "Статус функцій"
 
 #: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
+#: src/gtk/connected-device.ui:786
 msgid "Disabled"
 msgstr "Вимкнено"
 
@@ -288,150 +277,178 @@ msgid "Set how close you want displays to appear."
 msgstr ""
 
 #: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
-#: src/gtk/connected-device.ui:413 src/gtk/connected-device.ui:442
-#: src/gtk/connected-device.ui:471 src/gtk/connected-device.ui:500
-#: src/gtk/connected-device.ui:529
+#: src/gtk/connected-device.ui:443 src/gtk/connected-device.ui:472
+#: src/gtk/connected-device.ui:501 src/gtk/connected-device.ui:530
+#: src/gtk/connected-device.ui:559
 msgid "Change"
 msgstr "Змінити"
 
 #: src/gtk/connected-device.ui:234
+msgid "Display size"
+msgstr ""
+
+#: src/gtk/connected-device.ui:235
+msgid "Set how large you want the display to appear."
+msgstr ""
+
+#: src/gtk/connected-device.ui:254
+msgid "full"
+msgstr ""
+
+#: src/gtk/connected-device.ui:264
 msgid "Follow threshold"
 msgstr "Поріг слідування"
 
-#: src/gtk/connected-device.ui:235
+#: src/gtk/connected-device.ui:265
 msgid "How far away you can look before the display follows."
 msgstr ""
 "Як далеко ви можете відвернути ваш взор, перш ніж дисплей почне слідувати за "
 "вами."
 
-#: src/gtk/connected-device.ui:258
+#: src/gtk/connected-device.ui:288
 #, fuzzy
 msgid "Display angling"
 msgstr "Розмір дисплея"
 
-#: src/gtk/connected-device.ui:259
+#: src/gtk/connected-device.ui:289
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
 msgstr ""
 
-#: src/gtk/connected-device.ui:273
+#: src/gtk/connected-device.ui:303
 msgid "Automatic"
 msgstr ""
 
-#: src/gtk/connected-device.ui:274
+#: src/gtk/connected-device.ui:304
 msgid "Side-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:275
+#: src/gtk/connected-device.ui:305
 msgid "Top-angled"
 msgstr ""
 
-#: src/gtk/connected-device.ui:276
+#: src/gtk/connected-device.ui:306
 msgid "Flat"
 msgstr ""
 
-#: src/gtk/connected-device.ui:286
+#: src/gtk/connected-device.ui:316
 #, fuzzy
 msgid "Display spacing"
 msgstr "Розмір дисплея"
 
-#: src/gtk/connected-device.ui:287
+#: src/gtk/connected-device.ui:317
 msgid "Put empty space between displays, when there are multiple."
 msgstr ""
 
-#: src/gtk/connected-device.ui:317
+#: src/gtk/connected-device.ui:347
 msgid "Viewport horizontal offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:318
+#: src/gtk/connected-device.ui:348
 msgid "Move the viewport to the left or right of its default position."
 msgstr ""
 
-#: src/gtk/connected-device.ui:335
+#: src/gtk/connected-device.ui:365
 msgid "left"
 msgstr ""
 
-#: src/gtk/connected-device.ui:337 src/gtk/connected-device.ui:367
+#: src/gtk/connected-device.ui:367 src/gtk/connected-device.ui:397
 msgid "center"
 msgstr ""
 
-#: src/gtk/connected-device.ui:339
+#: src/gtk/connected-device.ui:369
 msgid "right"
 msgstr ""
 
-#: src/gtk/connected-device.ui:347
+#: src/gtk/connected-device.ui:377
 msgid "Viewport vertical offset"
 msgstr ""
 
-#: src/gtk/connected-device.ui:348
+#: src/gtk/connected-device.ui:378
 msgid "Move the viewport up or down from its default position."
 msgstr ""
 
-#: src/gtk/connected-device.ui:365
+#: src/gtk/connected-device.ui:395
 msgid "down"
 msgstr ""
 
-#: src/gtk/connected-device.ui:369
+#: src/gtk/connected-device.ui:399
 msgid "up"
 msgstr ""
 
-#: src/gtk/connected-device.ui:384 src/gtk/connected-device.ui:390
+#: src/gtk/connected-device.ui:414 src/gtk/connected-device.ui:420
 msgid "Keyboard Shortcuts"
 msgstr "Сполучення клавіш"
 
-#: src/gtk/connected-device.ui:393
+#: src/gtk/connected-device.ui:423
 msgid "XR Effect on/off shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:394
+#: src/gtk/connected-device.ui:424
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
 
-#: src/gtk/connected-device.ui:422
+#: src/gtk/connected-device.ui:452
 msgid "Re-center display shortcut"
 msgstr "Сполучення клавіш для центрування дисплея"
 
-#: src/gtk/connected-device.ui:423
+#: src/gtk/connected-device.ui:453
 msgid "Pin the virtual display to the current position."
 msgstr "Фіксувати віртуальний дисплей у поточній позиції."
 
-#: src/gtk/connected-device.ui:451
+#: src/gtk/connected-device.ui:481
 #, fuzzy
 msgid "Toggle zoom on focus shortcut"
 msgstr "Сполучення клавіш для перемикання режиму слідування"
 
-#: src/gtk/connected-device.ui:452
+#: src/gtk/connected-device.ui:482
 #, fuzzy
 msgid "Quickly toggle zoom on focus mode."
 msgstr "Швидко перемикати режим слідування."
 
-#: src/gtk/connected-device.ui:480
+#: src/gtk/connected-device.ui:510
 msgid "Toggle follow mode shortcut"
 msgstr "Сполучення клавіш для перемикання режиму слідування"
 
-#: src/gtk/connected-device.ui:481
+#: src/gtk/connected-device.ui:511
 msgid "Quickly toggle follow mode."
 msgstr "Швидко перемикати режим слідування."
 
-#: src/gtk/connected-device.ui:509
+#: src/gtk/connected-device.ui:539
 msgid "Summon mouse cursor shortcut"
 msgstr ""
 
-#: src/gtk/connected-device.ui:510
+#: src/gtk/connected-device.ui:540
 msgid "Bring the mouse cursor to the center of the focused display."
 msgstr ""
 
-#: src/gtk/connected-device.ui:545 src/gtk/connected-device.ui:555
+#: src/gtk/connected-device.ui:575 src/gtk/connected-device.ui:585
 msgid "Advanced Settings"
 msgstr "Додаткові налаштування"
 
-#: src/gtk/connected-device.ui:559
+#: src/gtk/connected-device.ui:589
+msgid "Units"
+msgstr ""
+
+#: src/gtk/connected-device.ui:590
+msgid "Choose measurement units for size and distance displays."
+msgstr ""
+
+#: src/gtk/connected-device.ui:605
+msgid "Centimeters"
+msgstr ""
+
+#: src/gtk/connected-device.ui:606
+msgid "Inches"
+msgstr ""
+
+#: src/gtk/connected-device.ui:618
 msgid "Find optimal display config"
 msgstr "Знайти оптимальну конфігурацію дисплея"
 
-#: src/gtk/connected-device.ui:560
+#: src/gtk/connected-device.ui:619
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
@@ -439,101 +456,109 @@ msgstr ""
 "Автоматично змінює конфігурацію дисплея окулярів для максимальної роздільної "
 "здатності і найкращого масштабування при підключенні."
 
-#: src/gtk/connected-device.ui:570
+#: src/gtk/connected-device.ui:629
 msgid "Use highest refresh rate"
 msgstr "Використовувати найвищу частоту оновлення"
 
-#: src/gtk/connected-device.ui:571
+#: src/gtk/connected-device.ui:630
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
 "Частота оновлення може вплинути на продуктивність, вимкніть це, щоб "
 "встановити її вручну."
 
-#: src/gtk/connected-device.ui:581
+#: src/gtk/connected-device.ui:640
 msgid "Center on glasses' display"
 msgstr ""
 
-#: src/gtk/connected-device.ui:582
+#: src/gtk/connected-device.ui:641
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr ""
 
-#: src/gtk/connected-device.ui:592
+#: src/gtk/connected-device.ui:651
 msgid "Always primary display"
 msgstr "Завжди основний дисплей"
 
-#: src/gtk/connected-device.ui:593
+#: src/gtk/connected-device.ui:652
 msgid "Automatically set the glasses as the primary display when plugged in."
 msgstr "Автоматично встановлює окуляри як основний дисплей при підключенні."
 
-#: src/gtk/connected-device.ui:603
+#: src/gtk/connected-device.ui:662
 #, fuzzy
 msgid "Remove virtual displays on disable"
 msgstr "Викривлений дисплей"
 
-#: src/gtk/connected-device.ui:604
+#: src/gtk/connected-device.ui:663
 msgid "Automatically remove virtual displays when the XR effect is disabled."
 msgstr ""
 
-#: src/gtk/connected-device.ui:614
+#: src/gtk/connected-device.ui:673
 msgid "Enable multi-tap detection"
 msgstr ""
 
-#: src/gtk/connected-device.ui:615
+#: src/gtk/connected-device.ui:674
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
 
-#: src/gtk/connected-device.ui:625
+#: src/gtk/connected-device.ui:684
 #, fuzzy
 msgid "All displays follow mode"
 msgstr "Викривлений дисплей"
 
-#: src/gtk/connected-device.ui:626
+#: src/gtk/connected-device.ui:685
 msgid "Follow mode moves all displays, not just the focused one."
 msgstr ""
 
-#: src/gtk/connected-device.ui:642
+#: src/gtk/connected-device.ui:701
 msgid "Neck-saver horizontal multiplier"
 msgstr ""
 
-#: src/gtk/connected-device.ui:643
+#: src/gtk/connected-device.ui:702
 msgid "Higher values require smaller horizontal head movements."
 msgstr ""
 
-#: src/gtk/connected-device.ui:675
+#: src/gtk/connected-device.ui:734
 msgid "Neck-saver vertical multiplier"
 msgstr ""
 
-#: src/gtk/connected-device.ui:676
+#: src/gtk/connected-device.ui:735
 msgid "Higher values require smaller vertical head movements."
 msgstr ""
 
-#: src/gtk/connected-device.ui:708
+#: src/gtk/connected-device.ui:767
+msgid "Dead-zone threshold (degrees)"
+msgstr ""
+
+#: src/gtk/connected-device.ui:768
+msgid "Stabilize movements below this angle."
+msgstr ""
+
+#: src/gtk/connected-device.ui:799
 msgid "Follow mode movement tracking"
 msgstr ""
 
-#: src/gtk/connected-device.ui:709
+#: src/gtk/connected-device.ui:800
 msgid "Choose which movements should be tracked in follow mode."
 msgstr ""
 
-#: src/gtk/connected-device.ui:724
+#: src/gtk/connected-device.ui:815
 msgid "Horizontal"
 msgstr ""
 
-#: src/gtk/connected-device.ui:744
+#: src/gtk/connected-device.ui:835
 msgid "Vertical"
 msgstr ""
 
-#: src/gtk/connected-device.ui:764
+#: src/gtk/connected-device.ui:855
 msgid "Tilt/roll"
 msgstr ""
 
-#: src/gtk/connected-device.ui:782
+#: src/gtk/connected-device.ui:873
 msgid "Movement look-ahead"
 msgstr "Прогнозування руху"
 
-#: src/gtk/connected-device.ui:783
+#: src/gtk/connected-device.ui:874
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
@@ -544,15 +569,15 @@ msgstr ""
 "віртуальний дисплей відстає від рухів вашої голови, випереджає або дуже "
 "тремтить."
 
-#: src/gtk/connected-device.ui:801
+#: src/gtk/connected-device.ui:892
 msgid "Default"
 msgstr "За замовчуванням"
 
-#: src/gtk/connected-device.ui:813
+#: src/gtk/connected-device.ui:904
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:814
+#: src/gtk/connected-device.ui:905
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 
@@ -572,11 +597,19 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: src/gtk/display-distance-dialog.ui:9
-msgid "Show full range"
+#: src/gtk/display-distance-dialog-content.ui:35
+msgid "closer"
 msgstr ""
 
-#: src/gtk/display-distance-dialog.ui:18
+#: src/gtk/display-distance-dialog-content.ui:36
+msgid "default"
+msgstr ""
+
+#: src/gtk/display-distance-dialog-content.ui:37
+msgid "farther"
+msgstr ""
+
+#: src/gtk/display-distance-dialog.ui:9
 msgid "Done"
 msgstr ""
 
