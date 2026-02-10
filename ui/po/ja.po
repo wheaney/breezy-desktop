@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-10 12:51-0800\n"
-"PO-Revision-Date: 2026-02-05 22:24+0900\n"
-"Last-Translator: <iwaim.sub@gmail.com>\n"
+"PO-Revision-Date: 2026-02-11 07:53+0900\n"
+"Last-Translator: iwaim.sub@gmail.com\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -283,15 +283,15 @@ msgstr "変更"
 
 #: src/gtk/connected-device.ui:234
 msgid "Display size"
-msgstr ""
+msgstr "ディスプレイサイズ"
 
 #: src/gtk/connected-device.ui:235
 msgid "Set how large you want the display to appear."
-msgstr ""
+msgstr "ディスプレイの大きさを設定します。"
 
 #: src/gtk/connected-device.ui:254
 msgid "full"
-msgstr ""
+msgstr "標準"
 
 #: src/gtk/connected-device.ui:264
 msgid "Follow threshold"
@@ -424,19 +424,19 @@ msgstr "詳細設定"
 
 #: src/gtk/connected-device.ui:589
 msgid "Units"
-msgstr ""
+msgstr "単位"
 
 #: src/gtk/connected-device.ui:590
 msgid "Choose measurement units for size and distance displays."
-msgstr ""
+msgstr "ディスプレイ距離とサイズの単位を選択します。"
 
 #: src/gtk/connected-device.ui:605
 msgid "Centimeters"
-msgstr ""
+msgstr "センチメートル（cm）"
 
 #: src/gtk/connected-device.ui:606
 msgid "Inches"
-msgstr ""
+msgstr "インチ（in）"
 
 #: src/gtk/connected-device.ui:618
 msgid "Find optimal display config"
@@ -528,11 +528,11 @@ msgstr ""
 
 #: src/gtk/connected-device.ui:767
 msgid "Dead-zone threshold (degrees)"
-msgstr ""
+msgstr "不感帯の閾値（角度）"
 
 #: src/gtk/connected-device.ui:768
 msgid "Stabilize movements below this angle."
-msgstr ""
+msgstr "この角度以下では動きを検知せず、動作を安定させます。"
 
 #: src/gtk/connected-device.ui:799
 msgid "Follow mode movement tracking"
@@ -604,7 +604,7 @@ msgstr "近い"
 
 #: src/gtk/display-distance-dialog-content.ui:36
 msgid "default"
-msgstr ""
+msgstr "デフォルト"
 
 #: src/gtk/display-distance-dialog-content.ui:37
 msgid "farther"
