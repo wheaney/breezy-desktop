@@ -17,7 +17,14 @@ class QTimer;
 
 namespace KWin
 {
+    class LogicalOutput;
     class Output;
+
+#if defined(KWIN_VERSION_ENCODED) && KWIN_VERSION_ENCODED >= 60590
+    using ScreenOutput = LogicalOutput;
+#else
+    using ScreenOutput = Output;
+#endif
 
     class BreezyDesktopEffect : public QuickSceneEffect
     {
@@ -156,7 +163,7 @@ namespace KWin
         void cursorPosChanged();
 
     protected:
-        QVariantMap initialProperties(Output *screen) override;
+        QVariantMap initialProperties(ScreenOutput *screen) override;
 
     private:
         void teardown();
@@ -167,7 +174,7 @@ namespace KWin
         void toggleSmoothFollow();
         void setSmoothFollowThreshold(float threshold);
         void updateDriverSmoothFollowSettings();
-        void warpPointerToOutputCenter(Output *output);
+        void warpPointerToOutputCenter(ScreenOutput *output);
         void evaluateCursorOnScreenState(const QPointF &prevPos, const QPointF &newPos);
         void invalidateEffectOnScreenGeometryCache();
         bool updateEffectOnScreenGeometryCache();
@@ -223,7 +230,7 @@ namespace KWin
         bool m_effectOnScreenGeometryValid = false;
 
         struct VirtualOutputInfo {
-            Output *output = nullptr;
+            ScreenOutput *output = nullptr;
             QString id;
             QSize size;
         };
