@@ -167,3 +167,6 @@ else
 fi
 
 echo "END - xr_driver_setup"
+
+echo "Setting up gaming features"
+printf "request_features=sbs,smooth_follow\n" >> /dev/shm/xr_driver_control 2>/dev/null || true

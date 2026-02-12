@@ -199,4 +199,7 @@ fi
 
 echo "END - xr_driver_setup"
 
+echo "Setting up productivity features"
+printf "request_features=productivity_basic\n" >> /dev/shm/xr_driver_control 2>/dev/null || true
+
 printf "\n\033[1;33m!!! IMPORTANT !!!\033[0m You must log out and back in, then enable Breezy Desktop from the Desktop Effects in System Settings\n\n"

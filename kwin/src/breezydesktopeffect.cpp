@@ -112,6 +112,16 @@ namespace KWin
 BreezyDesktopEffect::BreezyDesktopEffect()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
+
+    // safe to request on each load, acts as a no-op if already present
+    {
+        QJsonObject flags;
+        QJsonArray requested;
+        requested.append(QStringLiteral("productivity_basic"));
+        flags.insert(QStringLiteral("request_features"), requested);
+        XRDriverIPC::instance().writeControlFlags(flags);
+    }
+
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     setupGlobalShortcut(

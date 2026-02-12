@@ -169,3 +169,6 @@ else
 fi
 
 echo "END - xr_driver_setup"
+
+echo "Setting up productivity features"
+printf "request_features=productivity_basic\n" >> /dev/shm/xr_driver_control 2>/dev/null || true
