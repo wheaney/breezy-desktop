@@ -19,6 +19,8 @@
 #include <QBuffer>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QQuickItem>
 #include <QTimer>
