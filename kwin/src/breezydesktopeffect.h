@@ -17,6 +17,8 @@ class QTimer;
 
 namespace KWin
 {
+    class Output;
+
     class BreezyDesktopEffect : public QuickSceneEffect
     {
         Q_OBJECT
