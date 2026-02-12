@@ -416,7 +416,7 @@ QVariantList BreezyDesktopEffect::listVirtualDisplays() const {
 bool BreezyDesktopEffect::removeVirtualDisplay(const QString &id) {
     auto it = m_virtualDisplays.find(id);
     if (it != m_virtualDisplays.end()) {
-        ScreenOutput *output = it->output;
+        VirtualOutputHandle *output = it->output;
         if (output) {
             KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
         }

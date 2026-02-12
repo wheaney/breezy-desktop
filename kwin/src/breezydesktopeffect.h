@@ -17,13 +17,16 @@ class QTimer;
 
 namespace KWin
 {
+    class BackendOutput;
     class LogicalOutput;
     class Output;
 
 #if defined(KWIN_VERSION_ENCODED) && KWIN_VERSION_ENCODED >= 60590
     using ScreenOutput = LogicalOutput;
+    using VirtualOutputHandle = BackendOutput;
 #else
     using ScreenOutput = Output;
+    using VirtualOutputHandle = ScreenOutput;
 #endif
 
     class BreezyDesktopEffect : public QuickSceneEffect
@@ -230,7 +233,7 @@ namespace KWin
         bool m_effectOnScreenGeometryValid = false;
 
         struct VirtualOutputInfo {
-            ScreenOutput *output = nullptr;
+            VirtualOutputHandle *output = nullptr;
             QString id;
             QSize size;
         };
