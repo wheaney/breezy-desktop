@@ -26,21 +26,6 @@ else
 fi
 BUILD_FILE_NAME=breezyVulkan-$ARCH.tar.gz
 
-# build vkBasalt
-VKBASALT_MODULE_DIR=$VULKAN_MODULES/vkBasalt
-VKBASALT_BUILD_DIR=$VKBASALT_MODULE_DIR/out
-if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "$1" == "--rebuild-vkbasalt" ]; then
-  pushd $VKBASALT_MODULE_DIR
-  ./docker-build
-  popd
-fi
-
-# copy vkBasalt binaries and configs
-mkdir -p $PACKAGE_DIR/{vkBasalt.64,vkBasalt.32}
-cp $VKBASALT_BUILD_DIR/builddir/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.64/
-cp $VKBASALT_BUILD_DIR/builddir/config/vkBasalt.json $PACKAGE_DIR/vkBasalt.64/
-cp $VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so $PACKAGE_DIR/vkBasalt.32/
-
 # copy Sombrero shader, get ReShade headers
 cp modules/sombrero/*.frag $PACKAGE_DIR
 cp modules/sombrero/*.png $PACKAGE_DIR
@@ -94,7 +79,7 @@ cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
 pushd $PACKAGE_DIR
 echo $XR_DRIVER_MANIFEST_LINE > manifest
-sha256sum bin/breezy_vulkan_uninstall vkBasalt.64/libvkbasalt.so vkBasalt.32/libvkbasalt.so *.frag *.fx* *.png >> manifest
+sha256sum bin/breezy_vulkan_uninstall *.frag *.fx* *.png >> manifest
 popd
 
 # bundle everything up

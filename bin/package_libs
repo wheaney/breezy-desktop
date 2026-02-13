@@ -5,26 +5,37 @@ set -e
 
 # Package shared/rarely-changing library artifacts.
 #
-# Produces 6 total artifacts (3 apps x 2 arch):
-#   - breezyVulkan-libs-$ARCH.tar.gz
-#   - breezyGNOME-libs-$ARCH.tar.gz
-#   - breezyKWin-libs-$ARCH.tar.gz
+# Produces 5 total artifacts:
+#   - breezyVulkan-libs-x86_64.tar.gz
+#   - breezyGNOME-libs-$ARCH.tar.gz (x86_64 + aarch64)
+#   - breezyKWin-libs-$ARCH.tar.gz (x86_64 + aarch64)
 #
 # For now, each of these contains ONLY the XR driver libs archive:
 #   xrDriver-libs-$ARCH.tar.gz
 
 ARCHITECTURES=("x86_64" "aarch64")
+VULKAN_ARCHITECTURES=("x86_64")
 APPS=("breezyVulkan" "breezyGNOME" "breezyKWin")
 
 # https://stackoverflow.com/a/246128
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(realpath "$SCRIPT_DIR/..")
 XR_DRIVER_DIR="$ROOT_DIR/modules/XRLinuxDriver"
+VULKAN_DIR="$ROOT_DIR/vulkan"
+VKBASALT_MODULE_DIR="$VULKAN_DIR/modules/vkBasalt"
+VKBASALT_BUILD_DIR="$VKBASALT_MODULE_DIR/out"
 
 echo "Building XR Driver libs packages"
 pushd "$XR_DRIVER_DIR" > /dev/null
 ./bin/package_libs
 popd > /dev/null
+
+echo "Building vkBasalt build artifacts"
+if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "${1:-}" == "--rebuild-vkbasalt" ]; then
+  pushd "$VKBASALT_MODULE_DIR" > /dev/null
+  ./docker-build
+  popd > /dev/null
+fi
 
 echo "Building Breezy libs packages for all architectures"
 
@@ -33,14 +44,26 @@ mkdir -p "$BUILD_PATH"
 
 pushd "$BUILD_PATH" > /dev/null
 
-for ARCH in "${ARCHITECTURES[@]}"; do
-  XR_LIB_ARCHIVE="$XR_DRIVER_DIR/out/xrDriver-libs-$ARCH.tar.gz"
+for APP in "${APPS[@]}"; do
+  ARCHES=("${ARCHITECTURES[@]}")
+  if [ "$APP" == "breezyVulkan" ]; then
+    ARCHES=("${VULKAN_ARCHITECTURES[@]}")
+  fi
 
-  for APP in "${APPS[@]}"; do
+  for ARCH in "${ARCHES[@]}"; do
+    XR_LIB_ARCHIVE="$XR_DRIVER_DIR/out/xrDriver-libs-$ARCH.tar.gz"
+
     PACKAGE_LIB_DIR=breezy_desktop_lib
     rm -rf "$PACKAGE_LIB_DIR"
     mkdir -p "$PACKAGE_LIB_DIR"
-    cp "$XR_LIB_ARCHIVE" ""$PACKAGE_LIB_DIR""
+    cp "$XR_LIB_ARCHIVE" "$PACKAGE_LIB_DIR/"
+
+    if [ "$APP" == "breezyVulkan" ]; then
+      mkdir -p "$PACKAGE_LIB_DIR"/{vkBasalt.64,vkBasalt.32}
+      cp "$VKBASALT_BUILD_DIR/builddir/src/libvkbasalt.so" "$PACKAGE_LIB_DIR/vkBasalt.64/"
+      cp "$VKBASALT_BUILD_DIR/builddir/config/vkBasalt.json" "$PACKAGE_LIB_DIR/vkBasalt.64/"
+      cp "$VKBASALT_BUILD_DIR/builddir.32/src/libvkbasalt.so" "$PACKAGE_LIB_DIR/vkBasalt.32/"
+    fi
 
     LIB_ARTIFACT_NAME="$APP-libs-$ARCH.tar.gz"
     tar -zcvf "$LIB_ARTIFACT_NAME" "$PACKAGE_LIB_DIR" > /dev/null
