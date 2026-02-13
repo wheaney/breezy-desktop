@@ -19,6 +19,8 @@
 #include <QBuffer>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QQuickItem>
 #include <QTimer>
@@ -112,6 +114,16 @@ namespace KWin
 BreezyDesktopEffect::BreezyDesktopEffect()
 {
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
+
+    // safe to request on each load, acts as a no-op if already present
+    {
+        QJsonObject flags;
+        QJsonArray requested;
+        requested.append(QStringLiteral("productivity_basic"));
+        flags.insert(QStringLiteral("request_features"), requested);
+        XRDriverIPC::instance().writeControlFlags(flags);
+    }
+
     qmlRegisterUncreatableType<BreezyDesktopEffect>("org.kde.kwin.effect.breezy_desktop", 1, 0, "BreezyDesktopEffect", QStringLiteral("BreezyDesktop cannot be created in QML"));
 
     setupGlobalShortcut(
@@ -278,7 +290,7 @@ bool BreezyDesktopEffect::developerMode() const
     return m_developerMode;
 }
 
-QVariantMap BreezyDesktopEffect::initialProperties(Output *screen)
+QVariantMap BreezyDesktopEffect::initialProperties(ScreenOutput *screen)
 {
     return QVariantMap{
         {QStringLiteral("effect"), QVariant::fromValue(this)},
@@ -404,7 +416,7 @@ QVariantList BreezyDesktopEffect::listVirtualDisplays() const {
 bool BreezyDesktopEffect::removeVirtualDisplay(const QString &id) {
     auto it = m_virtualDisplays.find(id);
     if (it != m_virtualDisplays.end()) {
-        Output *output = it->output;
+        VirtualOutputHandle *output = it->output;
         if (output) {
             KWin::kwinApp()->outputBackend()->removeVirtualOutput(output);
         }
@@ -826,7 +838,7 @@ void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
 
     if (m_lookingAtScreenIndex != -1 && !m_displayResolution.isEmpty()) {
         // Adjust display distance by relative monitor size compared to the FOV monitor
-        const Output *focusedOutput = effects->screens().at(m_lookingAtScreenIndex);
+        const ScreenOutput *focusedOutput = effects->screens().at(m_lookingAtScreenIndex);
         const QSize focusedSize = focusedOutput ? focusedOutput->geometry().size() : QSize();
 
         if (focusedSize.isValid()) {
@@ -948,7 +960,7 @@ bool BreezyDesktopEffect::updateEffectOnScreenGeometryCache()
         m_effectTargetScreenIndex = -1;
         return false;
     }
-    Output *effectOnScreen = screensList.at(m_effectTargetScreenIndex);
+    ScreenOutput *effectOnScreen = screensList.at(m_effectTargetScreenIndex);
     if (!effectOnScreen) {
         m_effectTargetScreenIndex = -1;
         return false;
@@ -962,7 +974,7 @@ bool BreezyDesktopEffect::updateEffectOnScreenGeometryCache()
     return true;
 }
 
-void BreezyDesktopEffect::warpPointerToOutputCenter(Output *output)
+void BreezyDesktopEffect::warpPointerToOutputCenter(ScreenOutput *output)
 {
     if (!output) {
         return;

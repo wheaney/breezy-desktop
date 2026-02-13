@@ -80,7 +80,7 @@ class BreezydesktopApplication(Adw.Application):
 
         # always do this on start-up since the driver sometimes fails to update the license on boot,
         # prevent showing a license warning unnecessarily
-        XRDriverIPC.get_instance().write_control_flags({'refresh_device_license': True})
+        XRDriverIPC.get_instance().write_control_flags({'request_features': ['productivity_basic']})
 
     def do_activate(self):
         """Called when the application is activated.

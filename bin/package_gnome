@@ -55,7 +55,8 @@ fi
 mkdir -p $PACKAGE_DIR/bin
 copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
 
-XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
+XR_DRIVER_BINARY_NAME=xrDriver-$ARCH.tar.gz
+XR_DRIVER_BINARY="$XR_DRIVER_DIR/out/$XR_DRIVER_BINARY_NAME"
 
 if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ] || [ "$1" == "--rebuild-all" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -75,14 +76,14 @@ fi
 
 TMP_DIR=$(mktemp -d -t breezy-gnome-XXXXXXXXXX)
 pushd $TMP_DIR
-cp $XR_DRIVER_BINARY $TMP_DIR/xrDriver.tar.gz
-tar -xf $TMP_DIR/xrDriver.tar.gz
+cp "$XR_DRIVER_BINARY" "$TMP_DIR/$XR_DRIVER_BINARY_NAME"
+tar -xf "$TMP_DIR/$XR_DRIVER_BINARY_NAME"
 
 XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
 popd
 rm -rf $TMP_DIR
 
-cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
+cp $XR_DRIVER_BINARY $PACKAGE_DIR/$XR_DRIVER_BINARY_NAME
 cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
 $GNOME_DIR/bin/package_extension

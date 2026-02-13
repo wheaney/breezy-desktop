@@ -204,6 +204,15 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
 
+    // safe to request on each load, acts as a no-op if already present
+    {
+        QJsonObject flags;
+        QJsonArray requested;
+        requested.append(QStringLiteral("productivity_basic"));
+        flags.insert(QStringLiteral("request_features"), requested);
+        XRDriverIPC::instance().writeControlFlags(flags);
+    }
+
     // Advanced tab: measurement units selector (stored as "cm" or "in")
     if (ui.comboMeasurementUnits) {
         ui.comboMeasurementUnits->clear();
@@ -725,6 +734,7 @@ void BreezyDesktopEffectConfig::pollDriverState()
     auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
     if (!stateJsonOpt || !configJsonOpt) return;
     auto stateJson = stateJsonOpt.value();
+
     m_connectedDeviceBrand = stateJson.value(QStringLiteral("connected_device_brand")).toString();
     m_connectedDeviceModel = stateJson.value(QStringLiteral("connected_device_model")).toString();
     m_connectedDeviceFullDistanceCm = stateJson.value(QStringLiteral("connected_device_full_distance_cm")).toDouble(0.0);
