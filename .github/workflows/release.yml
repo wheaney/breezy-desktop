@@ -1,0 +1,128 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'VERSION'
+
+jobs:
+  check-version-change:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      should-release: ${{ steps.check-tag.outputs.should-release }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get version from VERSION file
+        id: get-version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          VERSION=$(cat VERSION)
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists, skipping release"
+            echo "should-release=false" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist, proceeding with release"
+            echo "should-release=true" >> $GITHUB_OUTPUT
+          fi
+
+  build-libs:
+    needs: check-version-change
+    if: needs.check-version-change.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build library packages
+        run: |
+          bin/package_libs
+
+      - name: Upload library artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libs
+          path: out/breezy*-libs-*.tar.gz
+
+  build-packages:
+    needs: check-version-change
+    if: needs.check-version-change.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build all packages
+        run: |
+          bin/package_all
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: out/breezy*.tar.gz
+
+  create-release:
+    needs: [check-version-change, build-libs, build-packages]
+    if: needs.check-version-change.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download library artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: libs
+          path: artifacts
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: artifacts
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=${{ needs.check-version-change.outputs.version }}
+          
+          # Create a tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+          
+          # Create release with artifacts
+          gh release create "v$VERSION" \
+            --title "Release v$VERSION" \
+            --generate-notes \
+            artifacts/* \
+            bin/breezy_gnome_setup \
+            bin/breezy_kwin_setup \
+            bin/breezy_vulkan_setup
