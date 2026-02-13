@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Get version from VERSION file
         id: get-version
@@ -30,6 +30,7 @@ jobs:
         id: check-tag
         run: |
           VERSION=$(cat VERSION)
+          git fetch --tags
           if git rev-parse "v$VERSION" >/dev/null 2>&1; then
             echo "Tag v$VERSION already exists, skipping release"
             echo "should-release=false" >> $GITHUB_OUTPUT
