@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+# Package shared/rarely-changing library artifacts.
+#
+# Produces 6 total artifacts (3 apps x 2 arch):
+#   - breezyVulkan-libs-$ARCH.tar.gz
+#   - breezyGNOME-libs-$ARCH.tar.gz
+#   - breezyKWin-libs-$ARCH.tar.gz
+#
+# For now, each of these contains ONLY the XR driver libs archive:
+#   xrDriver-libs-$ARCH.tar.gz
+
+ARCHITECTURES=("x86_64" "aarch64")
+APPS=("breezyVulkan" "breezyGNOME" "breezyKWin")
+
+# https://stackoverflow.com/a/246128
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+ROOT_DIR=$(realpath "$SCRIPT_DIR/..")
+XR_DRIVER_DIR="$ROOT_DIR/modules/XRLinuxDriver"
+
+echo "Building XR Driver libs packages"
+pushd "$XR_DRIVER_DIR" > /dev/null
+./bin/package_libs
+popd > /dev/null
+
+echo "Building Breezy libs packages for all architectures"
+
+BUILD_PATH="$ROOT_DIR/build"
+mkdir -p "$BUILD_PATH"
+
+pushd "$BUILD_PATH" > /dev/null
+
+for ARCH in "${ARCHITECTURES[@]}"; do
+  XR_LIB_ARCHIVE="$XR_DRIVER_DIR/out/xrDriver-libs-$ARCH.tar.gz"
+
+  for APP in "${APPS[@]}"; do
+    PACKAGE_LIB_DIR=breezy_desktop_lib
+    rm -rf "$PACKAGE_LIB_DIR"
+    mkdir -p "$PACKAGE_LIB_DIR"
+    cp "$XR_LIB_ARCHIVE" ""$PACKAGE_LIB_DIR""
+
+    LIB_ARTIFACT_NAME="$APP-libs-$ARCH.tar.gz"
+    tar -zcvf "$LIB_ARTIFACT_NAME" "$PACKAGE_LIB_DIR" > /dev/null
+
+    # Clean up for next iteration
+    rm -rf "$PACKAGE_LIB_DIR"
+  done
+done
+
+popd > /dev/null
+
+mkdir -p "$ROOT_DIR/out"
+cp "$BUILD_PATH"/breezy*-libs-*.tar.gz "$ROOT_DIR/out/"
+
+rm -f "$BUILD_PATH"/breezy*-libs-*.tar.gz

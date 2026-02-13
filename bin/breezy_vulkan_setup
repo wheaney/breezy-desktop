@@ -26,36 +26,67 @@ pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
 binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyVulkan-$ARCH.tar.gz"
+libs_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/breezyVulkan-libs-$ARCH.tar.gz"
+LIBS_FILE_NAME="breezyVulkan-libs-$ARCH.tar.gz"
+FILE_NAME="breezyVulkan-$ARCH.tar.gz"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
-  binary_path_arg="$3"
+  local_dir_arg="$3"
 elif [ "$1" = "--tag" ] && [ -n "$2" ]
 then
   binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/breezyVulkan-$ARCH.tar.gz"
+  libs_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/breezyVulkan-libs-$ARCH.tar.gz"
 else
-  binary_path_arg="$1"
+  local_dir_arg="$1"
+fi
+
+if [ -n "$local_dir_arg" ]
+then
+  if [[ "$local_dir_arg" = /* ]]; then
+    local_dir="$local_dir_arg"
+  else
+    local_dir=$(realpath "$start_dir/$local_dir_arg")
+  fi
+
+  binary_path_arg="$local_dir/$FILE_NAME"
+  if [ ! -f "$binary_path_arg" ]; then
+    echo "Error: Breezy Vulkan archive not found at $binary_path_arg" 1>&2
+    exit 1
+  fi
+
+  lib_path_arg="$local_dir/$LIBS_FILE_NAME"
+  if [ ! -f "$lib_path_arg" ]; then
+    echo "Error: Breezy Vulkan libs archive not found at $lib_path_arg" 1>&2
+    exit 1
+  fi
 fi
 
 if [ -z "$binary_path_arg" ]
 then
   # download and unzip the binary
-  binary_path_arg="breezyVulkan-$ARCH.tar.gz"
+  binary_path_arg="$FILE_NAME"
   echo "Downloading to: ${tmp_dir}/$binary_path_arg"
-
   curl -L "$binary_download_url" > "$binary_path_arg"
 else
-  if [[ "$binary_path_arg" = /* ]]; then
-    abs_path="$binary_path_arg"
-  else
-    # Convert relative path to absolute path
-    abs_path=$(realpath "$start_dir/$binary_path_arg")
-  fi
-  cp $abs_path $tmp_dir
+  cp "$binary_path_arg" "$tmp_dir"
 fi
 
 echo "Extracting to: ${tmp_dir}/breezy_vulkan"
-tar -xf $(basename $binary_path_arg)
+tar -xf $(basename "$binary_path_arg")
+
+if [ -z "$lib_path_arg" ]
+then
+  lib_path_arg="$LIBS_FILE_NAME"
+  echo "Downloading to: ${tmp_dir}/$lib_path_arg"
+  curl -L "$libs_download_url" > "$lib_path_arg"
+else
+  cp "$lib_path_arg" "$tmp_dir"
+fi
+
+echo "Extracting lib to: ${tmp_dir}/breezy_vulkan"
+tar -xf $(basename "$lib_path_arg")
+mv breezy_desktop_lib/* breezy_vulkan/
 
 pushd breezy_vulkan > /dev/null
 

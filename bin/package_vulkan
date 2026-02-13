@@ -58,11 +58,8 @@ copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bi
 cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build XR driver
-XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.tar.gz
-if [ -n "$STEAMOS" ]; then
-  XR_DRIVER_BINARY=$XR_DRIVER_DIR/out/xrDriver-$ARCH.steamos.tar.gz
-  BUILD_FILE_NAME=breezyVulkan-$ARCH.steamos.tar.gz
-fi
+XR_DRIVER_BINARY_NAME=xrDriver-$ARCH.tar.gz
+XR_DRIVER_BINARY="$XR_DRIVER_DIR/out/$XR_DRIVER_BINARY_NAME"
 
 if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
   # if a file exists at custom_banner_config.yml, copy it to the xrealAirLinuxDriver directory
@@ -75,25 +72,22 @@ if [ ! -e "$XR_DRIVER_BINARY" ] || [ "$1" == "--rebuild-driver" ]; then
   # strange issue where the base library produces a .so file if the build is not cleaned
   rm -rf build/
   
-  if [ -n "${STEAMOS:-}" ]; then
-    export STEAMOS
-  fi
   docker-build/init.sh
   docker-build/run-build.sh $ARCH
   popd
 fi
 
 TMP_DIR=$(mktemp -d -t breezy-vulkan-XXXXXXXXXX)
-cp $XR_DRIVER_BINARY $TMP_DIR/xrDriver.tar.gz
+cp "$XR_DRIVER_BINARY" "$TMP_DIR/$XR_DRIVER_BINARY_NAME"
 pushd $TMP_DIR
-tar -xf $TMP_DIR/xrDriver.tar.gz
+tar -xf "$TMP_DIR/$XR_DRIVER_BINARY_NAME"
 
 XR_DRIVER_MANIFEST_LINE=$(sha256sum xr_driver/manifest)
 popd
 rm -rf $TMP_DIR
 
 # copy XR driver binary and setup script
-cp $XR_DRIVER_BINARY $PACKAGE_DIR/xrDriver.tar.gz
+cp "$XR_DRIVER_BINARY" "$PACKAGE_DIR/$XR_DRIVER_BINARY_NAME"
 cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 
 # create manifest file for verifying installed file checksums against the originally packaged versions

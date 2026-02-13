@@ -45,6 +45,7 @@ print_missing_dependencies() {
 }
 
 ARCH=$(uname -m)
+LIBS_ARCH="$ARCH"
 if [ -f /etc/os-release ]; then
   . /etc/os-release
   if [ "$ID" == "steamos" ]; then
@@ -52,6 +53,7 @@ if [ -f /etc/os-release ]; then
   fi
 fi
 FILE_NAME="breezyKWin-$ARCH.tar.gz"
+LIBS_FILE_NAME="breezyKWin-libs-$LIBS_ARCH.tar.gz"
 LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
 echo "Performing setup for KWin ($ARCH)"
 
@@ -63,15 +65,38 @@ pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
 binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$FILE_NAME"
+libs_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$LIBS_FILE_NAME"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
-  binary_path_arg="$3"
+  local_dir_arg="$3"
 elif [ "$1" = "--tag" ] && [ -n "$2" ]
 then
   binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$FILE_NAME"
+  libs_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$LIBS_FILE_NAME"
 else
-  binary_path_arg="$1"
+  local_dir_arg="$1"
+fi
+
+if [ -n "$local_dir_arg" ]
+then
+  if [[ "$local_dir_arg" = /* ]]; then
+    local_dir="$local_dir_arg"
+  else
+    local_dir=$(realpath "$start_dir/$local_dir_arg")
+  fi
+
+  binary_path_arg="$local_dir/$FILE_NAME"
+  if [ ! -f "$binary_path_arg" ]; then
+    echo "Error: Breezy KWin archive not found at $binary_path_arg" 1>&2
+    exit 1
+  fi
+
+  lib_path_arg="$local_dir/$LIBS_FILE_NAME"
+  if [ ! -f "$lib_path_arg" ]; then
+    echo "Error: Breezy KWin libs archive not found at $lib_path_arg" 1>&2
+    exit 1
+  fi
 fi
 
 if [ -z "$binary_path_arg" ]
@@ -81,6 +106,7 @@ then
   if [[ "$http_code" =~ ^(2|3) ]]; then
     echo "Downloading to: ${tmp_dir}/$FILE_NAME"
     curl -L "$binary_download_url" -o "$FILE_NAME"
+    binary_path_arg="$FILE_NAME"
   else
     check_command "git"
     check_command "cmake"
@@ -150,21 +176,43 @@ then
     fi
     FILE_NAME="breezyKWin-$ARCH.tar.gz"
     cp "out/$FILE_NAME" "$tmp_dir"
+    binary_path_arg="$FILE_NAME"
     popd > /dev/null
+
+    # For source builds, we may not have a published Breezy libs artifact.
+    # Fetch the XR driver libs directly and wrap them in the expected Breezy libs archive format.
+    xr_libs_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xrDriver-libs-$LIBS_ARCH.tar.gz"
+    echo "Downloading to: ${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz"
+    curl -L "$xr_libs_url" -o "${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz"
+
+    tmp_lib_dir=$(mktemp -d -t breezy-kwin-libs-XXXXXXXXXX)
+    mkdir -p "$tmp_lib_dir/breezy_desktop_lib"
+    mv "${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz" "$tmp_lib_dir/breezy_desktop_lib/"
+    echo "Creating ${tmp_dir}/$LIBS_FILE_NAME"
+    tar -zcvf "${tmp_dir}/$LIBS_FILE_NAME" -C "$tmp_lib_dir" "breezy_desktop_lib" > /dev/null
+    rm -rf "$tmp_lib_dir"
+
+    lib_path_arg="$LIBS_FILE_NAME"
   fi
 else
-  FILE_NAME=$(basename $binary_path_arg)
-  if [[ "$binary_path_arg" = /* ]]; then
-    abs_path="$binary_path_arg"
-  else
-    # Convert relative path to absolute path
-    abs_path=$(realpath "$start_dir/$binary_path_arg")
-  fi
-  cp $abs_path $tmp_dir
+  cp "$binary_path_arg" "$tmp_dir"
+fi
+
+if [ -z "$lib_path_arg" ]
+then
+  echo "Downloading to: ${tmp_dir}/$LIBS_FILE_NAME"
+  curl -L "$libs_download_url" -o "$LIBS_FILE_NAME"
+  lib_path_arg="$LIBS_FILE_NAME"
+else
+  cp "$lib_path_arg" "$tmp_dir"
 fi
 
 echo "Extracting to: ${tmp_dir}/breezy_kwin"
-tar -xf $FILE_NAME
+tar -xf $(basename "$binary_path_arg")
+
+echo "Extracting lib to: ${tmp_dir}/breezy_kwin"
+tar -xf $(basename "$lib_path_arg")
+mv breezy_desktop_lib/* breezy_kwin/
 
 pushd breezy_kwin > /dev/null
 

@@ -20,9 +20,11 @@ check_command() {
 
 check_command "curl"
 check_command "gnome-shell"
+check_command "jq"
 
 ARCH=$(uname -m)
 FILE_NAME="breezyGNOME-$ARCH.tar.gz"
+LIBS_FILE_NAME="breezyGNOME-libs-$ARCH.tar.gz"
 GNOME_VERSION=$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1)
 VERSION_SPECIFIC_FILENAME="breezyGNOME-$GNOME_VERSION-$ARCH.tar.gz"
 LATEST_RELEASE=$(curl -s "https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")
@@ -44,35 +46,68 @@ pushd $tmp_dir > /dev/null
 echo "Created temp directory: ${tmp_dir}"
 
 binary_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$FILE_NAME"
+libs_download_url="https://github.com/wheaney/breezy-desktop/releases/latest/download/$LIBS_FILE_NAME"
 if [ "$1" = "-v" ]
 then
   metrics_version="$2"
-  binary_path_arg="$3"
+  local_dir_arg="$3"
 elif [ "$1" = "--tag" ] && [ -n "$2" ]
 then
   binary_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$FILE_NAME"
+  libs_download_url="https://github.com/wheaney/breezy-desktop/releases/download/$2/$LIBS_FILE_NAME"
 else
-  binary_path_arg="$1"
+  local_dir_arg="$1"
+fi
+
+if [ -n "$local_dir_arg" ]
+then
+  if [[ "$local_dir_arg" = /* ]]; then
+    local_dir="$local_dir_arg"
+  else
+    local_dir=$(realpath "$start_dir/$local_dir_arg")
+  fi
+
+  binary_path_arg="$local_dir/$FILE_NAME"
+  if [ ! -f "$binary_path_arg" ]; then
+    echo "Error: Breezy GNOME archive not found at $binary_path_arg" 1>&2
+    exit 1
+  fi
+
+  lib_path_arg="$local_dir/$LIBS_FILE_NAME"
+  if [ ! -f "$lib_path_arg" ]; then
+    echo "Error: Breezy GNOME libs archive not found at $lib_path_arg" 1>&2
+    exit 1
+  fi
 fi
 
 if [ -z "$binary_path_arg" ]
 then
   # download and unzip the binary
-  echo "Downloading to: ${tmp_dir}/$FILE_NAME"
-  curl -L "$binary_download_url" > "$FILE_NAME"
+  binary_path_arg = "$FILE_NAME"
+  echo "Downloading to: ${tmp_dir}/$binary_path_arg"
+  
+  curl -L "$binary_download_url" > "$binary_path_arg"
 else
-  FILE_NAME=$(basename $binary_path_arg)
-  if [[ "$binary_path_arg" = /* ]]; then
-    abs_path="$binary_path_arg"
-  else
-    # Convert relative path to absolute path
-    abs_path=$(realpath "$start_dir/$binary_path_arg")
-  fi
-  cp $abs_path $tmp_dir
+  cp "$binary_path_arg" "$tmp_dir"
 fi
 
 echo "Extracting to: ${tmp_dir}/breezy_gnome"
-tar -xf $FILE_NAME
+tar -xf $(basename $binary_path_arg)
+
+if [ -z "lib_path_arg" ]
+then
+  lib_path_arg = "$FILE_NAME"
+  echo "Downloading to: ${tmp_dir}/$lib_path_arg"
+
+  curl -L "$libs_download_url" > "$lib_path_arg"
+else
+  cp "$lib_path_arg" "$tmp_dir"
+fi
+
+echo "Extracting lib to: ${tmp_dir}/breezy_gnome"
+# Extract libs into the extracted directory
+tar -xf $(basename $lib_path_arg)
+mv breezy_desktop_lib/* breezy_gnome/
 
 pushd breezy_gnome > /dev/null
 
