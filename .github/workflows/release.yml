@@ -10,6 +10,8 @@ on:
 jobs:
   check-version-change:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.get-version.outputs.version }}
       should-release: ${{ steps.check-tag.outputs.should-release }}
@@ -43,6 +45,8 @@ jobs:
     needs: check-version-change
     if: needs.check-version-change.outputs.should-release == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
