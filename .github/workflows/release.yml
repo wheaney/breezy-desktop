@@ -29,7 +29,7 @@ jobs:
       - name: Check if tag exists
         id: check-tag
         run: |
-          VERSION=$(cat VERSION)
+          VERSION="${{ steps.get-version.outputs.version }}"
           git fetch --tags
           if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
             echo "Tag v${VERSION} already exists, skipping release"
@@ -87,6 +87,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ needs.check-version-change.outputs.version }}"
+          
+          # Verify setup scripts exist
+          for script in bin/breezy_gnome_setup bin/breezy_kwin_setup bin/breezy_vulkan_setup; do
+            if [ ! -f "$script" ]; then
+              echo "Error: $script not found"
+              exit 1
+            fi
+          done
           
           # Create a tag
           git config user.name "github-actions[bot]"
