@@ -23,20 +23,20 @@ jobs:
         id: get-version
         run: |
           VERSION=$(cat VERSION)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Version: ${VERSION}"
 
       - name: Check if tag exists
         id: check-tag
         run: |
           VERSION=$(cat VERSION)
           git fetch --tags
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-            echo "Tag v$VERSION already exists, skipping release"
-            echo "should-release=false" >> $GITHUB_OUTPUT
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists, skipping release"
+            echo "should-release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Tag v$VERSION does not exist, proceeding with release"
-            echo "should-release=true" >> $GITHUB_OUTPUT
+            echo "Tag v${VERSION} does not exist, proceeding with release"
+            echo "should-release=true" >> "$GITHUB_OUTPUT"
           fi
 
   build:
@@ -86,17 +86,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=${{ needs.check-version-change.outputs.version }}
+          VERSION="${{ needs.check-version-change.outputs.version }}"
           
           # Create a tag
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION" -m "Release v$VERSION"
-          git push origin "v$VERSION"
+          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git push origin "v${VERSION}"
           
           # Create release with artifacts
-          gh release create "v$VERSION" \
-            --title "Release v$VERSION" \
+          gh release create "v${VERSION}" \
+            --title "Release v${VERSION}" \
             --generate-notes \
             artifacts/* \
             bin/breezy_gnome_setup \
