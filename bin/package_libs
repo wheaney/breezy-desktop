@@ -9,9 +9,6 @@ set -e
 #   - breezyVulkan-libs-x86_64.tar.gz
 #   - breezyGNOME-libs-$ARCH.tar.gz (x86_64 + aarch64)
 #   - breezyKWin-libs-$ARCH.tar.gz (x86_64 + aarch64)
-#
-# For now, each of these contains ONLY the XR driver libs archive:
-#   xrDriver-libs-$ARCH.tar.gz
 
 ARCHITECTURES=("x86_64" "aarch64")
 VULKAN_ARCHITECTURES=("x86_64")
