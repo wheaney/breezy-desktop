@@ -175,24 +175,9 @@ then
       exit $pkgkwin_rc
     fi
     FILE_NAME="breezyKWin-$ARCH.tar.gz"
-    cp "out/$FILE_NAME" "$tmp_dir"
     binary_path_arg="$FILE_NAME"
+    cp "out/$binary_path_arg" "$tmp_dir"
     popd > /dev/null
-
-    # For source builds, we may not have a published Breezy libs artifact.
-    # Fetch the XR driver libs directly and wrap them in the expected Breezy libs archive format.
-    xr_libs_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xrDriver-libs-$LIBS_ARCH.tar.gz"
-    echo "Downloading to: ${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz"
-    curl -L "$xr_libs_url" -o "${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz"
-
-    tmp_lib_dir=$(mktemp -d -t breezy-kwin-libs-XXXXXXXXXX)
-    mkdir -p "$tmp_lib_dir/breezy_desktop_lib"
-    mv "${tmp_dir}/xrDriver-libs-$LIBS_ARCH.tar.gz" "$tmp_lib_dir/breezy_desktop_lib/"
-    echo "Creating ${tmp_dir}/$LIBS_FILE_NAME"
-    tar -zcvf "${tmp_dir}/$LIBS_FILE_NAME" -C "$tmp_lib_dir" "breezy_desktop_lib" > /dev/null
-    rm -rf "$tmp_lib_dir"
-
-    lib_path_arg="$LIBS_FILE_NAME"
   fi
 else
   cp "$binary_path_arg" "$tmp_dir"
@@ -200,9 +185,10 @@ fi
 
 if [ -z "$lib_path_arg" ]
 then
-  echo "Downloading to: ${tmp_dir}/$LIBS_FILE_NAME"
-  curl -L "$libs_download_url" -o "$LIBS_FILE_NAME"
   lib_path_arg="$LIBS_FILE_NAME"
+  echo "Downloading to: ${tmp_dir}/$lib_path_arg"
+
+  curl -L "$libs_download_url" -o "$lib_path_arg"
 else
   cp "$lib_path_arg" "$tmp_dir"
 fi

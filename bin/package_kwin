@@ -31,9 +31,11 @@ copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$KWIN_DIR/bin/
 
 XR_DRIVER_BINARY_NAME=xrDriver-$ARCH.tar.gz
 XR_DRIVER_BINARY="$XR_DRIVER_DIR/out/$XR_DRIVER_BINARY_NAME"
+
+XR_DRIVER_VERSION=$(sed -nE 's/^project\([^)]*VERSION[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+).*$/\1/p' "$XR_DRIVER_DIR/CMakeLists.txt" | head -n 1)
 if [ "$1" == "--download-driver" ]; then
-  driver_download_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xrDriver-$ARCH.tar.gz"
-  setup_download_url="https://github.com/wheaney/XRLinuxDriver/releases/latest/download/xr_driver_setup"
+  driver_download_url="https://github.com/wheaney/XRLinuxDriver/releases/download/v$XR_DRIVER_VERSION/xrDriver-$ARCH.tar.gz"
+  setup_download_url="https://github.com/wheaney/XRLinuxDriver/releases/download/v$XR_DRIVER_VERSION/xr_driver_setup"
 
   curl -L "$driver_download_url" > "$PACKAGE_DIR/$XR_DRIVER_BINARY_NAME"
   curl -L "$setup_download_url" > "$PACKAGE_DIR/bin/xr_driver_setup"

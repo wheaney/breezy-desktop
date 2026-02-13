@@ -83,7 +83,7 @@ fi
 if [ -z "$binary_path_arg" ]
 then
   # download and unzip the binary
-  binary_path_arg = "$FILE_NAME"
+  binary_path_arg="$FILE_NAME"
   echo "Downloading to: ${tmp_dir}/$binary_path_arg"
   
   curl -L "$binary_download_url" > "$binary_path_arg"
@@ -94,9 +94,9 @@ fi
 echo "Extracting to: ${tmp_dir}/breezy_gnome"
 tar -xf $(basename $binary_path_arg)
 
-if [ -z "lib_path_arg" ]
+if [ -z "$lib_path_arg" ]
 then
-  lib_path_arg = "$FILE_NAME"
+  lib_path_arg="$LIBS_FILE_NAME"
   echo "Downloading to: ${tmp_dir}/$lib_path_arg"
 
   curl -L "$libs_download_url" > "$lib_path_arg"
