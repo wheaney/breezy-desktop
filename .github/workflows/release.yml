@@ -63,6 +63,8 @@ jobs:
       - name: Build all packages
         run: |
           bin/package_all
+        env:
+          UA_API_SECRET: ${{ secrets.UA_API_SECRET }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
