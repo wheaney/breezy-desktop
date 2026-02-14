@@ -56,6 +56,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Install gnome-extensions CLI
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gnome-shell-extension-prefs
+
       - name: Build library packages
         run: |
           bin/package_libs
