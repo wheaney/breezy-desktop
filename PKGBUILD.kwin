@@ -1,0 +1,105 @@
+# Maintainer: Wayne Heaney <wayne@xronlinux.com>
+pkgname=breezy-desktop-kwin-git
+pkgver=2.8.2.4
+pkgrel=1
+pkgdesc="Breezy Desktop - KWin Plugin for virtual desktop environments with XR glasses"
+arch=('x86_64' 'aarch64')
+url="https://github.com/wheaney/breezy-desktop"
+license=('GPL3')
+depends=(
+    'kwin'
+    'qt6-base'
+    'qt6-declarative'
+    'libepoxy'
+    'libxcb'
+    'kf6-config'
+    'kf6-configwidgets'
+    'kf6-coreaddons'
+    'kf6-globalaccel'
+    'kf6-i18n'
+    'kf6-kcmutils'
+    'kf6-windowsystem'
+    'kf6-xmlgui'
+    'python'
+)
+makedepends=(
+    'git'
+    'cmake'
+    'extra-cmake-modules'
+    'kf6-kconfig'
+    'kf6-kconfigwidgets'
+    'kf6-kcoreaddons'
+    'kf6-kglobalaccel'
+    'kf6-ki18n'
+    'kf6-kcmutils'
+    'kf6-kwindowsystem'
+    'kf6-kxmlgui'
+    'qt6-tools'
+)
+optdepends=(
+    'xr-driver-breezy-kwin-git: XR driver backend (recommended)'
+)
+provides=('breezy-desktop-kwin')
+conflicts=('breezy-desktop-kwin')
+source=(
+    "git+https://github.com/wheaney/breezy-desktop.git"
+    "git+https://github.com/wheaney/sombrero.git"
+    "git+https://github.com/wheaney/PyXRLinuxDriverIPC.git"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP')
+
+pkgver() {
+    cd "${srcdir}/breezy-desktop"
+    # Read version from VERSION file and replace hyphens with dots
+    version=$(cat VERSION)
+    echo "${version}" | tr '-' '.'
+}
+
+prepare() {
+    cd "${srcdir}/breezy-desktop"
+    
+    # Set up submodule directories
+    mkdir -p modules/sombrero
+    mkdir -p ui/modules/PyXRLinuxDriverIPC
+    
+    # Copy sombrero assets
+    if [ -d "${srcdir}/sombrero" ]; then
+        cp -r "${srcdir}/sombrero"/*.png modules/sombrero/ 2>/dev/null || true
+    fi
+    
+    # Copy PyXRLinuxDriverIPC
+    if [ -d "${srcdir}/PyXRLinuxDriverIPC" ]; then
+        cp -r "${srcdir}/PyXRLinuxDriverIPC"/*.py ui/modules/PyXRLinuxDriverIPC/ 2>/dev/null || true
+    fi
+    
+    # Copy required files for build
+    cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py 2>/dev/null || true
+    cp VERSION kwin/
+    cp modules/sombrero/*.png kwin/src/qml/ 2>/dev/null || true
+    cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg kwin/src/kcm/
+}
+
+build() {
+    cd "${srcdir}/breezy-desktop/kwin"
+    
+    cmake -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DBUILD_TESTING=OFF
+    
+    cmake --build build
+}
+
+package() {
+    cd "${srcdir}/breezy-desktop/kwin"
+    
+    DESTDIR="${pkgdir}" cmake --install build
+    
+    # Install scripts
+    install -Dm755 "${srcdir}/breezy-desktop/kwin/bin/breezy_kwin_uninstall" \
+        "${pkgdir}/usr/bin/breezy_kwin_uninstall"
+    
+    # Install desktop entries for Wayland helpers (if SteamOS support is needed)
+    # These would typically be in the setup script, but we include them for reference
+}
