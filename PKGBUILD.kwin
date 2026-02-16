@@ -5,21 +5,21 @@ pkgrel=1
 pkgdesc="Breezy Desktop - KWin Plugin for virtual desktop environments with XR glasses"
 arch=('x86_64' 'aarch64')
 url="https://github.com/wheaney/breezy-desktop"
-license=('GPL3')
+license=('GPL-3.0-or-later')
 depends=(
     'kwin'
     'qt6-base'
     'qt6-declarative'
     'libepoxy'
     'libxcb'
-    'kf6-config'
-    'kf6-configwidgets'
-    'kf6-coreaddons'
-    'kf6-globalaccel'
-    'kf6-i18n'
+    'kf6-kconfig'
+    'kf6-kconfigwidgets'
+    'kf6-kcoreaddons'
+    'kf6-kglobalaccel'
+    'kf6-ki18n'
     'kf6-kcmutils'
-    'kf6-windowsystem'
-    'kf6-xmlgui'
+    'kf6-kwindowsystem'
+    'kf6-kxmlgui'
     'python'
 )
 makedepends=(
@@ -62,20 +62,28 @@ prepare() {
     mkdir -p modules/sombrero
     mkdir -p ui/modules/PyXRLinuxDriverIPC
     
-    # Copy sombrero assets
+    # Copy sombrero assets if available
     if [ -d "${srcdir}/sombrero" ]; then
-        cp -r "${srcdir}/sombrero"/*.png modules/sombrero/ 2>/dev/null || true
+        find "${srcdir}/sombrero" -name "*.png" -exec cp {} modules/sombrero/ \;
     fi
     
-    # Copy PyXRLinuxDriverIPC
+    # Copy PyXRLinuxDriverIPC if available
     if [ -d "${srcdir}/PyXRLinuxDriverIPC" ]; then
-        cp -r "${srcdir}/PyXRLinuxDriverIPC"/*.py ui/modules/PyXRLinuxDriverIPC/ 2>/dev/null || true
+        find "${srcdir}/PyXRLinuxDriverIPC" -name "*.py" -exec cp {} ui/modules/PyXRLinuxDriverIPC/ \;
     fi
     
     # Copy required files for build
-    cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py 2>/dev/null || true
+    if [ -f ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py ]; then
+        cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py
+    fi
+    
     cp VERSION kwin/
-    cp modules/sombrero/*.png kwin/src/qml/ 2>/dev/null || true
+    
+    # Copy sombrero assets to qml directory if they exist
+    if [ "$(find modules/sombrero -name '*.png' 2>/dev/null | wc -l)" -gt 0 ]; then
+        cp modules/sombrero/*.png kwin/src/qml/
+    fi
+    
     cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg kwin/src/kcm/
 }
 
