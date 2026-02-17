@@ -1,11 +1,26 @@
 # Maintainer: Wayne Heaney <wayne@xronlinux.com>
-pkgname=breezy-desktop-kwin-git
+_pkgbase=breezy-desktop
+pkgname="${_pkgbase}"-kwin-git
 pkgver=2.8.2.4
 pkgrel=1
-pkgdesc="Breezy Desktop - KWin Plugin for virtual desktop environments with XR glasses"
+pkgdesc="Breezy KWin - XR desktop"
 arch=('x86_64' 'aarch64')
 url="https://github.com/wheaney/breezy-desktop"
-license=('GPL-3.0-or-later')
+license=('GPL-3.0')
+makedepends=(
+    'git'
+    'cmake'
+    'extra-cmake-modules'
+    'kf6-kconfig'
+    'kf6-kconfigwidgets'
+    'kf6-kcoreaddons'
+    'kf6-kglobalaccel'
+    'kf6-ki18n'
+    'kf6-kcmutils'
+    'kf6-kwindowsystem'
+    'kf6-kxmlgui'
+    'qt6-tools'
+)
 depends=(
     'kwin'
     'qt6-base'
@@ -21,75 +36,44 @@ depends=(
     'kf6-kwindowsystem'
     'kf6-kxmlgui'
     'python'
+    'xr-driver-git>=2.0.0'
 )
-makedepends=(
-    'git'
-    'cmake'
-    'extra-cmake-modules'
-    'kf6-kconfig'
-    'kf6-kconfigwidgets'
-    'kf6-kcoreaddons'
-    'kf6-kglobalaccel'
-    'kf6-ki18n'
-    'kf6-kcmutils'
-    'kf6-kwindowsystem'
-    'kf6-kxmlgui'
-    'qt6-tools'
-)
-optdepends=(
-    'xr-driver-breezy-kwin-git: XR driver backend (recommended)'
-)
-provides=('breezy-desktop-kwin')
-conflicts=('breezy-desktop-kwin')
-source=(
-    "git+https://github.com/wheaney/breezy-desktop.git"
-    "git+https://github.com/wheaney/sombrero.git"
-    "git+https://github.com/wheaney/PyXRLinuxDriverIPC.git"
-)
-sha256sums=('SKIP' 'SKIP' 'SKIP')
+source=("git+${url}")
+md5sums=(SKIP)
 
 pkgver() {
-    cd "${srcdir}/breezy-desktop"
+    cd "${srcdir}/${_pkgbase}"
     # Read version from VERSION file and replace hyphens with dots
     version=$(cat VERSION)
     echo "${version}" | tr '-' '.'
 }
 
 prepare() {
-    cd "${srcdir}/breezy-desktop"
-    
-    # Set up submodule directories
-    mkdir -p modules/sombrero
-    mkdir -p ui/modules/PyXRLinuxDriverIPC
-    
-    # Copy sombrero assets if available
-    if [ -d "${srcdir}/sombrero" ]; then
-        find "${srcdir}/sombrero" -name "*.png" -exec cp {} modules/sombrero/ \;
+    USER=${SUDO_USER:-$USER}
+    if [ -n "$USER" ]; then
+        USER_HOME=$(getent passwd $USER | cut -d: -f6)
+        if [ -e "$USER_HOME/.local/bin/breezy_kwin_uninstall" ]; then
+            echo "Please uninstall Breezy Desktop first using $USER_HOME/.local/bin/breezy_kwin_uninstall, then reattempt the AUR installation"
+            exit 1
+        fi
     fi
-    
-    # Copy PyXRLinuxDriverIPC if available
-    if [ -d "${srcdir}/PyXRLinuxDriverIPC" ]; then
-        find "${srcdir}/PyXRLinuxDriverIPC" -name "*.py" -exec cp {} ui/modules/PyXRLinuxDriverIPC/ \;
-    fi
-    
-    # Copy required files for build
-    if [ -f ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py ]; then
-        cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py
-    fi
-    
-    cp VERSION kwin/
-    
-    # Copy sombrero assets to qml directory if they exist
-    if [ "$(find modules/sombrero -name '*.png' 2>/dev/null | wc -l)" -gt 0 ]; then
-        cp modules/sombrero/*.png kwin/src/qml/
-    fi
-    
-    cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg kwin/src/kcm/
 }
 
 build() {
-    cd "${srcdir}/breezy-desktop/kwin"
+    cd ${_pkgbase}
+
+    # init submodules (only required ones)
+    git submodule update --init --recursive modules/sombrero
+    git submodule update --init --recursive ui/modules/PyXRLinuxDriverIPC
     
+    # Copy required files for build
+    cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py
+    cp VERSION kwin/
+    cp modules/sombrero/*.png kwin/src/qml/
+    cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg kwin/src/kcm/
+    
+    # Build KWin plugin
+    cd kwin
     cmake -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
@@ -100,14 +84,11 @@ build() {
 }
 
 package() {
-    cd "${srcdir}/breezy-desktop/kwin"
+    cd "${srcdir}/${_pkgbase}/kwin"
     
     DESTDIR="${pkgdir}" cmake --install build
     
     # Install scripts
-    install -Dm755 "${srcdir}/breezy-desktop/kwin/bin/breezy_kwin_uninstall" \
+    install -Dm755 "${srcdir}/${_pkgbase}/kwin/bin/breezy_kwin_uninstall" \
         "${pkgdir}/usr/bin/breezy_kwin_uninstall"
-    
-    # Install desktop entries for Wayland helpers (if SteamOS support is needed)
-    # These would typically be in the setup script, but we include them for reference
 }
