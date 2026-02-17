@@ -63,13 +63,17 @@ build() {
     cd ${_pkgbase}
 
     # init submodules (only required ones)
-    git submodule update --init --recursive modules/sombrero
-    git submodule update --init --recursive ui/modules/PyXRLinuxDriverIPC
+    git submodule update --init --recursive modules/sombrero ui/modules/PyXRLinuxDriverIPC
     
     # Copy required files for build
     cp ui/modules/PyXRLinuxDriverIPC/xrdriveripc.py kwin/src/xrdriveripc/xrdriveripc.py
     cp VERSION kwin/
-    cp modules/sombrero/*.png kwin/src/qml/
+    
+    # Copy sombrero assets to qml directory if they exist
+    if [ -n "$(find modules/sombrero -name '*.png' 2>/dev/null)" ]; then
+        cp modules/sombrero/*.png kwin/src/qml/
+    fi
+    
     cp ui/data/icons/hicolor/scalable/apps/com.xronlinux.BreezyDesktop.svg kwin/src/kcm/
     
     # Build KWin plugin
