@@ -16,7 +16,7 @@ There are two installations available. **Note: Don't manually install either of 
 
 ## Breezy Desktop
 
-Breezy Desktop is a virtual workspace solution for Linux desktops that use the KDE Plasma 6 or GNOME desktop environments (versions 42 through 49). It supports launching multiple virtual monitors alongside multiple physical monitors. For Linux users not running GNOME or KDE, you can play around with a [nested GNOME setup](#nested-gnome-setup).
+Breezy Desktop is a virtual workspace solution for Linux desktops that use the KDE Plasma 6 or GNOME desktop environments (versions 42 through 49). It supports launching multiple virtual monitors alongside multiple physical monitors.
 
 For the best performance, ensure you have the latest graphics drivers installed for your distro.
 
@@ -47,7 +47,7 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 
 ### GNOME Setup
 
-Make sure your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you won't be able to launch virtual displays; switch to `Wayland` or follow the [GNOME Legacy setup](#gnome-widescreen-legacy-setup) instructions if you want access to widescreen mode.
+Make sure your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you won't be able to launch virtual displays unless you switch to `Wayland`.
 
 #### GNOME Multi-display
 
@@ -65,22 +65,6 @@ Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands fro
 2. `yay -S breezy-desktop-gnome-git`
 3. `systemctl --user enable --now xr-driver.service`
 4. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
-
-#### GNOME Widescreen (Legacy) Setup
-
-1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
-2. Run the setup script: `~/Downloads/breezy_gnome_setup --tag legacy`
-3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
-
-#### Nested-GNOME Setup
-A workable demo -- but not a great long-term solutions -- is to use your preferred desktop environment with a GNOME window open in nested mode. To do this:
-1. Install `gnome-shell` using your distros package manager (e.g. apt-get, pacman, dnf, etc...). This will currently only work with GNOME Shell versions 42-49, so check that using `gnome-shell --version`
-2. On GNOME 49 and above, you'll also need to install the mutter devkit package
-3. Run the [GNOME setup](#gnome-setup) steps. You shouldn't need to log out and back in since GNOME will be running nested.
-4. Launch the nested GNOME Shell using:
-  * GNOME 49 and newer: `MUTTER_DEBUG_DUMMY_MODE_SPECS="1920x1080@60" dbus-run-session -- gnome-shell --devkit`
-  * Older GNOME versions: `MUTTER_DEBUG_DUMMY_MODE_SPECS="1920x1080@60" dbus-run-session -- gnome-shell --nested`
-5. You may have to set developer mode: `gsettings set com.xronlinux.BreezyDesktop developer-mode true`
 
 #### Breezy GNOME Usage
 
