@@ -36,6 +36,7 @@ export const SUPPORTED_MONITOR_PRODUCTS = [
     'One Pro',
     'XREAL One',
     'XREAL One Pro',
+    'XREAL 1S',
     'SmartGlasses', // TCL/RayNeo
     'Rokid Max',
     'Rokid Max 2',
