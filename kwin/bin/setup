@@ -107,6 +107,62 @@ EOF
 
 USER_HOME=$(realpath ~)
 
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+
+fix_xr_gaming_plugin() {
+  # Allows the plugin and Breezy Desktop to coexist without fighting over the driver version
+  local breezy_manifest="$XDG_DATA_HOME/breezy_vulkan/manifest"
+  if [[ ! -f "$breezy_manifest" ]]; then
+    return 0
+  fi
+
+  local decky_xr_gaming_settings="$USER_HOME/homebrew/settings/decky-XRGaming/settings.json"
+  if [[ ! -f "$decky_xr_gaming_settings" ]]; then
+    return 0
+  fi
+
+  local xr_driver_manifest="$XDG_DATA_HOME/xr_driver/manifest"
+  if [[ ! -f "$xr_driver_manifest" ]]; then
+    return 0
+  fi
+
+  local XR_DRIVER_MANIFEST_LINE
+  XR_DRIVER_MANIFEST_LINE=$(sha256sum "$xr_driver_manifest")
+
+  local xr_driver_manifest_hash
+  xr_driver_manifest_hash="${XR_DRIVER_MANIFEST_LINE%% *}"
+  if [[ -z "$xr_driver_manifest_hash" ]]; then
+    return 0
+  fi
+
+  echo "Fixing XR Gaming plugin installation"
+
+  local tmp_manifest
+  tmp_manifest=$(mktemp)
+  sed '/xr_driver\/manifest$/d' "$breezy_manifest" > "$tmp_manifest"
+  printf '%s  xr_driver/manifest\n' "$xr_driver_manifest_hash" >> "$tmp_manifest"
+  chmod --reference="$breezy_manifest" "$tmp_manifest" 2>/dev/null || true
+  mv "$tmp_manifest" "$breezy_manifest"
+
+  local breezy_manifest_hash
+  breezy_manifest_hash="$(sha256sum "$breezy_manifest" | awk '{print $1}')"
+  if [[ -z "$breezy_manifest_hash" ]]; then
+    return 0
+  fi
+
+  local settings_dir
+  settings_dir="$(dirname "$decky_xr_gaming_settings")"
+  local tmp_settings
+  tmp_settings="$(mktemp -p "$settings_dir" settings.XXXXXX)"
+
+  sed -E 's/("manifest_checksum"[[:space:]]*:[[:space:]]*")[^"]*(")/\1'"$breezy_manifest_hash"'\2/' "$decky_xr_gaming_settings" > "$tmp_settings"
+
+  chmod --reference="$decky_xr_gaming_settings" "$tmp_settings" 2>/dev/null || true
+  mv "$tmp_settings" "$decky_xr_gaming_settings"
+}
+
 if [ -z "$XDG_BIN_HOME" ]; then
   XDG_BIN_HOME="$USER_HOME/.local/bin"
 fi
@@ -198,6 +254,8 @@ else
 fi
 
 echo "END - xr_driver_setup"
+
+fix_xr_gaming_plugin
 
 echo "Setting up productivity features"
 printf "request_features=productivity_basic\n" >> /dev/shm/xr_driver_control 2>/dev/null || true
