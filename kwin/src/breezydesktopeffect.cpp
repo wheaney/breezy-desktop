@@ -113,6 +113,13 @@ namespace KWin
 
 BreezyDesktopEffect::BreezyDesktopEffect()
 {
+    const QByteArray sessionClass = qgetenv("XDG_SESSION_CLASS").toLower();
+    if (sessionClass != "user") {
+        m_sessionClassBlocked = true;
+        qCWarning(KWIN_XR) << "Breezy - effect disabled; expected XDG_SESSION_CLASS=user, got:" << sessionClass;
+        return;
+    }
+
     qCCritical(KWIN_XR) << "\t\t\tBreezy - constructor";
 
     // safe to request on each load, acts as a no-op if already present
@@ -316,12 +323,17 @@ void BreezyDesktopEffect::toggle()
 
 void BreezyDesktopEffect::activate()
 {
+    if (m_sessionClassBlocked) {
+        return;
+    }
     qCCritical(KWIN_XR) << "\t\t\tBreezy - activate";
 
     if (!isRunning()) setRunning(true);
 
     connect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
-    m_cursorUpdateTimer->start();
+    if (m_cursorUpdateTimer) {
+        m_cursorUpdateTimer->start();
+    }
 
     // QuickSceneEffect grabs the keyboard and mouse input, which pulls focus away from the active window
     // and doesn't allow for interaction with anything on the desktop. These two calls fix that.
@@ -331,13 +343,21 @@ void BreezyDesktopEffect::activate()
 
 void BreezyDesktopEffect::deactivate()
 {
+    if (m_sessionClassBlocked) {
+        if (isRunning()) {
+            setRunning(false);
+        }
+        return;
+    }
     qCCritical(KWIN_XR) << "\t\t\tBreezy - deactivate";
 
     m_effectTargetScreenIndex = -1;
     invalidateEffectOnScreenGeometryCache();
 
     disconnect(effects, &EffectsHandler::cursorShapeChanged, this, &BreezyDesktopEffect::updateCursorImage);
-    m_cursorUpdateTimer->stop();
+    if (m_cursorUpdateTimer) {
+        m_cursorUpdateTimer->stop();
+    }
     showCursor();
 
     if (m_removeVirtualDisplaysOnDisable) {
@@ -642,6 +662,9 @@ bool BreezyDesktopEffect::checkParityByte(const char* data) {
 static qint64 lastConfigUpdate = 0;
 static qint64 activatedAt = 0;
 void BreezyDesktopEffect::updatePose() {    
+    if (m_sessionClassBlocked) {
+        return;
+    }
     // Reentrancy guard: if an update is already in progress, skip
     bool expected = false;
     if (!m_poseUpdateInProgress.compare_exchange_strong(expected, true)) {

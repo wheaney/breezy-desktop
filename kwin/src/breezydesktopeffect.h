@@ -189,21 +189,21 @@ namespace KWin
         bool m_zoomOnFocusEnabled = false;
         int m_lookingAtScreenIndex = -1;
         int m_effectTargetScreenIndex = -1;
-        bool m_poseResetState;
+        bool m_poseResetState = false;
         bool m_poseHasPosition = false;
         QList<QQuaternion> m_poseOrientations;
         QVector3D m_posePosition;
-        quint32 m_poseTimeElapsedMs;
+        quint32 m_poseTimeElapsedMs = 0;
         quint64 m_poseTimestamp = 0;
         QList<qreal> m_lookAheadConfig;
         qreal m_lookAheadOverride = -1.0; // -1 = use device default
         QList<quint32> m_displayResolution;
-        qreal m_diagonalFOV;
-        qreal m_lensDistanceRatio;
-        bool m_sbsEnabled;
-        bool m_smoothFollowEnabled;
+        qreal m_diagonalFOV = 0.0;
+        qreal m_lensDistanceRatio = 0.0;
+        bool m_sbsEnabled = false;
+        bool m_smoothFollowEnabled = false;
         QList<QQuaternion> m_smoothFollowOrigin;
-        bool m_customBannerEnabled;
+        bool m_customBannerEnabled = false;
         QFileSystemWatcher *m_shmFileWatcher = nullptr;
         QFileSystemWatcher *m_shmDirectoryWatcher = nullptr;
         bool m_cursorHidden = false;
@@ -211,6 +211,7 @@ namespace KWin
         QTimer *m_cursorUpdateTimer = nullptr;
         QTimer *m_watchdogTimer = nullptr;
         std::atomic<bool> m_poseUpdateInProgress{false};
+        bool m_sessionClassBlocked = false;
         qreal m_focusedDisplayDistance = 0.85;
         qreal m_allDisplaysDistance = 1.05;
         qreal m_displaySpacing = 0.0;
