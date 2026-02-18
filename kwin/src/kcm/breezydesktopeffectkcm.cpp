@@ -204,15 +204,6 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
 
-    // safe to request on each load, acts as a no-op if already present
-    {
-        QJsonObject flags;
-        QJsonArray requested;
-        requested.append(QStringLiteral("productivity_basic"));
-        flags.insert(QStringLiteral("request_features"), requested);
-        XRDriverIPC::instance().writeControlFlags(flags);
-    }
-
     // Advanced tab: measurement units selector (stored as "cm" or "in")
     if (ui.comboMeasurementUnits) {
         ui.comboMeasurementUnits->clear();
