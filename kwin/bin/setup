@@ -2,6 +2,31 @@
 
 set -e
 
+USER_HOME=$(realpath ~)
+
+if [ -z "$XDG_DATA_HOME" ]; then
+  XDG_DATA_HOME="$USER_HOME/.local/share"
+fi
+
+if [ -z "$XDG_BIN_HOME" ]; then
+  XDG_BIN_HOME="$USER_HOME/.local/bin"
+fi
+
+if [ -d "$XDG_BIN_HOME" ]; then
+  # check ownership and permissions before doing chown and chmod
+  XDG_BIN_USER=$(stat -c %U $XDG_BIN_HOME)
+  XDG_BIN_GROUP=$(stat -c %G $XDG_BIN_HOME)
+
+  USER=$(whoami)
+  GROUP=$(id -gn)
+
+  if [ "$XDG_BIN_USER" != "$USER" ] || [ "$XDG_BIN_GROUP" != "$GROUP" ]; then
+    echo "Fixing ownership and permissions of $XDG_BIN_HOME"
+    sudo chown -R $USER:$GROUP $XDG_BIN_HOME
+    sudo chmod -R 700 $XDG_BIN_HOME
+  fi
+fi
+
 if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
     printf "\033[1;33mWARNING:\033[0m Windowing system is %s\n" "$XDG_SESSION_TYPE"
     printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires Wayland\n"
@@ -27,8 +52,8 @@ install_steamos_shortcuts() {
     return
   fi
 
-  local applications_dir="$HOME/.local/share/applications"
-  local desktop_dir="$HOME/Desktop"
+  local applications_dir="$USER_HOME/.local/share/applications"
+  local desktop_dir="$USER_HOME/Desktop"
   local enable_script="$XDG_BIN_HOME/breezy_enable_wayland"
   local disable_script="$XDG_BIN_HOME/breezy_disable_wayland"
   local enable_desktop="$applications_dir/Enable Breezy Wayland.desktop"
@@ -105,12 +130,6 @@ EOF
   echo "Installed SteamOS desktop shortcuts in $applications_dir and on $desktop_dir"
 }
 
-USER_HOME=$(realpath ~)
-
-if [ -z "$XDG_DATA_HOME" ]; then
-  XDG_DATA_HOME="$USER_HOME/.local/share"
-fi
-
 fix_xr_gaming_plugin() {
   # Allows the plugin and Breezy Desktop to coexist without fighting over the driver version
   local breezy_manifest="$XDG_DATA_HOME/breezy_vulkan/manifest"
@@ -163,25 +182,6 @@ fix_xr_gaming_plugin() {
   mv "$tmp_settings" "$decky_xr_gaming_settings"
 }
 
-if [ -z "$XDG_BIN_HOME" ]; then
-  XDG_BIN_HOME="$USER_HOME/.local/bin"
-fi
-
-if [ -d "$XDG_BIN_HOME" ]; then
-  # check ownership and permissions before doing chown and chmod
-  XDG_BIN_USER=$(stat -c %U $XDG_BIN_HOME)
-  XDG_BIN_GROUP=$(stat -c %G $XDG_BIN_HOME)
-
-  USER=$(whoami)
-  GROUP=$(id -gn)
-
-  if [ "$XDG_BIN_USER" != "$USER" ] || [ "$XDG_BIN_GROUP" != "$GROUP" ]; then
-    echo "Fixing ownership and permissions of $XDG_BIN_HOME"
-    sudo chown -R $USER:$GROUP $XDG_BIN_HOME
-    sudo chmod -R 700 $XDG_BIN_HOME
-  fi
-fi
-
 UA_EVENT_NAME="breezy_kwin_install"
 if [ -e "$XDG_BIN_HOME/breezy_kwin_uninstall" ]; then
   echo "Cleaning up the previous installation"
@@ -219,8 +219,8 @@ cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
 install_steamos_shortcuts
 
 # Install QT_PLUGIN_PATH snippet into ~/.bash_profile if not present
-BASH_PROFILE="$HOME/.bash_profile"
-QT_PLUGIN_DIR="$HOME/.local/$QT_PLUGIN_DIR_RELATIVE"
+BASH_PROFILE="$USER_HOME/.bash_profile"
+QT_PLUGIN_DIR="$USER_HOME/.local/$QT_PLUGIN_DIR_RELATIVE"
 QT_PLUGIN_EXPORT="export QT_PLUGIN_PATH=\"$QT_PLUGIN_DIR:\$QT_PLUGIN_PATH\""
 if [[ ! -f "$BASH_PROFILE" ]] || ! grep -Fq "$QT_PLUGIN_EXPORT" "$BASH_PROFILE" 2>/dev/null; then
   echo "Adding QT_PLUGIN_PATH to $BASH_PROFILE"
@@ -232,7 +232,79 @@ $QT_PLUGIN_EXPORT
 EOF
 fi
 
-PLASMA_ENV_SCRIPT="$HOME/.config/plasma-workspace/env/breezy_desktop.sh"
+# Also add QT_PLUGIN_PATH to other common shell profiles (if they exist)
+OTHER_SHELL_PROFILES=(
+  "$USER_HOME/.profile"
+  "$USER_HOME/.bashrc"
+  "$USER_HOME/.bash_login"
+  "$USER_HOME/.kshrc"
+  "$USER_HOME/.mkshrc"
+  "$USER_HOME/.zprofile"
+  "$USER_HOME/.zshrc"
+  "$USER_HOME/.zshenv"
+)
+
+for profile in "${OTHER_SHELL_PROFILES[@]}"; do
+  if [[ ! -f "$profile" ]]; then
+    continue
+  fi
+
+  if ! grep -Fq "$QT_PLUGIN_EXPORT" "$profile" 2>/dev/null; then
+    echo "Adding QT_PLUGIN_PATH to $profile"
+    cat >> "$profile" <<EOF
+
+# Added by Breezy Desktop installer: QT plugin path setup
+$QT_PLUGIN_EXPORT
+EOF
+  fi
+done
+
+# Fish shell (uses different syntax and config location)
+if [ -z "$XDG_CONFIG_HOME" ]; then
+  XDG_CONFIG_HOME="$USER_HOME/.config"
+fi
+
+FISH_CONFIG="$XDG_CONFIG_HOME/fish/config.fish"
+FISH_QT_PLUGIN_EXPORT="set -gx QT_PLUGIN_PATH \"$QT_PLUGIN_DIR:\$QT_PLUGIN_PATH\""
+if [[ -f "$FISH_CONFIG" ]] && ! grep -Fq "$FISH_QT_PLUGIN_EXPORT" "$FISH_CONFIG" 2>/dev/null; then
+  echo "Adding QT_PLUGIN_PATH to $FISH_CONFIG"
+  cat >> "$FISH_CONFIG" <<EOF
+
+# Added by Breezy Desktop installer: QT plugin path setup
+if set -q QT_PLUGIN_PATH
+  $FISH_QT_PLUGIN_EXPORT
+else
+  set -gx QT_PLUGIN_PATH "$QT_PLUGIN_DIR"
+end
+EOF
+fi
+
+# csh / tcsh (also different syntax; avoid referencing undefined vars)
+CSH_PROFILES=(
+  "$USER_HOME/.cshrc"
+  "$USER_HOME/.tcshrc"
+)
+
+for profile in "${CSH_PROFILES[@]}"; do
+  if [[ ! -f "$profile" ]]; then
+    continue
+  fi
+
+  if ! grep -Fq "Added by Breezy Desktop installer: QT plugin path setup" "$profile" 2>/dev/null; then
+    echo "Adding QT_PLUGIN_PATH to $profile"
+    cat >> "$profile" <<EOF
+
+# Added by Breezy Desktop installer: QT plugin path setup
+if ( \$?QT_PLUGIN_PATH ) then
+  setenv QT_PLUGIN_PATH "$QT_PLUGIN_DIR:\$QT_PLUGIN_PATH"
+else
+  setenv QT_PLUGIN_PATH "$QT_PLUGIN_DIR"
+endif
+EOF
+  fi
+done
+
+PLASMA_ENV_SCRIPT="$USER_HOME/.config/plasma-workspace/env/breezy_desktop.sh"
 if [[ ! -f "$PLASMA_ENV_SCRIPT" ]]; then
   echo "Adding QT_PLUGIN_PATH to $PLASMA_ENV_SCRIPT"
   mkdir -p "$(dirname "$PLASMA_ENV_SCRIPT")"
