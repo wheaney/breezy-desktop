@@ -581,10 +581,10 @@ export const VirtualDisplayEffect = GObject.registerClass({
             this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
             this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
-            this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.pose_has_position ? [0.0, 0.0, 0.0] : this.lens_vector);
             this._update_display_position();
             this._handle_banner_update();
         }
+        this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.pose_has_position ? [0.0, 0.0, 0.0] : this.lens_vector);
 
         if (this.imu_snapshots && !this.show_banner) {
             let lookAheadSet = false;
