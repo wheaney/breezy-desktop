@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+# Create a temp directory to gather logs
+tmp_dir=$(mktemp -d -t breezy-vulkan-logs-XXXXXXXXXX)
+echo "Gathering logs into temp directory: ${tmp_dir}"
+
+mkdir -p "$tmp_dir/breezy_vulkan_logs"
+
+# Copy Decky XRGaming logs
+if [ -d "$HOME/homebrew/logs/decky-XRGaming" ]; then
+  cp -r "$HOME/homebrew/logs/decky-XRGaming" "$tmp_dir/breezy_vulkan_logs/decky-XRGaming"
+else
+  echo "Warning: Decky XRGaming logs not found at $HOME/homebrew/logs/decky-XRGaming"
+fi
+
+# Copy XR driver log
+if [ -f "$XDG_STATE_HOME/xr_driver/driver.log" ]; then
+  cp "$XDG_STATE_HOME/xr_driver/driver.log" "$tmp_dir/breezy_vulkan_logs/driver.log"
+else
+  echo "Warning: XR driver log not found at $XDG_STATE_HOME/xr_driver/driver.log"
+fi
+
+# Copy XR driver config
+if [ -f "$HOME/.config/xr_driver/config.ini" ]; then
+  cp "$HOME/.config/xr_driver/config.ini" "$tmp_dir/breezy_vulkan_logs/config.ini"
+else
+  echo "Warning: XR driver config not found at $HOME/.config/xr_driver/config.ini"
+fi
+
+# Create archive
+archive_name="breezy_vulkan_logs_$(date +%Y%m%d_%H%M%S).tar.gz"
+tar -czf "$archive_name" -C "$tmp_dir" breezy_vulkan_logs
+echo "Created log archive: $(pwd)/$archive_name"
+
+rm -rf "$tmp_dir"
