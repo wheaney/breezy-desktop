@@ -116,6 +116,8 @@ if [[ -e "$XDG_BIN_HOME/xr_driver_uninstall" && "$for_install" -eq 0 ]]; then
   sudo "$XDG_BIN_HOME/xr_driver_uninstall"
 fi
 
+rm -f $XDG_BIN_HOME/breezy_kwin_logs
+
 if [ "$removed_wayland_disable_script" -eq 1 ] && [ "$for_install" -eq 0 ]; then
   printf "\n\033[1;33m!!! IMPORTANT !!!\033[0m If you enabled Breezy Wayland, you MUST run \033[1;33msteamos-session-select\033[0m from a terminal in order to return to Game Mode.\n"
 fi

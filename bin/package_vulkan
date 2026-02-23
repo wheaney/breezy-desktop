@@ -39,7 +39,7 @@ fi
 
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_verify" "$VULKAN_DIR/bin/breezy_vulkan_uninstall"
+copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$VULKAN_DIR/bin/setup" "$VULKAN_DIR/bin/breezy_vulkan_verify" "$VULKAN_DIR/bin/breezy_vulkan_uninstall" "$VULKAN_DIR/bin/breezy_vulkan_logs"
 cp -r $VULKAN_DIR/config $PACKAGE_DIR
 
 # build XR driver
@@ -79,7 +79,7 @@ cp $XR_DRIVER_DIR/bin/xr_driver_setup $PACKAGE_DIR/bin
 # include any file that doesn't get modified during setup (e.g. vkBasalt.json files)
 pushd $PACKAGE_DIR
 echo $XR_DRIVER_MANIFEST_LINE > manifest
-sha256sum bin/breezy_vulkan_uninstall *.frag *.fx* *.png >> manifest
+sha256sum bin/breezy_vulkan_uninstall bin/breezy_vulkan_logs *.frag *.fx* *.png >> manifest
 popd
 
 # bundle everything up

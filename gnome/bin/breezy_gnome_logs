@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+copy_latest_file() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  local description="$3"
+
+  if [ ! -d "$src_dir" ]; then
+    echo "Warning: ${description} not found at $src_dir"
+    return 0
+  fi
+
+  local latest_file
+  latest_file=$(find "$src_dir" -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)
+  if [ -z "$latest_file" ]; then
+    echo "Warning: No files found under $src_dir"
+    return 0
+  fi
+
+  mkdir -p "$dest_dir"
+  cp "$latest_file" "$dest_dir/"
+  echo "Copied latest ${description}: $latest_file"
+}
+
+# Create a temp directory to gather logs
+tmp_dir=$(mktemp -d -t breezy-gnome-logs-XXXXXXXXXX)
+echo "Gathering logs into temp directory: ${tmp_dir}"
+
+mkdir -p "$tmp_dir/breezy_gnome_logs"
+
+# Copy the most recent GNOME log file
+copy_latest_file "$XDG_STATE_HOME/breezy_gnome/logs/ui" "$tmp_dir/breezy_gnome_logs/breezy_gnome" "Breezy GNOME UI logs"
+copy_latest_file "$XDG_STATE_HOME/breezy_gnome/logs/gjs" "$tmp_dir/breezy_gnome_logs/breezy_gnome" "Breezy GNOME GJS logs"
+
+# Create archive
+archive_name="breezy_gnome_logs_$(date +%Y%m%d_%H%M%S).tar.gz"
+tar -czf "$archive_name" -C "$tmp_dir" breezy_gnome_logs
+echo "Created log archive: $(pwd)/$archive_name"
+
+rm -rf "$tmp_dir"

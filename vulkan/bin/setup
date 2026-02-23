@@ -91,6 +91,7 @@ ESCAPED_XR_DRIVER_DATA_DIR=$(printf '%s\n' "$XR_DRIVER_DATA_DIR" | sed -e 's/[\/
 
 echo "Copying the breezy_vulkan scripts to ${BIN_DIR} and related files to ${DATA_DIR}"
 cp bin/breezy_vulkan_uninstall $BIN_DIR
+cp bin/breezy_vulkan_logs $BIN_DIR
 sed -i -e "s/{bin_dir}/$ESCAPED_BIN_DIR/g" \
        -e "s/{lib_dir}/$ESCAPED_LIB_DIR/g" \
        -e "s/{lib32_dir}/$ESCAPED_LIB32_DIR/g" \

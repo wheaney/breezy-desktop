@@ -8,18 +8,36 @@ if [ "$(id -u)" == "0" ]; then
    exit 1
 fi
 
+copy_latest_file() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  local description="$3"
+
+  if [ ! -d "$src_dir" ]; then
+    echo "Warning: ${description} not found at $src_dir"
+    return 0
+  fi
+
+  local latest_file
+  latest_file=$(find "$src_dir" -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)
+  if [ -z "$latest_file" ]; then
+    echo "Warning: No files found under $src_dir"
+    return 0
+  fi
+
+  mkdir -p "$dest_dir"
+  cp "$latest_file" "$dest_dir/"
+  echo "Copied latest ${description}: $latest_file"
+}
+
 # Create a temp directory to gather logs
 tmp_dir=$(mktemp -d -t breezy-vulkan-logs-XXXXXXXXXX)
 echo "Gathering logs into temp directory: ${tmp_dir}"
 
 mkdir -p "$tmp_dir/breezy_vulkan_logs"
 
-# Copy Decky XRGaming logs
-if [ -d "$HOME/homebrew/logs/decky-XRGaming" ]; then
-  cp -r "$HOME/homebrew/logs/decky-XRGaming" "$tmp_dir/breezy_vulkan_logs/decky-XRGaming"
-else
-  echo "Warning: Decky XRGaming logs not found at $HOME/homebrew/logs/decky-XRGaming"
-fi
+# Copy the most recent Decky XRGaming log file
+copy_latest_file "$HOME/homebrew/logs/decky-XRGaming" "$tmp_dir/breezy_vulkan_logs/decky-XRGaming" "Decky XRGaming logs"
 
 # Collect journalctl logs
 if command -v journalctl &>/dev/null; then

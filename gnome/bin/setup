@@ -128,6 +128,7 @@ ESCAPED_GNOME_SHELL_DATA_DIR=$(printf '%s\n' "$GNOME_SHELL_DATA_DIR" | sed -e 's
 echo "Copying the breezy_gnome scripts to ${XDG_BIN_HOME}"
 mkdir -p $XDG_BIN_HOME
 cp bin/breezy_gnome_uninstall $XDG_BIN_HOME
+cp bin/breezy_gnome_logs $XDG_BIN_HOME
 sed -i -e "s/{bin_dir}/$ESCAPED_XDG_BIN_HOME/g" \
        -e "s/{data_dir}/$ESCAPED_BREEZY_GNOME_DATA_DIR/g" \
        -e "s/{xr_driver_data_dir}/$ESCAPED_XR_DRIVER_DATA_DIR/g" \

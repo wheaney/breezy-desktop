@@ -215,6 +215,7 @@ popd > /dev/null
 
 mkdir -p $XDG_BIN_HOME
 cp bin/breezy_kwin_uninstall $XDG_BIN_HOME
+cp bin/breezy_kwin_logs $XDG_BIN_HOME
 
 install_steamos_shortcuts
 

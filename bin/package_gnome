@@ -53,7 +53,7 @@ fi
 
 # copy vulkan setup scripts and configs
 mkdir -p $PACKAGE_DIR/bin
-copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall"
+copy_and_inject_ua "$XR_DRIVER_DIR/bin/ua.sh" "$PACKAGE_DIR/bin" "$GNOME_DIR/bin/setup" "$GNOME_DIR/bin/breezy_gnome_verify" "$GNOME_DIR/bin/breezy_gnome_uninstall" "$GNOME_DIR/bin/breezy_gnome_logs"
 
 XR_DRIVER_BINARY_NAME=xrDriver-$ARCH.tar.gz
 XR_DRIVER_BINARY="$XR_DRIVER_DIR/out/$XR_DRIVER_BINARY_NAME"
