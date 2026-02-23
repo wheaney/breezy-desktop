@@ -8,8 +8,6 @@ if [ "$(id -u)" == "0" ]; then
    exit 1
 fi
 
-XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-
 # Create a temp directory to gather logs
 tmp_dir=$(mktemp -d -t breezy-kwin-logs-XXXXXXXXXX)
 echo "Gathering logs into temp directory: ${tmp_dir}"
@@ -24,20 +22,6 @@ if command -v journalctl &>/dev/null; then
     echo "Warning: Failed to collect journalctl breezy logs"
 else
   echo "Warning: journalctl not found, skipping journal logs"
-fi
-
-# Copy XR driver log
-if [ -f "$XDG_STATE_HOME/xr_driver/driver.log" ]; then
-  cp "$XDG_STATE_HOME/xr_driver/driver.log" "$tmp_dir/breezy_kwin_logs/driver.log"
-else
-  echo "Warning: XR driver log not found at $XDG_STATE_HOME/xr_driver/driver.log"
-fi
-
-# Copy XR driver config
-if [ -f "$HOME/.config/xr_driver/config.ini" ]; then
-  cp "$HOME/.config/xr_driver/config.ini" "$tmp_dir/breezy_kwin_logs/config.ini"
-else
-  echo "Warning: XR driver config not found at $HOME/.config/xr_driver/config.ini"
 fi
 
 # Create archive

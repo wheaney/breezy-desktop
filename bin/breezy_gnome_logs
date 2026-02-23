@@ -23,20 +23,6 @@ else
   echo "Warning: Breezy GNOME logs not found at $XDG_STATE_HOME/breezy_gnome/logs"
 fi
 
-# Copy XR driver log
-if [ -f "$XDG_STATE_HOME/xr_driver/driver.log" ]; then
-  cp "$XDG_STATE_HOME/xr_driver/driver.log" "$tmp_dir/breezy_gnome_logs/driver.log"
-else
-  echo "Warning: XR driver log not found at $XDG_STATE_HOME/xr_driver/driver.log"
-fi
-
-# Copy XR driver config
-if [ -f "$HOME/.config/xr_driver/config.ini" ]; then
-  cp "$HOME/.config/xr_driver/config.ini" "$tmp_dir/breezy_gnome_logs/config.ini"
-else
-  echo "Warning: XR driver config not found at $HOME/.config/xr_driver/config.ini"
-fi
-
 # Create archive
 archive_name="breezy_gnome_logs_$(date +%Y%m%d_%H%M%S).tar.gz"
 tar -czf "$archive_name" -C "$tmp_dir" breezy_gnome_logs
