@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+# Create a temp directory to gather logs
+tmp_dir=$(mktemp -d -t breezy-kwin-logs-XXXXXXXXXX)
+echo "Gathering logs into temp directory: ${tmp_dir}"
+
+mkdir -p "$tmp_dir/breezy_kwin_logs"
+
+# Collect journalctl logs
+if command -v journalctl &>/dev/null; then
+  journalctl -p warning --since "24 hours ago" > "$tmp_dir/breezy_kwin_logs/journalctl_warnings.log" 2>/dev/null || \
+    echo "Warning: Failed to collect journalctl warning logs"
+  journalctl --grep breezy --since "24 hours ago" > "$tmp_dir/breezy_kwin_logs/journalctl_breezy.log" 2>/dev/null || \
+    echo "Warning: Failed to collect journalctl breezy logs"
+else
+  echo "Warning: journalctl not found, skipping journal logs"
+fi
+
+# Create archive
+archive_name="breezy_kwin_logs_$(date +%Y%m%d_%H%M%S).tar.gz"
+tar -czf "$archive_name" -C "$tmp_dir" breezy_kwin_logs
+echo "Created log archive: $(pwd)/$archive_name"
+
+rm -rf "$tmp_dir"

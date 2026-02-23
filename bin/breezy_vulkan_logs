@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+if [ "$(id -u)" == "0" ]; then
+   echo "This script must not be run as root" 1>&2
+   exit 1
+fi
+
+# Create a temp directory to gather logs
+tmp_dir=$(mktemp -d -t breezy-vulkan-logs-XXXXXXXXXX)
+echo "Gathering logs into temp directory: ${tmp_dir}"
+
+mkdir -p "$tmp_dir/breezy_vulkan_logs"
+
+# Copy Decky XRGaming logs
+if [ -d "$HOME/homebrew/logs/decky-XRGaming" ]; then
+  cp -r "$HOME/homebrew/logs/decky-XRGaming" "$tmp_dir/breezy_vulkan_logs/decky-XRGaming"
+else
+  echo "Warning: Decky XRGaming logs not found at $HOME/homebrew/logs/decky-XRGaming"
+fi
+
+# Collect journalctl logs
+if command -v journalctl &>/dev/null; then
+  journalctl --grep gamescope --since "24 hours ago" > "$tmp_dir/breezy_vulkan_logs/journalctl_gamescope.log" 2>/dev/null || \
+    echo "Warning: Failed to collect journalctl gamescope logs"
+else
+  echo "Warning: journalctl not found, skipping journal logs"
+fi
+
+# Create archive
+archive_name="breezy_vulkan_logs_$(date +%Y%m%d_%H%M%S).tar.gz"
+tar -czf "$archive_name" -C "$tmp_dir" breezy_vulkan_logs
+echo "Created log archive: $(pwd)/$archive_name"
+
+rm -rf "$tmp_dir"
