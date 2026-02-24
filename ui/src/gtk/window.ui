@@ -90,16 +90,11 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">A newer version is available</property>
+                    <property name="label" translatable="yes">A newer version is available. Please update using the same method you used to install.</property>
                     <property name="hexpand">True</property>
+                    <property name="wrap">True</property>
                   </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="update_available_button">
-                <property name="label" translatable="yes">View release</property>
-                <property name="visible">True</property>
               </object>
             </child>
           </object>

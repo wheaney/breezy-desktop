@@ -56,9 +56,6 @@
        <property name="styleSheet">
         <string notr="true">color: rgb(0,100,200); font-weight: bold;</string>
        </property>
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
       </widget>
      </item>
      <item>

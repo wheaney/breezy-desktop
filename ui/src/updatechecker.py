@@ -26,7 +26,6 @@ from urllib.error import URLError
 logger = logging.getLogger('breezy_ui')
 
 GITHUB_RELEASES_URL = 'https://api.github.com/repos/wheaney/breezy-desktop/releases/latest'
-GITHUB_RELEASES_PAGE = 'https://github.com/wheaney/breezy-desktop/releases/latest'
 
 
 def _parse_version(version_str):

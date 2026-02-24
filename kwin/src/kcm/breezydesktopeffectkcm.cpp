@@ -643,7 +643,7 @@ void BreezyDesktopEffectConfig::checkForUpdates() {
 
         if (isNewer) {
             if (auto label = widget()->findChild<QLabel*>(QStringLiteral("labelUpdateAvailable"))) {
-                label->setText(tr("<a href=\"https://github.com/wheaney/breezy-desktop/releases/latest\">A newer version (%1) is available</a>").arg(latest));
+                label->setText(tr("A newer version (%1) is available. Please update using the same method you used to install.").arg(latest));
                 label->setVisible(true);
             }
         }
