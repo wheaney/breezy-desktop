@@ -24,6 +24,7 @@ USER_HOME=$(getent passwd $USER | cut -d: -f6)
 if [ -z "$XDG_DATA_HOME" ]; then
   XDG_DATA_HOME="$USER_HOME/.local/share"
 fi
+DATA_DIR="$XDG_DATA_HOME/breezy_vulkan"
 VULKAN_DATA_DIR="$XDG_DATA_HOME/vulkan"
 
 if [ -z "$XDG_CONFIG_HOME" ]; then
@@ -59,6 +60,9 @@ rm -rf $XDG_CONFIG_HOME/reshade
 
 [ "$for_install" -eq 0 ] && echo "Removing scripts at $BIN_DIR"
 rm -f $BIN_DIR/breezy_vulkan_verify
+
+[ "$for_install" -eq 0 ] && echo "Removing $DATA_DIR and its contents"
+rm -rf $DATA_DIR
 
 [ "$for_install" -eq 0 ] && echo "SKIPPING xrDriver uninstall to keep mouse/joystick driver functionality."
 [ "$for_install" -eq 0 ] && echo "To manually uninstall xrDriver, do: \"sudo xr_driver_uninstall\""
