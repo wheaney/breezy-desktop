@@ -90,7 +90,7 @@ class BreezydesktopApplication(Adw.Application):
         """
         win = self.props.active_window
         if not win:
-            win = BreezydesktopWindow(self._skip_verification, application=self)
+            win = BreezydesktopWindow(self.version, self._skip_verification, application=self)
             win.connect('close-request', lambda *_: self.on_quit_action())
             win.connect('destroy', lambda *_: self.on_quit_action())
         win.present()

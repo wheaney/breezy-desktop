@@ -29,6 +29,7 @@ from .nodevice import NoDevice
 from .nodriver import NoDriver
 from .noextension import NoExtension
 from .nolicense import NoLicense
+from .updatechecker import check_for_update, GITHUB_RELEASES_PAGE
 from .verify import verify_installation
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
@@ -40,8 +41,10 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     license_action_needed_button = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
     missing_breezy_features_button = Gtk.Template.Child()
+    update_available_banner = Gtk.Template.Child()
+    update_available_button = Gtk.Template.Child()
 
-    def __init__(self, skip_verification, **kwargs):
+    def __init__(self, version, skip_verification, **kwargs):
         super().__init__(**kwargs)
 
         self.connected_device = ConnectedDevice()
@@ -63,12 +66,15 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
         self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
         self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)
+        self.update_available_button.connect('clicked', self._on_update_button_clicked)
 
         self._handle_state_update(self.state_manager, None)
 
         self._skip_verification = skip_verification
 
         self.connect("destroy", self._on_window_destroy)
+
+        check_for_update(version, self._on_update_check_result)
 
     def _handle_settings_update(self, settings_manager, key):
         self._handle_state_update(self.state_manager, None)
@@ -111,6 +117,12 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         dialog = LicenseDialog()
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
         dialog.present()
+
+    def _on_update_button_clicked(self, widget):
+        Gtk.show_uri(self, GITHUB_RELEASES_PAGE, 0)
+
+    def _on_update_check_result(self, latest_version):
+        GLib.idle_add(self.update_available_banner.set_revealed, latest_version is not None)
 
     def _on_window_destroy(self, widget):
         self.state_manager.disconnect_by_func(self._handle_state_update)

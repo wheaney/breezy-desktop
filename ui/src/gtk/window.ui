@@ -80,6 +80,31 @@
           </object>
         </child>
         <child>
+          <object class="GtkInfoBar" id="update_available_banner">
+            <property name="revealed">0</property>
+            <property name="show-close-button">False</property>
+            <property name="message-type">info</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">A newer version is available</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="update_available_button">
+                <property name="label" translatable="yes">View release</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="GtkBox" id="main_content" />
         </child>
       </object>
