@@ -69,9 +69,18 @@ if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
     printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires GNOME on Wayland\n"
 fi
 
-if ! systemctl --user is-active gnome-remote-desktop &>/dev/null; then
-    printf "\033[1;33mWARNING:\033[0m gnome-remote-desktop service is not running\n"
-    printf "\033[1;33mWARNING:\033[0m Virtual display functionality requires the gnome-remote-desktop service running\n"
+# Check the actual dependencies used by the UI for virtual displays.
+if command -v gdbus &>/dev/null; then
+  if ! gdbus call --session \
+      --dest org.gnome.Mutter.ScreenCast \
+      --object-path /org/gnome/Mutter/ScreenCast \
+      --method org.freedesktop.DBus.Introspectable.Introspect &>/dev/null; then
+    printf "\033[1;33mWARNING:\033[0m org.gnome.Mutter.ScreenCast D-Bus API not available on the session bus\n"
+    printf "\033[1;33mWARNING:\033[0m Virtual display requires GNOME/Mutter with ScreenCast support\n"
+  fi
+else
+  printf "\033[1;33mWARNING:\033[0m Cannot check Mutter ScreenCast API (missing gdbus)\n"
+  printf "\033[1;33mWARNING:\033[0m Install GLib tools (gdbus) to enable this check\n"
 fi
 
 # This script gets packaged with the release and should do the bulk of the setup work. This allows this setup to be tied
