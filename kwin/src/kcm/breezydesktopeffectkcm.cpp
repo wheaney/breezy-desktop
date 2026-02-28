@@ -595,6 +595,14 @@ void BreezyDesktopEffectConfig::checkEffectLoaded() {
 
 void BreezyDesktopEffectConfig::checkForUpdates() {
 #ifdef BREEZY_DESKTOP_VERSION_STR
+    // Skip update check for system-wide installs (e.g. AUR) — the package
+    // manager handles updates there.  Scripted installs put the plugin under
+    // the user's home directory, so we use that as the heuristic.
+    const QString pluginPath = metaData().fileName();
+    const QString home = QDir::homePath();
+    if (!pluginPath.startsWith(home + QLatin1Char('/')))
+        return;
+
     if (!m_networkManager)
         m_networkManager = new QNetworkAccessManager(this);
 
