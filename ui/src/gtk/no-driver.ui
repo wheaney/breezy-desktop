@@ -20,6 +20,7 @@
           Otherwise, please file an issue on GitHub, or create a new thread in the #troubleshooting channel on Discord.
         </property>
         <property name="width-request">800</property>
+        <property name="height-request">300</property>
       </object>
     </child>
   </template>

@@ -15,6 +15,7 @@
         <property name="title" translatable="yes">Breezy Desktop GNOME extension not ready</property>
         <property name="description" translatable="yes">If you have just run the setup, then you may need to log out and back in to use it. Otherwise, please follow the Breezy GNOME setup instructions.</property>
         <property name="width-request">800</property>
+        <property name="height-request">250</property>
       </object>
     </child>
   </template>

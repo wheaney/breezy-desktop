@@ -15,6 +15,7 @@
         <property name="title" translatable="yes">Breezy Desktop GNOME invalid setup</property>
         <property name="description" translatable="yes">Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup script. Report this issue if it persists.</property>
         <property name="width-request">650</property>
+        <property name="height-request">250</property>
       </object>
     </child>
   </template>
