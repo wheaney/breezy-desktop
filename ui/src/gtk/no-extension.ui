@@ -3,6 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <template class="NoExtension" parent="GtkBox">
     <property name="orientation">1</property>
+    <property name="vexpand">True</property>
     <property name="margin-top">20</property>
     <property name="margin-bottom">20</property>
     <property name="margin-start">20</property>
@@ -10,6 +11,7 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
+        <property name="vexpand">True</property>
         <property name="title" translatable="yes">Breezy Desktop GNOME extension not ready</property>
         <property name="description" translatable="yes">If you have just run the setup, then you may need to log out and back in to use it. Otherwise, please follow the Breezy GNOME setup instructions.</property>
         <property name="width-request">800</property>

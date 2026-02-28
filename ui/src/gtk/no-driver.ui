@@ -3,6 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <template class="NoDriver" parent="GtkBox">
     <property name="orientation">1</property>
+    <property name="vexpand">True</property>
     <property name="margin-top">20</property>
     <property name="margin-bottom">20</property>
     <property name="margin-start">20</property>
@@ -10,6 +11,7 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
+        <property name="vexpand">True</property>
         <property name="title" translatable="yes">No driver running</property>
         <property name="description" translatable="yes">
           If you installed via AUR, make sure you ran the recommended post-install command:

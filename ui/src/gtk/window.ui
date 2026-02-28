@@ -90,7 +90,7 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">A newer version is available. Please update using the same method you used to install.</property>
+                    <property name="label" translatable="yes">A newer version is available. To update, rerun the breezy_gnome_setup script.</property>
                     <property name="hexpand">True</property>
                     <property name="wrap">True</property>
                   </object>
@@ -100,7 +100,9 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="main_content" />
+          <object class="GtkBox" id="main_content">
+            <property name="vexpand">True</property>
+          </object>
         </child>
       </object>
     </property>
