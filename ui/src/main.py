@@ -56,6 +56,7 @@ def excepthook(exc_type, exc_value, exc_traceback):
 sys.excepthook = excepthook
 
 XRDriverIPC.set_instance(XRDriverIPC(logger, get_config_dir()))
+os.makedirs(os.path.join(get_config_dir(), 'xr_driver'), exist_ok=True)
 
 if GLib.MAJOR_VERSION * 100 + GLib.MINOR_VERSION >= 274:
     APPLICATION_FLAGS = Gio.ApplicationFlags.DEFAULT_FLAGS
