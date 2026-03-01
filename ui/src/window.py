@@ -1,22 +1,3 @@
-# window.py
-#
-# Copyright 2024 Unknown
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#
-# SPDX-License-Identifier: GPL-3.0-or-later
-
 from gi.repository import Gtk, GLib
 from .extensionsmanager import ExtensionsManager
 from .license import BREEZY_GNOME_FEATURES
@@ -29,6 +10,7 @@ from .nodevice import NoDevice
 from .nodriver import NoDriver
 from .noextension import NoExtension
 from .nolicense import NoLicense
+from .updatechecker import check_for_update
 from .verify import verify_installation
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
@@ -40,8 +22,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     license_action_needed_button = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
     missing_breezy_features_button = Gtk.Template.Child()
+    update_available_banner = Gtk.Template.Child()
 
-    def __init__(self, skip_verification, **kwargs):
+    def __init__(self, version, skip_verification, **kwargs):
         super().__init__(**kwargs)
 
         self.connected_device = ConnectedDevice()
@@ -69,6 +52,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self._skip_verification = skip_verification
 
         self.connect("destroy", self._on_window_destroy)
+
+        check_for_update(version, self._on_update_check_result)
 
     def _handle_settings_update(self, settings_manager, key):
         self._handle_state_update(self.state_manager, None)
@@ -111,6 +96,9 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         dialog = LicenseDialog()
         dialog.set_transient_for(widget.get_ancestor(Gtk.Window))
         dialog.present()
+
+    def _on_update_check_result(self, latest_version):
+        GLib.idle_add(self.update_available_banner.set_revealed, latest_version is not None)
 
     def _on_window_destroy(self, widget):
         self.state_manager.disconnect_by_func(self._handle_state_update)

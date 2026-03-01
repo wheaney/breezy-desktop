@@ -51,6 +51,8 @@
 #include <QDebug>
 #include <QLocale>
 #include <QSignalBlocker>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <cmath>
 #include <algorithm>
 
@@ -236,6 +238,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 
     // One-time check if the KWin effect backend is actually loaded. If not, disable UI early.
     checkEffectLoaded();
+
+    // Asynchronously check GitHub for a newer release.
+    checkForUpdates();
 
     // Show/enable Virtual Display controls only when we're on Wayland
     const bool isWaylandSession = QGuiApplication::platformName().contains(QStringLiteral("wayland"), Qt::CaseInsensitive)
@@ -586,6 +591,72 @@ void BreezyDesktopEffectConfig::checkEffectLoaded() {
             warn->setVisible(true);
         }
     }
+}
+
+void BreezyDesktopEffectConfig::checkForUpdates() {
+#ifdef BREEZY_DESKTOP_VERSION_STR
+    // Skip update check for system-wide installs (e.g. AUR) — the package
+    // manager handles updates there.  Scripted installs put the plugin under
+    // the user's home directory, so we use that as the heuristic.
+    const QString pluginPath = metaData().fileName();
+    const QString home = QDir::homePath();
+    if (!pluginPath.startsWith(home + QLatin1Char('/')))
+        return;
+
+    if (!m_networkManager)
+        m_networkManager = new QNetworkAccessManager(this);
+
+    QNetworkRequest request(QUrl(QStringLiteral("https://api.github.com/repos/wheaney/breezy-desktop/releases/latest")));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("breezy-desktop-kcm"));
+    auto *reply = m_networkManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            qCDebug(KWIN_XR) << "Update check failed:" << reply->errorString();
+            return;
+        }
+
+        const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+        if (!doc.isObject()) return;
+        const QString latestTag = doc.object().value(QStringLiteral("tag_name")).toString();
+        if (latestTag.isEmpty()) return;
+
+        QString latest = latestTag;
+        if (latest.startsWith(QLatin1Char('v'))) latest.remove(0, 1);
+
+        // Compare version tuples
+        const QString current = QLatin1String(BREEZY_DESKTOP_VERSION_STR);
+        auto parseParts = [](const QString &v) -> QList<int> {
+            QList<int> parts;
+            for (const QString &p : v.split(QLatin1Char('.'))) {
+                bool ok;
+                int n = p.toInt(&ok);
+                if (!ok) return {};
+                parts.append(n);
+            }
+            return parts;
+        };
+        const QList<int> latestParts = parseParts(latest);
+        const QList<int> currentParts = parseParts(current);
+        if (latestParts.isEmpty() || currentParts.isEmpty()) return;
+        bool isNewer = false;
+        for (int i = 0; i < qMax(latestParts.size(), currentParts.size()); ++i) {
+            int lv = i < latestParts.size() ? latestParts[i] : 0;
+            int cv = i < currentParts.size() ? currentParts[i] : 0;
+            if (lv != cv) {
+                isNewer = lv > cv;
+                break;
+            }
+        }
+
+        if (isNewer) {
+            if (auto label = widget()->findChild<QLabel*>(QStringLiteral("labelUpdateAvailable"))) {
+                label->setText(tr("A newer version (%1) is available. To update, rerun the breezy_kwin_setup script.").arg(latest));
+                label->setVisible(true);
+            }
+        }
+    });
+#endif
 }
 
 static QDBusInterface makeVDInterface() {

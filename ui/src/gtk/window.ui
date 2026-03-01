@@ -80,7 +80,29 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="main_content" />
+          <object class="GtkInfoBar" id="update_available_banner">
+            <property name="revealed">0</property>
+            <property name="show-close-button">False</property>
+            <property name="message-type">info</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">A newer version is available. To update, rerun the breezy_gnome_setup script.</property>
+                    <property name="hexpand">True</property>
+                    <property name="wrap">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="main_content">
+            <property name="vexpand">True</property>
+          </object>
         </child>
       </object>
     </property>

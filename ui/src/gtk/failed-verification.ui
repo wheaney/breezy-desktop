@@ -3,6 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <template class="FailedVerification" parent="GtkBox">
     <property name="orientation">1</property>
+    <property name="vexpand">True</property>
     <property name="margin-top">20</property>
     <property name="margin-bottom">20</property>
     <property name="margin-start">20</property>
@@ -10,9 +11,11 @@
     <property name="spacing">20</property>
     <child>
       <object class="AdwStatusPage">
+        <property name="vexpand">True</property>
         <property name="title" translatable="yes">Breezy Desktop GNOME invalid setup</property>
         <property name="description" translatable="yes">Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup script. Report this issue if it persists.</property>
         <property name="width-request">650</property>
+        <property name="height-request">250</property>
       </object>
     </child>
   </template>

@@ -15,6 +15,7 @@ kcoreaddons_add_plugin(breezy_desktop_config INSTALL_NAMESPACE "plasma/kcms" SOU
 kconfig_add_kcfg_files(breezy_desktop_config ../breezydesktopconfig.kcfgc)
 target_link_libraries(breezy_desktop_config
     Qt6::DBus
+    Qt6::Network
     KF6::ConfigCore
     KF6::ConfigGui
     KF6::ConfigWidgets

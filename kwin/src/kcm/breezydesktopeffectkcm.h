@@ -4,6 +4,7 @@
 #include <KConfigWatcher>
 #include <memory>
 
+#include <QNetworkAccessManager>
 #include <QTimer>
 #include <QVariant>
 #include <QVariantList>
@@ -56,6 +57,7 @@ private:
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void checkEffectLoaded();
+    void checkForUpdates();
     void showStatus(QLabel *label, bool success, const QString &message);
     void setRequestInProgress(std::initializer_list<QObject*> widgets, bool inProgress);
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -71,6 +73,7 @@ private:
     ::Ui::BreezyDesktopEffectConfig ui;
 
     KConfigWatcher::Ptr m_configWatcher;
+    QNetworkAccessManager *m_networkManager = nullptr;
     bool m_updatingFromConfig = false;
     bool m_driverStateInitialized = false;
     bool m_deviceConnected = false;

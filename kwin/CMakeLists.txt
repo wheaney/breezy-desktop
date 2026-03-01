@@ -35,7 +35,7 @@ include(cmake/info.cmake)
 find_package(epoxy REQUIRED)
 find_package(XCB REQUIRED COMPONENTS XCB)
 find_package(KWinDBusInterface CONFIG REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core Network)
 
 # Qt6 sets QT6_INSTALL_QML which is distro-aware
 get_target_property(QT6_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
