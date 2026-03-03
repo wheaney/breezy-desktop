@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 12:51-0800\n"
+"POT-Creation-Date: 2026-03-03 12:40-0800\n"
 "PO-Revision-Date: 2024-08-02 20:54-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: French <traduc@traduc.org>\n"
@@ -92,17 +92,13 @@ msgstr "Activé"
 msgid " ({time_remaining} remaining)"
 msgstr " ({time_remaining} restant)"
 
-#: src/licensefeaturerow.py:30
-msgid "Side-by-side mode (gaming)"
-msgstr "Mode SBS (jeu)"
+#: src/licensefeaturerow.py:30 src/licensetierrow.py:56
+msgid "Productivity Basic"
+msgstr ""
 
-#: src/licensefeaturerow.py:31
-msgid "Smooth Follow (gaming)"
-msgstr "Suivi fluide (jeu)"
-
-#: src/licensefeaturerow.py:32
-msgid "Breezy Desktop (productivity)"
-msgstr "Breezy Desktop (productivité)"
+#: src/licensefeaturerow.py:31 src/licensetierrow.py:57
+msgid "Productivity Pro"
+msgstr ""
 
 #: src/licensetierrow.py:24
 msgid "Active"
@@ -128,14 +124,6 @@ msgstr " à mettre à niveau"
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
 msgstr "Payé jusqu'à la prochaine période de renouvellement"
-
-#: src/licensetierrow.py:56
-msgid "Gaming"
-msgstr "Jeu"
-
-#: src/licensetierrow.py:57
-msgid "Productivity"
-msgstr "Productivité"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
@@ -234,11 +222,11 @@ msgstr "Affichage incurvé"
 msgid "Switch between flat and curved displays."
 msgstr "Basculez entre les affichages plats et incurvés."
 
-#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:36
 msgid "Disable physical displays"
 msgstr "Désactiver les écrans physiques"
 
-#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:37
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr ""
@@ -628,11 +616,11 @@ msgstr "Plus éloigné"
 msgid "Done"
 msgstr "Terminé"
 
-#: src/gtk/failed-verification.ui:13
+#: src/gtk/failed-verification.ui:15
 msgid "Breezy Desktop GNOME invalid setup"
 msgstr "Configuration Breezy Desktop GNOME non valide"
 
-#: src/gtk/failed-verification.ui:14
+#: src/gtk/failed-verification.ui:16
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
@@ -653,23 +641,23 @@ msgstr "Demander un jeton d'authentification"
 msgid "Verify token"
 msgstr "Vérifier le jeton d'authentification"
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:139
 msgid "License Details"
 msgstr "Détails de la licence"
 
-#: src/gtk/no-device.ui:13
+#: src/gtk/no-device.ui:15
 msgid "No device connected"
 msgstr "Aucun appareil connecté"
 
-#: src/gtk/no-device.ui:14
+#: src/gtk/no-device.ui:16
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop n'a pas pu détecter d'appareils XR pris en charge."
 
-#: src/gtk/no-device.ui:23
+#: src/gtk/no-device.ui:25
 msgid "Auto-enable XR effect"
 msgstr "Activation automatique de l'effet XR"
 
-#: src/gtk/no-device.ui:24
+#: src/gtk/no-device.ui:26
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
@@ -677,11 +665,11 @@ msgstr ""
 "Activer automatiquement l'effet Breezy Desktop XR lorsque des lunettes "
 "compatibles sont connectées."
 
-#: src/gtk/no-driver.ui:13
+#: src/gtk/no-driver.ui:15
 msgid "No driver running"
 msgstr "Aucun pilote en cours d'exécution"
 
-#: src/gtk/no-driver.ui:14
+#: src/gtk/no-driver.ui:16
 msgid ""
 "\n"
 "          If you installed via AUR, make sure you ran the recommended post-"
@@ -701,11 +689,11 @@ msgstr ""
 "discussion dans le canal #troubleshooting sur Discord.\n"
 " "
 
-#: src/gtk/no-extension.ui:13
+#: src/gtk/no-extension.ui:15
 msgid "Breezy Desktop GNOME extension not ready"
 msgstr "Extension Breezy Desktop GNOME non prête"
 
-#: src/gtk/no-extension.ui:14
+#: src/gtk/no-extension.ui:16
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
@@ -714,11 +702,11 @@ msgstr ""
 "déconnecter et vous reconnecter pour l'utiliser. Sinon, veuillez suivre les "
 "instructions d'installation de Breezy GNOME."
 
-#: src/gtk/no-license.ui:13
+#: src/gtk/no-license.ui:15
 msgid "No license file was found"
 msgstr "Aucun fichier de licence trouvé"
 
-#: src/gtk/no-license.ui:14
+#: src/gtk/no-license.ui:16
 msgid ""
 "\n"
 "          The first time you use Breezy Desktop, an internet connection is "
@@ -746,7 +734,7 @@ msgstr ""
 "(ou indéfiniment, si vous avez choisi l'accès à vie).\n"
 " "
 
-#: src/gtk/no-license.ui:27
+#: src/gtk/no-license.ui:29
 msgid "Try Again"
 msgstr "Réessayer"
 
@@ -771,7 +759,7 @@ msgstr "Menu"
 msgid "Some features expire soon"
 msgstr "Certaines fonctionnalités expirent bientôt"
 
-#: src/gtk/window.ui:51 src/gtk/window.ui:76
+#: src/gtk/window.ui:51 src/gtk/window.ui:76 src/gtk/window.ui:102
 msgid "View details"
 msgstr "Afficher les détails"
 
@@ -779,13 +767,38 @@ msgstr "Afficher les détails"
 msgid "Productivity features are disabled"
 msgstr "Les fonctionnalités de productivité sont désactivées"
 
-#: src/gtk/window.ui:95
+#: src/gtk/window.ui:93
+msgid ""
+"Productivity Pro license is inactive — 6DoF features will be unavailable"
+msgstr ""
+
+#: src/gtk/window.ui:119
+msgid ""
+"A newer version is available. To update, rerun the breezy_gnome_setup script."
+msgstr ""
+
+#: src/gtk/window.ui:143
 msgid "Force Reset"
 msgstr "Réinitialiser"
 
-#: src/gtk/window.ui:99
+#: src/gtk/window.ui:147
 msgid "About BreezyDesktop"
 msgstr "À propos de BreezyDesktop"
+
+#~ msgid "Side-by-side mode (gaming)"
+#~ msgstr "Mode SBS (jeu)"
+
+#~ msgid "Smooth Follow (gaming)"
+#~ msgstr "Suivi fluide (jeu)"
+
+#~ msgid "Breezy Desktop (productivity)"
+#~ msgstr "Breezy Desktop (productivité)"
+
+#~ msgid "Gaming"
+#~ msgstr "Jeu"
+
+#~ msgid "Productivity"
+#~ msgstr "Productivité"
 
 #~ msgid "fullscreen"
 #~ msgstr "Plein écran"

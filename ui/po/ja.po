@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 12:51-0800\n"
+"POT-Creation-Date: 2026-03-03 12:40-0800\n"
 "PO-Revision-Date: 2026-02-11 07:53+0900\n"
 "Last-Translator: iwaim.sub@gmail.com\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -88,17 +88,13 @@ msgstr "有効"
 msgid " ({time_remaining} remaining)"
 msgstr "(残り {time_remaining})"
 
-#: src/licensefeaturerow.py:30
-msgid "Side-by-side mode (gaming)"
-msgstr "サイドバイサイドモード(ゲーミング)"
+#: src/licensefeaturerow.py:30 src/licensetierrow.py:56
+msgid "Productivity Basic"
+msgstr ""
 
-#: src/licensefeaturerow.py:31
-msgid "Smooth Follow (gaming)"
-msgstr "スムーズフォロー(ゲーミング)"
-
-#: src/licensefeaturerow.py:32
-msgid "Breezy Desktop (productivity)"
-msgstr "Breezy Desktop(プロダクティビティ)"
+#: src/licensefeaturerow.py:31 src/licensetierrow.py:57
+msgid "Productivity Pro"
+msgstr ""
 
 #: src/licensetierrow.py:24
 msgid "Active"
@@ -124,14 +120,6 @@ msgstr "でアップグレード可能"
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
 msgstr "次の更新期間まで支払済み"
-
-#: src/licensetierrow.py:56
-msgid "Gaming"
-msgstr "ゲーミング"
-
-#: src/licensetierrow.py:57
-msgid "Productivity"
-msgstr "プロダクティビティ"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
@@ -229,11 +217,11 @@ msgstr "曲面ディスプレイ"
 msgid "Switch between flat and curved displays."
 msgstr "平面と曲面ディスプレイを切り替えます。"
 
-#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:36
 msgid "Disable physical displays"
 msgstr "物理ディスプレイの無効化"
 
-#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:37
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr "XRエフェクト有効時、自動的に物理ディスプレイを無効化する。"
@@ -614,11 +602,11 @@ msgstr "遠い"
 msgid "Done"
 msgstr "完了"
 
-#: src/gtk/failed-verification.ui:13
+#: src/gtk/failed-verification.ui:15
 msgid "Breezy Desktop GNOME invalid setup"
 msgstr "Breezy Desktop GNOMEの無効なセットアップ"
 
-#: src/gtk/failed-verification.ui:14
+#: src/gtk/failed-verification.ui:16
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
@@ -638,34 +626,34 @@ msgstr "トークンをリクエストする"
 msgid "Verify token"
 msgstr "トークンを検証する"
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:139
 msgid "License Details"
 msgstr "ライセンスの詳細"
 
-#: src/gtk/no-device.ui:13
+#: src/gtk/no-device.ui:15
 msgid "No device connected"
 msgstr "デバイスが接続されていません"
 
-#: src/gtk/no-device.ui:14
+#: src/gtk/no-device.ui:16
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktopは対応しているXRデバイスを検出できませんでした。"
 
-#: src/gtk/no-device.ui:23
+#: src/gtk/no-device.ui:25
 msgid "Auto-enable XR effect"
 msgstr "XRエフェクトの自動有効化"
 
-#: src/gtk/no-device.ui:24
+#: src/gtk/no-device.ui:26
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
 "対応メガネを接続するとBreezy DesktopのXRエフェクトを自動的に開始します。"
 
-#: src/gtk/no-driver.ui:13
+#: src/gtk/no-driver.ui:15
 msgid "No driver running"
 msgstr "ドライバーが実行されていません"
 
-#: src/gtk/no-driver.ui:14
+#: src/gtk/no-driver.ui:16
 msgid ""
 "\n"
 "          If you installed via AUR, make sure you ran the recommended post-"
@@ -685,11 +673,11 @@ msgstr ""
 "#troubleshootingチャンネルで新しいスレッドを作成してください。\n"
 "        "
 
-#: src/gtk/no-extension.ui:13
+#: src/gtk/no-extension.ui:15
 msgid "Breezy Desktop GNOME extension not ready"
 msgstr "Breezy Desktop GNOME Shell拡張機能が準備できていません"
 
-#: src/gtk/no-extension.ui:14
+#: src/gtk/no-extension.ui:16
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
@@ -698,11 +686,11 @@ msgstr ""
 "る必要があるかもしれません。それ以外の場合は、Breezy GNOMEのセットアップ手順"
 "に従ってください。"
 
-#: src/gtk/no-license.ui:13
+#: src/gtk/no-license.ui:15
 msgid "No license file was found"
 msgstr "ライセンスファイルが見つかりませんでした"
 
-#: src/gtk/no-license.ui:14
+#: src/gtk/no-license.ui:16
 msgid ""
 "\n"
 "          The first time you use Breezy Desktop, an internet connection is "
@@ -730,7 +718,7 @@ msgstr ""
 "せん。)\n"
 "        "
 
-#: src/gtk/no-license.ui:27
+#: src/gtk/no-license.ui:29
 msgid "Try Again"
 msgstr "もう一度お試しください"
 
@@ -755,7 +743,7 @@ msgstr "メニュー"
 msgid "Some features expire soon"
 msgstr "一部の機能はもうすぐ期限が切れます"
 
-#: src/gtk/window.ui:51 src/gtk/window.ui:76
+#: src/gtk/window.ui:51 src/gtk/window.ui:76 src/gtk/window.ui:102
 msgid "View details"
 msgstr "詳細を表示"
 
@@ -763,13 +751,38 @@ msgstr "詳細を表示"
 msgid "Productivity features are disabled"
 msgstr "プロダクティビティ機能が無効になっています"
 
-#: src/gtk/window.ui:95
+#: src/gtk/window.ui:93
+msgid ""
+"Productivity Pro license is inactive — 6DoF features will be unavailable"
+msgstr ""
+
+#: src/gtk/window.ui:119
+msgid ""
+"A newer version is available. To update, rerun the breezy_gnome_setup script."
+msgstr ""
+
+#: src/gtk/window.ui:143
 msgid "Force Reset"
 msgstr "強制リセット"
 
-#: src/gtk/window.ui:99
+#: src/gtk/window.ui:147
 msgid "About BreezyDesktop"
 msgstr "Breezy Desktopについて"
+
+#~ msgid "Side-by-side mode (gaming)"
+#~ msgstr "サイドバイサイドモード(ゲーミング)"
+
+#~ msgid "Smooth Follow (gaming)"
+#~ msgstr "スムーズフォロー(ゲーミング)"
+
+#~ msgid "Breezy Desktop (productivity)"
+#~ msgstr "Breezy Desktop(プロダクティビティ)"
+
+#~ msgid "Gaming"
+#~ msgstr "ゲーミング"
+
+#~ msgid "Productivity"
+#~ msgstr "プロダクティビティ"
 
 #~ msgid "fullscreen"
 #~ msgstr "全画面"

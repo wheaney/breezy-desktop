@@ -68,7 +68,7 @@ export default class BreezyDesktopExtension extends Extension {
             Globals.extension_dir = this.path;
 
             // safe to request on each load, acts as a no-op if already present
-            this._write_control('request_features', 'productivity_basic');
+            this._write_control('request_features', 'productivity,productivity_pro');
 
             Globals.data_stream.start();
 

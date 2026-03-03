@@ -80,6 +80,32 @@
           </object>
         </child>
         <child>
+          <object class="GtkInfoBar" id="pose_position_needs_pro_banner">
+            <property name="revealed">0</property>
+            <property name="show-close-button">False</property>
+            <property name="message-type">warning</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Productivity Pro license is inactive — 6DoF features will be unavailable</property>
+                    <property name="hexpand">True</property>
+                    <property name="wrap">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="pose_position_needs_pro_button">
+                <property name="label" translatable="yes">View details</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="GtkInfoBar" id="update_available_banner">
             <property name="revealed">0</property>
             <property name="show-close-button">False</property>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 12:51-0800\n"
+"POT-Creation-Date: 2026-03-03 12:40-0800\n"
 "PO-Revision-Date: 2024-08-02 20:55-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -82,17 +82,13 @@ msgstr "已启用"
 msgid " ({time_remaining} remaining)"
 msgstr " (剩下 {time_remaining})"
 
-#: src/licensefeaturerow.py:30
-msgid "Side-by-side mode (gaming)"
-msgstr "并排模式（游戏）"
+#: src/licensefeaturerow.py:30 src/licensetierrow.py:56
+msgid "Productivity Basic"
+msgstr ""
 
-#: src/licensefeaturerow.py:31
-msgid "Smooth Follow (gaming)"
-msgstr "平滑跟随（游戏）"
-
-#: src/licensefeaturerow.py:32
-msgid "Breezy Desktop (productivity)"
-msgstr "Breezy Desktop （生产力）"
+#: src/licensefeaturerow.py:31 src/licensetierrow.py:57
+msgid "Productivity Pro"
+msgstr ""
 
 #: src/licensetierrow.py:24
 msgid "Active"
@@ -118,14 +114,6 @@ msgstr "升级"
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
 msgstr "已支付至下个续订期"
-
-#: src/licensetierrow.py:56
-msgid "Gaming"
-msgstr "游戏"
-
-#: src/licensetierrow.py:57
-msgid "Productivity"
-msgstr "生产力"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
@@ -223,11 +211,11 @@ msgstr "曲面显示"
 msgid "Switch between flat and curved displays."
 msgstr "平板和曲面显示模式之间切换。"
 
-#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:36
 msgid "Disable physical displays"
 msgstr "将所有具体屏幕关闭"
 
-#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:37
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr "XR效果开启时将所有具体屏幕自动关闭"
@@ -591,11 +579,11 @@ msgstr "远"
 msgid "Done"
 msgstr "完成"
 
-#: src/gtk/failed-verification.ui:13
+#: src/gtk/failed-verification.ui:15
 msgid "Breezy Desktop GNOME invalid setup"
 msgstr "Breezy Desktop GNOME 无效设置"
 
-#: src/gtk/failed-verification.ui:14
+#: src/gtk/failed-verification.ui:16
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
@@ -615,33 +603,33 @@ msgstr "申请令牌"
 msgid "Verify token"
 msgstr "令牌验证"
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:139
 msgid "License Details"
 msgstr "许可证详细信息"
 
-#: src/gtk/no-device.ui:13
+#: src/gtk/no-device.ui:15
 msgid "No device connected"
 msgstr "未连接设备"
 
-#: src/gtk/no-device.ui:14
+#: src/gtk/no-device.ui:16
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop 无法检测到任何支援的 XR 设备。"
 
-#: src/gtk/no-device.ui:23
+#: src/gtk/no-device.ui:25
 msgid "Auto-enable XR effect"
 msgstr "自动启动XR效果"
 
-#: src/gtk/no-device.ui:24
+#: src/gtk/no-device.ui:26
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr "当支援的设备已连接，将BREEZY DESKTOP XR效果自动启动"
 
-#: src/gtk/no-driver.ui:13
+#: src/gtk/no-driver.ui:15
 msgid "No driver running"
 msgstr "未运行驱动程序"
 
-#: src/gtk/no-driver.ui:14
+#: src/gtk/no-driver.ui:16
 msgid ""
 "\n"
 "          If you installed via AUR, make sure you ran the recommended post-"
@@ -660,11 +648,11 @@ msgstr ""
 "主题。\n"
 " "
 
-#: src/gtk/no-extension.ui:13
+#: src/gtk/no-extension.ui:15
 msgid "Breezy Desktop GNOME extension not ready"
 msgstr "Breezy Desktop GNOME 扩展尚未启用"
 
-#: src/gtk/no-extension.ui:14
+#: src/gtk/no-extension.ui:16
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
@@ -672,11 +660,11 @@ msgstr ""
 "如果您刚运行设置，则可能需要注销并重新登录才能使用它。否则，请按照 Breezy "
 "GNOME 设置说明进行操作。"
 
-#: src/gtk/no-license.ui:13
+#: src/gtk/no-license.ui:15
 msgid "No license file was found"
 msgstr "未找到许可证文件"
 
-#: src/gtk/no-license.ui:14
+#: src/gtk/no-license.ui:16
 msgid ""
 "\n"
 "          The first time you use Breezy Desktop, an internet connection is "
@@ -701,7 +689,7 @@ msgstr ""
 "过期，如果您选择了终身访问，则可以无限期使用）。\n"
 " "
 
-#: src/gtk/no-license.ui:27
+#: src/gtk/no-license.ui:29
 msgid "Try Again"
 msgstr "重新尝试"
 
@@ -725,7 +713,7 @@ msgstr "菜单"
 msgid "Some features expire soon"
 msgstr "某些功能即将过期"
 
-#: src/gtk/window.ui:51 src/gtk/window.ui:76
+#: src/gtk/window.ui:51 src/gtk/window.ui:76 src/gtk/window.ui:102
 msgid "View details"
 msgstr "查看详细信息"
 
@@ -733,13 +721,38 @@ msgstr "查看详细信息"
 msgid "Productivity features are disabled"
 msgstr "生产模式功能被禁用"
 
-#: src/gtk/window.ui:95
+#: src/gtk/window.ui:93
+msgid ""
+"Productivity Pro license is inactive — 6DoF features will be unavailable"
+msgstr ""
+
+#: src/gtk/window.ui:119
+msgid ""
+"A newer version is available. To update, rerun the breezy_gnome_setup script."
+msgstr ""
+
+#: src/gtk/window.ui:143
 msgid "Force Reset"
 msgstr "强制重置"
 
-#: src/gtk/window.ui:99
+#: src/gtk/window.ui:147
 msgid "About BreezyDesktop"
 msgstr "关于 Breezy Desktop"
+
+#~ msgid "Side-by-side mode (gaming)"
+#~ msgstr "并排模式（游戏）"
+
+#~ msgid "Smooth Follow (gaming)"
+#~ msgstr "平滑跟随（游戏）"
+
+#~ msgid "Breezy Desktop (productivity)"
+#~ msgstr "Breezy Desktop （生产力）"
+
+#~ msgid "Gaming"
+#~ msgstr "游戏"
+
+#~ msgid "Productivity"
+#~ msgstr "生产力"
 
 #~ msgid "fullscreen"
 #~ msgstr "全屏"
