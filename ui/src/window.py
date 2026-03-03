@@ -22,6 +22,8 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     license_action_needed_button = Gtk.Template.Child()
     missing_breezy_features_banner = Gtk.Template.Child()
     missing_breezy_features_button = Gtk.Template.Child()
+    pose_position_needs_pro_banner = Gtk.Template.Child()
+    pose_position_needs_pro_button = Gtk.Template.Child()
     update_available_banner = Gtk.Template.Child()
 
     def __init__(self, version, skip_verification, **kwargs):
@@ -42,10 +44,12 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         self.state_manager.connect('notify::license-action-needed', self._handle_state_update)
         self.state_manager.connect('notify::license-present', self._handle_state_update)
         self.state_manager.connect('notify::enabled-features-list', self._handle_state_update)
+        self.state_manager.connect('notify::connected-device-pose-has-position', self._handle_state_update)
         self.settings.connect('changed::debug-no-device', self._handle_settings_update)
 
         self.license_action_needed_button.connect('clicked', self._on_license_button_clicked)
         self.missing_breezy_features_button.connect('clicked', self._on_license_button_clicked)
+        self.pose_position_needs_pro_button.connect('clicked', self._on_license_button_clicked)
 
         self._handle_state_update(self.state_manager, None)
 
@@ -62,10 +66,15 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         GLib.idle_add(self._handle_state_update_gui, state_manager)
 
     def _handle_state_update_gui(self, state_manager):
-        enabled_breezy_features = [feature for feature in state_manager.get_property('enabled-features-list') if feature in BREEZY_GNOME_FEATURES]
+        enabled_features_list = state_manager.get_property('enabled-features-list') or []
+        enabled_breezy_features = [feature for feature in enabled_features_list if feature in BREEZY_GNOME_FEATURES]
         breezy_features_granted = len(enabled_breezy_features) > 0
         self.missing_breezy_features_banner.set_revealed(not breezy_features_granted)
         self.license_action_needed_banner.set_revealed(state_manager.get_property('license-action-needed') == True)
+
+        pose_has_position = state_manager.get_property('connected-device-pose-has-position') == True
+        pro_enabled = 'productivity_pro' in enabled_features_list
+        self.pose_position_needs_pro_banner.set_revealed(state_manager.connected_device_name and pose_has_position and breezy_features_granted and not pro_enabled)
 
         for child in self.main_content:
             self.main_content.remove(child)

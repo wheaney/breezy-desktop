@@ -1170,6 +1170,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     if (!labelSummary) return;
     auto donate = tab->findChild<QLabel*>("labelDonateLink");
     auto globalWarn = widget()->findChild<QLabel*>("labelGlobalWarning");
+    auto poseProWarn = widget()->findChild<QLabel*>("labelPoseProWarning");
 
     struct TierUiState {
         QString status = BreezyDesktopEffectConfig::tr("disabled");
@@ -1319,6 +1320,17 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
         ui.EffectEnabled->setEnabled(false);
     } else {
         ui.EffectEnabled->setEnabled(true);
+    }
+
+    if (poseProWarn) {
+        const bool showPoseProWarn = m_deviceConnected && m_connectedDevicePoseHasPosition && baseEntitled && !proEntitled;
+        if (showPoseProWarn) {
+            poseProWarn->setText(tr("Productivity Pro license is inactive — 6DoF features will be unavailable."));
+            poseProWarn->setVisible(true);
+        } else {
+            poseProWarn->clear();
+            poseProWarn->setVisible(false);
+        }
     }
 }
 

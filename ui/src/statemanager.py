@@ -21,6 +21,7 @@ class StateManager(GObject.GObject):
         'license-present': (bool, 'License Present', 'Whether a license is present', False, GObject.ParamFlags.READWRITE),
         'enabled-features-list': (object, 'Enabled Features List', 'A list of the enabled features', GObject.ParamFlags.READWRITE),
         'device-supports-sbs': (bool, 'Device Supports SBS', 'Whether the connected device supports SBS', False, GObject.ParamFlags.READWRITE),
+        'connected-device-pose-has-position': (bool, 'Pose Has Position', 'Whether the connected device provides position tracking (6DoF)', False, GObject.ParamFlags.READWRITE),
         'connected-device-full-distance-cm': (float, 'Full Distance (cm)', 'Device full distance in cm', 0.0, 10000.0, 0.0, GObject.ParamFlags.READWRITE),
         'connected-device-full-size-cm': (float, 'Full Size (cm)', 'Device full display size in cm', 0.0, 10000.0, 0.0, GObject.ParamFlags.READWRITE),
     }
@@ -61,6 +62,7 @@ class StateManager(GObject.GObject):
         self.license_present = False
         self.enabled_features = []
         self.device_supports_sbs = False
+        self.connected_device_pose_has_position = False
         self.connected_device_full_distance_cm = 0.0
         self.connected_device_full_size_cm = 0.0
         self._running = True
@@ -101,6 +103,7 @@ class StateManager(GObject.GObject):
             self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
             self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
             self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
+            self.set_property('connected-device-pose-has-position', self.state.get('connected_device_pose_has_position', False) == True)
 
             full_distance = self.state.get('connected_device_full_distance_cm') or 0.0
             if full_distance != self.connected_device_full_distance_cm:
@@ -127,6 +130,8 @@ class StateManager(GObject.GObject):
             self.enabled_features = value
         if prop.name == 'device-supports-sbs':
             self.device_supports_sbs = value
+        if prop.name == 'connected-device-pose-has-position':
+            self.connected_device_pose_has_position = value
         if prop.name == 'connected-device-full-distance-cm':
             self.connected_device_full_distance_cm = value
         if prop.name == 'connected-device-full-size-cm':
@@ -147,6 +152,8 @@ class StateManager(GObject.GObject):
             return self.enabled_features
         if prop.name == 'device-supports-sbs':
             return self.device_supports_sbs
+        if prop.name == 'connected-device-pose-has-position':
+            return self.connected_device_pose_has_position
         if prop.name == 'connected-device-full-distance-cm':
             return self.connected_device_full_distance_cm
         if prop.name == 'connected-device-full-size-cm':

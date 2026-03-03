@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 12:51-0800\n"
+"POT-Creation-Date: 2026-03-03 12:40-0800\n"
 "PO-Revision-Date: 2024-08-16 10:31-0700\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -89,17 +89,13 @@ msgstr "Aktiverad"
 msgid " ({time_remaining} remaining)"
 msgstr " ({time_remaining} kvar)"
 
-#: src/licensefeaturerow.py:30
-msgid "Side-by-side mode (gaming)"
-msgstr "Side-by-side läge (spel)"
+#: src/licensefeaturerow.py:30 src/licensetierrow.py:56
+msgid "Productivity Basic"
+msgstr ""
 
-#: src/licensefeaturerow.py:31
-msgid "Smooth Follow (gaming)"
-msgstr "Smidig följning (spel)"
-
-#: src/licensefeaturerow.py:32
-msgid "Breezy Desktop (productivity)"
-msgstr "Breezy Desktop (produktivitet)"
+#: src/licensefeaturerow.py:31 src/licensetierrow.py:57
+msgid "Productivity Pro"
+msgstr ""
 
 #: src/licensetierrow.py:24
 msgid "Active"
@@ -125,14 +121,6 @@ msgstr " att uppgradera"
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
 msgstr "Betald genom nästa förnyelseperiod"
-
-#: src/licensetierrow.py:56
-msgid "Gaming"
-msgstr "Spel"
-
-#: src/licensetierrow.py:57
-msgid "Productivity"
-msgstr "Produktivitet"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
@@ -229,11 +217,11 @@ msgstr "Böjd skärm"
 msgid "Switch between flat and curved displays."
 msgstr "Växla mellan platt eller böjd skärm."
 
-#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:34
+#: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:36
 msgid "Disable physical displays"
 msgstr ""
 
-#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:35
+#: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:37
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
 msgstr ""
@@ -612,11 +600,11 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
-#: src/gtk/failed-verification.ui:13
+#: src/gtk/failed-verification.ui:15
 msgid "Breezy Desktop GNOME invalid setup"
 msgstr "Breezy Desktop GNOME ogiltig inställning"
 
-#: src/gtk/failed-verification.ui:14
+#: src/gtk/failed-verification.ui:16
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
@@ -636,23 +624,23 @@ msgstr "Begär en token"
 msgid "Verify token"
 msgstr "Verifiera token"
 
-#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:91
+#: src/gtk/license-dialog.ui:5 src/gtk/window.ui:139
 msgid "License Details"
 msgstr "Licensdetaljer"
 
-#: src/gtk/no-device.ui:13
+#: src/gtk/no-device.ui:15
 msgid "No device connected"
 msgstr "Inget enhet ansluten"
 
-#: src/gtk/no-device.ui:14
+#: src/gtk/no-device.ui:16
 msgid "Breezy Desktop was unable to detect any supported XR devices."
 msgstr "Breezy Desktop kunde inte upptäcka enheter som stöder XR."
 
-#: src/gtk/no-device.ui:23
+#: src/gtk/no-device.ui:25
 msgid "Auto-enable XR effect"
 msgstr "Autoaktivering av XR-effekt"
 
-#: src/gtk/no-device.ui:24
+#: src/gtk/no-device.ui:26
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
@@ -660,11 +648,11 @@ msgstr ""
 "Aktivera Breezy Desktop XR-effekten automatiskt när glasögon som stöds är "
 "anslutna."
 
-#: src/gtk/no-driver.ui:13
+#: src/gtk/no-driver.ui:15
 msgid "No driver running"
 msgstr "Inget drivrutin köres"
 
-#: src/gtk/no-driver.ui:14
+#: src/gtk/no-driver.ui:16
 msgid ""
 "\n"
 "          If you installed via AUR, make sure you ran the recommended post-"
@@ -684,11 +672,11 @@ msgstr ""
 "tråd i #troubleshooting kanal på Discord.\n"
 "        "
 
-#: src/gtk/no-extension.ui:13
+#: src/gtk/no-extension.ui:15
 msgid "Breezy Desktop GNOME extension not ready"
 msgstr "Breezy Desktop GNOME tillägg inte redo"
 
-#: src/gtk/no-extension.ui:14
+#: src/gtk/no-extension.ui:16
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
@@ -697,11 +685,11 @@ msgstr ""
 "använda den. Annars, var god att följa Breezy GNOME inställning "
 "instruktioner."
 
-#: src/gtk/no-license.ui:13
+#: src/gtk/no-license.ui:15
 msgid "No license file was found"
 msgstr "Inget licens fil hittades"
 
-#: src/gtk/no-license.ui:14
+#: src/gtk/no-license.ui:16
 msgid ""
 "\n"
 "          The first time you use Breezy Desktop, an internet connection is "
@@ -729,7 +717,7 @@ msgstr ""
 "valt livstidsåtkomst).\n"
 "        "
 
-#: src/gtk/no-license.ui:27
+#: src/gtk/no-license.ui:29
 msgid "Try Again"
 msgstr "Försök igen"
 
@@ -753,7 +741,7 @@ msgstr "Meny"
 msgid "Some features expire soon"
 msgstr "Vissa funktioner upphör snart"
 
-#: src/gtk/window.ui:51 src/gtk/window.ui:76
+#: src/gtk/window.ui:51 src/gtk/window.ui:76 src/gtk/window.ui:102
 msgid "View details"
 msgstr "Se detaljer"
 
@@ -761,13 +749,38 @@ msgstr "Se detaljer"
 msgid "Productivity features are disabled"
 msgstr "Produktivitets funktioner är inaktiverade"
 
-#: src/gtk/window.ui:95
+#: src/gtk/window.ui:93
+msgid ""
+"Productivity Pro license is inactive — 6DoF features will be unavailable"
+msgstr ""
+
+#: src/gtk/window.ui:119
+msgid ""
+"A newer version is available. To update, rerun the breezy_gnome_setup script."
+msgstr ""
+
+#: src/gtk/window.ui:143
 msgid "Force Reset"
 msgstr "Tvinga Reset"
 
-#: src/gtk/window.ui:99
+#: src/gtk/window.ui:147
 msgid "About BreezyDesktop"
 msgstr "Om BreezyDesktop"
+
+#~ msgid "Side-by-side mode (gaming)"
+#~ msgstr "Side-by-side läge (spel)"
+
+#~ msgid "Smooth Follow (gaming)"
+#~ msgstr "Smidig följning (spel)"
+
+#~ msgid "Breezy Desktop (productivity)"
+#~ msgstr "Breezy Desktop (produktivitet)"
+
+#~ msgid "Gaming"
+#~ msgstr "Spel"
+
+#~ msgid "Productivity"
+#~ msgstr "Produktivitet"
 
 #~ msgid "Fast SBS mode switching"
 #~ msgstr "Snabb SBS läge växling"

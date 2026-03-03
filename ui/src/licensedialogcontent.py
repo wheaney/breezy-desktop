@@ -3,6 +3,7 @@ from .nolicense import NoLicense
 from .statemanager import StateManager
 from .licensetierrow import LicenseTierRow
 from .licensefeaturerow import LicenseFeatureRow
+from .license import BREEZY_GNOME_FEATURES, BREEZY_GNOME_TIERS
 from .xrdriveripc import XRDriverIPC
 import gettext
 
@@ -60,19 +61,28 @@ class LicenseDialogContent(Gtk.Box):
             self.features.remove(child)
 
         if license_view:
+            allowed_tiers = set(BREEZY_GNOME_TIERS)
+            allowed_features = set(BREEZY_GNOME_FEATURES)
+
             tiers_group = Adw.PreferencesGroup(title=_("Paid Tier Status"), margin_top=20)
-            self.tiers.append(tiers_group)
-            
-            for tier_name, tier_details in license_view['tiers'].items():
-                row = LicenseTierRow(tier_name, tier_details)
-                if row.get_title() != "":
-                    tiers_group.add(row)
+            has_any_tier = False
+            for tier_name, tier_details in license_view.get('tiers', {}).items():
+                if tier_name not in allowed_tiers:
+                    continue
+                tiers_group.add(LicenseTierRow(tier_name, tier_details))
+                has_any_tier = True
+            if has_any_tier:
+                self.tiers.append(tiers_group)
 
             features_group = Adw.PreferencesGroup(title=_("Feature Availability"), margin_top=20)
-            self.features.append(features_group)
-
-            for feature_name, feature_details in license_view['features'].items():
+            has_any_feature = False
+            for feature_name, feature_details in license_view.get('features', {}).items():
+                if feature_name not in allowed_features:
+                    continue
                 features_group.add(LicenseFeatureRow(feature_name, feature_details))
+                has_any_feature = True
+            if has_any_feature:
+                self.features.append(features_group)
         else:
             self.tiers.append(self.no_license)
 
