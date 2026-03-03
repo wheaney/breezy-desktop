@@ -126,7 +126,8 @@ BreezyDesktopEffect::BreezyDesktopEffect()
     {
         QJsonObject flags;
         QJsonArray requested;
-        requested.append(QStringLiteral("productivity_basic"));
+        requested.append(QStringLiteral("productivity"));
+        requested.append(QStringLiteral("productivity_pro"));
         flags.insert(QStringLiteral("request_features"), requested);
         XRDriverIPC::instance().writeControlFlags(flags);
     }

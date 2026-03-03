@@ -27,8 +27,7 @@ class LicenseFeatureRow(Adw.ActionRow):
 
     def _feature_name(self, feature):
         feature_names = {
-            'sbs': lambda: _('Side-by-side mode (gaming)'),
-            'smooth_follow': lambda: _('Smooth Follow (gaming)'),
-            'productivity_basic': lambda: _('Breezy Desktop (productivity)')
+            'productivity': lambda: _('Productivity Basic'),
+            'productivity_pro': lambda: _('Productivity Pro'),
         }
         return feature_names[feature]()

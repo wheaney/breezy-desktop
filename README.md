@@ -72,23 +72,44 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 
 For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware.**
 
-### Breezy Desktop Pricing (Productivity Tier)
+### Breezy Desktop Pricing
 
-Breezy Desktop for GNOME and KDE comes with 2 free trial months. After that, it requires an active Productivity Tier license. Payments are currently only accepted via [Ko-fi](https://ko-fi.com/wheaney). Here's the pricing structure:
+Breezy Desktop for GNOME and KDE comes with 2 free trial months. Trial access is granted automatically after setup (no token entry required), and you only need to be online once after setup so your device can activate/refresh access.
+
+After the trial period ends, you must have an active Productivity license (Basic or Pro) to keep Productivity features enabled.
+
+Productivity licenses apply to **Breezy Desktop (GNOME/KDE)**. **Breezy Vulkan** uses a separate Supporter Tier (see below).
+
+Paid plans are currently only available via [Ko-fi](https://ko-fi.com/wheaney).
+
+#### Productivity Basic
+
+The Basic plan includes everything needed for multi-screen productivity using only device orientation (3DoF). For device position (6DoF) &mdash; e.g. for the VITURE Luma Ultra glasses or supplementing with OpenTrack+NeuralNet &mdash; see the Productivity Pro plan.
 
 | Payment period | Price              | Upgrade window \*                     |
 | -------------- | ------------------ | ------------------------------------- |
-| Monthly        | $5 USD, recurring  | Within 7 days to upgrade to yearly    |
-| Yearly         | $50 USD, recurring | Within 90 days to upgrade to lifetime |
-| Lifetime       | $125 USD, one-time | &mdash;                               |
+| Yearly         | $10 USD, recurring | Within 90 days to upgrade to lifetime |
+| Lifetime       | $25 USD, one-time  | &mdash;                               |
 
 \* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
 
-If you have enough funds, your license will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Productivity Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
+#### Productivity Pro
 
-#### Free Productivity Tier
+The Pro plan provides all the same multi-screen productivity features as Basic, plus device position (6DoF) allowing you to lean in and move more naturally about the displays.
 
-To make Breezy widely accessible, Productivity Tier is currently free of charge for qualified individuals using it for non-commercial purposes. Eligible groups include:
+| Payment period | Price              | Upgrade window \*                     |
+| -------------- | ------------------ | ------------------------------------- |
+| Monthly        | $2 USD, recurring  | Within 7 days to upgrade to yearly    |
+| Yearly         | $20 USD, recurring | Within 90 days to upgrade to lifetime |
+| Lifetime       | $50 USD, one-time  | &mdash;                               |
+
+\* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
+
+For recurring plans (monthly/yearly), renewals are processed automatically during the renewal window (7 days prior to expiration). Your device does not need to stay online during normal use, but it must go online at least once to refresh your license. If you remain offline past your expiration time, features will pause until the next time you go online and refresh.
+
+#### Free Productivity Basic
+
+To make Breezy widely accessible, Productivity Basic is currently free of charge for qualified individuals using it for non-commercial purposes. Eligible groups include:
 
 * Students
 * Public school educators
@@ -98,9 +119,9 @@ To make Breezy widely accessible, Productivity Tier is currently free of charge 
 
 If you believe you qualify, please email wayne@xronlinux.com. You may be asked to provide documentation to verify your eligibility.
 
-#### Unlocking Productivity Tier
+#### Unlocking a Productivity License
 
-After your first payment, you should immediately receive an email (to your Ko-fi email address) with a verification token. Once you receive that, enter it in the `License Details` view of the `Breezy Desktop` application, available from the menu in the top window bar.
+After your trial ends, purchase (or being granted free eligibility) will result in an email with a verification token. Once you receive that, enter it in the `License Details` view of the `Breezy Desktop` application, available from the menu in the top window bar.
 
 If you don't receive a token, you can request one in the `License Details` view by entering your email address.
 
@@ -138,7 +159,7 @@ I've implemented an experimental multi-tap detection feature for screen **re-cen
 
 ### Supporter Tier
 
-Breezy Vulkan's Supporter Tier features are enhancments to core functionality, offered as a way to reward those who have [supported the project](https://ko-fi.com/wheaney). Core features -- like Virtual Display mode, VR-Lite mouse/joystick modes, and Follow mode's display positioning/resizing settings -- will always remain available to everyone regardless of supporter status. Here's the pricing structure:
+Breezy Vulkan's Supporter Tier features are enhancements to core functionality, offered as a way to reward those who have [supported the project](https://ko-fi.com/wheaney). Core features &mdash; like Virtual Display mode, VR-Lite mouse/joystick modes, and Follow mode's display positioning/resizing settings &mdash; will always remain available to everyone regardless of supporter status. Here's the pricing structure:
 
 | Payment period | Price              | Upgrade window \*                     |
 | -------------- | ------------------ | ------------------------------------- |
@@ -147,7 +168,7 @@ Breezy Vulkan's Supporter Tier features are enhancments to core functionality, o
 
 \* If you pay for a plan and decide to upgrade to a longer-term plan, you may pay the difference within this window.
 
-If you have enough funds, your access will renew automatically within 7 days of expiration so you never experience an unexpected outage. Your device is never required to be online to continue using Supporter Tier features when enabled, but if your access expires while offline (even if you have enough funds), the features will be disabled until the next time your device goes online and the license can be refreshed. Be sure to check for expiration warnings prior to travel.
+For recurring plans, access renews automatically during the renewal window (7 days prior to expiration). Your device does not need to stay online during normal use, but it must go online at least once to refresh your license. If you remain offline past your expiration time, features will pause until the next time you go online and refresh.
 
 Features currently offered:
 * Smooth Follow (in Follow mode)
@@ -194,7 +215,7 @@ In order to provide you with Supporter Tier features, this application and its b
 
 * Your email address is sent to this application's backend server from either the payment vendor (Ko-fi) or from your device (at your request). Your email address may be used immediately upon receipt in its unaltered form to send you a transactional email, but it is then hashed prior to storage. The unaltered form of your email address is never stored and can no longer be referenced. The hashed value is stored for later reference.
   * Other personal data may be sent from the payment vendor, but is never utilized nor stored. 
-* Your device's MAC address is hashed on your device. It never leaves your device in its original, unaltered form. The hashed value is sent to this application's backend server and stored for later reference, and -- up to version 0.8.7 -- to Google Analytics.
+* Your device's MAC address is hashed on your device. It never leaves your device in its original, unaltered form. The hashed value is sent to this application's backend server and stored for later reference.
 
 Hashing functions are a one-way process that serve to anonymize your personal data by irreversibly changing them. Once hashed, they can never be unhashed or traced back to their original values.
 

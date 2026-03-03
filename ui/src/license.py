@@ -1,1 +1,1 @@
-BREEZY_GNOME_FEATURES = ['productivity_basic', 'productivity_pro']
+BREEZY_GNOME_FEATURES = ['productivity', 'productivity_pro']
