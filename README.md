@@ -20,12 +20,14 @@ Breezy Desktop is a virtual workspace solution for Linux desktops that use the K
 
 For the best performance, ensure you have the latest graphics drivers installed for your distro.
 
-### KDE Plasma Setup (Beta)
+### KDE Plasma Setup
 
 Breezy Desktop is only compatible with KDE Plasma 6.
 
 **IMPORTANT** - Please read carefully through this list before you get started
-* **If you're installing on an immutable distro other than SteamOS**, you'll need to follow the [Distrobox setup](https://github.com/wheaney/breezy-desktop/wiki/Breezy-KDE-Distrobox-setup).
+* **Make sure your glasses are in the [supported devices list](https://github.com/wheaney/XRLinuxDriver#supported-devices)** and are on the latest firmware.
+* **If you're on SteamOS**, use the [bash setup instructions](#kde-plasma-bash-setup).
+* **If you're installing on an immutable distro BESIDES SteamOS**, you'll need to follow the [Distrobox setup](https://github.com/wheaney/breezy-desktop/wiki/Breezy-KDE-Distrobox-setup).
 * **If this is the first time you're using your glasses with KDE**, you'll be presented with some options around how to extend your desktop that aren't very clear. Choose the "No action" option to leave the glasses' display independent.
 * **If you're running KDE on `X11`**, you won't be able to launch virtual displays. If you're not on SteamOS, look for Wayland options on the login screen.
 * **Steam Deck users** note the extra step in the setup instructions for switching to `Wayland` if you want virtual display features.
@@ -34,32 +36,54 @@ Breezy Desktop is only compatible with KDE Plasma 6.
   * To prevent a broken taskbar: in `Panel Settings`, set `Visibility` to `always-visible`.
   * To prevent a magnified cursor from showing in the wrong place: in `System Settings` / `Accessibility`, disable the `Shake Cursor` effect.
 
-To setup Breezy on KDE, with your glasses unplugged:
-1. Make sure your glasses are in the [supported devices list](https://github.com/wheaney/XRLinuxDriver#supported-devices) and are on the latest firmware.
-2. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_kwin_setup)
-3. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
-4. Run the setup script: `~/Downloads/breezy_kwin_setup`
-5. If you're on SteamOS and want to use virtual displays, use the `Enable Breezy Wayland` desktop script
+#### KDE Plasma Bash Setup
+
+**Note: an [AUR installation](#kde-plasma-arch-linux-setup) is also available for non-SteamOS Arch users**
+
+To setup Breezy on KDE Plasma using `bash`, with your glasses unplugged:
+
+1. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_kwin_setup)
+2. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
+3. Run the setup script: `~/Downloads/breezy_kwin_setup`
+4. If you're on SteamOS and want to use virtual displays, use the `Enable Breezy Wayland` desktop script
    * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running the `Disable Breezy Wayland` desktop script
-6. Log out and back in.
+5. Log out and back in.
+
+#### KDE Plasma Arch Linux setup
+
+Breezy KWin is in AUR. To install, run these commands from a terminal with your glasses unplugged:
+
+1. If you've previously installed Breezy KWin using the setup script, you must uninstall it first with `breezy_kwin_uninstall`
+2. `yay -S breezy-desktop-kwin-git`
+3. `systemctl --user enable --now xr-driver.service`
+4. Log out and back in, then proceed to [usage](#breezy-kwin-usage).
+
+#### Breezy KWin Usage
 
 After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
 ### GNOME Setup
 
-Make sure your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. If you're running `GNOME on Xorg`, you won't be able to launch virtual displays unless you switch to `Wayland`.
+Breezy Desktop has best compatibility with GNOME versions 45 through 49.
 
-#### GNOME Multi-display
+**IMPORTANT** - Please read carefully through this list before you get started
+* **Make sure your glasses are in the [supported devices list](https://github.com/wheaney/XRLinuxDriver#supported-devices)** and are on the latest firmware.
+* **If this is the first time you're using your glasses with GNOME**, make sure your glasses are extending your workspace and not just mirroring your primary monitor by opening up the `Displays` settings dialog and choosing the `Join` option for multiple displays. 
+* **If you're running `GNOME on Xorg`**, you won't be able to launch virtual displays unless you switch to `Wayland`.
+* **If you're using XREAL Ones** or other glasses that provide built-in 3DoF/stabilization/anchoring features (e.g. VITURE Beast), you must disable ALL such features first, using the menu on the glasses.
+
+#### GNOME Bash Setup
 
 **Note: an [AUR installation](#gnome-arch-linux-setup) is also available for Arch users**
 
+To setup Breezy on GNOME using `bash`, with your glasses unplugged:
 1. Download the Breezy GNOME [setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_gnome_setup) and set the execute flag (e.g. from the terminal: `chmod +x ~/Downloads/breezy_gnome_setup`)
 2. Run the setup script: `~/Downloads/breezy_gnome_setup`
 3. Log out and back in, then proceed to [usage](#breezy-gnome-usage).
 
 #### GNOME Arch Linux setup
 
-Breezy GNOME is in AUR (but not pacman, yet). To install, run these commands from a terminal:
+Breezy GNOME is in AUR. To install, run these commands from a terminal with your glasses unplugged:
 
 1. If you've previously installed Breezy GNOME using the setup script, you must uninstall it first with `breezy_gnome_uninstall`
 2. `yay -S breezy-desktop-gnome-git`
