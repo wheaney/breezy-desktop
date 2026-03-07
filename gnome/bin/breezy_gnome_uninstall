@@ -44,6 +44,9 @@ rm -f $XDG_DATA_HOME/locale/*/LC_MESSAGES/breezydesktop.mo
 rm -f $XDG_BIN_HOME/breezydesktop
 rm -f $XDG_BIN_HOME/virtualdisplay
 
+[ "$for_install" -eq 0 ] && echo "Clearing Breezy Desktop icons from the GTK icon cache"
+gtk-update-icon-cache -f -t "$XDG_DATA_HOME/icons/hicolor" >/dev/null 2>&1 || true
+
 if [ -e "$XDG_BIN_HOME/xr_driver_uninstall" ]; then
   [ "$for_install" -eq 0 ] && echo "Uninstalling XRLinuxDriver"
   if [ "$for_install" -eq 1 ]; then
