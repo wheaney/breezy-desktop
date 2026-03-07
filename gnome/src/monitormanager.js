@@ -27,6 +27,7 @@ export const NESTED_MONITOR_PRODUCT = 'MetaMonitor';
 export const VIRTUAL_MONITOR_PRODUCT = 'Virtual remote monitor';
 export const SUPPORTED_MONITOR_PRODUCTS = [
     'VITURE',
+    'VITURE Beast',
     'nreal air',
     'Air',
     'Air 2',
