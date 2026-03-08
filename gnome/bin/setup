@@ -137,8 +137,8 @@ sed -i -e "s/{bin_dir}/$ESCAPED_XDG_BIN_HOME/g" \
 cp bin/breezy_gnome_verify $XDG_BIN_HOME
 
 echo "Copying the manifest file to ${BREEZY_GNOME_DATA_DIR}"
-mkdir -p $BREEZY_GNOME_DATA_DIR
-cp manifest $BREEZY_GNOME_DATA_DIR
+mkdir -p "$BREEZY_GNOME_DATA_DIR"
+cp manifest "$BREEZY_GNOME_DATA_DIR/manifest"
 
 echo "Installing the breezydesktop@xronlinux.com GNOME extension"
 gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
