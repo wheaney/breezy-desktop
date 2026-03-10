@@ -142,8 +142,14 @@ function findFocusedMonitor(quaternion, position, monitorVectors, currentFocused
  * @returns {Object} - containing `begin`, `center`, and `end` radians for rotating the given monitor
  */
 function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPixel, monitorLengthPixels, lengthToRadianFn) {
-    let closestWrapPixel = monitorBeginPixel;
-    let closestWrap = cachedMonitorRadians[monitorBeginPixel];
+    // Monitor coordinates can become fractional due to size adjustment.
+    // If a monitor edge lands extremely close to a cached pixel key, snap to it;
+    // otherwise tiny negative gaps can cause us to subtract a full spacing interval.
+    let beginPixel = monitorBeginPixel;
+    const pixelEpsilon = Math.max(1e-6, Math.abs(monitorLengthPixels) * 1e-6);
+
+    let closestWrapPixel = beginPixel;
+    let closestWrap = cachedMonitorRadians[beginPixel];
     if (closestWrap === undefined) {
         closestWrapPixel = Object.keys(cachedMonitorRadians).reduce((previousPixel, currentPixel) => {
             if (previousPixel === undefined) return currentPixel;
@@ -167,10 +173,16 @@ function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPix
         closestWrap = cachedMonitorRadians[closestWrapPixel];
     }
 
+    const closestWrapPixelNumber = Number(closestWrapPixel);
+    if (Number.isFinite(closestWrapPixelNumber) && Math.abs(closestWrapPixelNumber - beginPixel) < pixelEpsilon) {
+        beginPixel = closestWrapPixelNumber;
+        closestWrapPixel = closestWrapPixelNumber;
+    }
+
     const spacingRadians = lengthToRadianFn(monitorSpacingPixels);
-    if (closestWrapPixel !== monitorBeginPixel) {
+    if (closestWrapPixel !== beginPixel) {
         // there's a gap between the cached wrap value and this one
-        const gapPixels = monitorBeginPixel - closestWrapPixel;
+        const gapPixels = beginPixel - closestWrapPixel;
         const gapRadians = lengthToRadianFn(gapPixels);
 
         // use Math.floor so if it's negative (this monitor is to the left of or above the closest) it will always
@@ -179,7 +191,7 @@ function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPix
 
         // update the closestWrap value and cache it
         closestWrap = closestWrap + gapRadians + appliedSpacingRadians;
-        closestWrapPixel = monitorBeginPixel;
+        closestWrapPixel = beginPixel;
         cachedMonitorRadians[closestWrapPixel] = closestWrap;
     }
 
@@ -188,7 +200,7 @@ function monitorWrap(cachedMonitorRadians, monitorSpacingPixels, monitorBeginPix
     const endRadians = closestWrap + monitorRadians;
 
     // since we're computing the end values for this monitor, cache them too in case they line up with a future monitor
-    const nextMonitorPixel = monitorBeginPixel + monitorLengthPixels;
+    const nextMonitorPixel = beginPixel + monitorLengthPixels;
     if (cachedMonitorRadians[nextMonitorPixel] === undefined)
         cachedMonitorRadians[nextMonitorPixel] = endRadians + spacingRadians;
     
@@ -301,7 +313,7 @@ function monitorsToPlacements(fovDetails, monitorDetailsList, monitorSpacing) {
                 centerNoRotate: [
                     monitorCenterRadius,
 
-                    // west is flat when wrapping horizontally
+                    // west is flat when wrapping vertically
                     westCenterPixels,
 
                     // up is centered about the FOV center
