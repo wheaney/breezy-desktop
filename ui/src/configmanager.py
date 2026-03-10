@@ -1,6 +1,5 @@
 import sys
-import threading
-from gi.repository import GObject
+from gi.repository import GObject, GLib
 from .xrdriveripc import XRDriverIPC
 
 class ConfigManager(GObject.GObject):
@@ -60,10 +59,15 @@ class ConfigManager(GObject.GObject):
         self.neck_saver_horizontal_multiplier = None
         self.neck_saver_vertical_multiplier = None
         self._running = True
+        self._refresh_source_id = None
         self._refresh_config()
+        self._refresh_source_id = GLib.timeout_add_seconds(1, self._refresh_config)
 
     def stop(self):
         self._running = False
+        if self._refresh_source_id is not None:
+            GLib.source_remove(self._refresh_source_id)
+            self._refresh_source_id = None
 
     def _refresh_config(self):
         self.config = self.ipc.retrieve_config(False)
@@ -91,7 +95,7 @@ class ConfigManager(GObject.GObject):
         if self.config['neck_saver_vertical_multiplier'] != self.neck_saver_vertical_multiplier:
             self.set_property('neck-saver-vertical-multiplier', self.config['neck_saver_vertical_multiplier'])
 
-        if self._running: threading.Timer(1.0, self._refresh_config).start()
+        return self._running
 
     def _is_breezy_desktop_enabled(self):
         return self.config.get('disabled') == False and 'breezy_desktop' in self.config.get('external_mode', [])

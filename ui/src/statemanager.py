@@ -1,6 +1,5 @@
 import sys
-import threading
-from gi.repository import GObject
+from gi.repository import GObject, GLib
 from .time import LICENSE_WARN_SECONDS
 from .xrdriveripc import XRDriverIPC
 
@@ -66,14 +65,21 @@ class StateManager(GObject.GObject):
         self.connected_device_full_distance_cm = 0.0
         self.connected_device_full_size_cm = 0.0
         self._running = True
+        self._refresh_source_id = None
         self._refresh_state()
+        self._refresh_source_id = GLib.timeout_add_seconds(1, self._refresh_state)
 
     def stop(self):
         self._running = False
+        if self._refresh_source_id is not None:
+            GLib.source_remove(self._refresh_source_id)
+            self._refresh_source_id = None
 
     def _refresh_state(self):
         self.state = self.ipc.retrieve_driver_state()
-        self.set_property('driver-running', self.state['ui_view'].get('driver_running'))
+        driver_running = self.state['ui_view'].get('driver_running')
+        if driver_running != self.driver_running:
+            self.set_property('driver-running', driver_running)
 
         new_device_name = StateManager.device_name(self.state)
         if self.connected_device_name != new_device_name:
@@ -100,10 +106,21 @@ class StateManager(GObject.GObject):
 
         # only update these properties if a device is still connected
         if (self.connected_device_name):
-            self.set_property('follow-mode', self.state.get('breezy_desktop_smooth_follow_enabled', False))
-            self.set_property('device-supports-sbs', self.state.get('sbs_mode_supported', False))
-            self.set_property('widescreen-mode', self.state.get('sbs_mode_enabled', False))
-            self.set_property('connected-device-pose-has-position', self.state.get('connected_device_pose_has_position', False) == True)
+            follow_mode = self.state.get('breezy_desktop_smooth_follow_enabled', False)
+            if follow_mode != self.follow_mode:
+                self.set_property('follow-mode', follow_mode)
+
+            device_supports_sbs = self.state.get('sbs_mode_supported', False)
+            if device_supports_sbs != self.device_supports_sbs:
+                self.set_property('device-supports-sbs', device_supports_sbs)
+
+            widescreen_mode = self.state.get('sbs_mode_enabled', False)
+            if widescreen_mode != self.widescreen_mode:
+                self.set_property('widescreen-mode', widescreen_mode)
+
+            pose_has_position = (self.state.get('connected_device_pose_has_position', False) == True)
+            if pose_has_position != self.connected_device_pose_has_position:
+                self.set_property('connected-device-pose-has-position', pose_has_position)
 
             full_distance = self.state.get('connected_device_full_distance_cm') or 0.0
             if full_distance != self.connected_device_full_distance_cm:
@@ -113,7 +130,7 @@ class StateManager(GObject.GObject):
             if full_size != self.connected_device_full_size_cm:
                 self.set_property('connected-device-full-size-cm', full_size)
 
-        if self._running: threading.Timer(1.0, self._refresh_state).start()
+        return self._running
 
     def do_set_property(self, prop, value):
         if prop.name == 'driver-running':
