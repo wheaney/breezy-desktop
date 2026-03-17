@@ -6,6 +6,7 @@ set -e
 declare -A file_paths
 file_paths=(
   ["bin/breezy_vulkan_uninstall"]="{bin_dir}/breezy_vulkan_uninstall"
+  ["bin/breezy_vulkan_logs"]="{bin_dir}/breezy_vulkan_logs"
   ["vkBasalt.64/libvkbasalt.so"]="{lib_dir}/libvkbasalt.so"
   ["vkBasalt.32/libvkbasalt.so"]="{lib32_dir}/libvkbasalt.so"
   ["Sombrero.frag"]="{reshade_config_dir}/Shaders/Sombrero.frag"
