@@ -7,7 +7,7 @@ ARCH=${ARCH:-$(uname -m)}
 BUILD_ARCH=$ARCH
 if [ -n "${STEAMOS+x}" ]; then
     ARCH="x86_64"
-    BUILD_ARCH="steamos"
+    BUILD_ARCH="steamos-$STEAMOS"
 fi
 
 # https://stackoverflow.com/a/246128

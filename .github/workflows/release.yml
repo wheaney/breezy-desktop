@@ -148,7 +148,7 @@ jobs:
           name: release-artifacts-gnome-aarch64
           path: out/*.tar.gz
 
-  build-kwin-steamos:
+  build-kwin-steamos-3.7:
     needs: check-version-change
     if: needs.check-version-change.outputs.should-release == 'true'
     runs-on: ubuntu-latest
@@ -163,16 +163,43 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Breezy KWin (steamos)
+      - name: Build Breezy KWin (steamos-3.7)
         run: |
-          STEAMOS=1 bin/package_kwin
+          STEAMOS=3.7 bin/package_kwin
         env:
           UA_API_SECRET: ${{ secrets.UA_API_SECRET }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts-kwin-steamos
+          name: release-artifacts-kwin-steamos-3.7
+          path: out/*.tar.gz
+
+  build-kwin-steamos-3.8:
+    needs: check-version-change
+    if: needs.check-version-change.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Breezy KWin (steamos-3.8)
+        run: |
+          STEAMOS=3.8 bin/package_kwin
+        env:
+          UA_API_SECRET: ${{ secrets.UA_API_SECRET }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts-kwin-steamos-3.8
           path: out/*.tar.gz
 
   build-vulkan-x86_64:

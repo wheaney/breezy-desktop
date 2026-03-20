@@ -14,7 +14,7 @@ check_command "make"
 
 ARCH=${ARCH:-$(uname -m)}
 if [ -n "${STEAMOS+x}" ]; then
-    ARCH="steamos"
+    ARCH="steamos-$STEAMOS"
 fi
 echo "Building Breezy KWin plugin for $ARCH"
 

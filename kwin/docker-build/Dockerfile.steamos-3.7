@@ -1,0 +1,37 @@
+# To run the build from the package root:
+#    docker buildx build --platform linux/amd64,linux/arm64 -f ./docker-build/Dockerfile.steamos-3.7 -t "breezy-kwin-steamos-3.7" .
+#    docker run --rm -t -v ./:/source -v --platform linux/amd64 "breezy-kwin-steamos-3.7:amd64"
+
+FROM --platform=$TARGETPLATFORM ghcr.io/wheaney/holo-base:3.7.20
+
+ARG TARGETPLATFORM
+ENV STEAMOS=3.7
+RUN echo "SteamOS 3.7 build - target platform: $TARGETPLATFORM"
+
+RUN pacman -Sy --noconfirm --needed \
+    ca-certificates \
+    base-devel \
+    cmake \
+    pkgconf \
+    git \
+    curl \
+    wget \
+    extra-cmake-modules \
+    qt6-base \
+    qt6-declarative \
+    qt6-quick3d \
+    qt6-tools \
+    kconfig \
+    kconfigwidgets \
+    kcoreaddons \
+    kglobalaccel \
+    ki18n \
+    kcmutils \
+    kxmlgui \
+    kwindowsystem \
+    kwin \
+ && pacman -Scc --noconfirm
+
+WORKDIR /source
+
+CMD bin/package_kwin_plugin

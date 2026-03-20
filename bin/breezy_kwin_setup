@@ -49,7 +49,8 @@ LIBS_ARCH="$ARCH"
 if [ -f /etc/os-release ]; then
   . /etc/os-release
   if [ "$ID" == "steamos" ]; then
-    ARCH="steamos"
+    IFS=. read -r steamos_major steamos_minor _ <<< "$VERSION_ID"
+    ARCH="steamos-${steamos_major}.${steamos_minor}"
   fi
 fi
 FILE_NAME="breezyKWin-$ARCH.tar.gz"

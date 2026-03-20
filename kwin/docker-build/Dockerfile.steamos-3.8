@@ -1,12 +1,12 @@
 # To run the build from the package root:
-#    docker buildx build --platform linux/amd64,linux/arm64 -f ./docker-build/Dockerfile -t "breezy-kwin" .
-#    docker run --rm -t -v ./:/source -v --platform linux/amd64 "breezy-kwin:amd64"
-#    docker run --rm -t -v ./:/source -v --platform linux/arm64 "breezy-kwin:arm64"
+#    docker buildx build --platform linux/amd64,linux/arm64 -f ./docker-build/Dockerfile.steamos-3.8 -t "breezy-kwin-steamos" .
+#    docker run --rm -t -v ./:/source -v --platform linux/amd64 "breezy-kwin-steamos-3.8:amd64"
 
-FROM --platform=$TARGETPLATFORM archlinux:base-20250817.0.405639@sha256:31f0749bdb81517dc8f379feac0a3860b097f1da1f53c8315c1bae0817d6c0a1
+FROM --platform=$TARGETPLATFORM ghcr.io/wheaney/holo-base:preview-3.8
 
 ARG TARGETPLATFORM
-RUN echo "Target platform: $TARGETPLATFORM"
+ENV STEAMOS=3.8
+RUN echo "SteamOS 3.8 build - target platform: $TARGETPLATFORM"
 
 RUN pacman -Sy --noconfirm --needed \
     ca-certificates \
