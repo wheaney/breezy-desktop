@@ -148,7 +148,7 @@ jobs:
           name: release-artifacts-gnome-aarch64
           path: out/*.tar.gz
 
-  build-kwin-steamos-3.7:
+  build-kwin-steamos-3_7:
     needs: check-version-change
     if: needs.check-version-change.outputs.should-release == 'true'
     runs-on: ubuntu-latest
@@ -175,7 +175,7 @@ jobs:
           name: release-artifacts-kwin-steamos-3.7
           path: out/*.tar.gz
 
-  build-kwin-steamos-3.8:
+  build-kwin-steamos-3_8:
     needs: check-version-change
     if: needs.check-version-change.outputs.should-release == 'true'
     runs-on: ubuntu-latest
