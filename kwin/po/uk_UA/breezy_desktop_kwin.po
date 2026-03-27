@@ -15,8 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
 #. i18n: ectx: property (text), widget (QLabel, labelDeviceConnectionStatus)
@@ -46,13 +45,13 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_CurvedDisplay)
 #: src/kcm/breezydesktopeffectkcm.ui:125
 msgid "Curved display"
-msgstr ""
+msgstr "Викривлений дисплей"
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
 #. i18n: ectx: property (text), widget (QCheckBox, SmoothFollowEnabled)
 #: src/kcm/breezydesktopeffectkcm.ui:135
 msgid "Follow mode"
-msgstr ""
+msgstr "Режим слідування"
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
 #. i18n: ectx: property (text), widget (QLabel, labelFocusedDisplayDistance)
@@ -103,13 +102,15 @@ msgid "Add Virtual Display:"
 msgstr ""
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
-#. i18n: ectx: property (toolTip), widget (QPushButton, buttonRemoveCustomResolution)
+#. i18n: ectx: property (toolTip), widget (QPushButton,
+#. buttonRemoveCustomResolution)
 #: src/kcm/breezydesktopeffectkcm.ui:380
 msgid "Remove custom resolution"
 msgstr ""
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
-#. i18n: ectx: property (text), widget (QPushButton, buttonOpenDisplaysSettings)
+#. i18n: ectx: property (text), widget (QPushButton,
+#. buttonOpenDisplaysSettings)
 #: src/kcm/breezydesktopeffectkcm.ui:405
 msgid "Rearrange displays"
 msgstr ""
@@ -217,13 +218,15 @@ msgid "All displays follow mode"
 msgstr ""
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
-#. i18n: ectx: property (text), widget (QCheckBox, kcfg_RemoveVirtualDisplaysOnDisable)
+#. i18n: ectx: property (text), widget (QCheckBox,
+#. kcfg_RemoveVirtualDisplaysOnDisable)
 #: src/kcm/breezydesktopeffectkcm.ui:577
 msgid "Remove virtual displays on disable"
 msgstr ""
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
-#. i18n: ectx: property (text), widget (QCheckBox, kcfg_MirrorPhysicalDisplays)
+#. i18n: ectx: property (text), widget (QCheckBox,
+#. kcfg_MirrorPhysicalDisplays)
 #: src/kcm/breezydesktopeffectkcm.ui:585
 msgid "Mirror physical displays (may impact performance)"
 msgstr ""
@@ -292,10 +295,11 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupBoxEmail)
 #: src/kcm/breezydesktopeffectkcm.ui:805
 msgid "Request a token"
-msgstr ""
+msgstr "Запитати токен"
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
-#. i18n: ectx: property (placeholderText), widget (QLineEdit, lineEditLicenseEmail)
+#. i18n: ectx: property (placeholderText), widget (QLineEdit,
+#. lineEditLicenseEmail)
 #: src/kcm/breezydesktopeffectkcm.ui:811
 msgid "you@example.com"
 msgstr ""
@@ -310,7 +314,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, groupBoxToken)
 #: src/kcm/breezydesktopeffectkcm.ui:840
 msgid "Verify token"
-msgstr ""
+msgstr "Перевірити токен"
 
 #. i18n: file: src/kcm/breezydesktopeffectkcm.ui
 #. i18n: ectx: property (text), widget (QPushButton, buttonSubmitToken)
@@ -337,7 +341,8 @@ msgid "License: GPL-3.0"
 msgstr ""
 
 #. i18n: file: src/kcm/customresolutiondialog.ui
-#. i18n: ectx: property (windowTitle), widget (QDialog, CustomResolutionDialog)
+#. i18n: ectx: property (windowTitle), widget (QDialog,
+#. CustomResolutionDialog)
 #: src/kcm/customresolutiondialog.ui:6
 msgid "Add custom resolution"
 msgstr ""
@@ -384,13 +389,13 @@ msgstr ""
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "Disabled"
-msgstr ""
+msgstr "Вимкнено"
 
 #. Slider special value label (-1 = default)
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "Default"
-msgstr ""
+msgstr "За замовчуванням"
 
 #. %1 = device brand, %2 = device model
 #. From: src/kcm/breezydesktopeffectkcm.cpp
@@ -401,7 +406,7 @@ msgstr ""
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "No device connected"
-msgstr ""
+msgstr "Жоден пристрій не підключено"
 
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
@@ -462,13 +467,13 @@ msgstr ""
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "less than an hour"
-msgstr ""
+msgstr "менше години"
 
 #. Time remaining: exactly 1 hour
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "1 hour"
-msgstr ""
+msgstr "1 година"
 
 #. Time remaining: %1 = number of hours (>1)
 #. From: src/kcm/breezydesktopeffectkcm.cpp
@@ -481,7 +486,7 @@ msgstr ""
 #. From: src/kcm/breezydesktopeffectkcm.cpp
 #: src/kcm/breezydesktopeffectkcm.cpp
 msgid "1 day"
-msgstr ""
+msgstr "1 день"
 
 #. Time remaining: %1 = number of days (>1, <30)
 #. From: src/kcm/breezydesktopeffectkcm.cpp
