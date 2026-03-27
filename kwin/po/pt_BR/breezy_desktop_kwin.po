@@ -1,0 +1,597 @@
+# Portuguese (Brazil) translation for the Breezy Desktop KWin KCM module.
+# Copyright (C) 2024 Wayne Heaney
+# This file is distributed under the same license as the breezy-desktop package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: breezy-desktop\n"
+"Report-Msgid-Bugs-To: https://github.com/wheaney/breezy-desktop/issues\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDeviceConnectionStatus)
+#: src/kcm/breezydesktopeffectkcm.ui:9
+msgid "Loading, please wait..."
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: attribute (title), widget (QWidget, tabGeneral)
+#: src/kcm/breezydesktopeffectkcm.ui:90
+msgid "&General"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, EffectEnabled)
+#: src/kcm/breezydesktopeffectkcm.ui:105
+msgid "XR Effect enabled"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_ZoomOnFocusEnabled)
+#: src/kcm/breezydesktopeffectkcm.ui:115
+msgid "Zoom on Focus"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_CurvedDisplay)
+#: src/kcm/breezydesktopeffectkcm.ui:125
+msgid "Curved display"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, SmoothFollowEnabled)
+#: src/kcm/breezydesktopeffectkcm.ui:135
+msgid "Follow mode"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelFocusedDisplayDistance)
+#: src/kcm/breezydesktopeffectkcm.ui:147
+msgid "Focused Display Distance:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelAllDisplaysDistance)
+#: src/kcm/breezydesktopeffectkcm.ui:176
+msgid "All Displays Distance:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDisplaySize)
+#: src/kcm/breezydesktopeffectkcm.ui:205
+msgid "Display Size:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDisplaySpacing)
+#: src/kcm/breezydesktopeffectkcm.ui:234
+msgid "Display Spacing:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDisplayHorizontalOffset)
+#: src/kcm/breezydesktopeffectkcm.ui:251
+msgid "Display Horizontal Offset:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDisplayVerticalOffset)
+#: src/kcm/breezydesktopeffectkcm.ui:280
+msgid "Display Vertical Offset:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelFollowThreshold)
+#: src/kcm/breezydesktopeffectkcm.ui:309
+msgid "Follow threshold:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelVirtualDisplays)
+#: src/kcm/breezydesktopeffectkcm.ui:338
+msgid "Add Virtual Display:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (toolTip), widget (QPushButton, buttonRemoveCustomResolution)
+#: src/kcm/breezydesktopeffectkcm.ui:380
+msgid "Remove custom resolution"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QPushButton, buttonOpenDisplaysSettings)
+#: src/kcm/breezydesktopeffectkcm.ui:405
+msgid "Rearrange displays"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: attribute (title), widget (QWidget, tabShortcuts)
+#: src/kcm/breezydesktopeffectkcm.ui:429
+msgid "&Shortcuts"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: attribute (title), widget (QWidget, tabAdvanced)
+#: src/kcm/breezydesktopeffectkcm.ui:446
+msgid "&Advanced"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDisplayWrappingScheme)
+#: src/kcm/breezydesktopeffectkcm.ui:452
+msgid "Display Wrapping Scheme:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_DisplayWrappingScheme)
+#: src/kcm/breezydesktopeffectkcm.ui:461
+msgid "Auto"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_DisplayWrappingScheme)
+#: src/kcm/breezydesktopeffectkcm.ui:466
+msgid "Horizontal"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_DisplayWrappingScheme)
+#: src/kcm/breezydesktopeffectkcm.ui:471
+msgid "Vertical"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_DisplayWrappingScheme)
+#: src/kcm/breezydesktopeffectkcm.ui:476
+msgid "Flat"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelAntialiasingQuality)
+#: src/kcm/breezydesktopeffectkcm.ui:483
+msgid "Anti-aliasing quality:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_AntialiasingQuality)
+#: src/kcm/breezydesktopeffectkcm.ui:491
+msgid "None"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_AntialiasingQuality)
+#: src/kcm/breezydesktopeffectkcm.ui:496
+msgid "Medium"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_AntialiasingQuality)
+#: src/kcm/breezydesktopeffectkcm.ui:501
+msgid "High"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), item (QComboBox, kcfg_AntialiasingQuality)
+#: src/kcm/breezydesktopeffectkcm.ui:506
+msgid "Very High"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelSmoothFollowTracking)
+#: src/kcm/breezydesktopeffectkcm.ui:514
+msgid "Follow mode movement tracking:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, SmoothFollowTrackYaw)
+#: src/kcm/breezydesktopeffectkcm.ui:528
+msgid "Yaw"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, SmoothFollowTrackPitch)
+#: src/kcm/breezydesktopeffectkcm.ui:538
+msgid "Pitch"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, SmoothFollowTrackRoll)
+#: src/kcm/breezydesktopeffectkcm.ui:548
+msgid "Roll"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_AllDisplaysFollowMode)
+#: src/kcm/breezydesktopeffectkcm.ui:560
+msgid "All displays follow mode"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_RemoveVirtualDisplaysOnDisable)
+#: src/kcm/breezydesktopeffectkcm.ui:577
+msgid "Remove virtual displays on disable"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, kcfg_MirrorPhysicalDisplays)
+#: src/kcm/breezydesktopeffectkcm.ui:585
+msgid "Mirror physical displays (may impact performance)"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QCheckBox, EnableMultitap)
+#: src/kcm/breezydesktopeffectkcm.ui:593
+msgid "Enable multi-tap detection"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelLookAheadOverride)
+#: src/kcm/breezydesktopeffectkcm.ui:601
+msgid "Movement look-ahead (ms):"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelNeckSaverHorizontal)
+#: src/kcm/breezydesktopeffectkcm.ui:626
+msgid "Neck-saver horizontal:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelNeckSaverVertical)
+#: src/kcm/breezydesktopeffectkcm.ui:660
+msgid "Neck-saver vertical:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDeadZoneThresholdDeg)
+#: src/kcm/breezydesktopeffectkcm.ui:695
+msgid "Dead-zone threshold (deg):"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelMeasurementUnits)
+#: src/kcm/breezydesktopeffectkcm.ui:730
+msgid "Measurement units:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelResetDriver)
+#: src/kcm/breezydesktopeffectkcm.ui:741
+msgid "Reset driver:"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QPushButton, buttonResetDriver)
+#: src/kcm/breezydesktopeffectkcm.ui:749
+msgid "Force reset driver"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: attribute (title), widget (QWidget, tabLicenseDetails)
+#: src/kcm/breezydesktopeffectkcm.ui:770
+msgid "&License Details"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel, labelDonateLink)
+#: src/kcm/breezydesktopeffectkcm.ui:789
+msgid "<a href=\"https://ko-fi.com/wheaney\">Renew or support on Ko‑fi</a>"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (title), widget (QGroupBox, groupBoxEmail)
+#: src/kcm/breezydesktopeffectkcm.ui:805
+msgid "Request a token"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (placeholderText), widget (QLineEdit, lineEditLicenseEmail)
+#: src/kcm/breezydesktopeffectkcm.ui:811
+msgid "you@example.com"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QPushButton, buttonSubmitEmail)
+#: src/kcm/breezydesktopeffectkcm.ui:818
+msgid "Submit"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (title), widget (QGroupBox, groupBoxToken)
+#: src/kcm/breezydesktopeffectkcm.ui:840
+msgid "Verify token"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QPushButton, buttonSubmitToken)
+#: src/kcm/breezydesktopeffectkcm.ui:850
+msgid "Verify"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: attribute (title), widget (QWidget, tabAbout)
+#: src/kcm/breezydesktopeffectkcm.ui:887
+msgid "&About"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel)
+#: src/kcm/breezydesktopeffectkcm.ui:910
+msgid "Author: Wayne Heaney <wayne@xronlinux.com>"
+msgstr ""
+
+#. i18n: file: src/kcm/breezydesktopeffectkcm.ui
+#. i18n: ectx: property (text), widget (QLabel)
+#: src/kcm/breezydesktopeffectkcm.ui:920
+msgid "License: GPL-3.0"
+msgstr ""
+
+#. i18n: file: src/kcm/customresolutiondialog.ui
+#. i18n: ectx: property (windowTitle), widget (QDialog, CustomResolutionDialog)
+#: src/kcm/customresolutiondialog.ui:6
+msgid "Add custom resolution"
+msgstr ""
+
+#. i18n: file: src/kcm/customresolutiondialog.ui
+#. i18n: ectx: property (text), widget (QLabel, labelWidth)
+#: src/kcm/customresolutiondialog.ui:22
+msgid "Width"
+msgstr ""
+
+#. i18n: file: src/kcm/customresolutiondialog.ui
+#. i18n: ectx: property (text), widget (QLabel, labelHeight)
+#: src/kcm/customresolutiondialog.ui:82
+msgid "Height"
+msgstr ""
+
+#. i18n: file: src/kcm/virtualdisplayrow.ui
+#. i18n: ectx: property (toolTip), widget (QPushButton, buttonRemove)
+#: src/kcm/virtualdisplayrow.ui:56
+msgid "Remove virtual display"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Add custom…"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Centimeters (cm)"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Inches (in)"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "KWin"
+msgstr ""
+
+#. Slider special value label (0 = disabled)
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Disabled"
+msgstr ""
+
+#. Slider special value label (-1 = default)
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Default"
+msgstr ""
+
+#. %1 = device brand, %2 = device model
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "%1 %2 connected"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "No device connected"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "This feature requires Qt version 6.6 or higher"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Breezy Desktop - v%1"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid ""
+"The Breezy Desktop KWin effect is disabled or not loaded. Please check the "
+"Desktop Effects dialog. Otherwise, log out and back in to enable it."
+msgstr ""
+
+#. %1 = version number string
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid ""
+"A newer version (%1) is available. To update, rerun the breezy_kwin_setup "
+"script."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Request sent. Check your email for instructions."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Failed to send request."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Your license has been refreshed."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Invalid or expired token."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Driver restarted."
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "Failed to restart driver."
+msgstr ""
+
+#. Time remaining: less than 60 minutes
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "less than an hour"
+msgstr ""
+
+#. Time remaining: exactly 1 hour
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "1 hour"
+msgstr ""
+
+#. Time remaining: %1 = number of hours (>1)
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "%1 hours"
+msgstr ""
+
+#. Time remaining: exactly 1 day
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "1 day"
+msgstr ""
+
+#. Time remaining: %1 = number of days (>1, <30)
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "%1 days"
+msgstr ""
+
+#. License status strings
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "disabled"
+msgstr ""
+
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "active"
+msgstr ""
+
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "in trial"
+msgstr ""
+
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "enabled"
+msgstr ""
+
+#. License period descriptor; %1 = period name (e.g. "monthly")
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid "lifetime"
+msgstr ""
+
+#. %1 = period name (e.g. "monthly")
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "%1 license"
+msgstr ""
+
+#. %1 = time string (e.g. "3 days")
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "%1 remaining"
+msgstr ""
+
+#. Renewal descriptor parenthetical; %1 = period descriptor
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid " (%1)"
+msgstr ""
+
+#. %1 = amount in USD
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "$%1 USD to renew"
+msgstr ""
+
+#. %1 = period descriptor, %2 = funds needed, %3 = time remaining
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid " (%1, %2, %3)"
+msgstr ""
+
+#. %1 = license status, %2 = renewal descriptor
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "Productivity Basic features are %1%2"
+msgstr ""
+
+#. %1 = license status, %2 = renewal descriptor
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+#, qt-format
+msgid "Productivity Pro features are %1%2"
+msgstr ""
+
+#. Appended to license summary when the KWin effect is disabled due to license
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid " — effect disabled"
+msgstr ""
+
+#. From: src/kcm/breezydesktopeffectkcm.cpp
+#: src/kcm/breezydesktopeffectkcm.cpp
+msgid ""
+"Productivity Pro license is inactive — 6DoF features will be unavailable."
+msgstr ""
+
+#. Keyboard shortcut action names (shown in the Shortcuts tab)
+#. From: src/kcm/shortcuts.h
+#: src/kcm/shortcuts.h
+msgid "Toggle XR Effect"
+msgstr ""
+
+#: src/kcm/shortcuts.h
+msgid "Recenter"
+msgstr ""
+
+#: src/kcm/shortcuts.h
+msgid "Toggle Zoom on Focus"
+msgstr ""
+
+#: src/kcm/shortcuts.h
+msgid "Toggle Follow Mode"
+msgstr ""
+
+#: src/kcm/shortcuts.h
+msgid "Move Cursor to Focused Display"
+msgstr ""
