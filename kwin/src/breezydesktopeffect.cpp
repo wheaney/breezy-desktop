@@ -2,6 +2,7 @@
 #include "core/rendertarget.h"
 #include "core/renderviewport.h"
 #include "cursor.h"
+#include "input.h"
 #include "pointer_input.h"
 #include "kcm/shortcuts.h"
 #include "breezydesktopeffect.h"
@@ -1005,10 +1006,28 @@ void BreezyDesktopEffect::warpPointerToOutputCenter(ScreenOutput *output)
     }
     const QRect geometry = output->geometry();
     const QPointF center = geometry.center();
-    Cursors::self()->mouse()->setPos(center);
 
-    // When warping, we don't have a meaningful previous position; use center for both.
-    evaluateCursorOnScreenState(center, center);
+    bool warped = false;
+    if (InputRedirection *inputRedirection = input(); inputRedirection && inputRedirection->supportsPointerWarping()) {
+        inputRedirection->warpPointer(center);
+        warped = true;
+    } else if (auto *mouseCursor = Cursors::self()->mouse(); mouseCursor) {
+        mouseCursor->setPos(center);
+        warped = true;
+    }
+
+    if (!warped) {
+        return;
+    }
+
+    const QPointF newPos = center - effects->cursorImage().hotSpot();
+    const QPointF prevPos = m_cursorPos;
+    if (m_cursorPos != newPos) {
+        m_cursorPos = newPos;
+        Q_EMIT cursorPosChanged();
+    }
+
+    evaluateCursorOnScreenState(prevPos, newPos);
 }
 
 void BreezyDesktopEffect::moveCursorToFocusedDisplay()
