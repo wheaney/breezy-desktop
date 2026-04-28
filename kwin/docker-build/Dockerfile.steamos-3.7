@@ -2,7 +2,7 @@
 #    docker buildx build --platform linux/amd64,linux/arm64 -f ./docker-build/Dockerfile.steamos-3.7 -t "breezy-kwin-steamos-3.7" .
 #    docker run --rm -t -v ./:/source -v --platform linux/amd64 "breezy-kwin-steamos-3.7:amd64"
 
-FROM --platform=$TARGETPLATFORM ghcr.io/wheaney/holo-base:3.7.20
+FROM --platform=$TARGETPLATFORM ghcr.io/wheaney/holo-base:3.7.20@sha256:1478200c51b8b287e294de6e98a1ab0fb79333503a5cc5681b58dfd209f17851
 
 ARG TARGETPLATFORM
 ENV STEAMOS=3.7

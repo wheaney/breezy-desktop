@@ -8,6 +8,10 @@ if [ "$XDG_SESSION_TYPE" != "wayland" ]; then
 fi
 
 install_steamos_shortcuts() {
+  if [[ "${ARCH:-}" != "steamos-3.7" ]]; then
+    return
+  fi
+
   local os_release="/etc/os-release"
   if [[ ! -r "$os_release" ]]; then
     return

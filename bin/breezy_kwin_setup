@@ -204,7 +204,7 @@ mv breezy_desktop_lib/* breezy_kwin/
 pushd breezy_kwin > /dev/null
 
 # run the setup script that comes with this release
-bin/setup $metrics_version
+ARCH="$ARCH" bin/setup $metrics_version
 
 echo "Deleting temp directory: ${tmp_dir}"
 rm -rf $tmp_dir

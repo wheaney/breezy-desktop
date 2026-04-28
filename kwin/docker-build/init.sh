@@ -20,3 +20,4 @@ fi
 echo "Building docker image"
 docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile.steamos-3.7 -t "breezy-kwin-steamos-3.7:amd64" --load .
 docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile.steamos-3.8 -t "breezy-kwin-steamos-3.8:amd64" --load .
+docker buildx build --platform linux/amd64 -f ./docker-build/Dockerfile.steamos-3.9 -t "breezy-kwin-steamos-3.9:amd64" --load .
