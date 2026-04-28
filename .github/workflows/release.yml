@@ -264,6 +264,7 @@ jobs:
       - build-gnome-aarch64
       - build-kwin-steamos-3_7
       - build-kwin-steamos-3_8
+      - build-kwin-steamos-3_9
       - build-vulkan-x86_64
     if: needs.check-version-change.outputs.should-release == 'true'
     runs-on: ubuntu-latest
