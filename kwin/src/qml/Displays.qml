@@ -1,6 +1,6 @@
 import QtQuick
-import "../../../shared/js/math.js" as SharedMath
-import "../../../shared/js/displayPlacement.js" as SharedPlacement
+import "./shared/math.js" as SharedMath
+import "./shared/displayPlacement.js" as SharedPlacement
 
 QtObject {
     readonly property real focusThreshold: SharedPlacement.FOCUS_THRESHOLD

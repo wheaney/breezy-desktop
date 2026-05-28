@@ -5,7 +5,7 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
-import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './math.js';
+import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './shared/math.js';
 
 
 // these need to mirror the values in XRLinuxDriver

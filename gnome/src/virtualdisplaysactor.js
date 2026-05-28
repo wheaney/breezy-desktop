@@ -7,8 +7,8 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
-import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './math.js';
-import { findFocusedMonitor, monitorsToPlacements } from '../../shared/js/displayPlacement.js';
+import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './shared/math.js';
+import { findFocusedMonitor, monitorsToPlacements } from './shared/displayPlacement.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
