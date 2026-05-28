@@ -55,49 +55,22 @@ QtObject {
     }
 
     function buildFovDetails(screens, viewportWidth, viewportHeight, viewportDiagonalFOV, lensDistanceRatio, defaultDisplayDistance, wrappingChoice, distanceAdjustedSize) {
-        const aspect = viewportWidth / viewportHeight;
-        const fovLengths = SharedMath.diagonalToCrossFOVs(SharedMath.degreeToRadian(viewportDiagonalFOV), aspect);
-
         let monitorWrappingScheme = actualWrapScheme(screens, viewportWidth, viewportHeight);
         if (wrappingChoice === 1) monitorWrappingScheme = 'horizontal';
         else if (wrappingChoice === 2) monitorWrappingScheme = 'vertical';
         else if (wrappingChoice === 3) monitorWrappingScheme = 'flat';
 
-        const lensDistanceComplement = 1.0 - lensDistanceRatio;
-        const lensDistanceFactor = (1.0 / lensDistanceComplement) - 1.0;
-        const horizontalConversions = effect.curvedDisplay && monitorWrappingScheme === 'horizontal' ? SharedMath.fovConversionFns.curved : SharedMath.fovConversionFns.flat;
-        const verticalConversions = effect.curvedDisplay && monitorWrappingScheme === 'vertical' ? SharedMath.fovConversionFns.curved : SharedMath.fovConversionFns.flat;
-
-        const defaultDistanceVerticalRadians = verticalConversions.fovRadiansAtDistance(
-            fovLengths.verticalRadians,
-            fovLengths.heightUnitDistance,
-            defaultDisplayDistance
-        );
-        const defaultDistanceHorizontalRadians = horizontalConversions.fovRadiansAtDistance(
-            fovLengths.horizontalRadians,
-            fovLengths.widthUnitDistance,
-            defaultDisplayDistance
+        const fovDetails = SharedPlacement.buildFovDetails(
+            viewportWidth, viewportHeight,
+            SharedMath.degreeToRadian(viewportDiagonalFOV),
+            lensDistanceRatio, defaultDisplayDistance,
+            monitorWrappingScheme, effect.curvedDisplay
         );
 
-        const lensToUnitDistancePixels = viewportWidth / fovLengths.widthUnitDistance;
-        const lensDistancePixels = lensToUnitDistancePixels * lensDistanceFactor;
-        const fullScreenDistancePixels = lensToUnitDistancePixels + lensDistancePixels;
-        const completeScreenDistancePixels = fullScreenDistancePixels * defaultDisplayDistance;
-
-        return {
-            widthPixels: viewportWidth,
-            distanceAdjustedSize,
-            sizeAdjustedWidthPixels: viewportWidth * distanceAdjustedSize,
-            heightPixels: viewportHeight,
-            sizeAdjustedHeightPixels: viewportHeight * distanceAdjustedSize,
-            defaultDistanceVerticalRadians,
-            defaultDistanceHorizontalRadians,
-            lensDistancePixels,
-            fullScreenDistancePixels,
-            completeScreenDistancePixels,
-            monitorWrappingScheme,
-            curvedDisplay: effect.curvedDisplay
-        };
+        fovDetails.distanceAdjustedSize      = distanceAdjustedSize;
+        fovDetails.sizeAdjustedWidthPixels   = viewportWidth  * distanceAdjustedSize;
+        fovDetails.sizeAdjustedHeightPixels  = viewportHeight * distanceAdjustedSize;
+        return fovDetails;
     }
 
     // Wraps SharedPlacement.monitorsToPlacements, converting plain-array vectors to Qt.vector3d.

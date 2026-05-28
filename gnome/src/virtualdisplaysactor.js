@@ -7,8 +7,8 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import { VirtualDisplayEffect, SMOOTH_FOLLOW_SLERP_TIMELINE_MS } from './virtualdisplayeffect.js';
-import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './shared/math.js';
-import { findFocusedMonitor, monitorsToPlacements } from './shared/displayPlacement.js';
+import { degreeToRadian } from './shared/math.js';
+import { buildFovDetails, findFocusedMonitor, monitorsToPlacements } from './shared/displayPlacement.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -487,54 +487,19 @@ export const VirtualDisplaysActor = GObject.registerClass({
     }
 
     _fov_details() {
-        const aspect = this.target_monitor.width / this.target_monitor.height;
-        const fovLengths = diagonalToCrossFOVs(degreeToRadian(Globals.data_stream.device_data.displayFov), aspect);
         const monitorWrappingScheme = this._actual_wrap_scheme();
         const defaultDistance = this._display_distance_default();
-        const lensDistanceComplement = 1.0 - Globals.data_stream.device_data.lensDistanceRatio;
-        const lensDistanceFactor = (1.0 / lensDistanceComplement) - 1.0;
-        const horizontalConversions = this.curved_display && monitorWrappingScheme === 'horizontal' ? fovConversionFns.curved : fovConversionFns.flat;
-        const verticalConversions = this.curved_display && monitorWrappingScheme === 'vertical' ? fovConversionFns.curved : fovConversionFns.flat;
-        
-        // adjust FOV to a new focal point distance while keeping screens the same size
-        // i.e. focus from pivot point to new screen distance, adjusted from lens at unit distance
-        const defaultDistanceVerticalRadians = verticalConversions.fovRadiansAtDistance(
-            fovLengths.verticalRadians, 
-            fovLengths.heightUnitDistance,
-            defaultDistance
+        const fovDetails = buildFovDetails(
+            this.target_monitor.width, this.target_monitor.height,
+            degreeToRadian(Globals.data_stream.device_data.displayFov),
+            Globals.data_stream.device_data.lensDistanceRatio,
+            defaultDistance,
+            monitorWrappingScheme, this.curved_display
         );
-        const defaultDistanceHorizontalRadians = horizontalConversions.fovRadiansAtDistance(
-            fovLengths.horizontalRadians, 
-            fovLengths.widthUnitDistance,
-            defaultDistance
-        );
-
-        // distance needed for the FOV-sized monitor to fill up the screen, as measured from the lenses
-        const lensToUnitDistancePixels = this.target_monitor.width / fovLengths.widthUnitDistance;
-
-        // distance from pivot point to lens
-        const lensDistancePixels = lensToUnitDistancePixels * lensDistanceFactor;
-
-        // distance from pivot point to full screen (monitor at unit distance from lens)
-        const fullScreenDistancePixels = lensToUnitDistancePixels + lensDistancePixels;
-
-        // distance of a display at the default (most zoomed out) distance from the pivot point
-        const completeScreenDistancePixels = fullScreenDistancePixels * defaultDistance;
-
-        return {
-            widthPixels: this.target_monitor.width,
-            distanceAdjustedSize: this._distance_adjusted_size,
-            sizeAdjustedWidthPixels: this.target_monitor.width * this._distance_adjusted_size,
-            heightPixels: this.target_monitor.height,
-            sizeAdjustedHeightPixels: this.target_monitor.height * this._distance_adjusted_size,
-            defaultDistanceVerticalRadians,
-            defaultDistanceHorizontalRadians,
-            lensDistancePixels,
-            fullScreenDistancePixels,
-            completeScreenDistancePixels,
-            monitorWrappingScheme,
-            curvedDisplay: this.curved_display
-        };
+        fovDetails.distanceAdjustedSize     = this._distance_adjusted_size;
+        fovDetails.sizeAdjustedWidthPixels  = this.target_monitor.width  * this._distance_adjusted_size;
+        fovDetails.sizeAdjustedHeightPixels = this.target_monitor.height * this._distance_adjusted_size;
+        return fovDetails;
     }
 
     _actual_wrap_scheme() {
