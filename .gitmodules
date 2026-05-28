@@ -11,3 +11,9 @@
 [submodule "ui/modules/PyXRLinuxDriverIPC"]
 	path = ui/modules/PyXRLinuxDriverIPC
 	url = https://github.com/wheaney/PyXRLinuxDriverIPC.git
+[submodule "gnome/src/shared"]
+	path = gnome/src/shared
+	url = git@github.com:wheaney/breezy-desktop-shared-js.git
+[submodule "kwin/src/qml/shared"]
+	path = kwin/src/qml/shared
+	url = git@github.com:wheaney/breezy-desktop-shared-js.git
