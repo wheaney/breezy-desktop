@@ -10,3 +10,4 @@ kwin/build-test/
 kwin/src/qml/calibrating.png
 kwin/src/qml/custom_banner.png
 kwin/src/kcm/com.xronlinux.BreezyDesktop.svg
+kwin/po/*/LC_MESSAGES/

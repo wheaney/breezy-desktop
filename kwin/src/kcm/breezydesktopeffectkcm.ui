@@ -359,17 +359,17 @@
                 <widget class="QComboBox" name="comboAddVirtualDisplay">
                   <item>
                     <property name="text">
-                      <string>1080p</string>
+                      <string notr="true">1080p</string>
                     </property>
                   </item>
                   <item>
                     <property name="text">
-                      <string>1440p</string>
+                      <string notr="true">1440p</string>
                     </property>
                   </item>
                   <item>
                     <property name="text">
-                      <string>Add custom…</string>
+                      <string notr="true">Add custom…</string>
                     </property>
                   </item>
                 </widget>
@@ -890,7 +890,7 @@
      <item>
       <widget class="QLabel" name="labelAppNameVersion">
        <property name="text">
-      <string>Breezy Desktop Effect - v0.0.0</string>
+      <string notr="true">Breezy Desktop Effect - v0.0.0</string>
        </property>
        <property name="alignment">
       <set>Qt::AlignHCenter|Qt::AlignVCenter</set>

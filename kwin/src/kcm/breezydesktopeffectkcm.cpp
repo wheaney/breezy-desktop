@@ -150,7 +150,7 @@ void populateResolutionCombo(QComboBox *combo, const QStringList &custom)
         addResolutionItem(combo, label, QSize(w,h), true, false);
     }
 
-    addResolutionItem(combo, QObject::tr("Add custom…"), QSize(), false, true);
+    addResolutionItem(combo, i18n("Add custom…"), QSize(), false, true);
 
     combo->setCurrentIndex(0);
 }
@@ -192,7 +192,7 @@ bool showCustomResolutionDialog(QWidget *parent, int &outW, int &outH)
 void addShortcutAction(KActionCollection *collection, const BreezyShortcuts::Shortcut &shortcut)
 {
     QAction *action = collection->addAction(shortcut.actionName);
-    action->setText(shortcut.actionText);
+    action->setText(i18n(shortcut.actionText));
     action->setProperty("isConfigurationAction", true);
     KGlobalAccel::self()->setDefaultShortcut(action, {shortcut.shortcut});
     KGlobalAccel::self()->setShortcut(action, {shortcut.shortcut});
@@ -203,6 +203,7 @@ K_PLUGIN_CLASS_WITH_JSON(BreezyDesktopEffectConfig, "kcm_metadata.json")
 BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPluginMetaData &data)
     : KCModule(parent, data)
 {
+    KLocalizedString::setApplicationDomain("breezy_desktop_kwin");
     ui.setupUi(widget());
     addConfig(BreezyDesktopConfig::self(), widget());
 
@@ -395,7 +396,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     }
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
-        label->setText(QStringLiteral("Breezy Desktop - v%1").arg(QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
+        label->setText(i18n("Breezy Desktop - v%1", QLatin1String(BREEZY_DESKTOP_VERSION_STR)));
     }
 
     if (auto btnEmail = widget()->findChild<QPushButton*>("buttonSubmitEmail")) {
@@ -406,7 +407,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
             setRequestInProgress({edit, sender()}, true);
             labelStatus->setVisible(false);
             bool success = XRDriverIPC::instance().requestToken(edit->text().trimmed().toStdString());
-            showStatus(labelStatus, success, success ? tr("Request sent. Check your email for instructions.") : tr("Failed to send request."));
+            showStatus(labelStatus, success, success ? i18n("Request sent. Check your email for instructions.") : i18n("Failed to send request."));
             setRequestInProgress({edit, sender()}, false);
         });
         if (auto emailEdit = widget()->findChild<QLineEdit*>("lineEditLicenseEmail")) {
@@ -426,7 +427,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
                 flags.insert(QStringLiteral("refresh_device_license"), true);
                 XRDriverIPC::instance().writeControlFlags(flags);
             }
-            showStatus(labelStatus, success, success ? tr("Your license has been refreshed.") : tr("Invalid or expired token."));
+            showStatus(labelStatus, success, success ? i18n("Your license has been refreshed.") : i18n("Invalid or expired token."));
             setRequestInProgress({edit, sender()}, false);
         });
         if (auto tokenEdit = widget()->findChild<QLineEdit*>("lineEditLicenseToken")) {
@@ -472,9 +473,9 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
 
             const bool ok = XRDriverIPC::instance().resetDriver();
             if (ok) {
-                showStatus(labelStatus, true, tr("Driver restarted."));
+                showStatus(labelStatus, true, i18n("Driver restarted."));
             } else {
-                showStatus(labelStatus, false, tr("Failed to restart driver."));
+                showStatus(labelStatus, false, i18n("Failed to restart driver."));
             }
 
             setRequestInProgress({sender()}, false);
@@ -588,7 +589,7 @@ void BreezyDesktopEffectConfig::checkEffectLoaded() {
             QPalette pal = warn->palette();
             pal.setColor(QPalette::WindowText, QColor(Qt::red));
             warn->setPalette(pal);
-            warn->setText(tr("The Breezy Desktop KWin effect is disabled or not loaded. Please check the Desktop Effects dialog. Otherwise, log out and back in to enable it."));
+            warn->setText(i18n("The Breezy Desktop KWin effect is disabled or not loaded. Please check the Desktop Effects dialog. Otherwise, log out and back in to enable it."));
             warn->setVisible(true);
         }
     }
@@ -652,7 +653,7 @@ void BreezyDesktopEffectConfig::checkForUpdates() {
 
         if (isNewer) {
             if (auto label = widget()->findChild<QLabel*>(QStringLiteral("labelUpdateAvailable"))) {
-                label->setText(tr("A newer version (%1) is available. To update, rerun the breezy_kwin_setup script.").arg(latest));
+                label->setText(i18n("A newer version (%1) is available. To update, rerun the breezy_kwin_setup script.", latest));
                 label->setVisible(true);
             }
         }
@@ -826,8 +827,8 @@ void BreezyDesktopEffectConfig::pollDriverState()
     m_deviceConnected = !m_connectedDeviceBrand.isEmpty() && !m_connectedDeviceModel.isEmpty();
     if (!m_driverStateInitialized || m_deviceConnected != wasDeviceConnected) {
         ui.labelDeviceConnectionStatus->setText(m_deviceConnected ?
-            QStringLiteral("%1 %2 connected").arg(m_connectedDeviceBrand, m_connectedDeviceModel) :
-            QStringLiteral("No device connected"));
+            i18n("%1 %2 connected", m_connectedDeviceBrand, m_connectedDeviceModel) :
+            i18n("No device connected"));
     }
 
     if (m_deviceConnected) {
@@ -835,7 +836,7 @@ void BreezyDesktopEffectConfig::pollDriverState()
             if (m_curvedDisplaySupported) {
                 m_curvedDisplaySupported = false;
                 ui.kcfg_CurvedDisplay->setEnabled(false);
-                ui.kcfg_CurvedDisplay->setToolTip(QObject::tr("This feature requires Qt version 6.6 or higher"));
+                ui.kcfg_CurvedDisplay->setToolTip(i18n("This feature requires Qt version 6.6 or higher"));
             }
         } else {
             if (!m_curvedDisplaySupported) {
@@ -1148,17 +1149,17 @@ static QString secondsToRemainingString(qint64 secs) {
     if (secs <= 0) return {};
 
     if (secs / 60 < 60) {
-        return QObject::tr("less than an hour");
+        return i18n("less than an hour");
     }
     if (secs / 3600 < 24) {
         qint64 hours = secs / 3600;
-        if (hours == 1) return QObject::tr("1 hour");
-        return QObject::tr("%1 hours").arg(hours);
+        if (hours == 1) return i18n("1 hour");
+        return i18n("%1 hours", hours);
     }
     if ((secs / 86400) < 30 ) {
         qint64 days = secs / 86400;
-        if (days == 1) return QObject::tr("1 day");
-        return QObject::tr("%1 days").arg(days);
+        if (days == 1) return i18n("1 day");
+        return i18n("%1 days", days);
     }
     return {};
 }
@@ -1173,7 +1174,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     auto poseProWarn = widget()->findChild<QLabel*>("labelPoseProWarning");
 
     struct TierUiState {
-        QString status = BreezyDesktopEffectConfig::tr("disabled");
+        QString status = i18n("disabled");
         QString renewalDescriptor;
         bool warningState = false;
         bool isActive = false;
@@ -1189,13 +1190,13 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
         const bool isActive = !tierObj.isEmpty() && !featureObj.isEmpty() && !activePeriod.isEmpty();
 
         if (isActive) {
-            out.status = BreezyDesktopEffectConfig::tr("active");
+            out.status = i18n("active");
             out.isActive = true;
             out.entitled = true;
 
             const QString periodDescriptor = activePeriod.contains(QStringLiteral("lifetime"), Qt::CaseInsensitive)
-                ? BreezyDesktopEffectConfig::tr("lifetime")
-                : BreezyDesktopEffectConfig::tr("%1 license").arg(activePeriod);
+                ? i18n("lifetime")
+                : i18n("%1 license", activePeriod);
 
             QString timeDescriptor;
             const QJsonValue secsVal = tierObj.value(QStringLiteral("funds_needed_in_seconds"));
@@ -1203,11 +1204,11 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
                 const qint64 secs = static_cast<qint64>(secsVal.toDouble());
                 const QString remaining = secondsToRemainingString(secs);
                 if (!remaining.isEmpty()) {
-                    timeDescriptor = BreezyDesktopEffectConfig::tr("%1 remaining").arg(remaining);
+                    timeDescriptor = i18n("%1 remaining", remaining);
                 }
             }
 
-            out.renewalDescriptor = BreezyDesktopEffectConfig::tr(" (%1)").arg(periodDescriptor);
+            out.renewalDescriptor = i18n(" (%1)", periodDescriptor);
             out.warningState = !timeDescriptor.isEmpty();
             if (out.warningState) {
                 const double fundsNeeded = tierObj.value(QStringLiteral("funds_needed_by_period"))
@@ -1215,8 +1216,8 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
                                                .value(activePeriod)
                                                .toDouble();
                 if (fundsNeeded > 0.0) {
-                    const QString fundsNeededDescriptor = BreezyDesktopEffectConfig::tr("$%1 USD to renew").arg(fundsNeeded);
-                    out.renewalDescriptor = BreezyDesktopEffectConfig::tr(" (%1, %2, %3)").arg(periodDescriptor, fundsNeededDescriptor, timeDescriptor);
+                    const QString fundsNeededDescriptor = i18n("$%1 USD to renew", fundsNeeded);
+                    out.renewalDescriptor = i18n(" (%1, %2, %3)", periodDescriptor, fundsNeededDescriptor, timeDescriptor);
                 }
             }
             return out;
@@ -1228,7 +1229,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
             const bool isTrial = featureObj.value(QStringLiteral("is_trial")).toBool();
             if (isEnabled) {
                 if (isTrial) {
-                    out.status = BreezyDesktopEffectConfig::tr("in trial");
+                    out.status = i18n("in trial");
                     out.isTrial = true;
                     out.entitled = true;
                     const QJsonValue secsVal = featureObj.value(QStringLiteral("funds_needed_in_seconds"));
@@ -1237,12 +1238,12 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
                         const QString remaining = secondsToRemainingString(secs);
                         out.warningState = !remaining.isEmpty();
                         if (out.warningState) {
-                            const QString timeDescriptor = BreezyDesktopEffectConfig::tr("%1 remaining").arg(remaining);
-                            out.renewalDescriptor = BreezyDesktopEffectConfig::tr(" (%1)").arg(timeDescriptor);
+                            const QString timeDescriptor = i18n("%1 remaining", remaining);
+                            out.renewalDescriptor = i18n(" (%1)", timeDescriptor);
                         }
                     }
                 } else {
-                    out.status = BreezyDesktopEffectConfig::tr("enabled");
+                    out.status = i18n("enabled");
                     out.entitled = true;
                 }
             }
@@ -1260,12 +1261,12 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     const TierUiState baseState = computeTierState(
         tiers.value(QStringLiteral("productivity")).toObject(),
         features.value(QStringLiteral("productivity")).toObject());
-    const QString baseLine = tr("Productivity Basic features are %1%2").arg(baseState.status, baseState.renewalDescriptor);
+    const QString baseLine = i18n("Productivity Basic features are %1%2", baseState.status, baseState.renewalDescriptor);
 
     const TierUiState proState = computeTierState(
         tiers.value(QStringLiteral("productivity_pro")).toObject(),
         features.value(QStringLiteral("productivity_pro")).toObject());
-    const QString proLine = tr("Productivity Pro features are %1%2").arg(proState.status, proState.renewalDescriptor);
+    const QString proLine = i18n("Productivity Pro features are %1%2", proState.status, proState.renewalDescriptor);
 
     // Display rules:
     // - Only Pro if it has an active period or both are in trial
@@ -1307,7 +1308,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
 
     if (globalWarn && !globalWarn->isVisible()) {
         if (donateVisible) {
-            globalWarn->setText(message + (effectDisabled ? tr(" — effect disabled") : QString()));
+            globalWarn->setText(message + (effectDisabled ? i18n(" — effect disabled") : QString()));
             globalWarn->setVisible(true);
         } else {
             globalWarn->clear();
@@ -1325,7 +1326,7 @@ void BreezyDesktopEffectConfig::refreshLicenseUi(const QJsonObject &rootObj) {
     if (poseProWarn) {
         const bool showPoseProWarn = m_deviceConnected && m_connectedDevicePoseHasPosition && baseEntitled && !proEntitled;
         if (showPoseProWarn) {
-            poseProWarn->setText(tr("Productivity Pro license is inactive — 6DoF features will be unavailable."));
+            poseProWarn->setText(i18n("Productivity Pro license is inactive — 6DoF features will be unavailable."));
             poseProWarn->setVisible(true);
         } else {
             poseProWarn->clear();
