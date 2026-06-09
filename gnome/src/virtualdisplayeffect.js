@@ -6,17 +6,7 @@ import Shell from 'gi://Shell';
 
 import Globals from './globals.js';
 import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './shared/math.js';
-
-
-// these need to mirror the values in XRLinuxDriver
-// https://github.com/wheaney/XRLinuxDriver/blob/main/src/plugins/smooth_follow.c#L31
-export const SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
-const SMOOTH_FOLLOW_SLERP_FACTOR = Math.pow(1-0.999, 1/SMOOTH_FOLLOW_SLERP_TIMELINE_MS);
-
-// this mirror's how the driver's slerp function progresses so our effect will match it
-function smoothFollowSlerpProgress(elapsedMs) {
-    return 1 - Math.pow(SMOOTH_FOLLOW_SLERP_FACTOR, elapsedMs);
-}
+import { SMOOTH_FOLLOW_SLERP_TIMELINE_MS, smoothFollowSlerpProgress } from './shared/smoothFollow.js';
 
 // how far to look ahead is how old the IMU data is plus a constant that is either the default for this device or an override
 function lookAheadMS(imuDateMs, lookAheadCfg, override) {
