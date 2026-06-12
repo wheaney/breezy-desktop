@@ -6,6 +6,18 @@ set -e
 ARCH=${ARCH:-$(uname -m)}
 echo "Building Breezy UI for $ARCH"
 
+# Directory containing the RuntimeEnvironment implementation(s) to bundle. Every
+# *.py in here is copied into the UI's runtimes/ package; the first
+# RuntimeEnvironment subclass found at startup becomes the active environment.
+# Defaults to the reference GNOME implementation so a standalone UI build (e.g.
+# local dev) still has a runtime.
+RUNTIME_DIR=${RUNTIME_DIR:-$(realpath "$(dirname "$0")/../../gnome/ui")}
+echo "Bundling runtime environment from $RUNTIME_DIR"
+if [ ! -d "$RUNTIME_DIR" ]; then
+  echo "Runtime directory $RUNTIME_DIR does not exist"
+  exit 1
+fi
+
 BUILD_PATH=build
 UI_BUILD_PATH=$BUILD_PATH/ui
 PACKAGE_DIR=$BUILD_PATH/breezy_ui
@@ -38,6 +50,12 @@ mkdir -p $PACKAGE_SCHEMAS_DIR
 
 cp src/*.py $PACKAGE_BREEZY_SRC_DIR
 cp -r lib $PACKAGE_BREEZY_SRC_DIR
+
+# bundle the runtimes subpackage and the selected runtime implementation(s)
+PACKAGE_RUNTIMES_DIR=$PACKAGE_BREEZY_SRC_DIR/runtimes
+mkdir -p $PACKAGE_RUNTIMES_DIR
+cp src/runtimes/__init__.py $PACKAGE_RUNTIMES_DIR
+cp $RUNTIME_DIR/*.py $PACKAGE_RUNTIMES_DIR
 cp -L modules/PyXRLinuxDriverIPC/xrdriveripc.py $PACKAGE_BREEZY_SRC_DIR
 cp $UI_BUILD_PATH/src/breezydesktop.gresource $PACKAGE_BREEZY_DIR
 cp -r po/mo/* $PACKAGE_LOCALE_DIR

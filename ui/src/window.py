@@ -1,7 +1,7 @@
 from gi.repository import Gtk, GLib
-from .extensionsmanager import ExtensionsManager
 from .license import BREEZY_GNOME_FEATURES
 from .licensedialog import LicenseDialog
+from .runtimeenvironment import RuntimeEnvironment
 from .statemanager import StateManager
 from .settingsmanager import SettingsManager
 from .connecteddevice import ConnectedDevice
@@ -10,8 +10,6 @@ from .nodevice import NoDevice
 from .nodriver import NoDriver
 from .noextension import NoExtension
 from .nolicense import NoLicense
-from .updatechecker import check_for_update
-from .verify import verify_installation
 
 @Gtk.Template(resource_path='/com/xronlinux/BreezyDesktop/gtk/window.ui')
 class BreezydesktopWindow(Gtk.ApplicationWindow):
@@ -29,6 +27,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
     def __init__(self, version, skip_verification, **kwargs):
         super().__init__(**kwargs)
 
+        self.runtime = RuntimeEnvironment.get_instance()
         self.connected_device = ConnectedDevice()
         self.failed_verification = FailedVerification()
         self.no_device = NoDevice()
@@ -57,7 +56,7 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
 
         self.connect("destroy", self._on_window_destroy)
 
-        check_for_update(version, self._on_update_check_result)
+        self.runtime.check_for_update(version, self._on_update_check_result)
 
     def _handle_settings_update(self, settings_manager, key):
         self._handle_state_update(self.state_manager, None)
@@ -82,19 +81,19 @@ class BreezydesktopWindow(Gtk.ApplicationWindow):
         if self.settings.get_boolean('debug-no-device'):
             self.main_content.append(self.connected_device)
             self.connected_device.set_device_name('Fake device')
-        elif not self._skip_verification and not verify_installation():
+        elif not self._skip_verification and not self.runtime.verify():
             self.main_content.append(self.failed_verification)
-        elif not ExtensionsManager.get_instance().is_installed():
+        elif not self.runtime.is_installed():
             self.main_content.append(self.no_extension)
         elif not self.state_manager.driver_running:
             self.main_content.append(self.no_driver)
         elif not self.state_manager.license_present:
             self.main_content.append(self.no_license)
-        elif not state_manager.connected_device_name:
+        elif not state_manager.connected_device_name and self.runtime.shows_no_device_view:
             self.main_content.append(self.no_device)
         else:
             self.main_content.append(self.connected_device)
-            self.connected_device.set_device_name(state_manager.connected_device_name)
+            self.connected_device.set_device_name(state_manager.connected_device_name or self.runtime.no_device_label())
         
         self.set_resizable(True)
         self.set_default_size(1, 1)

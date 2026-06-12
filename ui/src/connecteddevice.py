@@ -2,14 +2,12 @@ from gi.repository import Gio, GLib, Gtk, GObject
 from .configmanager import ConfigManager
 from .customresolutiondialog import CustomResolutionDialog
 from .displaydistancedialog import DisplayDistanceDialog
-from .extensionsmanager import ExtensionsManager
 from .files import get_state_dir
 from .license import BREEZY_GNOME_FEATURES
+from .runtimeenvironment import RuntimeEnvironment
 from .settingsmanager import SettingsManager
 from .shortcutdialog import bind_shortcut_settings
 from .statemanager import StateManager
-from .virtualdisplaymanager import VirtualDisplayManager
-from .virtualdisplay import is_screencast_available
 from .virtualdisplayrow import VirtualDisplayRow
 from .xrdriveripc import XRDriverIPC
 
@@ -115,8 +113,8 @@ class ConnectedDevice(Gtk.Box):
         self.settings = SettingsManager.get_instance().settings
         self.desktop_settings = SettingsManager.get_instance().desktop_settings
         self.ipc = XRDriverIPC.get_instance()
-        self.virtual_display_manager = VirtualDisplayManager.get_instance()
-        self.extensions_manager = ExtensionsManager.get_instance()
+        self.runtime = RuntimeEnvironment.get_instance()
+        self.virtual_display_manager = self.runtime.virtual_display_manager
 
         self.settings.bind('disable-physical-displays', self.disable_physical_displays_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.connect('changed::display-distance', self._handle_display_distance)
@@ -207,7 +205,7 @@ class ConnectedDevice(Gtk.Box):
         self._handle_device_supports_sbs(self.state_manager, None)
         self._handle_enabled_config(None, None)
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
-        self.extensions_manager.connect('notify::breezy-enabled', self._handle_enabled_config)
+        self.runtime.connect('notify::breezy-enabled', self._handle_enabled_config)
 
         self._settings_displays_app_info = None
 
@@ -228,9 +226,6 @@ class ConnectedDevice(Gtk.Box):
         self._load_custom_resolutions()
         for id in self._custom_resolution_options:
             self.add_virtual_display_menu.insert(self._default_resolution_options_count, id, id)
-
-        # wayland is required to create virtual displays
-        self.is_wayland = "WAYLAND_DISPLAY" in os.environ
 
     def _bind_scale_to_config(self, scale, config_key):
         self.config_manager.bind_property(config_key, scale, 'value', Gio.SettingsBindFlags.DEFAULT)
@@ -285,7 +280,7 @@ class ConnectedDevice(Gtk.Box):
         # self.widescreen_mode_row.set_subtitle(subtitle)
 
     def _handle_enabled_config(self, object, val):
-        enabled = self.config_manager.get_property('breezy-desktop-enabled') and self.extensions_manager.get_property('breezy-enabled')
+        enabled = self.config_manager.get_property('breezy-desktop-enabled') and self.runtime.get_property('breezy-enabled')
         if enabled != self.effect_enable_switch.get_active():
             self.effect_enable_switch.set_active(enabled)
     
@@ -297,14 +292,14 @@ class ConnectedDevice(Gtk.Box):
 
         # never turn off the extension, disabling the effect is done via configs only
         if requesting_enabled:
-            self.extensions_manager.set_property('breezy-enabled', True)
+            self.runtime.set_property('breezy-enabled', True)
 
         self.config_manager.set_property('breezy-desktop-enabled', requesting_enabled)
 
         for widget in self.all_enabled_state_inputs:
             widget.set_sensitive(requesting_enabled)
 
-        if not is_screencast_available() or not self.is_wayland:
+        if not self.runtime.is_virtual_display_supported():
             self.virtual_displays_row.set_subtitle(
                 _("Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, and the pipewire GStreamer plugin are required."))
             self.add_virtual_display_button.set_sensitive(False)

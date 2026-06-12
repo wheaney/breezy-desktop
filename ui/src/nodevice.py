@@ -1,6 +1,6 @@
 from gi.repository import Gio, Gtk
 from .configmanager import ConfigManager
-from .extensionsmanager import ExtensionsManager
+from .runtimeenvironment import RuntimeEnvironment
 from .settingsmanager import SettingsManager
 from .statemanager import StateManager
 from .xrdriveripc import XRDriverIPC
@@ -18,7 +18,7 @@ class NoDevice(Gtk.Box):
         self.init_template()
 
         self.ipc = XRDriverIPC.get_instance()
-        self.extensions_manager = ExtensionsManager.get_instance()
+        self.runtime = RuntimeEnvironment.get_instance()
         self.settings = SettingsManager.get_instance().settings
         self.config_manager = ConfigManager.get_instance()
         self.config_manager.connect('notify::breezy-desktop-enabled', self._handle_enabled_config)
@@ -30,16 +30,16 @@ class NoDevice(Gtk.Box):
         self._handle_enabled_config(self.config_manager, None)
 
     def _handle_enabled_config(self, config_manager, val):
-        enabled = config_manager.get_property('breezy-desktop-enabled') and self.extensions_manager.get_property('breezy-enabled')
+        enabled = config_manager.get_property('breezy-desktop-enabled') and self.runtime.get_property('breezy-enabled')
         if enabled != self.effect_enable_switch.get_active():
             self.effect_enable_switch.set_active(enabled)
-    
+
     def _handle_switch_enabled_state(self, switch, param):
         requesting_enabled = switch.get_active()
 
         # never turn off the extension, disabling the effect is done via configs only
         if requesting_enabled:
-            self.extensions_manager.set_property('breezy-enabled', True)
+            self.runtime.set_property('breezy-enabled', True)
 
         self.config_manager.set_property('breezy-desktop-enabled', requesting_enabled)
     

@@ -97,7 +97,7 @@ popd
 UI_BUILD_ARTIFACT=$UI_DIR/out/breezyUI-$ARCH.tar.gz
 if [ ! -e "$UI_BUILD_ARTIFACT" ] || [ "$1" == "--rebuild-ui" ] || [ "$1" == "--rebuild-all" ]; then
   pushd $UI_DIR
-  bin/package $ARCH
+  RUNTIME_DIR=$GNOME_DIR/ui bin/package $ARCH
   popd
 fi
 tar -xf $UI_BUILD_ARTIFACT -C $PACKAGE_DIR

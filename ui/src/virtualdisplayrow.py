@@ -1,5 +1,5 @@
 from gi.repository import Adw, Gtk
-from .virtualdisplaymanager import VirtualDisplayManager
+from .runtimeenvironment import RuntimeEnvironment
 
 import gettext
 
@@ -28,4 +28,4 @@ class VirtualDisplayRow(Adw.ActionRow):
         self.remove_virtual_display_button.connect('clicked', self._remove_virtual_display)
 
     def _remove_virtual_display(self, widget):
-        VirtualDisplayManager.get_instance().destroy_virtual_display(self.pid)
+        RuntimeEnvironment.get_instance().virtual_display_manager.destroy_virtual_display(self.pid)
