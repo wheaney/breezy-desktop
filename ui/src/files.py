@@ -10,8 +10,11 @@ def get_config_dir():
     return os.path.expanduser(config_home)
 
 def get_state_dir():
+    # imported lazily to avoid an import cycle (runtime discovery imports
+    # modules that import this one)
+    from .runtime import runtime_namespace
     state_home = os.environ.get('XDG_STATE_HOME', '~/.local/state')
-    return os.path.join(os.path.expanduser(state_home), 'breezy_gnome')
+    return os.path.join(os.path.expanduser(state_home), runtime_namespace())
 
 def get_data_home():
     data_home = os.environ.get('XDG_DATA_HOME', '~/.local/share')

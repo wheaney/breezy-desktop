@@ -42,7 +42,6 @@ breezydesktop_sources = [
   'connecteddevice.py',
   'customresolutiondialog.py',
   'customresolutiondialogcontent.py',
-  'extensionsmanager.py',
   'displaydistancedialog.py',
   'displaydistancedialogcontent.py',
   'failedverification.py',
@@ -57,16 +56,18 @@ breezydesktop_sources = [
   'nodriver.py',
   'noextension.py',
   'nolicense.py',
+  'runtime.py',
+  'runtimeenvironment.py',
   'settingsmanager.py',
   'shortcutdialog.py',
   'statemanager.py',
   'time.py',
-  'updatechecker.py',
-  'virtualdisplay.py',
-  'virtualdisplaymanager.py',
-  'verify.py',
   'window.py'
 ]
 
 install_data(breezydesktop_sources, install_dir: moduledir)
 install_subdir('../lib', install_dir: moduledir)
+
+# the runtimes subpackage marker; a concrete RuntimeEnvironment implementation
+# is copied in per-build by the package script (see ui/bin/package).
+install_data('runtimes/__init__.py', install_dir: moduledir / 'runtimes')

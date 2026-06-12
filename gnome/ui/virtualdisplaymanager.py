@@ -12,7 +12,7 @@ logger = logging.getLogger('breezy_ui')
 gi.require_version('GLib', '2.0')
 from gi.repository import GLib, GObject
 
-from .files import get_bin_home
+from ..files import get_bin_home
 
 class VirtualDisplayManager(GObject.GObject):
     __gproperties__ = {

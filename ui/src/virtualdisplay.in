@@ -85,8 +85,8 @@ def create_display(width, height, framerate):
         sys.exit(1)
 
 if __name__ == "__main__":
-    from breezydesktop import virtualdisplay
-    from breezydesktop.virtualdisplay import VirtualDisplay
+    from breezydesktop.runtimes import virtualdisplay
+    from breezydesktop.runtimes.virtualdisplay import VirtualDisplay
 
     global virtual_display_instance
     global loop
