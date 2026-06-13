@@ -10,6 +10,7 @@ import logging
 import os
 
 import pydbus
+from gi.repository import Gio
 
 from ..runtimeenvironment import RuntimeEnvironment
 
@@ -77,6 +78,24 @@ class BreezyGNOMERuntimeEnvironment(RuntimeEnvironment):
     def check_for_update(self, current_version, callback):
         from .updatechecker import check_for_update
         return check_for_update(current_version, callback)
+
+    # --- connected-device UI customisation --------------------------------
+
+    @property
+    def excluded_field_ids(self):
+        # GNOME exposes text scaling via org.gnome.desktop.interface, so don't
+        # hide it here — override the base default which excludes it.
+        return frozenset()
+
+    def create_extra_settings(self):
+        return Gio.Settings.new("org.gnome.desktop.interface")
+
+    def bind_runtime_fields(self, settings, widget_map):
+        self.extra_settings.bind(
+            'text-scaling-factor',
+            widget_map['text_scaling_adjustment'], 'value',
+            Gio.SettingsBindFlags.DEFAULT,
+        )
 
     # --- optional views ---------------------------------------------------
 
