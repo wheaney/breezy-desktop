@@ -16,7 +16,7 @@ There are two installations available. **Note: Don't manually install either of 
 
 ## Breezy Desktop
 
-Breezy Desktop is a virtual workspace solution for Linux desktops that use the KDE Plasma 6 or GNOME desktop environments (versions 42 through 49). It supports launching multiple virtual monitors alongside multiple physical monitors.
+Breezy Desktop is a virtual workspace solution for Linux desktops that use the KDE Plasma 6 or GNOME desktop environments (versions 45 through 50). It supports launching multiple virtual monitors alongside multiple physical monitors.
 
 For the best performance, ensure you have the latest graphics drivers installed for your distro.
 
@@ -64,7 +64,7 @@ After setup, you'll have an application called `Breezy Desktop` installed. Launc
 
 ### GNOME Setup
 
-Breezy Desktop has best compatibility with GNOME versions 45 through 49.
+Breezy Desktop has best compatibility with GNOME versions 45 through 50.
 
 **IMPORTANT** - Please read carefully through this list before you get started
 * **Make sure your glasses are in the [supported devices list](https://github.com/wheaney/XRLinuxDriver#supported-devices)** and are on the latest firmware.
