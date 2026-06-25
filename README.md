@@ -8,6 +8,9 @@
 
 ## What is this?
 
+> [!TIP]
+> Interested in an XR desktop for **Windows**, **MacOS**, or **Android**? Star the work-in-progress [Breezy Box](https://github.com/wheaney/breezy-box) project ([watch the demo](https://youtu.be/AwEQXnabRxE)).
+
 This repo contains a collection of tools to enable virtual desktop environments for gaming and productivity on Linux using [supported XR glasses](https://github.com/wheaney/XRLinuxDriver#supported-devices).
 
 There are two installations available. **Note: Don't manually install either of these if you're running the Decky plugin on the same machine, as they invalidate each other's installations. This is only temporary.**
