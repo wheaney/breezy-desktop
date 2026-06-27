@@ -39,6 +39,7 @@ class ConnectedDevice(Gtk.Box):
     follow_threshold_adjustment = Gtk.Template.Child()
     follow_mode_switch = Gtk.Template.Child()
     curved_display_switch = Gtk.Template.Child()
+    horizon_lock_switch = Gtk.Template.Child()
     top_features_group = Gtk.Template.Child()
     virtual_displays_row = Gtk.Template.Child()
     add_virtual_display_menu = Gtk.Template.Child()
@@ -99,6 +100,7 @@ class ConnectedDevice(Gtk.Box):
             self.follow_mode_switch,
             self.follow_threshold_scale,
             self.curved_display_switch,
+            self.horizon_lock_switch,
             self.add_virtual_display_menu,
             self.add_virtual_display_button,
             self.change_all_displays_distance_button,
@@ -124,6 +126,7 @@ class ConnectedDevice(Gtk.Box):
         self.settings.bind('follow-threshold', self.follow_threshold_adjustment, 'value', Gio.SettingsBindFlags.DEFAULT)
         # self.settings.bind('widescreen-mode', self.widescreen_mode_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('curved-display', self.curved_display_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind('horizon-lock', self.horizon_lock_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-display-as-viewport-center', self.headset_display_as_viewport_center_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('headset-as-primary', self.headset_as_primary_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind('remove-virtual-displays-on-disable', self.remove_virtual_displays_on_disable_switch, 'active', Gio.SettingsBindFlags.DEFAULT)
