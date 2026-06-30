@@ -97,8 +97,6 @@ Breezy GNOME is in AUR. To install, run these commands from a terminal with your
 
 After setup, you'll have an application called `Breezy Desktop` installed. Launch that and follow any instructions. You will need to log out and back in at least once to get the GNOME extension working. You can also configure keyboard shortcuts for the most common toggle actions. The Breezy Desktop app doesn't have to be running to use the virtual desktop or the keyboard shortcuts once you've configured everything to your liking.
 
-For a double-wide screen, enable "widescreen mode" using the toggle in the Breezy Desktop application. **Note: this can be significantly more resource intensive than non-widescreen, you may notice performance dips on older hardware.**
-
 ### Breezy Desktop Pricing
 
 Breezy Desktop for GNOME and KDE comes with 2 free trial months. Trial access is granted automatically after setup (no token entry required), and you only need to be online once after setup so your device can activate/refresh access.
