@@ -334,7 +334,7 @@ export const DeviceDataStream = GObject.registerClass({
         } else if (this.breezy_desktop_running !== this.breezy_desktop_actually_running) {
             // update the breezy_desktop_running property if the state changes to trigger "notify::" events
             this.breezy_desktop_running = this.breezy_desktop_actually_running;
-            if (!this.breezy_desktop_running && keepalive_only) {
+            if (!this.breezy_desktop_running) {
                 this.device_data = null;
                 this.imu_snapshots = null;
             }
