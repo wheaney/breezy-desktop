@@ -10,6 +10,7 @@ Item {
 
     readonly property var supportedModels: [
         "VITURE",
+        "VITURE Beast",
         "nreal air",
         "Air",
         "Air 2",
