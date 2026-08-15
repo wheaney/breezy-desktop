@@ -8,7 +8,10 @@ ARG TARGETPLATFORM
 ENV STEAMOS=3.9
 RUN echo "SteamOS 3.9 build - target platform: $TARGETPLATFORM"
 
-RUN pacman -Sy --noconfirm --needed \
+# CheckSpace can't stat Docker's read-only /etc/hosts and /etc/resolv.conf bind mounts,
+# which aborts the transaction; Arch's own container images disable it for this reason
+RUN sed -i 's/^[[:space:]]*CheckSpace/#CheckSpace/' /etc/pacman.conf \
+ && pacman -Syu --noconfirm --needed \
     ca-certificates \
     base-devel \
     cmake \
@@ -30,6 +33,7 @@ RUN pacman -Sy --noconfirm --needed \
     kxmlgui \
     kwindowsystem \
     kwin \
+    vulkan-headers \
  && pacman -Scc --noconfirm
 
 WORKDIR /source
