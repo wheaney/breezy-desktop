@@ -21,6 +21,8 @@ Item {
         "XREAL One",
         "XREAL One Pro",
         "XREAL 1S",
+        "xbx a01",
+        "xbx a01+",
         "SmartGlasses", // TCL/RayNeo
         "Rokid Max",
         "Rokid Max 2",
