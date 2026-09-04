@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#
+# update_pot_files — extract translatable strings from the KCM source, update
+# all per-language .po files, and regenerate any compiled .mo files.
+#
+# Run this script whenever you add or change translatable strings in:
+#   - kwin/src/kcm/*.cpp / *.h  (i18n(), I18N_NOOP(), …)
+#   - kwin/src/kcm/*.ui         (Qt Designer UI files)
+#
+# Requirements:
+#   extractrc   – part of kdesdk-scripts  (Debian/Ubuntu: kdesdk-scripts)
+#   xgettext    – part of gettext
+#   msgmerge    – part of gettext
+#   msgfmt      – part of gettext
+#
+# Quick install on Debian/Ubuntu:
+#   sudo apt-get install kdesdk-scripts gettext
+
+set -euo pipefail
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+# Operate from the kwin/ root so relative paths in the .pot match src/
+pushd "$SCRIPT_DIR/.." > /dev/null
+
+if ! command -v extractrc &>/dev/null; then
+    echo "ERROR: 'extractrc' not found." >&2
+    echo "Install it with: sudo apt-get install kdesdk-scripts" >&2
+    popd > /dev/null
+    exit 1
+fi
+
+if ! command -v xgettext &>/dev/null || ! command -v msgmerge &>/dev/null || ! command -v msgfmt &>/dev/null; then
+    echo "ERROR: gettext tools not found (xgettext, msgmerge, msgfmt)." >&2
+    echo "Install them with: sudo apt-get install gettext" >&2
+    popd > /dev/null
+    exit 1
+fi
+
+DOMAIN="breezy_desktop_kwin"
+POT="po/${DOMAIN}.pot"
+TMP_RC=$(mktemp /tmp/kcm-rc-XXXXXX.cpp)
+trap 'rm -f "$TMP_RC"' EXIT
+
+# 1. Extract strings from Qt Designer .ui files via extractrc, which converts
+#    them into i18n() C++ calls that xgettext understands.
+extractrc src/kcm/*.ui > "$TMP_RC"
+
+# 2. Extract all translatable strings into the .pot template.
+xgettext \
+    --from-code=UTF-8 \
+    --language=C++ \
+    -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 \
+    -kki18n:1 -kki18nc:1c,2 -kki18np:1,2 -kki18ncp:1c,2,3 \
+    -kI18N_NOOP:1 -kI18N_NOOP2:1c,2 -kI18NC_NOOP:1c,2 \
+    -ktr2i18n:1 \
+    --package-name="breezy-desktop" \
+    --msgid-bugs-address="https://github.com/wheaney/breezy-desktop/issues" \
+    -o "$POT" \
+    src/kcm/*.cpp src/kcm/*.h "$TMP_RC"
+
+echo "Updated $POT"
+
+# 3. Merge the updated template into each per-language .po file and recompile.
+for lang in $(cat po/LINGUAS); do
+    PO="po/${lang}/${DOMAIN}.po"
+    mkdir -p "po/${lang}"
+    if [ -f "$PO" ]; then
+        msgmerge --no-fuzzy-matching --update "$PO" "$POT"
+    else
+        msginit --no-translator --locale="${lang}" --input="$POT" --output="$PO"
+    fi
+
+    # Compile to binary .mo for local testing
+    outdir="po/${lang}/LC_MESSAGES"
+    mkdir -p "$outdir"
+    msgfmt -o "$outdir/${DOMAIN}.mo" "$PO"
+done
+
+popd > /dev/null
