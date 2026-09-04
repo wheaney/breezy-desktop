@@ -869,6 +869,132 @@
                       </object>
                     </child>
                     <child>
+                      <object class="AdwPreferencesGroup" id="imu_adjustments_group">
+                        <property name="title" translatable="yes">IMU adjustments</property>
+                        <property name="width-request">700</property>
+                        <property name="visible">0</property>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="title" translatable="yes">Invert IMU axes</property>
+                            <property name="subtitle" translatable="yes">Use only if the headset moves in the wrong direction.</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="spacing">30</property>
+                                <property name="halign">start</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">10</property>
+                                    <property name="halign">center</property>
+                                    <property name="width-request">80</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="label" translatable="yes">X-axis</property>
+                                        <property name="valign">3</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSwitch" id="invert_imu_x_switch">
+                                        <property name="valign">3</property>
+                                        <property name="halign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">10</property>
+                                    <property name="halign">center</property>
+                                    <property name="width-request">80</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="label" translatable="yes">Y-axis</property>
+                                        <property name="valign">3</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSwitch" id="invert_imu_y_switch">
+                                        <property name="valign">3</property>
+                                        <property name="halign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">10</property>
+                                    <property name="halign">center</property>
+                                    <property name="width-request">80</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="label" translatable="yes">Z-axis</property>
+                                        <property name="valign">3</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSwitch" id="invert_imu_z_switch">
+                                        <property name="valign">3</property>
+                                        <property name="halign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow">
+                            <property name="title" translatable="yes">Enable manual IMU pitch adjustment</property>
+                            <property name="subtitle" translatable="yes">Use only to correct unexpected roll.</property>
+                            <child>
+                              <object class="GtkSwitch" id="use_pitch_adjustment_override_switch">
+                                <property name="valign">3</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwActionRow" id="imu_pitch_adjustment_row">
+                            <property name="title" translatable="yes">IMU pitch adjustment (degrees)</property>
+                            <property name="subtitle" translatable="yes">Adjust the IMU pitch to correct unexpected roll.</property>
+                            <property name="visible">0</property>
+                            <child>
+                              <object class="GtkScale" id="imu_pitch_adjustment_scale">
+                                <property name="valign">3</property>
+                                <property name="draw-value">true</property>
+                                <property name="value-pos">0</property>
+                                <property name="digits">1</property>
+                                <property name="width-request">350</property>
+                                <property name="has-origin">false</property>
+                                <property name="adjustment">
+                                  <object class="GtkAdjustment" id="imu_pitch_adjustment_adjustment">
+                                    <property name="lower">-20.0</property>
+                                    <property name="upper">20.0</property>
+                                    <property name="step-increment">0.5</property>
+                                    <property name="value">0.0</property>
+                                  </object>
+                                </property>
+                                <marks>
+                                  <mark value="-20.0" position="bottom">-20</mark>
+                                  <mark value="-15.0" position="bottom">-15</mark>
+                                  <mark value="-10.0" position="bottom">-10</mark>
+                                  <mark value="-5.0" position="bottom">-5</mark>
+                                  <mark value="0.0" position="bottom">0</mark>
+                                  <mark value="5.0" position="bottom">5</mark>
+                                  <mark value="10.0" position="bottom">10</mark>
+                                  <mark value="15.0" position="bottom">15</mark>
+                                  <mark value="20.0" position="bottom">20</mark>
+                                </marks>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
                       <object class="AdwActionRow">
                         <property name="title" translatable="yes">Movement look-ahead</property>
                         <property name="subtitle" translatable="yes">Counteracts input lag by predicting head-tracking position ahead of render time. Stick with default unless virtual display drags behind your head movements, jumps ahead, or is very shaky.</property>

@@ -763,6 +763,137 @@
             </property>
           </widget>
         </item>
+        <item row="14" column="0" colspan="2">
+          <widget class="QWidget" name="widgetImuAdjustments" native="true">
+            <property name="visible">
+              <bool>false</bool>
+            </property>
+            <layout class="QFormLayout" name="layoutImuAdjustments">
+              <property name="leftMargin"><number>0</number></property>
+              <property name="topMargin"><number>0</number></property>
+              <property name="rightMargin"><number>0</number></property>
+              <property name="bottomMargin"><number>0</number></property>
+              <item row="0" column="0">
+                <widget class="QLabel" name="labelInvertImuAxes">
+                  <property name="text">
+                    <string>Invert IMU axes:</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="0" column="1">
+                <widget class="QWidget" name="widgetImuAxisInversions" native="true">
+                  <layout class="QHBoxLayout" name="layoutImuAxisInversions">
+                    <property name="leftMargin"><number>0</number></property>
+                    <property name="topMargin"><number>0</number></property>
+                    <property name="rightMargin"><number>0</number></property>
+                    <property name="bottomMargin"><number>0</number></property>
+                    <property name="spacing"><number>12</number></property>
+                    <item>
+                      <widget class="QCheckBox" name="InvertImuX">
+                        <property name="text">
+                          <string>X-axis</string>
+                        </property>
+                        <property name="checked">
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QCheckBox" name="InvertImuY">
+                        <property name="text">
+                          <string>Y-axis</string>
+                        </property>
+                        <property name="checked">
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QCheckBox" name="InvertImuZ">
+                        <property name="text">
+                          <string>Z-axis</string>
+                        </property>
+                        <property name="checked">
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+                <widget class="QWidget" name="widgetPitchAdjustmentOverride" native="true">
+                  <layout class="QHBoxLayout" name="layoutPitchAdjustmentOverride">
+                    <property name="leftMargin"><number>0</number></property>
+                    <property name="topMargin"><number>0</number></property>
+                    <property name="rightMargin"><number>0</number></property>
+                    <property name="bottomMargin"><number>0</number></property>
+                    <item>
+                      <widget class="QCheckBox" name="UsePitchAdjustmentOverride">
+                        <property name="text">
+                          <string>Manual pitch adjustment</string>
+                        </property>
+                        <property name="checked">
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+              <item row="2" column="0" colspan="2">
+                <widget class="QWidget" name="widgetPitchAdjustment" native="true">
+                  <property name="visible">
+                    <bool>false</bool>
+                  </property>
+                  <layout class="QFormLayout" name="formPitchAdjustment">
+                    <item row="0" column="0">
+                      <widget class="QLabel" name="labelImuPitchAdjustment">
+                        <property name="text">
+                          <string>IMU pitch adjustment (degrees)</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item row="0" column="1">
+                      <widget class="LabeledSlider" name="kcfg_ImuPitchAdjustmentDegrees">
+                        <property name="minimum">
+                          <number>-200</number>
+                        </property>
+                        <property name="maximum">
+                          <number>200</number>
+                        </property>
+                        <property name="singleStep">
+                          <number>5</number>
+                        </property>
+                        <property name="pageStep">
+                          <number>25</number>
+                        </property>
+                        <property name="decimalShift">
+                          <double>1</double>
+                        </property>
+                        <property name="tickPosition">
+                          <enum>QSlider::NoTicks</enum>
+                        </property>
+                        <property name="tickStartOffset">
+                          <double>0</double>
+                        </property>
+                        <property name="tickInterval">
+                          <double>50</double>
+                        </property>
+                        <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="tracking">
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </widget>
+              </item>
+            </layout>
+          </widget>
+        </item>
       </layout>
      </widget>
    <widget class="QWidget" name="tabLicenseDetails">

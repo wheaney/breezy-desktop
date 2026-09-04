@@ -37,6 +37,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QIcon>
+#include <QCheckBox>
 #include <QTabWidget>
 #include <QInputDialog>
 #include <QSize>
@@ -53,6 +54,7 @@
 #include <QSignalBlocker>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QMap>
 #include <cmath>
 #include <algorithm>
 
@@ -385,6 +387,11 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     connect(ui.SmoothFollowTrackYaw, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw);
     connect(ui.SmoothFollowTrackPitch, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackPitch);
     connect(ui.SmoothFollowTrackRoll, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateSmoothFollowTrackRoll);
+    connect(ui.InvertImuX, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateInvertXAxis);
+    connect(ui.InvertImuY, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateInvertYAxis);
+    connect(ui.InvertImuZ, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateInvertZAxis);
+    connect(ui.UsePitchAdjustmentOverride, &QCheckBox::toggled, this, &BreezyDesktopEffectConfig::updateUsePitchAdjustmentOverride);
+    connect(ui.kcfg_ImuPitchAdjustmentDegrees, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updatePitchAdjustmentDegrees);
     connect(ui.NeckSaverHorizontalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverHorizontal);
     connect(ui.NeckSaverVerticalMultiplier, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateNeckSaverVertical);
     connect(ui.DeadZoneThresholdDeg, &QSlider::valueChanged, this, &BreezyDesktopEffectConfig::updateDeadZoneThresholdDeg);
@@ -392,6 +399,20 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     if (ui.DeadZoneThresholdDeg) {
         ui.DeadZoneThresholdDeg->setValueUnitsSuffix(QStringLiteral("°"));
         ui.DeadZoneThresholdDeg->setValueText(0, i18n("Disabled"));
+    }
+
+    if (ui.kcfg_ImuPitchAdjustmentDegrees) {
+        ui.kcfg_ImuPitchAdjustmentDegrees->setValueTexts(QMap<int, QString>{
+            {-200, QStringLiteral("-20")},
+            {-150, QStringLiteral("-15")},
+            {-100, QStringLiteral("-10")},
+            {-50, QStringLiteral("-5")},
+            {0, QStringLiteral("0")},
+            {50, QStringLiteral("5")},
+            {100, QStringLiteral("10")},
+            {150, QStringLiteral("15")},
+            {200, QStringLiteral("20")},
+        });
     }
 
     if (auto label = widget()->findChild<QLabel*>("labelAppNameVersion")) {
@@ -440,6 +461,7 @@ BreezyDesktopEffectConfig::BreezyDesktopEffectConfig(QObject *parent, const KPlu
     }
 
     applyDistanceLabelFormatters();
+    updateImuControlsVisibility();
 
     renderVirtualDisplays(dbusListVirtualDisplays());
 
@@ -812,6 +834,7 @@ void BreezyDesktopEffectConfig::pollDriverState()
     m_connectedDeviceFullDistanceCm = stateJson.value(QStringLiteral("connected_device_full_distance_cm")).toDouble(0.0);
     m_connectedDeviceFullSizeCm = stateJson.value(QStringLiteral("connected_device_full_size_cm")).toDouble(0.0);
     m_connectedDevicePoseHasPosition = stateJson.value(QStringLiteral("connected_device_pose_has_position")).toBool(false);
+    m_connectedDevicePossibleImuMisalignment = stateJson.value(QStringLiteral("connected_device_possible_imu_misalignment")).toBool(false);
 
     applyDistanceLabelFormatters();
 
@@ -861,6 +884,30 @@ void BreezyDesktopEffectConfig::pollDriverState()
     if (ui.SmoothFollowTrackRoll->isChecked() != trackRoll)
         ui.SmoothFollowTrackRoll->setChecked(trackRoll);
 
+    const bool invertX = invertXAxisEnabled(configJsonOpt);
+    if (ui.InvertImuX->isChecked() != invertX)
+        ui.InvertImuX->setChecked(invertX);
+
+    const bool invertY = invertYAxisEnabled(configJsonOpt);
+    if (ui.InvertImuY->isChecked() != invertY)
+        ui.InvertImuY->setChecked(invertY);
+
+    const bool invertZ = invertZAxisEnabled(configJsonOpt);
+    if (ui.InvertImuZ->isChecked() != invertZ)
+        ui.InvertImuZ->setChecked(invertZ);
+
+    const bool pitchOverride = usePitchAdjustmentOverrideEnabled(configJsonOpt);
+    if (ui.UsePitchAdjustmentOverride->isChecked() != pitchOverride)
+        ui.UsePitchAdjustmentOverride->setChecked(pitchOverride);
+
+    const double pitchAdjustment = pitchAdjustmentDegrees(configJsonOpt);
+    const int pitchAdjustmentRaw = static_cast<int>(std::round(pitchAdjustment * 10.0));
+    if (!ui.kcfg_ImuPitchAdjustmentDegrees->isSliderDown() &&
+        ui.kcfg_ImuPitchAdjustmentDegrees->value() != pitchAdjustmentRaw) {
+        QSignalBlocker b(ui.kcfg_ImuPitchAdjustmentDegrees);
+        ui.kcfg_ImuPitchAdjustmentDegrees->setValue(pitchAdjustmentRaw);
+    }
+
     const double horiz = neckSaverHorizontalMultiplier(configJsonOpt);
     const int horizInt = static_cast<int>(std::round(horiz * 100.0));
     if (ui.NeckSaverHorizontalMultiplier->value() != horizInt) {
@@ -877,6 +924,8 @@ void BreezyDesktopEffectConfig::pollDriverState()
     if (ui.DeadZoneThresholdDeg->value() != dzInt) {
         ui.DeadZoneThresholdDeg->setValue(dzInt);
     }
+
+    updateImuControlsVisibility();
 
     refreshLicenseUi(stateJson);
 
@@ -1065,6 +1114,115 @@ bool BreezyDesktopEffectConfig::smoothFollowTrackRollEnabled(std::optional<QJson
 {
     if (!configJsonOpt) return false; // fallback if config missing entirely
     return configJsonOpt->value(QStringLiteral("smooth_follow_track_roll")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::invertXAxisEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false;
+    return configJsonOpt->value(QStringLiteral("invert_x")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::invertYAxisEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false;
+    return configJsonOpt->value(QStringLiteral("invert_y")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::invertZAxisEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false;
+    return configJsonOpt->value(QStringLiteral("invert_z")).toBool();
+}
+
+bool BreezyDesktopEffectConfig::usePitchAdjustmentOverrideEnabled(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return false;
+    return configJsonOpt->value(QStringLiteral("use_pitch_adjustment_override")).toBool();
+}
+
+double BreezyDesktopEffectConfig::pitchAdjustmentDegrees(std::optional<QJsonObject> configJsonOpt)
+{
+    if (!configJsonOpt) return 0.0;
+    const QJsonValue jv = configJsonOpt->value(QStringLiteral("pitch_adjustment_degrees"));
+    const double v = jv.isDouble() ? jv.toDouble() : 0.0;
+    if (v < -20.0) return -20.0;
+    if (v > 20.0) return 20.0;
+    return v;
+}
+
+void BreezyDesktopEffectConfig::updateImuControlsVisibility()
+{
+    const bool visible = m_connectedDevicePossibleImuMisalignment;
+    if (auto *group = widget()->findChild<QWidget*>(QStringLiteral("widgetImuAdjustments"))) {
+        group->setVisible(visible);
+    }
+
+    if (auto *pitchWidget = widget()->findChild<QWidget*>(QStringLiteral("widgetPitchAdjustment"))) {
+        const bool pitchVisible = visible && ui.UsePitchAdjustmentOverride->isChecked();
+        pitchWidget->setVisible(pitchVisible);
+    }
+}
+
+void BreezyDesktopEffectConfig::updateInvertXAxis()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = invertXAxisEnabled(configJsonOpt);
+    const bool desired = ui.InvertImuX->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("invert_x"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateInvertYAxis()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = invertYAxisEnabled(configJsonOpt);
+    const bool desired = ui.InvertImuY->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("invert_y"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateInvertZAxis()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = invertZAxisEnabled(configJsonOpt);
+    const bool desired = ui.InvertImuZ->isChecked();
+    if (current == desired) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("invert_z"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
+}
+
+void BreezyDesktopEffectConfig::updateUsePitchAdjustmentOverride()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const bool current = usePitchAdjustmentOverrideEnabled(configJsonOpt);
+    const bool desired = ui.UsePitchAdjustmentOverride->isChecked();
+    if (current != desired) {
+        QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+        newConfig.insert(QStringLiteral("use_pitch_adjustment_override"), desired);
+        XRDriverIPC::instance().writeConfig(newConfig);
+    }
+
+    updateImuControlsVisibility();
+}
+
+void BreezyDesktopEffectConfig::updatePitchAdjustmentDegrees()
+{
+    auto configJsonOpt = XRDriverIPC::instance().retrieveConfig();
+    const double current = pitchAdjustmentDegrees(configJsonOpt);
+    const double desired = std::clamp(ui.kcfg_ImuPitchAdjustmentDegrees->value() / 10.0, -20.0, 20.0);
+    if (std::abs(current - desired) < 1e-9) return;
+
+    QJsonObject newConfig = configJsonOpt ? configJsonOpt.value() : QJsonObject();
+    newConfig.insert(QStringLiteral("pitch_adjustment_degrees"), desired);
+    XRDriverIPC::instance().writeConfig(newConfig);
 }
 
 void BreezyDesktopEffectConfig::updateSmoothFollowTrackYaw()

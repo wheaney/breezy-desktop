@@ -38,6 +38,11 @@ private:
     void updateSmoothFollowTrackYaw();
     void updateSmoothFollowTrackPitch();
     void updateSmoothFollowTrackRoll();
+    void updateInvertXAxis();
+    void updateInvertYAxis();
+    void updateInvertZAxis();
+    void updateUsePitchAdjustmentOverride();
+    void updatePitchAdjustmentDegrees();
     void updateNeckSaverHorizontal();
     void updateNeckSaverVertical();
     void updateDeadZoneThresholdDeg();
@@ -51,9 +56,15 @@ private:
     bool smoothFollowTrackYawEnabled(std::optional<QJsonObject> configJsonOpt);
     bool smoothFollowTrackPitchEnabled(std::optional<QJsonObject> configJsonOpt);
     bool smoothFollowTrackRollEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool invertXAxisEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool invertYAxisEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool invertZAxisEnabled(std::optional<QJsonObject> configJsonOpt);
+    bool usePitchAdjustmentOverrideEnabled(std::optional<QJsonObject> configJsonOpt);
+    double pitchAdjustmentDegrees(std::optional<QJsonObject> configJsonOpt);
     double neckSaverHorizontalMultiplier(std::optional<QJsonObject> configJsonOpt);
     double neckSaverVerticalMultiplier(std::optional<QJsonObject> configJsonOpt);
     double deadZoneThresholdDeg(std::optional<QJsonObject> configJsonOpt);
+    void updateImuControlsVisibility();
     void pollDriverState();
     void refreshLicenseUi(const QJsonObject &rootObj);
     void checkEffectLoaded();
@@ -88,4 +99,5 @@ private:
     QTimer m_virtualDisplayPollTimer; // periodic virtual display list polling
     bool m_licenseLoading = false;
     bool m_curvedDisplaySupported = true;
+    bool m_connectedDevicePossibleImuMisalignment = false;
 };

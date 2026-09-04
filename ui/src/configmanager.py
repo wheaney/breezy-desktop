@@ -9,6 +9,11 @@ class ConfigManager(GObject.GObject):
         'follow-track-roll': (bool, 'Follow Track Roll', 'Whether to follow on the roll axis', False, GObject.ParamFlags.READWRITE),
         'follow-track-pitch': (bool, 'Follow Track Pitch', 'Whether to follow on the pitch axis', True, GObject.ParamFlags.READWRITE),
         'follow-track-yaw': (bool, 'Follow Track Yaw', 'Whether to follow on the yaw axis', True, GObject.ParamFlags.READWRITE),
+        'invert-x': (bool, 'Invert IMU X-axis', 'Whether to invert the IMU X axis', False, GObject.ParamFlags.READWRITE),
+        'invert-y': (bool, 'Invert IMU Y-axis', 'Whether to invert the IMU Y axis', False, GObject.ParamFlags.READWRITE),
+        'invert-z': (bool, 'Invert IMU Z-axis', 'Whether to invert the IMU Z axis', False, GObject.ParamFlags.READWRITE),
+        'use-pitch-adjustment-override': (bool, 'Use Pitch Adjustment Override', 'Whether to override the automatic IMU pitch adjustment', False, GObject.ParamFlags.READWRITE),
+        'pitch-adjustment-degrees': (float, 'Pitch Adjustment (degrees)', 'Manual IMU pitch adjustment in degrees', -20.0, 20.0, 0.0, GObject.ParamFlags.READWRITE),
         'dead-zone-threshold-deg': (
             float,
             'Dead Zone Threshold (deg)',
@@ -55,6 +60,11 @@ class ConfigManager(GObject.GObject):
         self.follow_track_roll = None
         self.follow_track_pitch = None
         self.follow_track_yaw = None
+        self.invert_x = None
+        self.invert_y = None
+        self.invert_z = None
+        self.use_pitch_adjustment_override = None
+        self.pitch_adjustment_degrees = None
         self.dead_zone_threshold_deg = None
         self.neck_saver_horizontal_multiplier = None
         self.neck_saver_vertical_multiplier = None
@@ -85,6 +95,21 @@ class ConfigManager(GObject.GObject):
 
         if self.config['smooth_follow_track_yaw'] != self.follow_track_yaw:
             self.set_property('follow-track-yaw', self.config['smooth_follow_track_yaw'])
+
+        if self.config['invert_x'] != self.invert_x:
+            self.set_property('invert-x', self.config['invert_x'])
+
+        if self.config['invert_y'] != self.invert_y:
+            self.set_property('invert-y', self.config['invert_y'])
+
+        if self.config['invert_z'] != self.invert_z:
+            self.set_property('invert-z', self.config['invert_z'])
+
+        if self.config['use_pitch_adjustment_override'] != self.use_pitch_adjustment_override:
+            self.set_property('use-pitch-adjustment-override', self.config['use_pitch_adjustment_override'])
+
+        if self.config['pitch_adjustment_degrees'] != self.pitch_adjustment_degrees:
+            self.set_property('pitch-adjustment-degrees', self.config['pitch_adjustment_degrees'])
 
         if self.config['dead_zone_threshold_deg'] != self.dead_zone_threshold_deg:
             self.set_property('dead-zone-threshold-deg', self.config['dead_zone_threshold_deg'])
@@ -135,6 +160,37 @@ class ConfigManager(GObject.GObject):
             self.ipc.write_config(self.config)
             self.follow_track_yaw = value
 
+    def _set_invert_x(self, value):
+        if self.invert_x != value:
+            self.config['invert_x'] = value
+            self.ipc.write_config(self.config)
+            self.invert_x = value
+
+    def _set_invert_y(self, value):
+        if self.invert_y != value:
+            self.config['invert_y'] = value
+            self.ipc.write_config(self.config)
+            self.invert_y = value
+
+    def _set_invert_z(self, value):
+        if self.invert_z != value:
+            self.config['invert_z'] = value
+            self.ipc.write_config(self.config)
+            self.invert_z = value
+
+    def _set_use_pitch_adjustment_override(self, value):
+        if self.use_pitch_adjustment_override != value:
+            self.config['use_pitch_adjustment_override'] = value
+            self.ipc.write_config(self.config)
+            self.use_pitch_adjustment_override = value
+
+    def _set_pitch_adjustment_degrees(self, value):
+        value = round(min(20.0, max(-20.0, float(value))), 1)
+        if self.pitch_adjustment_degrees != value:
+            self.config['pitch_adjustment_degrees'] = value
+            self.ipc.write_config(self.config)
+            self.pitch_adjustment_degrees = value
+
     def _set_dead_zone_threshold_deg(self, value):
         value = round(min(5.0, max(0.0, float(value))), 2)
         if self.dead_zone_threshold_deg != value:
@@ -167,6 +223,16 @@ class ConfigManager(GObject.GObject):
             self._set_follow_track_pitch(value)
         elif prop.name == 'follow-track-yaw':
             self._set_follow_track_yaw(value)
+        elif prop.name == 'invert-x':
+            self._set_invert_x(value)
+        elif prop.name == 'invert-y':
+            self._set_invert_y(value)
+        elif prop.name == 'invert-z':
+            self._set_invert_z(value)
+        elif prop.name == 'use-pitch-adjustment-override':
+            self._set_use_pitch_adjustment_override(value)
+        elif prop.name == 'pitch-adjustment-degrees':
+            self._set_pitch_adjustment_degrees(value)
         elif prop.name == 'dead-zone-threshold-deg':
             self._set_dead_zone_threshold_deg(value)
         elif prop.name == 'neck-saver-horizontal-multiplier':
@@ -185,6 +251,16 @@ class ConfigManager(GObject.GObject):
             return self.follow_track_pitch
         elif prop.name == 'follow-track-yaw':
             return self.follow_track_yaw
+        elif prop.name == 'invert-x':
+            return self.invert_x
+        elif prop.name == 'invert-y':
+            return self.invert_y
+        elif prop.name == 'invert-z':
+            return self.invert_z
+        elif prop.name == 'use-pitch-adjustment-override':
+            return self.use_pitch_adjustment_override
+        elif prop.name == 'pitch-adjustment-degrees':
+            return self.pitch_adjustment_degrees
         elif prop.name == 'dead-zone-threshold-deg':
             return self.dead_zone_threshold_deg
         elif prop.name == 'neck-saver-horizontal-multiplier':

@@ -21,6 +21,7 @@ class StateManager(GObject.GObject):
         'enabled-features-list': (object, 'Enabled Features List', 'A list of the enabled features', GObject.ParamFlags.READWRITE),
         'device-supports-sbs': (bool, 'Device Supports SBS', 'Whether the connected device supports SBS', False, GObject.ParamFlags.READWRITE),
         'connected-device-pose-has-position': (bool, 'Pose Has Position', 'Whether the connected device provides position tracking (6DoF)', False, GObject.ParamFlags.READWRITE),
+        'connected-device-possible-imu-misalignment': (bool, 'Possible IMU Misalignment', 'Whether the connected device may need IMU correction controls', False, GObject.ParamFlags.READWRITE),
         'connected-device-full-distance-cm': (float, 'Full Distance (cm)', 'Device full distance in cm', 0.0, 10000.0, 0.0, GObject.ParamFlags.READWRITE),
         'connected-device-full-size-cm': (float, 'Full Size (cm)', 'Device full display size in cm', 0.0, 10000.0, 0.0, GObject.ParamFlags.READWRITE),
     }
@@ -62,6 +63,7 @@ class StateManager(GObject.GObject):
         self.enabled_features = []
         self.device_supports_sbs = False
         self.connected_device_pose_has_position = False
+        self.connected_device_possible_imu_misalignment = False
         self.connected_device_full_distance_cm = 0.0
         self.connected_device_full_size_cm = 0.0
         self._running = True
@@ -122,6 +124,10 @@ class StateManager(GObject.GObject):
             if pose_has_position != self.connected_device_pose_has_position:
                 self.set_property('connected-device-pose-has-position', pose_has_position)
 
+            possible_imu_misalignment = (self.state.get('connected_device_possible_imu_misalignment', False) == True)
+            if possible_imu_misalignment != self.connected_device_possible_imu_misalignment:
+                self.set_property('connected-device-possible-imu-misalignment', possible_imu_misalignment)
+
             full_distance = self.state.get('connected_device_full_distance_cm') or 0.0
             if full_distance != self.connected_device_full_distance_cm:
                 self.set_property('connected-device-full-distance-cm', full_distance)
@@ -149,6 +155,8 @@ class StateManager(GObject.GObject):
             self.device_supports_sbs = value
         if prop.name == 'connected-device-pose-has-position':
             self.connected_device_pose_has_position = value
+        if prop.name == 'connected-device-possible-imu-misalignment':
+            self.connected_device_possible_imu_misalignment = value
         if prop.name == 'connected-device-full-distance-cm':
             self.connected_device_full_distance_cm = value
         if prop.name == 'connected-device-full-size-cm':
@@ -171,6 +179,8 @@ class StateManager(GObject.GObject):
             return self.device_supports_sbs
         if prop.name == 'connected-device-pose-has-position':
             return self.connected_device_pose_has_position
+        if prop.name == 'connected-device-possible-imu-misalignment':
+            return self.connected_device_possible_imu_misalignment
         if prop.name == 'connected-device-full-distance-cm':
             return self.connected_device_full_distance_cm
         if prop.name == 'connected-device-full-size-cm':

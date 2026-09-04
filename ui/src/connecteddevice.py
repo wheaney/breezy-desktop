@@ -80,6 +80,14 @@ class ConnectedDevice(Gtk.Box):
     follow_track_yaw_switch = Gtk.Template.Child()
     follow_track_pitch_switch = Gtk.Template.Child()
     follow_track_roll_switch = Gtk.Template.Child()
+    imu_adjustments_group = Gtk.Template.Child()
+    invert_imu_x_switch = Gtk.Template.Child()
+    invert_imu_y_switch = Gtk.Template.Child()
+    invert_imu_z_switch = Gtk.Template.Child()
+    use_pitch_adjustment_override_switch = Gtk.Template.Child()
+    imu_pitch_adjustment_row = Gtk.Template.Child()
+    imu_pitch_adjustment_scale = Gtk.Template.Child()
+    imu_pitch_adjustment_adjustment = Gtk.Template.Child()
     monitor_wrapping_scheme_menu = Gtk.Template.Child()
     monitor_spacing_scale = Gtk.Template.Child()
     monitor_spacing_adjustment = Gtk.Template.Child()
@@ -108,6 +116,11 @@ class ConnectedDevice(Gtk.Box):
             self.monitor_spacing_scale,
             self.viewport_offset_x_scale,
             self.viewport_offset_y_scale,
+            self.invert_imu_x_switch,
+            self.invert_imu_y_switch,
+            self.invert_imu_z_switch,
+            self.use_pitch_adjustment_override_switch,
+            self.imu_pitch_adjustment_scale,
             self.neck_saver_horizontal_scale,
             self.neck_saver_vertical_scale
         ]
@@ -180,6 +193,7 @@ class ConnectedDevice(Gtk.Box):
         self.state_manager.bind_property('follow-mode', self.follow_mode_switch, 'active', GObject.BindingFlags.DEFAULT)
         self.state_manager.connect('notify::enabled-features-list', self._handle_enabled_features)
         self.state_manager.connect('notify::device-supports-sbs', self._handle_device_supports_sbs)
+        self.state_manager.connect('notify::connected-device-possible-imu-misalignment', self._handle_possible_imu_misalignment)
 
         self.follow_mode_switch.set_active(self.state_manager.get_property('follow-mode'))
         self.follow_mode_switch.connect('notify::active', self._refresh_follow_mode)
@@ -195,9 +209,15 @@ class ConnectedDevice(Gtk.Box):
         self._bind_switch_to_config(self.follow_track_roll_switch, 'follow-track-roll')
         self._bind_switch_to_config(self.follow_track_pitch_switch, 'follow-track-pitch')
         self._bind_switch_to_config(self.follow_track_yaw_switch, 'follow-track-yaw')
+        self._bind_switch_to_config(self.invert_imu_x_switch, 'invert-x')
+        self._bind_switch_to_config(self.invert_imu_y_switch, 'invert-y')
+        self._bind_switch_to_config(self.invert_imu_z_switch, 'invert-z')
+        self._bind_switch_to_config(self.use_pitch_adjustment_override_switch, 'use-pitch-adjustment-override')
+        self._bind_scale_to_config(self.imu_pitch_adjustment_adjustment, 'pitch-adjustment-degrees')
         self._bind_scale_to_config(self.dead_zone_threshold_adjustment, 'dead-zone-threshold-deg')
         self._bind_scale_to_config(self.neck_saver_horizontal_adjustment, 'neck-saver-horizontal-multiplier')
         self._bind_scale_to_config(self.neck_saver_vertical_adjustment, 'neck-saver-vertical-multiplier')
+        self.use_pitch_adjustment_override_switch.connect('notify::active', self._handle_pitch_adjustment_override_changed)
 
         self.use_optimal_monitor_config_switch.connect('notify::active', self._refresh_use_optimal_monitor_config)
 
@@ -205,6 +225,7 @@ class ConnectedDevice(Gtk.Box):
         self._handle_display_distance(self.settings, self.settings.get_double('display-distance'))
         self._handle_enabled_features(self.state_manager, None)
         self._handle_device_supports_sbs(self.state_manager, None)
+        self._handle_possible_imu_misalignment(self.state_manager, None)
         self._handle_enabled_config(None, None)
         self._refresh_use_optimal_monitor_config(self.use_optimal_monitor_config_switch, None)
         self.extensions_manager.connect('notify::breezy-enabled', self._handle_enabled_config)
@@ -283,6 +304,14 @@ class ConnectedDevice(Gtk.Box):
         # self.widescreen_mode_switch.set_sensitive(state_manager.get_property('device-supports-sbs'))
         # subtitle = self.widescreen_mode_subtitle if state_manager.get_property('device-supports-sbs') else self.widescreen_mode_not_supported_subtitle
         # self.widescreen_mode_row.set_subtitle(subtitle)
+
+    def _handle_possible_imu_misalignment(self, state_manager, val):
+        visible = state_manager.get_property('connected-device-possible-imu-misalignment')
+        self.imu_adjustments_group.set_visible(visible)
+        self.imu_pitch_adjustment_row.set_visible(visible and self.use_pitch_adjustment_override_switch.get_active())
+
+    def _handle_pitch_adjustment_override_changed(self, widget, param):
+        self._handle_possible_imu_misalignment(self.state_manager, None)
 
     def _handle_enabled_config(self, object, val):
         enabled = self.config_manager.get_property('breezy-desktop-enabled') and self.extensions_manager.get_property('breezy-enabled')
