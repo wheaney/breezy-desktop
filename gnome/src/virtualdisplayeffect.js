@@ -8,6 +8,128 @@ import Globals from './globals.js';
 import { degreeToRadian, diagonalToCrossFOVs, fovConversionFns } from './math.js';
 
 
+const _vertexDeclarations = `
+    uniform bool u_show_banner;
+    uniform mat4 u_pose_orientation;
+    uniform vec3 u_pose_position;
+    uniform float u_look_ahead_ms;
+    uniform vec4 u_look_ahead_cfg;
+    uniform mat4 u_projection_matrix;
+    uniform float u_fov_vertical_radians;
+    uniform float u_rotation_x_radians;
+    uniform float u_rotation_y_radians;
+    uniform vec2 u_display_resolution;
+    uniform vec3 u_lens_vector;
+
+    // vector positions are relative to the width and height of the entire stage
+    uniform vec2 u_actor_to_display_ratios;
+    uniform vec2 u_actor_to_display_offsets;
+
+    // discovered through trial and error, no idea the significance
+    float cogl_position_mystery_factor = 29.09 * 2;
+    
+    float look_ahead_ms_cap = 45.0;
+
+    vec4 quatConjugate(vec4 q) {
+        return vec4(-q.xyz, q.w);
+    }
+
+    vec3 applyQuaternionToVector(vec3 v, vec4 q) {
+        vec3 t = 2.0 * cross(q.xyz, v);
+        return v + q.w * t + cross(q.xyz, t);
+    }
+
+    vec3 applyXRotationToVector(vec3 v, float angle) {
+        float c = cos(angle);
+        float s = sin(angle);
+        return vec3(v.x, v.y * c - v.z * s, v.y * s + v.z * c);
+    }
+
+    vec3 applyYRotationToVector(vec3 v, float angle) {
+        float c = cos(angle);
+        float s = sin(angle);
+        return vec3(v.x * c + v.z * s, v.y, v.z * c - v.x * s);
+    }
+
+    vec4 nwuToEUS(vec4 v) {
+        return vec4(-v.y, v.z, -v.x, v.w);
+    }
+
+    vec3 nwuToEUS(vec3 v) {
+        return vec3(-v.y, v.z, -v.x);
+    }
+
+    // returns the rate of change between the two vectors, in same time units as delta_time
+    // e.g. if delta_time is in ms, then the rate of change is "per ms"
+    vec3 rateOfChange(vec3 v1, vec3 v2, float delta_time) {
+        return (v1-v2) / delta_time;
+    }
+
+    // attempt to figure out where the current position should be based on previous position and velocity.
+    // velocity and time values should use the same time units (secs, ms, etc...)
+    vec3 applyLookAhead(vec3 position, vec3 velocity, float look_ahead_ms) {
+        return position + velocity * look_ahead_ms;
+    }
+
+    // project the vector onto a flat surface, return it's vertical position relative to the vertical fov, where 0.0 is 
+    // the top and 1.0 is the bottom. vectors that project outside the vertical range of the display will have values 
+    // outside this range, but capped
+    float vectorToScanline(float fovVerticalRadians, vec3 v) {
+        return clamp(1.0 - (-v.y / (tan(fovVerticalRadians / 2.0) * v.z) + 1.0) / 2.0, -1.5, 2.5);
+    }
+`;
+
+const _vertexMain = `
+    vec4 world_pos = cogl_position_in;
+
+    if (!u_show_banner) {
+        float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
+
+        vec4 quat_t0 = nwuToEUS(quatConjugate(u_pose_orientation[0]));
+        vec3 position_vector = applyQuaternionToVector(nwuToEUS(u_pose_position), quat_t0);
+        vec3 final_lens_position = nwuToEUS(u_lens_vector) + position_vector;
+
+        vec3 complete_vector = applyXRotationToVector(world_pos.xyz, u_rotation_x_radians);
+        complete_vector = applyYRotationToVector(complete_vector, u_rotation_y_radians);
+
+        vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
+        vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToEUS(quatConjugate(u_pose_orientation[1])));
+        float delta_time_t0 = u_pose_orientation[3][0] - u_pose_orientation[3][1];
+
+        // how quickly the vertex is moving relative to the camera
+        vec3 velocity_t0 = rateOfChange(
+            rotated_vector_t0 - final_lens_position, 
+            rotated_vector_t1 - final_lens_position, 
+            delta_time_t0
+        );
+
+        // compute the capped look ahead with scanline adjustments
+        float look_ahead_scanline_ms = u_look_ahead_ms == 0.0 ? 0.0 : vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
+        float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
+
+        vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
+
+        world_pos = vec4(look_ahead_vector - final_lens_position, world_pos.w);
+
+        world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
+
+        world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
+
+        world_pos = u_projection_matrix * world_pos;
+
+        // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
+        // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
+        world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
+        world_pos.y += (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
+    } else {
+        world_pos = cogl_modelview_matrix * world_pos;
+        world_pos = cogl_projection_matrix * world_pos;
+    }
+
+    cogl_position_out = world_pos;
+    cogl_tex_coord_out[0] = cogl_tex_coord_in;
+`;
+
 // these need to mirror the values in XRLinuxDriver
 // https://github.com/wheaney/XRLinuxDriver/blob/main/src/plugins/smooth_follow.c#L31
 export const SMOOTH_FOLLOW_SLERP_TIMELINE_MS = 1000;
@@ -260,7 +382,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
             -1
         ),
     }
-}, class VirtualDisplayEffect extends Shell.GLSLEffect {
+}, class VirtualDisplayEffect extends Clutter.OffscreenEffect {
     constructor(params = {}) {
         super(params);
 
@@ -268,6 +390,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.no_distance_ease = false;
         this._current_follow_ease_progress = 0.0;
         this._use_smooth_follow_origin = false;
+        this._uniform_locations = {}
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
         this.connect('notify::display-distance-default', this._update_display_distance.bind(this));
@@ -415,14 +538,30 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this._vertices = createVertexMesh(this.fov_details, resizedMonitorDetails, finalPositionVector);
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
-        if (this._initialized) {
-            this.set_uniform_float(this.get_uniform_location("u_rotation_x_radians"), 1, [rotation_radians.x * inverse_follow_ease]);
-            this.set_uniform_float(this.get_uniform_location("u_rotation_y_radians"), 1, [rotation_radians.y * inverse_follow_ease]);
+        if (this._initialized && this._prepared_pipeline) {
+            this._set_uniform_float_value('u_rotation_x_radians', 1, [rotation_radians.x * inverse_follow_ease]);
+            this._set_uniform_float_value('u_rotation_y_radians', 1, [rotation_radians.y * inverse_follow_ease]);
         }
     }
 
     _handle_banner_update() {
-        this.set_uniform_float(this.get_uniform_location("u_show_banner"), 1, [this.show_banner ? 1.0 : 0.0]);
+        this._set_uniform_float_value('u_show_banner', 1, [this.show_banner ? 1.0 : 0.0]);
+    }
+
+    _get_uniform_location(name) {
+        if (this._uniform_locations[name] === undefined) {
+            this._uniform_locations[name] = this._prepared_pipeline.get_uniform_location(name);
+        }
+
+        return this._uniform_locations[name];
+    }
+
+    _set_uniform_matrix_value(name, matrix) {
+        this._prepared_pipeline.set_uniform_matrix(this._get_uniform_location(name), 4, 1, false, matrix);
+    }
+
+    _set_uniform_float_value(name, count, value) {
+        this._prepared_pipeline.set_uniform_float(this._get_uniform_location(name), count, 1, value);
     }
 
     perspective(widthUnitDistance, aspect, near, far) {
@@ -437,133 +576,28 @@ export const VirtualDisplayEffect = GObject.registerClass({
         ];
     }
 
-    vfunc_build_pipeline() {
-        const declarations = `
-            uniform bool u_show_banner;
-            uniform mat4 u_pose_orientation;
-            uniform vec3 u_pose_position;
-            uniform float u_look_ahead_ms;
-            uniform vec4 u_look_ahead_cfg;
-            uniform mat4 u_projection_matrix;
-            uniform float u_fov_vertical_radians;
-            uniform float u_rotation_x_radians;
-            uniform float u_rotation_y_radians;
-            uniform vec2 u_display_resolution;
-            uniform vec3 u_lens_vector;
+    get_snippet() {
+        if (this._snippet === undefined) {
+            this._snippet = Cogl.Snippet.new(
+                Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX,
+                _vertexDeclarations,
+                _vertexMain
+            );
+        }
 
-            // vector positions are relative to the width and height of the entire stage
-            uniform vec2 u_actor_to_display_ratios;
-            uniform vec2 u_actor_to_display_offsets;
-
-            // discovered through trial and error, no idea the significance
-            float cogl_position_mystery_factor = 29.09 * 2;
-            
-            float look_ahead_ms_cap = 45.0;
-
-            vec4 quatConjugate(vec4 q) {
-                return vec4(-q.xyz, q.w);
-            }
-
-            vec3 applyQuaternionToVector(vec3 v, vec4 q) {
-                vec3 t = 2.0 * cross(q.xyz, v);
-                return v + q.w * t + cross(q.xyz, t);
-            }
-
-            vec3 applyXRotationToVector(vec3 v, float angle) {
-                float c = cos(angle);
-                float s = sin(angle);
-                return vec3(v.x, v.y * c - v.z * s, v.y * s + v.z * c);
-            }
-
-            vec3 applyYRotationToVector(vec3 v, float angle) {
-                float c = cos(angle);
-                float s = sin(angle);
-                return vec3(v.x * c + v.z * s, v.y, v.z * c - v.x * s);
-            }
-
-            vec4 nwuToEUS(vec4 v) {
-                return vec4(-v.y, v.z, -v.x, v.w);
-            }
-
-            vec3 nwuToEUS(vec3 v) {
-                return vec3(-v.y, v.z, -v.x);
-            }
-
-            // returns the rate of change between the two vectors, in same time units as delta_time
-            // e.g. if delta_time is in ms, then the rate of change is "per ms"
-            vec3 rateOfChange(vec3 v1, vec3 v2, float delta_time) {
-                return (v1-v2) / delta_time;
-            }
-
-            // attempt to figure out where the current position should be based on previous position and velocity.
-            // velocity and time values should use the same time units (secs, ms, etc...)
-            vec3 applyLookAhead(vec3 position, vec3 velocity, float look_ahead_ms) {
-                return position + velocity * look_ahead_ms;
-            }
-
-            // project the vector onto a flat surface, return it's vertical position relative to the vertical fov, where 0.0 is 
-            // the top and 1.0 is the bottom. vectors that project outside the vertical range of the display will have values 
-            // outside this range, but capped
-            float vectorToScanline(float fovVerticalRadians, vec3 v) {
-                return clamp(1.0 - (-v.y / (tan(fovVerticalRadians / 2.0) * v.z) + 1.0) / 2.0, -1.5, 2.5);
-            }
-        `;
-
-        const main = `
-            vec4 world_pos = cogl_position_in;
-
-            if (!u_show_banner) {
-                float aspect_ratio = u_display_resolution.x / u_display_resolution.y;
-
-                vec4 quat_t0 = nwuToEUS(quatConjugate(u_pose_orientation[0]));
-                vec3 position_vector = applyQuaternionToVector(nwuToEUS(u_pose_position), quat_t0);
-                vec3 final_lens_position = nwuToEUS(u_lens_vector) + position_vector;
-
-                vec3 complete_vector = applyXRotationToVector(world_pos.xyz, u_rotation_x_radians);
-                complete_vector = applyYRotationToVector(complete_vector, u_rotation_y_radians);
-
-                vec3 rotated_vector_t0 = applyQuaternionToVector(complete_vector, quat_t0);
-                vec3 rotated_vector_t1 = applyQuaternionToVector(complete_vector, nwuToEUS(quatConjugate(u_pose_orientation[1])));
-                float delta_time_t0 = u_pose_orientation[3][0] - u_pose_orientation[3][1];
-
-                // how quickly the vertex is moving relative to the camera
-                vec3 velocity_t0 = rateOfChange(
-                    rotated_vector_t0 - final_lens_position, 
-                    rotated_vector_t1 - final_lens_position, 
-                    delta_time_t0
-                );
-
-                // compute the capped look ahead with scanline adjustments
-                float look_ahead_scanline_ms = u_look_ahead_ms == 0.0 ? 0.0 : vectorToScanline(u_fov_vertical_radians, rotated_vector_t0) * u_look_ahead_cfg[2];
-                float effective_look_ahead_ms = min(min(u_look_ahead_ms, look_ahead_ms_cap), u_look_ahead_cfg[3]) + look_ahead_scanline_ms;
-
-                vec3 look_ahead_vector = applyLookAhead(rotated_vector_t0, velocity_t0, effective_look_ahead_ms);
-
-                world_pos = vec4(look_ahead_vector - final_lens_position, world_pos.w);
-
-                world_pos.z /= aspect_ratio / u_actor_to_display_ratios.y;
-
-                world_pos.x *= u_actor_to_display_ratios.y / u_actor_to_display_ratios.x;
-
-                world_pos = u_projection_matrix * world_pos;
-
-                // if the perspective includes more than just our viewport actor, move the vertices back to just the area we can see.
-                // this needs to be done after the projection matrix multiplication so it will be projected as if centered in our vision
-                world_pos.x -= (u_actor_to_display_offsets.x / u_actor_to_display_ratios.x) * world_pos.w;
-                world_pos.y += (u_actor_to_display_offsets.y / u_actor_to_display_ratios.y) * world_pos.w;
-            } else {
-                world_pos = cogl_modelview_matrix * world_pos;
-                world_pos = cogl_projection_matrix * world_pos;
-            }
-
-            cogl_position_out = world_pos;
-            cogl_tex_coord_out[0] = cogl_tex_coord_in;
-        `
-
-        this.add_glsl_snippet(Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX, declarations, main, false);
+        return this._snippet;
     }
 
     vfunc_paint_target(node, paintContext) {
+        const pipeline = this.get_pipeline();
+
+        if (this._prepared_pipeline !== pipeline) {
+            this._initialized = false;
+            pipeline.add_snippet(this.get_snippet());
+            this._prepared_pipeline = pipeline;
+            this._uniform_locations = {};
+        }
+
         if (!this._initialized) {
             this._initialized = true;
 
@@ -575,28 +609,28 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 1.0,
                 10000.0
             );
-            this.set_uniform_matrix(this.get_uniform_location("u_projection_matrix"), false, 4, projection_matrix);
-            this.set_uniform_float(this.get_uniform_location("u_fov_vertical_radians"), 1, [fovLengths.verticalRadians]);
-            this.set_uniform_float(this.get_uniform_location("u_display_resolution"), 2, [this.target_monitor.width, this.target_monitor.height]);
-            this.set_uniform_float(this.get_uniform_location("u_look_ahead_cfg"), 4, Globals.data_stream.device_data.lookAheadCfg);
-            this.set_uniform_float(this.get_uniform_location("u_actor_to_display_ratios"), 2, this.actor_to_display_ratios);
-            this.set_uniform_float(this.get_uniform_location("u_actor_to_display_offsets"), 2, this.actor_to_display_offsets);
+            this._set_uniform_matrix_value('u_projection_matrix', projection_matrix);
+            this._set_uniform_float_value('u_fov_vertical_radians', 1, [fovLengths.verticalRadians]);
+            this._set_uniform_float_value('u_display_resolution', 2, [this.target_monitor.width, this.target_monitor.height]);
+            this._set_uniform_float_value('u_look_ahead_cfg', 4, Globals.data_stream.device_data.lookAheadCfg);
+            this._set_uniform_float_value('u_actor_to_display_ratios', 2, this.actor_to_display_ratios);
+            this._set_uniform_float_value('u_actor_to_display_offsets', 2, this.actor_to_display_offsets);
             this._update_display_position();
             this._handle_banner_update();
         }
-        this.set_uniform_float(this.get_uniform_location("u_lens_vector"), 3, this.pose_has_position ? [0.0, 0.0, 0.0] : this.lens_vector);
+        this._set_uniform_float_value('u_lens_vector', 3, this.pose_has_position ? [0.0, 0.0, 0.0] : this.lens_vector);
 
         if (this.imu_snapshots && !this.show_banner) {
             let lookAheadSet = false;
             if (!this._use_smooth_follow_origin && (!this.smooth_follow_enabled || this._is_focused() || this._current_follow_ease_progress > 0.0)) {
                 if (this._current_follow_ease_progress > 0.0 && this._current_follow_ease_progress < 1.0) {
                     // don't apply look-ahead while the display is slerping
-                    this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [0.0]);
+                    this._set_uniform_float_value('u_look_ahead_ms', 1, [0.0]);
                     lookAheadSet = true;
                 }
-                this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.pose_orientation);
+                this._set_uniform_matrix_value('u_pose_orientation', this.imu_snapshots.pose_orientation);
             } else {
-                this.set_uniform_matrix(this.get_uniform_location("u_pose_orientation"), false, 4, this.imu_snapshots.smooth_follow_origin);
+                this._set_uniform_matrix_value('u_pose_orientation', this.imu_snapshots.smooth_follow_origin);
             }
             let posePositionPixels = [0.0, 0.0, 0.0];
             if (this.pose_has_position) {
@@ -604,14 +638,14 @@ export const VirtualDisplayEffect = GObject.registerClass({
                     return coord * this.fov_details.fullScreenDistancePixels + this.lens_vector[index];
                 });
             }
-            this.set_uniform_float(this.get_uniform_location("u_pose_position"), 3, posePositionPixels);
+            this._set_uniform_float_value('u_pose_position', 3, posePositionPixels);
             if (!lookAheadSet) {
-                this.set_uniform_float(this.get_uniform_location('u_look_ahead_ms'), 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
+                this._set_uniform_float_value('u_look_ahead_ms', 1, [lookAheadMS(this.imu_snapshots.timestamp_ms, Globals.data_stream.device_data.lookAheadCfg, this.look_ahead_override)]);
             }
 
             if (!this.disable_anti_aliasing) {
                 // improves sampling quality for smooth text and edges
-                this.get_pipeline().set_layer_filters(
+                pipeline.set_layer_filters(
                     0,
                     Cogl.PipelineFilter.LINEAR_MIPMAP_LINEAR,
                     Cogl.PipelineFilter.LINEAR
@@ -622,7 +656,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
             const framebuffer = paintContext.get_framebuffer();
             const coglContext = framebuffer.get_context();
             const primitive = Cogl.Primitive.new_p3t2(coglContext, Cogl.VerticesMode.TRIANGLE_STRIP, this._vertices);
-            primitive.draw(framebuffer, this.get_pipeline());
+            primitive.draw(framebuffer, pipeline);
         } else {
             super.vfunc_paint_target(node, paintContext);
         }
