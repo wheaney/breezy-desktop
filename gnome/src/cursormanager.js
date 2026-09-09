@@ -1,6 +1,5 @@
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
-import * as PointerWatcher from 'resource:///org/gnome/shell/ui/pointerWatcher.js';
 import { MouseSpriteContent } from './cursor.js';
 import Globals from './globals.js';
 
@@ -17,7 +16,6 @@ export class CursorManager {
         this._cursorUnfocusInhibited = false;
 
         // Set/destroyed by _startCloningMouse / _stopCloningMouse
-        this._cursorWatch = null;
         this._cursorChangedConnection = null;
         this._systemCursorShown = true;
     }
@@ -127,11 +125,8 @@ export class CursorManager {
 
         this._updateMouseSprite();
         this._cursorTracker.connectObject('cursor-changed', this._updateMouseSprite.bind(this), this);
+        this._cursorTracker.connectObject('position-invalidated', this._updateMousePosition.bind(this), this);
 
-        // cap the refresh rate for performance reasons
-        const interval = 1000.0 / Math.min(this._refreshRate, 60);
-
-        this._cursorWatch = PointerWatcher.getPointerWatcher().addWatch(interval, this._updateMousePosition.bind(this));
         this._updateMousePosition();
     }
 
@@ -143,11 +138,6 @@ export class CursorManager {
     // completely reverts _startCloningMouse
     _stopCloningMouse() {
         Globals.logger.log_debug('CursorManager _stopCloningMouse');
-        if (this._cursorWatch != null) {
-            this._cursorWatch.remove();
-            this._cursorWatch = null;
-        }
-
         if (this._cursorTracker) this._cursorTracker.disconnectObject(this);
         if (this._mouseSprite?.content?.texture) this._mouseSprite.content.texture = null;
         
@@ -177,14 +167,14 @@ export class CursorManager {
         }
     }
 
-    _updateMousePosition(...args) {
-        const [xMouse, yMouse] = args.length ? args : global.get_pointer();
+    _updateMousePosition() {
+        const [coords] = this._cursorTracker.get_pointer();
         let onMonitorIndex;
         let xRel;
         let yRel;
 
         const inBoundsCheck = (monitorObj, index) => {
-            const inBoundsCoordinates = this._getInBoundsCoordinates(xMouse, yMouse, monitorObj.monitor);
+            const inBoundsCoordinates = this._getInBoundsCoordinates(coords.x, coords.y, monitorObj.monitor);
             if (inBoundsCoordinates) {
                 onMonitorIndex = index;
                 xRel = inBoundsCoordinates.xRel;
