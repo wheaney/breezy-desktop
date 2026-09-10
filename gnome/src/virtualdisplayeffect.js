@@ -232,8 +232,10 @@ function createVertexMesh(fovDetails, monitorDetails, positionVectorNWU) {
     return vertices;
 }
 
-export const VirtualDisplayEffect = GObject.registerClass({
-    Properties: {
+// GNOME 51 deprecated Shell.GLSLEffect
+const HAS_GLSL_EFFECT = Shell.GLSLEffect !== undefined;
+
+const _properties = {
         'monitor-index': GObject.ParamSpec.int(
             'monitor-index',
             'Monitor Index',
@@ -381,16 +383,17 @@ export const VirtualDisplayEffect = GObject.registerClass({
             45,
             -1
         ),
-    }
-}, class VirtualDisplayEffect extends Clutter.OffscreenEffect {
-    constructor(params = {}) {
-        super(params);
+};
 
+// Logic shared between the Shell.GLSLEffect and Clutter.OffscreenEffect backed implementations below.
+// The only thing each backing implementation needs to provide is _get_uniform_location/_set_uniform_float_value/
+// _set_uniform_matrix_value, since that's the only place their APIs actually differ.
+const _VirtualDisplayEffectCommon = {
+    _construct_common() {
         this._current_display_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
         this.no_distance_ease = false;
         this._current_follow_ease_progress = 0.0;
         this._use_smooth_follow_origin = false;
-        this._uniform_locations = {}
 
         this.connect('notify::display-distance', this._update_display_distance.bind(this));
         this.connect('notify::display-distance-default', this._update_display_distance.bind(this));
@@ -401,11 +404,11 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this.connect('notify::smooth-follow-enabled', this._handle_smooth_follow_enabled_update.bind(this));
 
         this._update_display_position();
-    }
+    },
 
     _is_focused() {
         return this.focused_monitor_index === this.monitor_index;
-    }
+    },
 
     _update_display_distance() {
         const desired_distance = this._is_focused() ? this.display_distance : this.display_distance_default;
@@ -461,7 +464,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this._distance_ease_timeline.start();
 
         if (this.smooth_follow_enabled) this._handle_smooth_follow_enabled_update();
-    }
+    },
 
     _handle_smooth_follow_enabled_update() {
         // we'll re-trigger this once a monitor becomes focused
@@ -517,7 +520,7 @@ export const VirtualDisplayEffect = GObject.registerClass({
                 }).bind(this)
             );
         }
-    }
+    },
 
     // follow_ease transitions this from a rotated display (progress 0.0) to a centered/focused display (progress 1.0)
     _update_display_position() {
@@ -538,31 +541,15 @@ export const VirtualDisplayEffect = GObject.registerClass({
         this._vertices = createVertexMesh(this.fov_details, resizedMonitorDetails, finalPositionVector);
 
         const rotation_radians = this.monitor_placements[this.monitor_index].rotationAngleRadians;
-        if (this._initialized && this._prepared_pipeline) {
+        if (this._initialized) {
             this._set_uniform_float_value('u_rotation_x_radians', 1, [rotation_radians.x * inverse_follow_ease]);
             this._set_uniform_float_value('u_rotation_y_radians', 1, [rotation_radians.y * inverse_follow_ease]);
         }
-    }
+    },
 
     _handle_banner_update() {
         this._set_uniform_float_value('u_show_banner', 1, [this.show_banner ? 1.0 : 0.0]);
-    }
-
-    _get_uniform_location(name) {
-        if (this._uniform_locations[name] === undefined) {
-            this._uniform_locations[name] = this._prepared_pipeline.get_uniform_location(name);
-        }
-
-        return this._uniform_locations[name];
-    }
-
-    _set_uniform_matrix_value(name, matrix) {
-        this._prepared_pipeline.set_uniform_matrix(this._get_uniform_location(name), 4, 1, false, matrix);
-    }
-
-    _set_uniform_float_value(name, count, value) {
-        this._prepared_pipeline.set_uniform_float(this._get_uniform_location(name), count, 1, value);
-    }
+    },
 
     perspective(widthUnitDistance, aspect, near, far) {
         const f = 2.0 / widthUnitDistance;
@@ -574,30 +561,10 @@ export const VirtualDisplayEffect = GObject.registerClass({
             0,          0,          - (far + near) / range,        -1,
             0,          0,          - (2.0 * near * far) / range,   0
         ];
-    }
+    },
 
-    get_snippet() {
-        if (this._snippet === undefined) {
-            this._snippet = Cogl.Snippet.new(
-                Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX,
-                _vertexDeclarations,
-                _vertexMain
-            );
-        }
-
-        return this._snippet;
-    }
-
-    vfunc_paint_target(node, paintContext) {
-        const pipeline = this.get_pipeline();
-
-        if (this._prepared_pipeline !== pipeline) {
-            this._initialized = false;
-            pipeline.add_snippet(this.get_snippet());
-            this._prepared_pipeline = pipeline;
-            this._uniform_locations = {};
-        }
-
+    // shared body of vfunc_paint_target, fall back to parent paint_target if this returns false
+    _paint_target_common(pipeline, paintContext) {
         if (!this._initialized) {
             this._initialized = true;
 
@@ -657,8 +624,97 @@ export const VirtualDisplayEffect = GObject.registerClass({
             const coglContext = framebuffer.get_context();
             const primitive = Cogl.Primitive.new_p3t2(coglContext, Cogl.VerticesMode.TRIANGLE_STRIP, this._vertices);
             primitive.draw(framebuffer, pipeline);
-        } else {
-            super.vfunc_paint_target(node, paintContext);
+            return true;
         }
+
+        return false;
     }
-});
+};
+
+export const VirtualDisplayEffect = HAS_GLSL_EFFECT ?
+    GObject.registerClass({
+        Properties: _properties
+    }, class VirtualDisplayEffect extends Shell.GLSLEffect {
+        constructor(params = {}) {
+            super(params);
+
+            this._construct_common();
+        }
+
+        _get_uniform_location(name) {
+            return this.get_uniform_location(name);
+        }
+
+        _set_uniform_matrix_value(name, matrix) {
+            this.set_uniform_matrix(this._get_uniform_location(name), false, 4, matrix);
+        }
+
+        _set_uniform_float_value(name, count, value) {
+            this.set_uniform_float(this._get_uniform_location(name), count, value);
+        }
+
+        vfunc_build_pipeline() {
+            this.add_glsl_snippet(Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX, _vertexDeclarations, _vertexMain, false);
+        }
+
+        vfunc_paint_target(node, paintContext) {
+            if (!this._paint_target_common(this.get_pipeline(), paintContext)) {
+                super.vfunc_paint_target(node, paintContext);
+            }
+        }
+    }) :
+    GObject.registerClass({
+        Properties: _properties
+    }, class VirtualDisplayEffect extends Clutter.OffscreenEffect {
+        constructor(params = {}) {
+            super(params);
+
+            this._uniform_locations = {};
+            this._construct_common();
+        }
+
+        get_snippet() {
+            if (this._snippet === undefined) {
+                this._snippet = Cogl.Snippet.new(
+                    Cogl.SnippetHook?.VERTEX ?? Shell.SnippetHook.VERTEX,
+                    _vertexDeclarations,
+                    _vertexMain
+                );
+            }
+
+            return this._snippet;
+        }
+
+        _get_uniform_location(name) {
+            if (this._uniform_locations[name] === undefined) {
+                this._uniform_locations[name] = this._prepared_pipeline.get_uniform_location(name);
+            }
+
+            return this._uniform_locations[name];
+        }
+
+        _set_uniform_matrix_value(name, matrix) {
+            this._prepared_pipeline.set_uniform_matrix(this._get_uniform_location(name), 4, 1, false, matrix);
+        }
+
+        _set_uniform_float_value(name, count, value) {
+            this._prepared_pipeline.set_uniform_float(this._get_uniform_location(name), count, 1, value);
+        }
+
+        vfunc_paint_target(node, paintContext) {
+            const pipeline = this.get_pipeline();
+
+            if (this._prepared_pipeline !== pipeline) {
+                this._initialized = false;
+                pipeline.add_snippet(this.get_snippet());
+                this._prepared_pipeline = pipeline;
+                this._uniform_locations = {};
+            }
+
+            if (!this._paint_target_common(pipeline, paintContext)) {
+                super.vfunc_paint_target(node, paintContext);
+            }
+        }
+    });
+
+Object.assign(VirtualDisplayEffect.prototype, _VirtualDisplayEffectCommon);
