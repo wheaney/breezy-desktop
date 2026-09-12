@@ -236,6 +236,71 @@ If you wish to completely remove the installation:
   * If you installed via `yay` run the following: `pacman -R breezy-desktop-gnome-git`, you may also want to uninstall the base driver with `pacman -R xr-driver-breezy-gnome-git`
 * For **Breezy Vulkan** run the following: `~/.local/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
 
+## Nix
+
+A flake is available with packages `breezy-gnome`, `breezy-kde`, `breezy-ui`, `breezy-vulkan`,
+and `breezy-desktop` (all of the above combined), plus a `nixosModules.default` for NixOS.
+See [docs/nix.md](docs/nix.md) for maintaining the flake itself.
+
+breezy-desktop vendors several submodules (`vkBasalt`, `XRLinuxDriver`, `sombrero`,
+`PyXRLinuxDriverIPC`), and the `github:` flake-ref type fetches a tarball via the GitHub
+API, which never includes submodule content. Any flake input **must** use the
+`git+https` fetcher with `submodules=1` instead:
+```nix
+inputs.breezy-desktop.url = "git+https://github.com/wheaney/breezy-desktop?submodules=1";
+```
+
+### NixOS, via the module
+
+```nix
+{
+  inputs.breezy-desktop.url = "git+https://github.com/wheaney/breezy-desktop?submodules=1";
+
+  outputs = { nixpkgs, breezy-desktop, ... }: {
+    nixosConfigurations.<host> = nixpkgs.lib.nixosSystem {
+      modules = [
+        breezy-desktop.nixosModules.default
+        { services.breezy-desktop.enable = true; }
+      ];
+    };
+  };
+}
+```
+This installs the packages, registers the `xr-driver` user service and udev rules, and
+loads the `uinput` kernel module for you. It doesn't start the driver service itself —
+run `systemctl --user enable --now xr-driver.service` once (the settings UI prompts for
+this too if it's not running).
+
+### Flakes, without the module
+
+For non-NixOS systems, or NixOS users who'd rather wire things up by hand, install the
+`breezy-desktop` package imperatively with `nix profile`/`nix-env`:
+```bash
+nix profile install "git+https://github.com/wheaney/breezy-desktop?submodules=1#breezy-desktop"
+```
+or pull it into your own `pkgs` via the overlay:
+```nix
+nixpkgs.overlays = [ inputs.breezy-desktop.overlays.default ];
+```
+Either way, you're now responsible for what the module otherwise does for you: loading
+the `uinput` kernel module, picking up the udev rules and `xr-driver.service` unit that
+ship in the `xrlinuxdriver` package's `lib/udev/rules.d` and `lib/systemd/user`, and
+enabling that service.
+
+### Without flakes
+
+GitHub's tarball/archive endpoints don't include submodule content, so `nix-env -f`/
+`fetchTarball` against `archive/main.tar.gz` will produce a broken checkout — a plain
+tarball install isn't supported. Clone the repo with submodules instead and build
+locally, using the `default.nix`/`shell.nix` flake-compat shims:
+```bash
+git clone --recurse-submodules https://github.com/wheaney/breezy-desktop.git
+cd breezy-desktop
+nix-build -A default   # or -A packages.x86_64-linux.breezy-desktop
+```
+or use `builtins.fetchGit { url = "https://github.com/wheaney/breezy-desktop"; submodules = true; }`
+if you need a fetched (non-local) equivalent.
+
 ## Data Privacy Notice
 
 Your right to privacy and the protection of your personal data are baked into every decision around how your personal data is collected, handled and stored. Your personal data will never be shared, sold, or distributed in any form.
