@@ -1,0 +1,39 @@
+name: Nix - Update Inputs
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  update-inputs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Update inputs (excluding xrlinuxdriver)
+        run: |
+          nix flake lock \
+            --update-input nixpkgs \
+            --update-input flake-compat
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- flake.lock; then
+            echo "No changes to inputs"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git commit -m "chore(flake): update inputs"
+          git push origin HEAD:main

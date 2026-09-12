@@ -230,6 +230,33 @@ If you wish to completely remove the installation:
   * If you installed via `yay` run the following: `pacman -R breezy-desktop-gnome-git`, you may also want to uninstall the base driver with `pacman -R xr-driver-breezy-gnome-git`
 * For **Breezy Vulkan** run the following: `~/.local/bin/breezy_vulkan_uninstall`. This won't uninstall the base driver package, follow the instructions at the end of the uninstallation to do this manually.
 
+## Nix
+
+A flake is available with packages `breezy-gnome`, `breezy-kde`, `breezy-ui`, `breezy-vulkan`, and `breezy-desktop` (all of the above combined). See [docs/nix.md](docs/nix.md) for maintaining the flake itself.
+
+**As a flake input:**
+```nix
+inputs.breezy-desktop.url = "github:wheaney/breezy-desktop";
+```
+then either install it imperatively with `nix profile`/`nix-env`:
+```bash
+nix profile install github:wheaney/breezy-desktop#breezy-desktop
+```
+or pull it into your own `pkgs` via the overlay:
+```nix
+nixpkgs.overlays = [ inputs.breezy-desktop.overlays.default ];
+```
+
+**As a tarball** (no flakes required):
+```bash
+nix-env -f https://github.com/wheaney/breezy-desktop/archive/main.tar.gz -iA packages.x86_64-linux.breezy-desktop
+```
+or as an overlay:
+```nix
+self: super:
+  (import (fetchTarball "https://github.com/wheaney/breezy-desktop/archive/main.tar.gz") { }).overlays.default self super
+```
+
 ## Data Privacy Notice
 
 Your right to privacy and the protection of your personal data are baked into every decision around how your personal data is collected, handled and stored. Your personal data will never be shared, sold, or distributed in any form.
