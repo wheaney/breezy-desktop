@@ -1,0 +1,36 @@
+name: Nix - Update XRLinuxDriver Input
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-xrlinuxdriver-input:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Update xrlinuxdriver input
+        run: nix flake lock --update-input xrlinuxdriver
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- flake.lock; then
+            echo "No changes to xrlinuxdriver input"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git commit -m "chore(flake): update xrlinuxdriver input"
+          git push origin HEAD:main
