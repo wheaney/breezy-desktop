@@ -1,0 +1,49 @@
+name: Nix CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Check flake
+        run: nix flake check --print-build-logs
+
+  build-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - breezy-gnome
+          - breezy-kde
+          - breezy-ui
+          - breezy-vulkan
+          - breezy-desktop
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build ${{ matrix.package }}
+        run: nix build --print-build-logs ".#${{ matrix.package }}"
