@@ -48,9 +48,13 @@ To setup Breezy on KDE Plasma using `bash`, with your glasses unplugged:
 1. Download the [Breezy KWin setup script](https://github.com/wheaney/breezy-desktop/releases/latest/download/breezy_kwin_setup)
 2. Set the execute flag: `chmod +x ~/Downloads/breezy_kwin_setup`
 3. Run the setup script: `~/Downloads/breezy_kwin_setup`
-4. If you're on SteamOS and want to use virtual displays, use the `Enable Breezy Wayland` desktop script
-   * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running the `Disable Breezy Wayland` desktop script
-5. Log out and back in.
+4. If you see the warning `Windowing system is X11` and want to use virtual displays:
+   * On SteamOS, use the `Enable Breezy Wayland` desktop script
+     * **IMPORTANT** - this will prevent you from accessing Game Mode again, until you undo it by running the `Disable Breezy Wayland` desktop script
+   * On other distros, you may be able to switch to Wayland from your login screen.
+6. Log out and back in.
+7. Enable Breezy Desktop by opening the KDE Plasma `System Settings` app, go to the `Desktop Effects` tab, find `Breezy Desktop` and enable it.
+8. Proceed to [usage](#breezy-kwin-usage).
 
 #### KDE Plasma Arch Linux setup
 
@@ -59,7 +63,9 @@ Breezy KWin is in AUR. To install, run these commands from a terminal with your 
 1. If you've previously installed Breezy KWin using the setup script, you must uninstall it first with `breezy_kwin_uninstall`
 2. `yay -S breezy-desktop-kwin-git`
 3. `systemctl --user enable --now xr-driver.service`
-4. Log out and back in, then proceed to [usage](#breezy-kwin-usage).
+4. Log out and back in.
+5. Enable Breezy Desktop by opening the KDE Plasma `System Settings` app, go to the `Desktop Effects` tab, find `Breezy Desktop` and enable it.
+6. Proceed to [usage](#breezy-kwin-usage).
 
 #### Breezy KWin Usage
 
