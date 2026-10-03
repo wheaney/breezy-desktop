@@ -40,6 +40,32 @@ const POSE_ORIENTATION = [dataViewEnd(EPOCH_MS), FLOAT_SIZE, 16];
 const IMU_PARITY_BYTE = [dataViewEnd(POSE_ORIENTATION), UINT8_SIZE, 1];
 const DATA_VIEW_LENGTH = dataViewEnd(IMU_PARITY_BYTE);
 
+// Flatten a packed pose-orientation buffer (mat4 as 16 floats: orientation
+// quaternions at floats [0..3] and [4..7], timestamps at [12..15]) to yaw-only.
+// Uses a swing-twist decomposition about the NWU up-axis (Z): keep the Z and W
+// components, zero X and Y, then renormalize. This removes all pitch and roll
+// from the rendered orientation, so the display tracks only horizontal (yaw)
+// head movement. The identity quaternion [0,0,0,1] is preserved.
+function applyHorizonLock(poseOrientation) {
+    for (const offset of [0, 4]) {
+        const z = poseOrientation[offset + 2];
+        const w = poseOrientation[offset + 3];
+        const norm = Math.hypot(z, w);
+        poseOrientation[offset] = 0;
+        poseOrientation[offset + 1] = 0;
+        if (norm < 1e-6) {
+            // Yaw is undefined here (a pure 180-degree pitch/roll pose); fall
+            // back to identity rather than emitting a zero (non-unit) quaternion.
+            poseOrientation[offset + 2] = 0;
+            poseOrientation[offset + 3] = 1;
+        } else {
+            poseOrientation[offset + 2] = z / norm;
+            poseOrientation[offset + 3] = w / norm;
+        }
+    }
+    return poseOrientation;
+}
+
 function checkParityByte(dataView) {
     const parityByte = dataViewUint8(dataView, IMU_PARITY_BYTE);
     let parity = 0;
@@ -132,6 +158,13 @@ export const DeviceDataStream = GObject.registerClass({
             'Debug mode that allows for testing with moving IMU values without a device connected',
             GObject.ParamFlags.READWRITE,
             false
+        ),
+        'horizon-lock': GObject.ParamSpec.boolean(
+            'horizon-lock',
+            'Horizon lock',
+            'Flatten the head pose to yaw-only (ignore pitch and roll) so the display only tracks horizontal head movement',
+            GObject.ParamFlags.READWRITE,
+            false
         )
     }
 }, class DeviceDataStream extends GObject.Object {
@@ -212,9 +245,13 @@ export const DeviceDataStream = GObject.registerClass({
                     const version = dataViewUint8(dataView, VERSION);
                     const enabled = dataViewUint8(dataView, ENABLED) !== 0 && version === DATA_LAYOUT_VERSION && validData;
                     let poseOrientation = dataViewFloatArray(dataView, POSE_ORIENTATION);
+                    if (this.horizon_lock) applyHorizonLock(poseOrientation);
                     let posePosition = dataViewFloatArray(dataView, POSE_POSITION);
                     let smoothFollowEnabled = !this.legacy_follow_mode && dataViewUint8(dataView, SMOOTH_FOLLOW_ENABLED) !== 0;
                     let smoothFollowOrigin = dataViewFloatArray(dataView, SMOOTH_FOLLOW_ORIGIN_DATA);
+                    // The shader renders from the smooth-follow origin when follow is
+                    // active, so horizon lock must flatten it too (same packed layout).
+                    if (this.horizon_lock) applyHorizonLock(smoothFollowOrigin);
                     const imuResetState = enabled && validData && poseOrientation[0] === 0.0 && poseOrientation[1] === 0.0 && poseOrientation[2] === 0.0 && poseOrientation[3] === 1.0;
                     const customBannerEnabled = dataViewUint8(dataView, CUSTOM_BANNER_ENABLED) !== 0;
                     const sbsEnabled = dataViewUint8(dataView, SBS_ENABLED) !== 0;
@@ -281,6 +318,7 @@ export const DeviceDataStream = GObject.registerClass({
                                     dataView = new DataView(buffer);
                                     imuDateMs = dataViewBigUint(dataView, EPOCH_MS);
                                     poseOrientation = dataViewFloatArray(dataView, POSE_ORIENTATION);
+                                    if (this.horizon_lock) applyHorizonLock(poseOrientation);
                                     posePosition = dataViewFloatArray(dataView, POSE_POSITION);
                                 }
                             }
