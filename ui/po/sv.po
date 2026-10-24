@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Breezy Desktop\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-03 12:40-0800\n"
-"PO-Revision-Date: 2024-08-16 10:31-0700\n"
+"PO-Revision-Date: 2026-10-24 17:07+0300\n"
 "Last-Translator:  <wayne@xronlinux.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -22,57 +22,58 @@ msgid ""
 "Switches your glasses into side-by-side mode and doubles the width of the "
 "display."
 msgstr ""
-"Växlar dina glasögon till side-by-side-läget och dubblerar bredden på "
-"visningen."
+"Växlar glasögonen till läget sida vid sida och fördubblar skärmens "
+"bredd."
 
 #: src/connecteddevice.py:30
 msgid "This feature is not currently supported for your device."
 msgstr "Din enhet stöder inte den här funktionen för tillfället."
 
-#: src/connecteddevice.py:160
-#, fuzzy
+#: src/connecteddevice.py:173
 msgid "Set Focused Display Distance"
-msgstr "Avstånd till skärmen"
+msgstr "Ange avstånd till skärmen du tittar på"
 
-#: src/connecteddevice.py:161
+#: src/connecteddevice.py:174
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
+"Välj ett kortare avstånd så att skärmen zoomas in när du tittar på "
+"den."
 
-#: src/connecteddevice.py:168
-#, fuzzy
+#: src/connecteddevice.py:181
 msgid "Set All Displays Distance"
-msgstr "Avstånd till skärmen"
+msgstr "Ange avstånd till alla skärmar"
 
-#: src/connecteddevice.py:169
+#: src/connecteddevice.py:182
 msgid "Use a farther value so the displays are zoomed out when you look away."
-msgstr ""
+msgstr "Välj ett större avstånd så att skärmarna zoomas ut när du tittar bort."
 
-#: src/connecteddevice.py:309
+#: src/connecteddevice.py:338
 msgid ""
 "Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
 "and the pipewire GStreamer plugin are required."
 msgstr ""
+"Det går inte att lägga till virtuella skärmar på den här datorn. "
+"Wayland, xdg-desktop-portal och GStreamer-insticksmodulen pipewire "
+"krävs."
 
-#: src/connecteddevice.py:343
-#, fuzzy
+#: src/connecteddevice.py:372
 msgid "Focused display"
-msgstr "Avstånd till skärmen"
+msgstr "Skärmen du tittar på"
 
-#: src/connecteddevice.py:349
-#, fuzzy
+#: src/connecteddevice.py:378
 msgid "All displays"
-msgstr "Böjd skärm"
+msgstr "Alla skärmar"
 
-#: src/licensedialogcontent.py:63
+#: src/licensedialogcontent.py:67
 msgid "Paid Tier Status"
-msgstr "Betalningsstatus"
+msgstr "Status för betalnivåer"
 
-#: src/licensedialogcontent.py:71
+#: src/licensedialogcontent.py:77
 msgid "Feature Availability"
-msgstr "Funktions tillgänglighet"
+msgstr "Funktionernas tillgänglighet"
 
-#: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
-#: src/gtk/connected-device.ui:786
+#: src/gtk/connected-device.ui:786 src/licensefeaturerow.py:15
+#: src/shortcutdialog.py:104
 msgid "Disabled"
 msgstr "Inaktiverad"
 
@@ -91,11 +92,11 @@ msgstr " ({time_remaining} kvar)"
 
 #: src/licensefeaturerow.py:30 src/licensetierrow.py:56
 msgid "Productivity Basic"
-msgstr ""
+msgstr "Productivity Basic"
 
 #: src/licensefeaturerow.py:31 src/licensetierrow.py:57
 msgid "Productivity Pro"
-msgstr ""
+msgstr "Productivity Pro"
 
 #: src/licensetierrow.py:24
 msgid "Active"
@@ -112,23 +113,23 @@ msgstr "<b>${amount}</b> USD"
 
 #: src/licensetierrow.py:43
 msgid " to renew"
-msgstr " att förnya"
+msgstr " för förnyelse"
 
 #: src/licensetierrow.py:45
 msgid " to upgrade"
-msgstr " att uppgradera"
+msgstr " för uppgradering"
 
 #: src/licensetierrow.py:47
 msgid "Paid through next renewal period"
-msgstr "Betald genom nästa förnyelseperiod"
+msgstr "Betalt till och med nästa förnyelseperiod"
 
 #: src/licensetierrow.py:63
 msgid " - renewing monthly"
-msgstr " - förnyar månadsvis"
+msgstr " - förnyas månadsvis"
 
 #: src/licensetierrow.py:64
 msgid " - renewing yearly"
-msgstr " - förnyar årligen"
+msgstr " - förnyas årligen"
 
 #: src/licensetierrow.py:65
 msgid "with lifetime access"
@@ -186,11 +187,11 @@ msgstr "XR-effekt"
 
 #: src/gtk/connected-device.ui:46
 msgid "Enables the Breezy Desktop XR effect."
-msgstr "Aktiverar Breezy Desktop XR-effekten."
+msgstr "Aktiverar XR-effekten i Breezy Desktop."
 
 #: src/gtk/connected-device.ui:56
 msgid "Zoom on focus"
-msgstr ""
+msgstr "Zooma när du tittar på skärmen"
 
 #: src/gtk/connected-device.ui:57
 msgid ""
@@ -199,15 +200,18 @@ msgid ""
 "section.\n"
 "                        "
 msgstr ""
+"Flytta automatiskt en skärm närmare när du tittar på den.\n"
+"Under Justeringar anger du önskade avstånd när du tittar på en skärm "
+"respektive tittar bort.\n"
+"                        "
 
 #: src/gtk/connected-device.ui:70
 msgid "Follow mode"
 msgstr "Följningsläge"
 
 #: src/gtk/connected-device.ui:71
-#, fuzzy
 msgid "Keep the focused display near the center of your view."
-msgstr "Håll den virtuella skärmen nära mitten av din syn."
+msgstr "Håll skärmen du tittar på nära mitten av ditt synfält."
 
 #: src/gtk/connected-device.ui:81
 msgid "Curved display"
@@ -215,55 +219,52 @@ msgstr "Böjd skärm"
 
 #: src/gtk/connected-device.ui:82
 msgid "Switch between flat and curved displays."
-msgstr "Växla mellan platt eller böjd skärm."
+msgstr "Växla mellan platta och böjda skärmar."
 
 #: src/gtk/connected-device.ui:93 src/gtk/no-device.ui:36
 msgid "Disable physical displays"
-msgstr ""
+msgstr "Inaktivera fysiska skärmar"
 
 #: src/gtk/connected-device.ui:94 src/gtk/no-device.ui:37
 msgid ""
 "Automatically disable all physical displays when the XR effect is enabled."
-msgstr ""
+msgstr "Inaktivera automatiskt alla fysiska skärmar när XR-effekten aktiveras."
 
 #: src/gtk/connected-device.ui:104
-#, fuzzy
 msgid "Virtual displays"
-msgstr "Böjd skärm"
+msgstr "Virtuella skärmar"
 
 #: src/gtk/connected-device.ui:120
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: src/gtk/connected-device.ui:121
 msgid "1440p"
-msgstr ""
+msgstr "1440p"
 
 #: src/gtk/connected-device.ui:122
 msgid "Add custom"
-msgstr ""
+msgstr "Lägg till anpassad upplösning"
 
 #: src/gtk/connected-device.ui:136
 msgid "Remove custom resolution"
-msgstr ""
+msgstr "Ta bort anpassad upplösning"
 
 #: src/gtk/connected-device.ui:156
-#, fuzzy
 msgid "Rearrange displays"
-msgstr "Böjd skärm"
+msgstr "Ordna om skärmarna"
 
 #: src/gtk/connected-device.ui:174
 msgid "Adjustments"
 msgstr "Justeringar"
 
 #: src/gtk/connected-device.ui:178
-#, fuzzy
 msgid "Display distances"
-msgstr "Avstånd till skärmen"
+msgstr "Avstånd till skärmarna"
 
 #: src/gtk/connected-device.ui:179
 msgid "Set how close you want displays to appear."
-msgstr ""
+msgstr "Ange hur nära skärmarna ska visas."
 
 #: src/gtk/connected-device.ui:200 src/gtk/connected-device.ui:221
 #: src/gtk/connected-device.ui:443 src/gtk/connected-device.ui:472
@@ -274,144 +275,140 @@ msgstr "Ändra"
 
 #: src/gtk/connected-device.ui:234
 msgid "Display size"
-msgstr ""
+msgstr "Skärmstorlek"
 
 #: src/gtk/connected-device.ui:235
 msgid "Set how large you want the display to appear."
-msgstr ""
+msgstr "Ange hur stor skärmen ska se ut."
 
 #: src/gtk/connected-device.ui:254
 msgid "full"
-msgstr ""
+msgstr "full storlek"
 
 #: src/gtk/connected-device.ui:264
 msgid "Follow threshold"
-msgstr "Automatisk följtröskel"
+msgstr "Tröskel för följning"
 
 #: src/gtk/connected-device.ui:265
 msgid "How far away you can look before the display follows."
-msgstr "Huvudrörelsetröskel för automatisk efterföljning."
+msgstr "Hur långt bort från skärmen du kan titta innan den följer med."
 
 #: src/gtk/connected-device.ui:288
-#, fuzzy
 msgid "Display angling"
-msgstr "Skärmens storlek"
+msgstr "Skärmarnas vinkling"
 
 #: src/gtk/connected-device.ui:289
 msgid ""
 "When there are multiple displays, choose how they should angle towards you."
-msgstr ""
+msgstr "Välj hur skärmarna ska vinklas mot dig när det finns flera."
 
 #: src/gtk/connected-device.ui:303
 msgid "Automatic"
-msgstr ""
+msgstr "Automatisk"
 
 #: src/gtk/connected-device.ui:304
 msgid "Side-angled"
-msgstr ""
+msgstr "Vinklade i sidled"
 
 #: src/gtk/connected-device.ui:305
 msgid "Top-angled"
-msgstr ""
+msgstr "Vinklade i höjdled"
 
 #: src/gtk/connected-device.ui:306
 msgid "Flat"
-msgstr ""
+msgstr "I samma plan"
 
 #: src/gtk/connected-device.ui:316
-#, fuzzy
 msgid "Display spacing"
-msgstr "Skärmens storlek"
+msgstr "Mellanrum mellan skärmar"
 
 #: src/gtk/connected-device.ui:317
 msgid "Put empty space between displays, when there are multiple."
-msgstr ""
+msgstr "Lägg till tomt utrymme mellan skärmarna när det finns flera."
 
 #: src/gtk/connected-device.ui:347
 msgid "Viewport horizontal offset"
-msgstr ""
+msgstr "Horisontell förskjutning av visningsområdet"
 
 #: src/gtk/connected-device.ui:348
 msgid "Move the viewport to the left or right of its default position."
-msgstr ""
+msgstr "Flytta visningsområdet åt vänster eller höger från standardläget."
 
 #: src/gtk/connected-device.ui:365
 msgid "left"
-msgstr ""
+msgstr "vänster"
 
 #: src/gtk/connected-device.ui:367 src/gtk/connected-device.ui:397
 msgid "center"
-msgstr ""
+msgstr "mitten"
 
 #: src/gtk/connected-device.ui:369
 msgid "right"
-msgstr ""
+msgstr "höger"
 
 #: src/gtk/connected-device.ui:377
 msgid "Viewport vertical offset"
-msgstr ""
+msgstr "Vertikal förskjutning av visningsområdet"
 
 #: src/gtk/connected-device.ui:378
 msgid "Move the viewport up or down from its default position."
-msgstr ""
+msgstr "Flytta visningsområdet uppåt eller nedåt från standardläget."
 
 #: src/gtk/connected-device.ui:395
 msgid "down"
-msgstr ""
+msgstr "nedåt"
 
 #: src/gtk/connected-device.ui:399
 msgid "up"
-msgstr ""
+msgstr "uppåt"
 
 #: src/gtk/connected-device.ui:414 src/gtk/connected-device.ui:420
 msgid "Keyboard Shortcuts"
-msgstr "Tangentbordsgenvägar"
+msgstr "Kortkommandon"
 
 #: src/gtk/connected-device.ui:423
 msgid "XR Effect on/off shortcut"
-msgstr "XR-Effekt genväg på/av"
+msgstr "Kortkommando för att slå på eller av XR-effekten"
 
 #: src/gtk/connected-device.ui:424
 msgid ""
 "Quickly enable or disable the XR Effect. You may need to enable the effect "
 "manually once in order to enable the shortcut."
 msgstr ""
-"Skifta snabbt mellan att slå av eller på XR-Effekt. Du kan behöva slå på den "
-"manuellt en gång för att genvägen ska fungera."
+"Slå snabbt på eller av XR-effekten. Du kan behöva aktivera effekten "
+"manuellt en gång för att kortkommandot ska fungera."
 
 #: src/gtk/connected-device.ui:452
 msgid "Re-center display shortcut"
-msgstr "Om-centrering tangentbordsgenväg"
+msgstr "Kortkommando för att centrera skärmen igen"
 
 #: src/gtk/connected-device.ui:453
 msgid "Pin the virtual display to the current position."
 msgstr "Fäst den virtuella skärmen i den nuvarande positionen."
 
 #: src/gtk/connected-device.ui:481
-#, fuzzy
 msgid "Toggle zoom on focus shortcut"
-msgstr "Växla följ läge kort"
+msgstr "Kortkommando för zoomning när du tittar på skärmen"
 
 #: src/gtk/connected-device.ui:482
-#, fuzzy
 msgid "Quickly toggle zoom on focus mode."
-msgstr "Växla snabbt följ läge."
+msgstr "Slå snabbt på eller av zoomning när du tittar på skärmen."
 
 #: src/gtk/connected-device.ui:510
 msgid "Toggle follow mode shortcut"
-msgstr "Växla följ läge kort"
+msgstr "Kortkommando för att växla följningsläge"
 
 #: src/gtk/connected-device.ui:511
 msgid "Quickly toggle follow mode."
-msgstr "Växla snabbt följ läge."
+msgstr "Slå snabbt på eller av följningsläget."
 
 #: src/gtk/connected-device.ui:539
 msgid "Summon mouse cursor shortcut"
-msgstr ""
+msgstr "Kortkommando för att hämta muspekaren"
 
 #: src/gtk/connected-device.ui:540
 msgid "Bring the mouse cursor to the center of the focused display."
-msgstr ""
+msgstr "Flytta muspekaren till mitten av skärmen du tittar på."
 
 #: src/gtk/connected-device.ui:575 src/gtk/connected-device.ui:585
 msgid "Advanced Settings"
@@ -419,31 +416,31 @@ msgstr "Avancerade inställningar"
 
 #: src/gtk/connected-device.ui:589
 msgid "Units"
-msgstr ""
+msgstr "Måttenheter"
 
 #: src/gtk/connected-device.ui:590
 msgid "Choose measurement units for size and distance displays."
-msgstr ""
+msgstr "Välj måttenheter för visning av storlek och avstånd."
 
 #: src/gtk/connected-device.ui:605
 msgid "Centimeters"
-msgstr ""
+msgstr "Centimeter"
 
 #: src/gtk/connected-device.ui:606
 msgid "Inches"
-msgstr ""
+msgstr "Tum"
 
 #: src/gtk/connected-device.ui:618
 msgid "Find optimal display config"
-msgstr "Hitta optimal konfiguration till skärmen"
+msgstr "Hitta optimal skärmkonfiguration"
 
 #: src/gtk/connected-device.ui:619
 msgid ""
 "Automatically modify the glasses display configuration for maximum "
 "resolution and best scaling when plugged in."
 msgstr ""
-"Ändrar automatisk glasögonens skärmkonfiguration för maximal upplösning och "
-"bästa skälning när den är ansluten."
+"Ändra glasögonens skärmkonfiguration automatiskt för maximal "
+"upplösning och bästa skalning när de ansluts."
 
 #: src/gtk/connected-device.ui:629
 msgid "Use highest refresh rate"
@@ -452,18 +449,20 @@ msgstr "Använd högsta uppdateringsfrekvens"
 #: src/gtk/connected-device.ui:630
 msgid "Refresh rate may affect performance, disable this to set it manually."
 msgstr ""
-"Uppdateringsfrekvens kan påverka prestanda, inaktivera detta för att ställa "
-"in det manuellt."
+"Uppdateringsfrekvensen kan påverka prestandan. Inaktivera detta för "
+"att ställa in den manuellt."
 
 #: src/gtk/connected-device.ui:640
 msgid "Center on glasses' display"
-msgstr ""
+msgstr "Centrera på glasögonens skärm"
 
 #: src/gtk/connected-device.ui:641
 msgid ""
 "Center the viewport on the glasses' display, even if the display is not in "
 "the middle."
 msgstr ""
+"Centrera visningsområdet på glasögonens skärm, även om skärmen inte "
+"är i mitten."
 
 #: src/gtk/connected-device.ui:651
 msgid "Always primary display"
@@ -471,146 +470,148 @@ msgstr "Alltid primär skärm"
 
 #: src/gtk/connected-device.ui:652
 msgid "Automatically set the glasses as the primary display when plugged in."
-msgstr "Ställer automatisk glasögon som primär skärm när den är ansluten."
+msgstr "Ställ automatiskt in glasögonen som primär skärm när de ansluts."
 
 #: src/gtk/connected-device.ui:662
-#, fuzzy
 msgid "Remove virtual displays on disable"
-msgstr "Böjd skärm"
+msgstr "Ta bort virtuella skärmar vid inaktivering"
 
 #: src/gtk/connected-device.ui:663
 msgid "Automatically remove virtual displays when the XR effect is disabled."
-msgstr ""
+msgstr "Ta automatiskt bort virtuella skärmar när XR-effekten inaktiveras."
 
 #: src/gtk/connected-device.ui:673
 msgid "Enable multi-tap detection"
-msgstr ""
+msgstr "Aktivera detektering av flera knackningar"
 
 #: src/gtk/connected-device.ui:674
 msgid "Enables double-tap to recenter and triple-tap to recalibrate."
 msgstr ""
+"Aktiverar två knackningar för att centrera igen och tre knackningar "
+"för att kalibrera om."
 
 #: src/gtk/connected-device.ui:684
-#, fuzzy
 msgid "All displays follow mode"
-msgstr "Böjd skärm"
+msgstr "Följningsläge för alla skärmar"
 
 #: src/gtk/connected-device.ui:685
 msgid "Follow mode moves all displays, not just the focused one."
-msgstr ""
+msgstr "Följningsläget flyttar alla skärmar, inte bara skärmen du tittar på."
 
 #: src/gtk/connected-device.ui:701
 msgid "Neck-saver horizontal multiplier"
-msgstr ""
+msgstr "Horisontell förstärkning för nackavlastning"
 
 #: src/gtk/connected-device.ui:702
 msgid "Higher values require smaller horizontal head movements."
-msgstr ""
+msgstr "Högre värden kräver mindre horisontella huvudrörelser."
 
 #: src/gtk/connected-device.ui:734
 msgid "Neck-saver vertical multiplier"
-msgstr ""
+msgstr "Vertikal förstärkning för nackavlastning"
 
 #: src/gtk/connected-device.ui:735
 msgid "Higher values require smaller vertical head movements."
-msgstr ""
+msgstr "Högre värden kräver mindre vertikala huvudrörelser."
 
 #: src/gtk/connected-device.ui:767
 msgid "Dead-zone threshold (degrees)"
-msgstr ""
+msgstr "Tröskel för dödzon (grader)"
 
 #: src/gtk/connected-device.ui:768
 msgid "Stabilize movements below this angle."
-msgstr ""
+msgstr "Stabilisera rörelser som är mindre än denna vinkel."
 
 #: src/gtk/connected-device.ui:799
 msgid "Follow mode movement tracking"
-msgstr ""
+msgstr "Rörelsespårning i följningsläge"
 
 #: src/gtk/connected-device.ui:800
 msgid "Choose which movements should be tracked in follow mode."
-msgstr ""
+msgstr "Välj vilka rörelser som ska spåras i följningsläget."
 
 #: src/gtk/connected-device.ui:815
 msgid "Horizontal"
-msgstr ""
+msgstr "Horisontell"
 
 #: src/gtk/connected-device.ui:835
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikal"
 
 #: src/gtk/connected-device.ui:855
 msgid "Tilt/roll"
-msgstr ""
+msgstr "Sidolutning (roll)"
 
-#: src/gtk/connected-device.ui:873
+#: src/gtk/connected-device.ui:999
 msgid "Movement look-ahead"
-msgstr "Rörs förväntning"
+msgstr "Rörelseprediktion"
 
-#: src/gtk/connected-device.ui:874
+#: src/gtk/connected-device.ui:1000
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
-"Motverkar ingångsfördröjning genom förutsägelse av huvudrörelser.Behåll "
-"standardinställningen om inte skärmen skakar mycket eller rörsig konstigt."
+"Motverkar inmatningsfördröjning genom att förutsäga huvudets "
+"position inför renderingen. Behåll standardinställningen om inte den "
+"virtuella skärmen släpar efter dina huvudrörelser, hoppar i förväg "
+"eller skakar mycket."
 
-#: src/gtk/connected-device.ui:892
+#: src/gtk/connected-device.ui:1018
 msgid "Default"
 msgstr "Standard"
 
-#: src/gtk/connected-device.ui:904
+#: src/gtk/connected-device.ui:1030
 msgid "Text Scaling"
 msgstr "Textskalning"
 
-#: src/gtk/connected-device.ui:905
+#: src/gtk/connected-device.ui:1031
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
-msgstr "Textskalning under 1.0 kommer att simulera en högre skärmupplösning"
+msgstr "Textskalning under 1,0 simulerar en skärm med högre upplösning"
 
 #: src/gtk/custom-resolution-dialog-content.ui:9
 msgid "Width"
-msgstr ""
+msgstr "Bredd"
 
 #: src/gtk/custom-resolution-dialog-content.ui:42
 msgid "Height"
-msgstr ""
+msgstr "Höjd"
 
 #: src/gtk/custom-resolution-dialog.ui:5
 msgid "Add a Custom Resolution"
-msgstr ""
+msgstr "Lägg till en anpassad upplösning"
 
 #: src/gtk/custom-resolution-dialog.ui:10
 msgid "Add"
-msgstr ""
+msgstr "Lägg till"
 
 #: src/gtk/display-distance-dialog-content.ui:35
 msgid "closer"
-msgstr ""
+msgstr "närmare"
 
 #: src/gtk/display-distance-dialog-content.ui:36
 msgid "default"
-msgstr ""
+msgstr "standard"
 
 #: src/gtk/display-distance-dialog-content.ui:37
 msgid "farther"
-msgstr ""
+msgstr "längre bort"
 
 #: src/gtk/display-distance-dialog.ui:9
 msgid "Done"
-msgstr ""
+msgstr "Klart"
 
 #: src/gtk/failed-verification.ui:15
 msgid "Breezy Desktop GNOME invalid setup"
-msgstr "Breezy Desktop GNOME ogiltig inställning"
+msgstr "Ogiltig installation av Breezy Desktop för GNOME"
 
 #: src/gtk/failed-verification.ui:16
 msgid ""
 "Your Breezy GNOME setup is invalid or incomplete. Please re-run the setup "
 "script. Report this issue if it persists."
 msgstr ""
-"Din Breezy GNOME inställning är ogiltig eller ofullständig. Var god kör "
-"inställning skriptet igen. Rapportera detta problem om det fortsätter."
+"Din installation av Breezy GNOME är felaktig eller ofullständig. Kör "
+"installationsskriptet igen. Rapportera problemet om det kvarstår."
 
 #: src/gtk/license-dialog-content.ui:15
 msgid "Donate"
@@ -630,27 +631,27 @@ msgstr "Licensdetaljer"
 
 #: src/gtk/no-device.ui:15
 msgid "No device connected"
-msgstr "Inget enhet ansluten"
+msgstr "Ingen enhet ansluten"
 
 #: src/gtk/no-device.ui:16
 msgid "Breezy Desktop was unable to detect any supported XR devices."
-msgstr "Breezy Desktop kunde inte upptäcka enheter som stöder XR."
+msgstr "Breezy Desktop kunde inte upptäcka några XR-enheter som stöds."
 
 #: src/gtk/no-device.ui:25
 msgid "Auto-enable XR effect"
-msgstr "Autoaktivering av XR-effekt"
+msgstr "Aktivera XR-effekten automatiskt"
 
 #: src/gtk/no-device.ui:26
 msgid ""
 "Automatically enable the Breezy Desktop XR effect when supported glasses are "
 "connected."
 msgstr ""
-"Aktivera Breezy Desktop XR-effekten automatiskt när glasögon som stöds är "
-"anslutna."
+"Aktivera automatiskt XR-effekten i Breezy Desktop när glasögon som "
+"stöds ansluts."
 
 #: src/gtk/no-driver.ui:15
 msgid "No driver running"
-msgstr "Inget drivrutin köres"
+msgstr "Ingen drivrutin körs"
 
 #: src/gtk/no-driver.ui:16
 msgid ""
@@ -664,30 +665,30 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Om du har installerat via AUR, kontrollerar du att du körde den "
-"rekommenderade post-install kommandot:\n"
+"          Om du installerade via AUR ska du kontrollera att du körde "
+"det rekommenderade kommandot efter installationen:\n"
 "          systemctl --user enable --now xr-driver.service\n"
 "\n"
-"          Annars, var god att filer ett problem på GitHub, eller skapa en ny "
-"tråd i #troubleshooting kanal på Discord.\n"
+"          Skapa annars en felrapport på GitHub eller en ny tråd i "
+"kanalen #troubleshooting på Discord.\n"
 "        "
 
 #: src/gtk/no-extension.ui:15
 msgid "Breezy Desktop GNOME extension not ready"
-msgstr "Breezy Desktop GNOME tillägg inte redo"
+msgstr "Breezy Desktops GNOME-tillägg är inte redo"
 
 #: src/gtk/no-extension.ui:16
 msgid ""
 "If you have just run the setup, then you may need to log out and back in to "
 "use it. Otherwise, please follow the Breezy GNOME setup instructions."
 msgstr ""
-"Om du har kört inställning, kanske du behöver logga ut och in igen för att "
-"använda den. Annars, var god att följa Breezy GNOME inställning "
-"instruktioner."
+"Om du nyss har utfört installationen kan du behöva logga ut och in "
+"igen för att använda tillägget. Följ annars "
+"installationsanvisningarna för Breezy GNOME."
 
 #: src/gtk/no-license.ui:15
 msgid "No license file was found"
-msgstr "Inget licens fil hittades"
+msgstr "Ingen licensfil hittades"
 
 #: src/gtk/no-license.ui:16
 msgid ""
@@ -705,16 +706,17 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          Den första gången du använder Breezy Desktop, krävs en internet "
-"anslutning för att hämta din enhets licens.\n"
+"          Första gången du använder Breezy Desktop krävs en "
+"internetanslutning för att hämta enhetens licens.\n"
 "          \n"
-"          Var inte bekymrad, det finns ingen förpliktelse att donera just "
-"nu. Om du inte har, kommer du att få en försöks licens så du kan bestämma om "
-"Breezy Desktop passar dina behov. \n"
+"          Du behöver inte donera nu. Om du inte har donerat får du "
+"en provlicens så att du kan avgöra om Breezy Desktop passar dina "
+"behov. \n"
 "          \n"
-"          En gång du har fått en licens, försöks eller annat, kan du använda "
-"Breezy Desktop offline tills funktioner upphör (eller oändligt, om du har "
-"valt livstidsåtkomst).\n"
+"          När du har fått en licens, oavsett om det är en provlicens "
+"eller en annan licens, kan du använda Breezy Desktop utan "
+"internetanslutning tills tillgången till funktionerna upphör (eller "
+"utan tidsgräns om du har valt livstidsåtkomst).\n"
 "        "
 
 #: src/gtk/no-license.ui:29
@@ -723,11 +725,13 @@ msgstr "Försök igen"
 
 #: src/gtk/shortcut-dialog.ui:5
 msgid "Assign Keyboard Shortcut"
-msgstr "Tilldela tangentbordsgenvägar"
+msgstr "Tilldela kortkommando"
 
 #: src/gtk/shortcut-dialog.ui:20
 msgid "Press your keyboard shortcut or 'Backspace' to disable..."
-msgstr "Tryck din tangentbordsgenväg eller 'Backspace' för att inaktivera..."
+msgstr ""
+"Tryck på tangenterna för kortkommandot eller på 'Backsteg' för att "
+"inaktivera…"
 
 #: src/gtk/window.ui:10
 msgid "Breezy Desktop"
@@ -739,33 +743,79 @@ msgstr "Meny"
 
 #: src/gtk/window.ui:43
 msgid "Some features expire soon"
-msgstr "Vissa funktioner upphör snart"
+msgstr "Tillgången till vissa funktioner upphör snart"
 
 #: src/gtk/window.ui:51 src/gtk/window.ui:76 src/gtk/window.ui:102
 msgid "View details"
-msgstr "Se detaljer"
+msgstr "Visa detaljer"
 
 #: src/gtk/window.ui:68
 msgid "Productivity features are disabled"
-msgstr "Produktivitets funktioner är inaktiverade"
+msgstr "Produktivitetsfunktioner är inaktiverade"
 
 #: src/gtk/window.ui:93
 msgid ""
 "Productivity Pro license is inactive — 6DoF features will be unavailable"
 msgstr ""
+"Licensen för Productivity Pro är inaktiv — 6DoF-funktioner kommer "
+"inte att vara tillgängliga"
 
 #: src/gtk/window.ui:119
 msgid ""
 "A newer version is available. To update, rerun the breezy_gnome_setup script."
 msgstr ""
+"En nyare version är tillgänglig. Kör skriptet breezy_gnome_setup "
+"igen för att uppdatera."
 
 #: src/gtk/window.ui:143
 msgid "Force Reset"
-msgstr "Tvinga Reset"
+msgstr "Tvinga återställning av drivrutinen"
 
 #: src/gtk/window.ui:147
 msgid "About BreezyDesktop"
 msgstr "Om BreezyDesktop"
+
+#: src/gtk/connected-device.ui:873
+msgid "IMU adjustments"
+msgstr "IMU-justeringar"
+
+#: src/gtk/connected-device.ui:878
+msgid "Invert IMU axes"
+msgstr "Invertera IMU-axlar"
+
+#: src/gtk/connected-device.ui:879
+msgid "Use only if the headset moves in the wrong direction."
+msgstr "Använd endast om headsetets rörelser återges åt fel håll."
+
+#: src/gtk/connected-device.ui:892
+msgid "X-axis"
+msgstr "X-axel"
+
+#: src/gtk/connected-device.ui:912
+msgid "Y-axis"
+msgstr "Y-axel"
+
+#: src/gtk/connected-device.ui:932
+msgid "Z-axis"
+msgstr "Z-axel"
+
+#: src/gtk/connected-device.ui:950
+msgid "Enable manual IMU pitch adjustment"
+msgstr "Aktivera manuell justering av IMU-enhetens lutning framåt/bakåt"
+
+#: src/gtk/connected-device.ui:951
+msgid "Use only to correct unexpected roll."
+msgstr "Använd endast för att korrigera oväntad sidolutning."
+
+#: src/gtk/connected-device.ui:961
+msgid "IMU pitch adjustment (degrees)"
+msgstr "IMU-enhetens lutning framåt/bakåt (grader)"
+
+#: src/gtk/connected-device.ui:962
+msgid "Adjust the IMU pitch to correct unexpected roll."
+msgstr ""
+"Justera IMU-enhetens lutning framåt/bakåt för att korrigera oväntad "
+"sidolutning."
 
 #~ msgid "Side-by-side mode (gaming)"
 #~ msgstr "Side-by-side läge (spel)"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 12:40-0800\n"
+"POT-Creation-Date: 2026-10-24 17:07+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,46 +27,46 @@ msgstr ""
 msgid "This feature is not currently supported for your device."
 msgstr ""
 
-#: src/connecteddevice.py:160
+#: src/connecteddevice.py:173
 msgid "Set Focused Display Distance"
 msgstr ""
 
-#: src/connecteddevice.py:161
+#: src/connecteddevice.py:174
 msgid "Use a closer value so the display zooms in when you look at it."
 msgstr ""
 
-#: src/connecteddevice.py:168
+#: src/connecteddevice.py:181
 msgid "Set All Displays Distance"
 msgstr ""
 
-#: src/connecteddevice.py:169
+#: src/connecteddevice.py:182
 msgid "Use a farther value so the displays are zoomed out when you look away."
 msgstr ""
 
-#: src/connecteddevice.py:309
+#: src/connecteddevice.py:338
 msgid ""
 "Unable to add virtual displays on this machine. Wayland, xdg-desktop-portal, "
 "and the pipewire GStreamer plugin are required."
 msgstr ""
 
-#: src/connecteddevice.py:343
+#: src/connecteddevice.py:372
 msgid "Focused display"
 msgstr ""
 
-#: src/connecteddevice.py:349
+#: src/connecteddevice.py:378
 msgid "All displays"
 msgstr ""
 
-#: src/licensedialogcontent.py:63
+#: src/licensedialogcontent.py:67
 msgid "Paid Tier Status"
 msgstr ""
 
-#: src/licensedialogcontent.py:71
+#: src/licensedialogcontent.py:77
 msgid "Feature Availability"
 msgstr ""
 
-#: src/licensefeaturerow.py:15 src/shortcutdialog.py:104
-#: src/gtk/connected-device.ui:786
+#: src/gtk/connected-device.ui:786 src/licensefeaturerow.py:15
+#: src/shortcutdialog.py:104
 msgid "Disabled"
 msgstr ""
 
@@ -522,25 +522,65 @@ msgid "Tilt/roll"
 msgstr ""
 
 #: src/gtk/connected-device.ui:873
+msgid "IMU adjustments"
+msgstr ""
+
+#: src/gtk/connected-device.ui:878
+msgid "Invert IMU axes"
+msgstr ""
+
+#: src/gtk/connected-device.ui:879
+msgid "Use only if the headset moves in the wrong direction."
+msgstr ""
+
+#: src/gtk/connected-device.ui:892
+msgid "X-axis"
+msgstr ""
+
+#: src/gtk/connected-device.ui:912
+msgid "Y-axis"
+msgstr ""
+
+#: src/gtk/connected-device.ui:932
+msgid "Z-axis"
+msgstr ""
+
+#: src/gtk/connected-device.ui:950
+msgid "Enable manual IMU pitch adjustment"
+msgstr ""
+
+#: src/gtk/connected-device.ui:951
+msgid "Use only to correct unexpected roll."
+msgstr ""
+
+#: src/gtk/connected-device.ui:961
+msgid "IMU pitch adjustment (degrees)"
+msgstr ""
+
+#: src/gtk/connected-device.ui:962
+msgid "Adjust the IMU pitch to correct unexpected roll."
+msgstr ""
+
+#: src/gtk/connected-device.ui:999
 msgid "Movement look-ahead"
 msgstr ""
 
-#: src/gtk/connected-device.ui:874
+#: src/gtk/connected-device.ui:1000
 msgid ""
 "Counteracts input lag by predicting head-tracking position ahead of render "
 "time. Stick with default unless virtual display drags behind your head "
 "movements, jumps ahead, or is very shaky."
 msgstr ""
 
-#: src/gtk/connected-device.ui:892
+#: src/gtk/connected-device.ui:1018
 msgid "Default"
 msgstr ""
 
-#: src/gtk/connected-device.ui:904
+#: src/gtk/connected-device.ui:1030
 msgid "Text Scaling"
 msgstr ""
 
-#: src/gtk/connected-device.ui:905
+#: src/gtk/connected-device.ui:1031
 msgid "Scaling text below 1.0 will simulate a higher resolution display"
 msgstr ""
 
