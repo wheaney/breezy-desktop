@@ -48,11 +48,11 @@ fi
 
 [ "$for_install" -eq 0 ] && echo "Removing vkBasalt binaries from $LIB_DIR[32]/"
 rm $LIB_DIR/libvkbasalt.so
-rm $LIB32_DIR/libvkbasalt.so
+rm -f $LIB32_DIR/libvkbasalt.so
 
 [ "$for_install" -eq 0 ] && echo "Removing vkBasalt vulkan layer configs from $VULKAN_DATA_DIR/implicit_layer.d/"
 rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
-rm $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
+rm -f $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
 
 [ "$for_install" -eq 0 ] && echo "Removing vkBasalt and reshade directories at $CONFIG_DIR/"
 rm -rf $XDG_CONFIG_HOME/vkBasalt

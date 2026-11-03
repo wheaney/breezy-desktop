@@ -105,15 +105,24 @@ mkdir -p "$XDG_CONFIG_HOME"/{vkBasalt,reshade/Shaders,reshade/Textures}
 mkdir -p "$LIB_DIR"
 mkdir -p "$LIB32_DIR"
 cp vkBasalt.64/libvkbasalt.so $LIB_DIR/
-cp vkBasalt.32/libvkbasalt.so $LIB32_DIR/
+# the 32-bit library is only packaged for x86_64
+HAS_32BIT=false
+if [ -d vkBasalt.32 ]; then
+  HAS_32BIT=true
+  cp vkBasalt.32/libvkbasalt.so $LIB32_DIR/
+fi
 
 # there is only one vkBasalt.json file, use the 64-bit directory for both, copy and make replacements
 if grep -q SteamOS /etc/os-release ; then
   sed -e "s|libvkbasalt.so|${LIB_DIR}/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
-  sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
+  if $HAS_32BIT; then
+    sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" -e "s/ENABLE_VKBASALT/SteamDeck/" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
+  fi
 else
   sed -e "s|libvkbasalt.so|${LIB_DIR}/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.json
-  sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
+  if $HAS_32BIT; then
+    sed -e "s|libvkbasalt.so|${LIB32_DIR}/libvkbasalt.so|" vkBasalt.64/vkBasalt.json > $VULKAN_DATA_DIR/implicit_layer.d/vkBasalt.x86.json
+  fi
 fi
 
 # copy the vkBasalt.conf file and make replacements
