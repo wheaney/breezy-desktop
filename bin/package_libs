@@ -10,7 +10,12 @@ set -e
 #   - breezyGNOME-libs-$ARCH.tar.gz (x86_64 + aarch64)
 #   - breezyKWin-libs-$ARCH.tar.gz (x86_64 + aarch64)
 
-ARCHITECTURES=("x86_64" "aarch64")
+# Package for the architecture given by $ARCH, or package all architectures if it's unset.
+if [ -n "$ARCH" ]; then
+  ARCHITECTURES=("$ARCH")
+else
+  ARCHITECTURES=("x86_64" "aarch64")
+fi
 APPS=("breezyVulkan" "breezyGNOME" "breezyKWin")
 
 # https://stackoverflow.com/a/246128
@@ -22,10 +27,11 @@ VKBASALT_MODULE_DIR="$VULKAN_DIR/modules/vkBasalt"
 
 echo "Building XR Driver libs packages"
 pushd "$XR_DRIVER_DIR" > /dev/null
-./bin/package_libs
+# the driver's package_libs reads $ARCH; the loop below reassigns it per architecture
+ARCH="${ARCH:-}" ./bin/package_libs
 popd > /dev/null
 
-echo "Building Breezy libs packages for all architectures"
+echo "Building Breezy libs packages for: ${ARCHITECTURES[*]}"
 
 BUILD_PATH="$ROOT_DIR/build"
 mkdir -p "$BUILD_PATH"
@@ -47,7 +53,7 @@ for APP in "${APPS[@]}"; do
       VKBASALT_BUILD_DIR="$VKBASALT_MODULE_DIR/out/$ARCH"
       if [ ! -d "$VKBASALT_BUILD_DIR" ] || [ "${1:-}" == "--rebuild-vkbasalt" ]; then
         pushd "$VKBASALT_MODULE_DIR" > /dev/null
-        ./docker-build
+        ./docker-build "$ARCH"
         popd > /dev/null
       fi
 
