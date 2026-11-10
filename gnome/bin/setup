@@ -155,7 +155,14 @@ mkdir -p "$BREEZY_GNOME_DATA_DIR"
 cp manifest "$BREEZY_GNOME_DATA_DIR/manifest"
 
 echo "Installing the breezydesktop@xronlinux.com GNOME extension"
-gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
+
+# GNOME moves the extracted directory from its cache to the extensions directory.
+# Keep both on the same filesystem so that the move works.
+# See https://github.com/wheaney/breezy-desktop/issues/86
+mkdir -p "$GNOME_SHELL_DATA_DIR/extensions"
+install_cache=$(mktemp -d "$GNOME_SHELL_DATA_DIR/extensions/.breezy-install-cache.XXXXXXXX")
+trap 'rm -rf -- "$install_cache"' EXIT
+XDG_CACHE_HOME="$install_cache" gnome-extensions install --force breezydesktop@xronlinux.com.shell-extension.zip
 
 echo "Installing the Breezy Desktop UI application"
 cp -r breezy_ui/data/* $XDG_DATA_HOME
