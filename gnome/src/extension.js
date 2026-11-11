@@ -88,6 +88,7 @@ export default class BreezyDesktopExtension extends Extension {
             this.settings.bind('disable-physical-displays', this._monitor_manager, 'disable-physical-displays', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('legacy-follow-mode', Globals.data_stream, 'legacy-follow-mode', Gio.SettingsBindFlags.DEFAULT);
             this.settings.bind('debug-no-device', Globals.data_stream, 'debug-no-device', Gio.SettingsBindFlags.DEFAULT);
+            this.settings.bind('horizon-lock', Globals.data_stream, 'horizon-lock', Gio.SettingsBindFlags.DEFAULT);
 
             this._breezy_desktop_running_connection = Globals.data_stream.connect('notify::breezy-desktop-running', 
                 this._handle_breezy_desktop_running_change.bind(this));
@@ -732,6 +733,7 @@ export default class BreezyDesktopExtension extends Extension {
             Gio.Settings.unbind(this.settings, 'headset-as-primary');
             Gio.Settings.unbind(this.settings, 'disable-physical-displays');
             Gio.Settings.unbind(this.settings, 'debug-no-device');
+            Gio.Settings.unbind(this.settings, 'horizon-lock');
 
             if (this._monitor_manager) {
                 this._monitor_manager.disable();

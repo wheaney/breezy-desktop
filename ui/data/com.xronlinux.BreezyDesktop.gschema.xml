@@ -154,6 +154,15 @@
         Enable curved display mode
       </description>
     </key>
+    <key name="horizon-lock" type="b">
+      <default>
+        false
+      </default>
+      <summary>Horizon lock</summary>
+      <description>
+        Lock the display to the horizon, tracking only horizontal (yaw) head movement and ignoring pitch (vertical) and roll (tilt)
+      </description>
+    </key>
     <key name="look-ahead-override" type="i">
       <default>
         -1
