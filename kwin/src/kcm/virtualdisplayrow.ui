@@ -31,14 +31,14 @@
   <item>
    <widget class="QLabel" name="labelId">
     <property name="text">
-    <string>ID</string>
+    <string notr="true">ID</string>
     </property>
    </widget>
   </item>
   <item>
    <widget class="QLabel" name="labelRes">
     <property name="text">
-    <string>WxH</string>
+    <string notr="true">WxH</string>
     </property>
    </widget>
   </item>
