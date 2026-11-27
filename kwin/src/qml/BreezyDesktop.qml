@@ -1,5 +1,7 @@
 import QtQuick
 import QtQuick3D
+import org.kde.kwin as KWinComponents
+import "DesktopSources.js" as DesktopSources
 
 
 Node {
@@ -41,9 +43,10 @@ Node {
                 breezyDesktop.sizeAdjustedScreens.map(screen => screen.geometry)
             );
 
+            effect.lookingAtScreenIndex = DesktopSources.workspaceIndex(
+                lookingAtIndex, screens, KWinComponents.Workspace.screens);
             if (breezyDesktop.lookingAtMonitorIndex !== lookingAtIndex) {
                 breezyDesktop.lookingAtMonitorIndex = lookingAtIndex;
-                effect.lookingAtScreenIndex = lookingAtIndex;
             }
 
             if (effect.zoomOnFocusEnabled || smoothFollowEnabled) {
@@ -267,6 +270,8 @@ Node {
 
     // release references to displays and stale indexes
     onScreensChanged: {
+        breezyDesktop.lookingAtMonitorIndex = -1;
+        effect.lookingAtScreenIndex = -1;
         breezyDesktop.focusedMonitorIndex = -1;
         zoomOutAnimation.stop();
         zoomInAnimation.stop();

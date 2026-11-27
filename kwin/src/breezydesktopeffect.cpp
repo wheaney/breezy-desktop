@@ -253,6 +253,7 @@ void BreezyDesktopEffect::recenter() {
 
 void BreezyDesktopEffect::setLookingAtScreenIndex(int index)
 {
+    if (m_lookingAtScreenIndex == index) return;
     m_lookingAtScreenIndex = index;
     if (m_smoothFollowEnabled) updateDriverSmoothFollowSettings();
 }
@@ -861,9 +862,10 @@ void BreezyDesktopEffect::setSmoothFollowThreshold(float threshold) {
 void BreezyDesktopEffect::updateDriverSmoothFollowSettings() {
     qreal adjustedDistance = m_focusedDisplayDistance / (m_displaySize * m_allDisplaysDistance);
 
-    if (m_lookingAtScreenIndex != -1 && !m_displayResolution.isEmpty()) {
+    const auto currentScreens = effects->screens();
+    if (m_lookingAtScreenIndex >= 0 && m_lookingAtScreenIndex < currentScreens.size() && !m_displayResolution.isEmpty()) {
         // Adjust display distance by relative monitor size compared to the FOV monitor
-        const ScreenOutput *focusedOutput = effects->screens().at(m_lookingAtScreenIndex);
+        const ScreenOutput *focusedOutput = currentScreens.at(m_lookingAtScreenIndex);
         const QSize focusedSize = focusedOutput ? focusedOutput->geometry().size() : QSize();
 
         if (focusedSize.isValid()) {
